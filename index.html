@@ -226,8 +226,11 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 
 <!-- ── HEADER ─────────────────────────────────── -->
 <header class="header">
-  <!-- Smile Haus logo — inline SVG, no file dependency -->
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 76" height="34" aria-label="Smile Haus">
+  <!-- Logo: PNG if present, SVG fallback -->
+  <img id="logo-png" src="./assets/logo-white.png" alt="Smile Haus" height="32"
+       style="object-fit:contain;display:block"
+       onerror="this.style.display='none';document.getElementById('logo-svg').style.display='block'">
+  <svg id="logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 76" height="34" aria-label="Smile Haus" style="display:none">
     <!-- SMILE -->
     <text x="0" y="58"
       font-family="'Palatino Linotype',Palatino,'Book Antiqua',Georgia,serif"
