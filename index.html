@@ -1046,7 +1046,7 @@ function saveProfile() {
     email:    document.getElementById('p-email').value.trim(),
     resp:     getStaff(editingStaffId).resp || [],
   };
-  save(); renderAll(); closeModal('profile-modal');
+  save(); renderAll(); renderRosterTab(); closeModal('profile-modal');
 }
 
 // ════════════════════════════════════════════════
@@ -1085,7 +1085,7 @@ function confirmAddStaff() {
   const id = 'staff_' + Date.now();
   S.staff.push({id, name, initials:init, color, phone:'', email:'', role:'', dept:'', manager:'', resp:[]});
   closeModal('add-staff-modal');
-  save(); renderAll();
+  save(); renderAll(); renderRosterTab();
 }
 
 // ════════════════════════════════════════════════
