@@ -220,6 +220,34 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 
 /* Add office/col modals */
 .simple-modal-body{padding:20px 22px;display:flex;flex-direction:column;gap:12px;}
+
+/* ── Staff Roster Table ───────────────────────── */
+.roster-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:12px 20px;border-bottom:1px solid var(--sandstone);}
+.roster-lock{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;color:var(--earth);}
+.lock-icon{font-size:15px;}
+.roster-table-wrap{overflow-x:auto;}
+.roster-table{width:100%;border-collapse:collapse;min-width:900px;}
+.roster-table th{background:var(--onyx);color:white;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:10px 14px;text-align:left;white-space:nowrap;}
+.roster-table td{padding:10px 14px;border-bottom:1px solid var(--alabaster);font-size:12px;color:var(--onyx);vertical-align:middle;}
+.roster-table tr:last-child td{border-bottom:none;}
+.roster-table tr:hover td{background:rgba(242,239,232,.6);}
+.roster-tok-cell{display:flex;align-items:center;gap:10px;}
+.roster-tok{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:white;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.18);}
+.roster-name{font-weight:700;font-size:13px;}
+.roster-resp-pills{display:flex;flex-wrap:wrap;gap:4px;}
+.roster-resp-pill{background:var(--alabaster);border:1px solid var(--sandstone);border-radius:100px;padding:2px 8px;font-size:10px;color:var(--earth);white-space:nowrap;}
+.roster-edit-btn{padding:4px 10px;background:var(--alabaster);border:1px solid var(--sandstone);border-radius:6px;font-size:11px;font-weight:600;color:var(--earth);cursor:pointer;white-space:nowrap;transition:background .15s;}
+.roster-edit-btn:hover{background:var(--sandstone);color:var(--onyx);}
+.roster-del-btn{padding:4px 8px;background:none;border:1px solid #fecaca;border-radius:6px;font-size:11px;font-weight:600;color:#dc2626;cursor:pointer;transition:background .15s;}
+.roster-del-btn:hover{background:#fef2f2;}
+.roster-empty{padding:40px;text-align:center;color:var(--taupe);font-size:13px;}
+
+/* PIN modal */
+.pin-modal-body{padding:24px 22px;display:flex;flex-direction:column;gap:14px;}
+.pin-label{font-size:12px;color:var(--earth);font-weight:600;}
+.pin-input{border:1px solid var(--sandstone);border-radius:7px;padding:10px 14px;font-family:'Jost',sans-serif;font-size:14px;letter-spacing:3px;outline:none;width:100%;transition:border .15s;}
+.pin-input:focus{border-color:var(--earth);}
+.pin-error{color:#dc2626;font-size:11px;font-weight:600;display:none;}
 </style>
 </head>
 <body>
@@ -279,7 +307,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
     <span class="panel-lbl">Staff Roster — drag any token to either board</span>
     <div style="display:flex;gap:8px;align-items:center">
       <span style="font-size:11px;color:var(--taupe)">Click token to view profile · Right-click for quick actions</span>
-      <button class="btn btn-ghost btn-sm" onclick="openAddStaff()">+ Add Staff</button>
+      <button class="btn btn-ghost btn-sm" onclick="rosterGated(openAddStaff)">+ Add Staff</button>
     </div>
   </div>
   <div class="panel-body">
@@ -292,6 +320,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
   <div class="tab-bar">
     <button class="tab-btn active" id="tab-btn-live" onclick="switchTab('live')">⚡ &nbsp;Live Status</button>
     <button class="tab-btn" id="tab-btn-assign" onclick="switchTab('assign')">📋 &nbsp;Assignment Board</button>
+    <button class="tab-btn" id="tab-btn-roster" onclick="switchTab('roster')">👥 &nbsp;Staff Roster</button>
   </div>
   <div class="legend">
     <div class="legend-item"><div class="ldot" style="background:var(--earth)"></div>Token = staff member</div>
@@ -341,6 +370,43 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
   </div>
 </div>
 
+<!-- ── STAFF ROSTER TAB ───────────────────────── -->
+<div id="content-roster" class="tab-content">
+  <div class="board-panel">
+    <div class="roster-toolbar">
+      <div>
+        <div class="bph-title">Staff Roster</div>
+        <div class="bph-date" style="color:var(--taupe)">View-only — editing requires manager PIN</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="roster-lock" id="roster-lock-status">
+          <span class="lock-icon" id="roster-lock-icon">🔒</span>
+          <span id="roster-lock-label">Locked</span>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="roster-lock-btn" onclick="rosterLockToggle()">Unlock to Edit</button>
+        <button class="btn btn-primary btn-sm" id="roster-add-btn" onclick="rosterGated(openAddStaff)" style="display:none">+ Add Staff</button>
+      </div>
+    </div>
+    <div class="roster-table-wrap">
+      <table class="roster-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Role / Title</th>
+            <th>Department</th>
+            <th>Manager</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Responsibilities</th>
+            <th id="roster-actions-th" style="display:none">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="roster-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 <!-- ── ASSIGNMENT TAB ─────────────────────────── -->
 <div id="content-assign" class="tab-content">
   <div class="board-panel">
@@ -369,6 +435,26 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
   <div class="ctx-item" id="ctx-off" onclick="ctxMoveTo('off')">🏠 &nbsp;Send Away / Off</div>
   <div class="ctx-sep"></div>
   <div class="ctx-item danger" id="ctx-remove" onclick="ctxRemove()">✕ &nbsp;Remove from here</div>
+</div>
+
+<!-- ── PIN MODAL ──────────────────────────────── -->
+<div class="modal-overlay" id="pin-modal">
+  <div class="modal sm">
+    <div class="modal-hdr">
+      <h3>🔒 &nbsp;Manager Access</h3>
+      <button class="modal-close" onclick="closePinModal()">×</button>
+    </div>
+    <div class="pin-modal-body">
+      <div class="pin-label">Enter manager PIN to unlock editing</div>
+      <input class="pin-input" id="pin-input" type="password" placeholder="••••••" maxlength="20"
+             onkeydown="if(event.key==='Enter')pinSubmit()">
+      <div class="pin-error" id="pin-error">Incorrect PIN. Try again.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closePinModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="pinSubmit()">Unlock</button>
+    </div>
+  </div>
 </div>
 
 <!-- ── STAFF PROFILE MODAL ────────────────────── -->
@@ -1556,10 +1642,11 @@ function dropBreak(e, area) {
 // ════════════════════════════════════════════════
 
 function switchTab(tab) {
-  ['assign','live'].forEach(t => {
+  ['assign','live','roster'].forEach(t => {
     document.getElementById('content-' + t).classList.toggle('active', t === tab);
     document.getElementById('tab-btn-' + t).classList.toggle('active', t === tab);
   });
+  if (tab === 'roster') renderRosterTab();
 }
 
 function resetAssign() {
@@ -1602,6 +1689,123 @@ function setDate() {
   const el = document.getElementById('live-date');
   if (!el) return;
   el.textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+}
+
+// ════════════════════════════════════════════════
+// STAFF ROSTER TAB
+// ════════════════════════════════════════════════
+
+const ROSTER_DEFAULT_PIN = 'smilehaus2024';
+let __rosterUnlocked = false;
+let __pinPendingAction = null;
+
+function rosterLockToggle() {
+  if (__rosterUnlocked) {
+    __rosterUnlocked = false;
+    updateRosterLockUI();
+    renderRosterTab();
+  } else {
+    __pinPendingAction = null;
+    openPinModal();
+  }
+}
+
+function rosterGated(fn) {
+  if (__rosterUnlocked) { fn(); return; }
+  __pinPendingAction = fn;
+  openPinModal();
+}
+
+function openPinModal() {
+  document.getElementById('pin-input').value = '';
+  document.getElementById('pin-error').style.display = 'none';
+  openModal('pin-modal');
+  setTimeout(() => document.getElementById('pin-input').focus(), 80);
+}
+
+function closePinModal() {
+  closeModal('pin-modal');
+  __pinPendingAction = null;
+}
+
+function pinSubmit() {
+  const pin = document.getElementById('pin-input').value.trim();
+  const stored = S.rosterPin || ROSTER_DEFAULT_PIN;
+  if (pin === stored) {
+    __rosterUnlocked = true;
+    closeModal('pin-modal');
+    updateRosterLockUI();
+    renderRosterTab();
+    if (__pinPendingAction) { const fn = __pinPendingAction; __pinPendingAction = null; fn(); }
+  } else {
+    const err = document.getElementById('pin-error');
+    err.style.display = 'block';
+    document.getElementById('pin-input').value = '';
+    document.getElementById('pin-input').focus();
+  }
+}
+
+function updateRosterLockUI() {
+  const icon  = document.getElementById('roster-lock-icon');
+  const label = document.getElementById('roster-lock-label');
+  const btn   = document.getElementById('roster-lock-btn');
+  const addBtn = document.getElementById('roster-add-btn');
+  const actTh = document.getElementById('roster-actions-th');
+  if (__rosterUnlocked) {
+    icon.textContent = '🔓';
+    label.textContent = 'Unlocked';
+    btn.textContent = 'Lock';
+    if (addBtn) addBtn.style.display = '';
+    if (actTh) actTh.style.display = '';
+  } else {
+    icon.textContent = '🔒';
+    label.textContent = 'Locked';
+    btn.textContent = 'Unlock to Edit';
+    if (addBtn) addBtn.style.display = 'none';
+    if (actTh) actTh.style.display = 'none';
+  }
+}
+
+function renderRosterTab() {
+  const tbody = document.getElementById('roster-tbody');
+  if (!tbody) return;
+  updateRosterLockUI();
+  if (!S.staff || S.staff.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" class="roster-empty">No staff yet. Unlock and click + Add Staff.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = S.staff.map(s => {
+    const respPills = (s.resp || []).map(r => `<span class="roster-resp-pill">${escHtml(r)}</span>`).join('');
+    const actions = __rosterUnlocked
+      ? `<td style="white-space:nowrap;display:flex;gap:6px">
+           <button class="roster-edit-btn" onclick="openProfileModal('${escHtml(s.id)}')">✎ Edit</button>
+           <button class="roster-del-btn" onclick="rosterDelete('${escHtml(s.id)}')">✕</button>
+         </td>`
+      : '';
+    return `<tr>
+      <td>
+        <div class="roster-tok-cell">
+          <div class="roster-tok" style="background:${escHtml(s.color)}">${escHtml(s.initials)}</div>
+          <span class="roster-name">${escHtml(s.name)}</span>
+        </div>
+      </td>
+      <td>${escHtml(s.role||'—')}</td>
+      <td>${escHtml(s.dept||'—')}</td>
+      <td>${escHtml(s.manager||'—')}</td>
+      <td>${s.phone ? `<a href="tel:${escHtml(s.phone)}" style="color:var(--earth);text-decoration:none">${escHtml(s.phone)}</a>` : '—'}</td>
+      <td>${s.email ? `<a href="mailto:${escHtml(s.email)}" style="color:var(--earth);text-decoration:none">${escHtml(s.email)}</a>` : '—'}</td>
+      <td><div class="roster-resp-pills">${respPills || '<span style="color:var(--taupe)">—</span>'}</div></td>
+      ${actions}
+    </tr>`;
+  }).join('');
+}
+
+function rosterDelete(id) {
+  if (!__rosterUnlocked) return;
+  const s = getStaff(id);
+  if (!confirm(`Remove ${s.name} from staff roster? This cannot be undone.`)) return;
+  S.staff = S.staff.filter(x => x.id !== id);
+  save(); renderAll(); renderRosterTab();
 }
 
 // ════════════════════════════════════════════════
