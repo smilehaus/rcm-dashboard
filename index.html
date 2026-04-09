@@ -538,6 +538,22 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
           <button class="btn btn-ghost btn-sm" onclick="addResp()">+ Add</button>
         </div>
       </div>
+      <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--sandstone)">
+        <div class="form-label" style="margin-bottom:8px">🏖️ &nbsp;Vacation / Time Off</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <div class="form-group" style="flex:1;min-width:140px">
+            <div class="form-label" style="font-size:9px">Start Date</div>
+            <input class="form-input" id="p-vac-start" type="date">
+          </div>
+          <div style="font-size:12px;color:var(--taupe);padding-top:18px">→</div>
+          <div class="form-group" style="flex:1;min-width:140px">
+            <div class="form-label" style="font-size:9px">End Date</div>
+            <input class="form-input" id="p-vac-end" type="date">
+          </div>
+          <button class="btn btn-ghost btn-sm" style="align-self:flex-end;margin-bottom:1px" onclick="clearVacation()">Clear</button>
+        </div>
+        <div style="font-size:10px;color:var(--taupe);margin-top:6px">Token auto-moves to Away Zone each day they're on vacation</div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('profile-modal')">Cancel</button>
@@ -752,6 +768,8 @@ let S = {
   off:     [],
   helpInstances: {},  // { id: { id,location,status,comments,checklist,helpers } }
   helpLog: [],        // archived resolved help requests
+  vacationActive: [], // staff IDs currently auto-placed in off zone by vacation
+  lastAutoClear: '',  // date string of last 10pm auto-clear
 };
 
 function load() {
@@ -1049,8 +1067,16 @@ function openProfile(staffId) {
     colorEl.appendChild(sw);
   });
 
+  document.getElementById('p-vac-start').value = s.vacStart || '';
+  document.getElementById('p-vac-end').value   = s.vacEnd   || '';
+
   renderRespList(s.resp || []);
   openModal('profile-modal');
+}
+
+function clearVacation() {
+  document.getElementById('p-vac-start').value = '';
+  document.getElementById('p-vac-end').value   = '';
 }
 
 function renderRespList(resp) {
@@ -1098,8 +1124,10 @@ function saveProfile() {
     phone:    document.getElementById('p-phone').value.trim(),
     email:    document.getElementById('p-email').value.trim(),
     resp:     getStaff(editingStaffId).resp || [],
+    vacStart: document.getElementById('p-vac-start').value,
+    vacEnd:   document.getElementById('p-vac-end').value,
   };
-  save(); renderAll(); renderRosterTab(); closeModal('profile-modal');
+  save(); checkVacations(); renderAll(); renderRosterTab(); closeModal('profile-modal');
 }
 
 // ════════════════════════════════════════════════
@@ -1667,6 +1695,7 @@ function renderBreak() {
 }
 
 function renderAll() {
+  checkVacations();
   renderRoster();
   buildGrid(document.getElementById('assign-table'), 'assign');
   buildGrid(document.getElementById('live-table'),   'live');
@@ -1873,8 +1902,15 @@ function renderRosterTab() {
     tbody.innerHTML = '<tr><td colspan="8" class="roster-empty">No staff yet. Unlock and click + Add Staff.</td></tr>';
     return;
   }
+  const today = todayStr();
   tbody.innerHTML = S.staff.map(s => {
     const respPills = (s.resp || []).map(r => `<span class="roster-resp-pill">${escHtml(r)}</span>`).join('');
+    const onVac = s.vacStart && s.vacEnd && today >= s.vacStart && today <= s.vacEnd;
+    const vacBadge = onVac
+      ? `<span style="font-size:9px;background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:100px;padding:1px 7px;font-weight:600;margin-left:6px">🏖️ On Vacation</span>`
+      : (s.vacStart && s.vacEnd && s.vacEnd >= today && s.vacStart > today)
+        ? `<span style="font-size:9px;background:var(--alabaster);color:var(--taupe);border:1px solid var(--sandstone);border-radius:100px;padding:1px 7px;font-weight:600;margin-left:6px">🗓 Vac ${formatVacDate(s.vacStart)}</span>`
+        : '';
     const actions = __rosterUnlocked
       ? `<td style="white-space:nowrap;display:flex;gap:6px">
            <button class="roster-edit-btn" onclick="openProfile('${escHtml(s.id)}')">✎ Edit</button>
@@ -1885,7 +1921,7 @@ function renderRosterTab() {
       <td>
         <div class="roster-tok-cell">
           <div class="roster-tok" style="background:${escHtml(s.color)}">${escHtml(s.initials)}</div>
-          <span class="roster-name">${escHtml(s.name)}</span>
+          <span class="roster-name">${escHtml(s.name)}</span>${vacBadge}
         </div>
       </td>
       <td>${escHtml(s.role||'—')}</td>
@@ -1897,6 +1933,12 @@ function renderRosterTab() {
       ${actions}
     </tr>`;
   }).join('');
+
+  function formatVacDate(d) {
+    if (!d) return '';
+    const [y,m,day] = d.split('-');
+    return new Date(y,m-1,day).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  }
 }
 
 function rosterDelete(id) {
@@ -1906,6 +1948,63 @@ function rosterDelete(id) {
   S.staff = S.staff.filter(x => x.id !== id);
   save(); renderAll(); renderRosterTab();
 }
+
+// ════════════════════════════════════════════════
+// VACATION AUTO-MOVE
+// ════════════════════════════════════════════════
+
+function todayStr() {
+  return new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
+}
+
+function checkVacations() {
+  if (!S.vacationActive) S.vacationActive = [];
+  const today = todayStr();
+
+  S.staff.forEach(s => {
+    if (!s.vacStart || !s.vacEnd) return;
+    const onVac = today >= s.vacStart && today <= s.vacEnd;
+    const inOff = S.off.includes(s.id);
+    const autoPlaced = S.vacationActive.includes(s.id);
+
+    if (onVac && !inOff) {
+      S.off.push(s.id);
+      if (!autoPlaced) S.vacationActive.push(s.id);
+    } else if (onVac && inOff && !autoPlaced) {
+      S.vacationActive.push(s.id); // track manual overlap too
+    } else if (!onVac && autoPlaced) {
+      // vacation ended — auto-remove from off
+      S.off = S.off.filter(id => id !== s.id);
+      S.vacationActive = S.vacationActive.filter(id => id !== s.id);
+    }
+  });
+}
+
+// ════════════════════════════════════════════════
+// DAILY AUTO-CLEAR AT 10 PM
+// ════════════════════════════════════════════════
+
+function checkAutoClear() {
+  const now = new Date();
+  const h = now.getHours(), m = now.getMinutes();
+  const today = now.toDateString();
+  if (h === 22 && m === 0 && S.lastAutoClear !== today) {
+    S.lastAutoClear = today;
+    // Clear live board and away zone (keep vacationing staff in off)
+    S.offices.forEach(o => {
+      S.live[o.code] = {};
+      S.columns.forEach(c => S.live[o.code][c.id] = []);
+    });
+    S.lunch = [];
+    // Keep vacation-active staff in off, clear the rest
+    S.off = S.off.filter(id => (S.vacationActive||[]).includes(id));
+    S.helpInstances = {};
+    save(); renderAll();
+  }
+}
+
+// Check every 60 seconds
+setInterval(checkAutoClear, 60000);
 
 // ════════════════════════════════════════════════
 // BOOT
