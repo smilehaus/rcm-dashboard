@@ -348,6 +348,32 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
     </div>
   </div>
 
+  <!-- HELP LOG -->
+  <div class="panel" id="help-log-panel" style="display:none">
+    <div class="panel-hdr" style="cursor:pointer" onclick="toggleHelpLog()">
+      <span class="panel-lbl">📋 &nbsp;Help Request Log</span>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span id="help-log-count" style="font-size:11px;color:var(--taupe)"></span>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();clearHelpLog()" style="font-size:10px">Clear Log</button>
+        <span id="help-log-chevron" style="color:var(--taupe);font-size:14px">▲</span>
+      </div>
+    </div>
+    <div id="help-log-body" class="panel-body" style="padding:0;overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;min-width:700px;font-size:12px">
+        <thead>
+          <tr style="background:var(--onyx);color:white;text-align:left">
+            <th style="padding:8px 14px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;white-space:nowrap">Resolved At</th>
+            <th style="padding:8px 14px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px">Location</th>
+            <th style="padding:8px 14px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px">Helped By</th>
+            <th style="padding:8px 14px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px">Notes</th>
+            <th style="padding:8px 14px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px">Checklist</th>
+          </tr>
+        </thead>
+        <tbody id="help-log-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- AWAY ZONE -->
   <div class="away-panel">
     <div class="away-hdr">
@@ -536,6 +562,10 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
         <select class="helper-select" id="help-helper-select"></select>
         <button class="btn btn-green btn-sm" onclick="provideHelp()">✓ I'm Helping</button>
       </div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:4px">
+        <input class="add-row-input" id="help-outside-input" placeholder="Outside helper — type name &amp; press Add…" onkeydown="if(event.key==='Enter')addOutsideHelper()">
+        <button class="btn btn-ghost btn-sm" onclick="addOutsideHelper()">+ Add</button>
+      </div>
 
       <div class="help-section-title">What do you need help with?</div>
       <div class="comment-list" id="help-comments"></div>
@@ -721,6 +751,7 @@ let S = {
   lunch:   [],
   off:     [],
   helpInstances: {},  // { id: { id,location,status,comments,checklist,helpers } }
+  helpLog: [],        // archived resolved help requests
 };
 
 function load() {
@@ -856,14 +887,14 @@ function renderHelpModal() {
   bar.className = 'help-status-bar ' + inst.status;
   bar.textContent = isActive ? '🔴  Waiting for assistance…' : '🟢  Help is on the way!';
 
-  // Helpers
+  // Helpers (stored as name strings)
   const hl = document.getElementById('help-helpers-list');
   hl.innerHTML = '';
-  (inst.helpers||[]).forEach(hid => {
-    const s = getStaff(hid);
+  (inst.helpers||[]).forEach(name => {
     const tag = document.createElement('div');
     tag.className = 'helper-tag';
-    tag.textContent = s.name;
+    // handle legacy IDs (staff_ prefix) gracefully
+    tag.textContent = name.startsWith('staff_') ? (getStaff(name).name || name) : name;
     hl.appendChild(tag);
   });
 
@@ -904,10 +935,23 @@ function provideHelp() {
   const sel = document.getElementById('help-helper-select');
   const hid = sel.value;
   if (!hid) return;
+  const name = getStaff(hid).name;
   const inst = S.helpInstances[activeHelpId];
   if (!inst) return;
-  if (!inst.helpers.includes(hid)) inst.helpers.push(hid);
+  if (!inst.helpers.includes(name)) inst.helpers.push(name);
   inst.status = 'helped';
+  save(); renderAll(); renderHelpModal();
+}
+
+function addOutsideHelper() {
+  const inp = document.getElementById('help-outside-input');
+  const name = inp.value.trim();
+  if (!name) return;
+  const inst = S.helpInstances[activeHelpId];
+  if (!inst) return;
+  if (!inst.helpers.includes(name)) inst.helpers.push(name);
+  inst.status = 'helped';
+  inp.value = '';
   save(); renderAll(); renderHelpModal();
 }
 
@@ -950,11 +994,20 @@ function removeHelpCheck(i) {
 function resolveHelp() {
   const inst = S.helpInstances[activeHelpId];
   if (!inst) return;
+  // Archive to help log
+  if (!S.helpLog) S.helpLog = [];
+  S.helpLog.unshift({
+    resolvedAt: new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}),
+    location: inst.location || '—',
+    helpers: (inst.helpers||[]).join(', ') || '—',
+    comments: (inst.comments||[]).map(c=>c.text).join(' · ') || '—',
+    checklist: inst.checklist||[],
+  });
   // Remove from live board
   removeFrom('live', inst.location, activeHelpId);
   delete S.helpInstances[activeHelpId];
   activeHelpId = null;
-  save(); renderAll(); closeModal('help-modal');
+  save(); renderAll(); renderHelpLog(); closeModal('help-modal');
 }
 
 // ════════════════════════════════════════════════
@@ -1618,6 +1671,7 @@ function renderAll() {
   buildGrid(document.getElementById('assign-table'), 'assign');
   buildGrid(document.getElementById('live-table'),   'live');
   renderBreak();
+  renderHelpLog();
 }
 
 // ════════════════════════════════════════════════
@@ -1689,6 +1743,51 @@ function setDate() {
   const el = document.getElementById('live-date');
   if (!el) return;
   el.textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+}
+
+// ════════════════════════════════════════════════
+// HELP LOG
+// ════════════════════════════════════════════════
+
+let __helpLogOpen = true;
+
+function renderHelpLog() {
+  const log = S.helpLog || [];
+  const panel = document.getElementById('help-log-panel');
+  const tbody = document.getElementById('help-log-tbody');
+  const countEl = document.getElementById('help-log-count');
+  if (!panel || !tbody) return;
+
+  panel.style.display = log.length ? '' : 'none';
+  if (countEl) countEl.textContent = log.length + ' entr' + (log.length === 1 ? 'y' : 'ies');
+
+  tbody.innerHTML = log.map((entry, i) => {
+    const checks = (entry.checklist||[]);
+    const done = checks.filter(c=>c.done).length;
+    const checkSummary = checks.length ? `${done}/${checks.length} done` : '—';
+    const rowBg = i % 2 === 0 ? '' : 'background:rgba(242,239,232,.5)';
+    return `<tr style="${rowBg}">
+      <td style="padding:9px 14px;color:var(--earth);font-weight:600;white-space:nowrap">${escHtml(entry.resolvedAt)}</td>
+      <td style="padding:9px 14px;white-space:nowrap">${escHtml(entry.location)}</td>
+      <td style="padding:9px 14px;font-weight:600;color:var(--onyx)">${escHtml(entry.helpers)}</td>
+      <td style="padding:9px 14px;color:var(--taupe);max-width:260px">${escHtml(entry.comments)}</td>
+      <td style="padding:9px 14px;color:var(--taupe)">${checkSummary}</td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleHelpLog() {
+  __helpLogOpen = !__helpLogOpen;
+  const body = document.getElementById('help-log-body');
+  const chev = document.getElementById('help-log-chevron');
+  if (body) body.style.display = __helpLogOpen ? '' : 'none';
+  if (chev) chev.textContent = __helpLogOpen ? '▲' : '▼';
+}
+
+function clearHelpLog() {
+  if (!confirm('Clear the entire help request log?')) return;
+  S.helpLog = [];
+  save(); renderHelpLog();
 }
 
 // ════════════════════════════════════════════════
