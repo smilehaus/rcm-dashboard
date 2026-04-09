@@ -1778,7 +1778,7 @@ function renderRosterTab() {
     const respPills = (s.resp || []).map(r => `<span class="roster-resp-pill">${escHtml(r)}</span>`).join('');
     const actions = __rosterUnlocked
       ? `<td style="white-space:nowrap;display:flex;gap:6px">
-           <button class="roster-edit-btn" onclick="openProfileModal('${escHtml(s.id)}')">✎ Edit</button>
+           <button class="roster-edit-btn" onclick="openProfile('${escHtml(s.id)}')">✎ Edit</button>
            <button class="roster-del-btn" onclick="rosterDelete('${escHtml(s.id)}')">✕</button>
          </td>`
       : '';
