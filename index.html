@@ -302,16 +302,30 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 <main class="main">
 
 <!-- ── STAFF ROSTER ───────────────────────────── -->
-<div class="panel">
-  <div class="panel-hdr">
-    <span class="panel-lbl">Staff Roster — drag any token to either board</span>
-    <div style="display:flex;gap:8px;align-items:center">
-      <span style="font-size:11px;color:var(--taupe)">Click token to view profile · Right-click for quick actions</span>
-      <button class="btn btn-ghost btn-sm" onclick="rosterGated(openAddStaff)">+ Add Staff</button>
+<div style="display:flex;gap:12px;align-items:stretch">
+  <!-- Staff Roster tokens -->
+  <div class="panel" style="flex:1;min-width:0">
+    <div class="panel-hdr">
+      <span class="panel-lbl">Staff Roster — drag any token to either board</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span style="font-size:11px;color:var(--taupe)">Click token to view profile · Right-click for quick actions</span>
+        <button class="btn btn-ghost btn-sm" onclick="rosterGated(openAddStaff)">+ Add Staff</button>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="roster-tokens" id="roster-tokens" style="display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start"></div>
     </div>
   </div>
-  <div class="panel-body">
-    <div class="roster-tokens" id="roster-tokens" style="display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start"></div>
+
+  <!-- Out of Office panel -->
+  <div class="panel" style="width:180px;flex-shrink:0;border-color:var(--sandstone);background:rgba(242,239,232,.5)">
+    <div class="panel-hdr" style="padding:10px 14px">
+      <span class="panel-lbl" style="font-size:9px">🏖️ &nbsp;Out of Office</span>
+    </div>
+    <div class="panel-body" style="padding:10px 14px">
+      <div id="ooo-tokens" style="display:flex;flex-direction:column;gap:8px;min-height:44px"></div>
+      <div id="ooo-empty" style="font-size:10px;color:var(--sandstone);display:none">No one out today</div>
+    </div>
   </div>
 </div>
 
@@ -1697,10 +1711,44 @@ function renderBreak() {
 function renderAll() {
   checkVacations();
   renderRoster();
+  renderOOO();
   buildGrid(document.getElementById('assign-table'), 'assign');
   buildGrid(document.getElementById('live-table'),   'live');
   renderBreak();
   renderHelpLog();
+}
+
+function renderOOO() {
+  const container = document.getElementById('ooo-tokens');
+  const empty = document.getElementById('ooo-empty');
+  if (!container) return;
+  const today = todayStr();
+  const onVac = S.staff.filter(s => s.vacStart && s.vacEnd && today >= s.vacStart && today <= s.vacEnd);
+  container.innerHTML = '';
+  if (onVac.length === 0) {
+    empty.style.display = '';
+    return;
+  }
+  empty.style.display = 'none';
+  onVac.forEach(s => {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;align-items:center;gap:8px;cursor:pointer';
+    wrap.title = 'Click to view profile';
+    wrap.onclick = () => openProfile(s.id);
+    const tok = document.createElement('div');
+    tok.className = 'token sm';
+    tok.style.background = s.color;
+    tok.style.flexShrink = '0';
+    tok.textContent = s.initials;
+    const info = document.createElement('div');
+    const endDate = new Date(s.vacEnd + 'T00:00:00');
+    const ret = endDate.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    info.innerHTML = `<div style="font-size:10px;font-weight:700;color:var(--onyx);line-height:1.2">${escHtml(s.name.split(' ')[0])}</div>
+                      <div style="font-size:9px;color:var(--taupe)">back ${ret}</div>`;
+    wrap.appendChild(tok);
+    wrap.appendChild(info);
+    container.appendChild(wrap);
+  });
 }
 
 // ════════════════════════════════════════════════
