@@ -793,12 +793,23 @@ let S = {
   lastAutoClear: '',  // date string of last 10pm auto-clear
 };
 
+const DATA_VERSION = 6; // bump when state schema changes to force-clear stale cache
+
 async function load() {
   let local = null, remote = null;
   try {
     const d = localStorage.getItem('sh-rcm-v5');
-    if (d) local = JSON.parse(d);
-  } catch(e) {}
+    if (d) {
+      const p = JSON.parse(d);
+      // Clear stale cache if version mismatch or columns are in wrong format
+      const colsValid = Array.isArray(p.columns) && p.columns[0] && typeof p.columns[0].id === 'string' && !p.columns[0].subs;
+      if (p._v !== DATA_VERSION || !colsValid) {
+        localStorage.removeItem('sh-rcm-v5');
+      } else {
+        local = p;
+      }
+    }
+  } catch(e) { localStorage.removeItem('sh-rcm-v5'); }
   try {
     const r = await fetch('./state.json?t=' + Date.now());
     if (r.ok) remote = await r.json();
@@ -823,6 +834,7 @@ async function load() {
 }
 
 function save() {
+  S._v = DATA_VERSION;
   S._savedAt = new Date().toISOString();
   localStorage.setItem('sh-rcm-v5', JSON.stringify(S));
   const el = document.getElementById('last-updated');
