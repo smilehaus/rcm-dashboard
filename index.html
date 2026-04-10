@@ -444,6 +444,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
           <span id="roster-lock-label">Locked</span>
         </div>
         <button class="btn btn-ghost btn-sm" id="roster-lock-btn" onclick="rosterLockToggle()">Unlock to Edit</button>
+        <button class="btn btn-ghost btn-sm" id="roster-add-dept-btn" onclick="rosterGated(openAddDept)" style="display:none">+ Add Department</button>
         <button class="btn btn-primary btn-sm" id="roster-add-btn" onclick="rosterGated(openAddStaff)" style="display:none">+ Add Staff</button>
       </div>
     </div>
@@ -568,7 +569,9 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
         </div>
         <div class="form-group">
           <div class="form-label">Department</div>
-          <input class="form-input" id="p-dept">
+          <select class="form-input" id="p-dept" style="cursor:pointer">
+            <option value="">— Select department —</option>
+          </select>
         </div>
         <div class="form-group">
           <div class="form-label">Manager</div>
@@ -739,6 +742,28 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
   </div>
 </div>
 
+<!-- ── ADD DEPARTMENT MODAL ──────────────────────── -->
+<div class="modal-overlay" id="add-dept-modal">
+  <div class="modal sm">
+    <div class="modal-hdr">
+      <h3>Add Department</h3>
+      <button class="modal-close" onclick="closeModal('add-dept-modal')">×</button>
+    </div>
+    <div class="simple-modal-body">
+      <div id="dept-list-current" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px"></div>
+      <div class="form-group">
+        <div class="form-label">New Department Name</div>
+        <input class="form-input" id="new-dept-name" placeholder="e.g. Billing, RCM, Front Desk…"
+               onkeydown="if(event.key==='Enter')confirmAddDept()">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('add-dept-modal')">Done</button>
+      <button class="btn btn-primary" onclick="confirmAddDept()">+ Add</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ════════════════════════════════════════════════
 // DATA DEFAULTS
@@ -823,6 +848,7 @@ let S = {
   helpLog: [],        // archived resolved help requests
   vacationActive: [], // staff IDs currently auto-placed in off zone by vacation
   lastAutoClear: '',  // date string of last 10pm auto-clear
+  departments: [],    // user-defined department list
 };
 
 const DATA_VERSION = 6; // bump when state schema changes to force-clear stale cache
@@ -1140,7 +1166,15 @@ function openProfile(staffId) {
   document.getElementById('p-name').value    = s.name || '';
   document.getElementById('p-initials').value= s.initials || '';
   document.getElementById('p-role').value    = s.role || '';
-  document.getElementById('p-dept').value    = s.dept || '';
+  // Populate dept dropdown
+  const deptEl = document.getElementById('p-dept');
+  const depts = S.departments || [];
+  deptEl.innerHTML = '<option value="">— Select department —</option>' +
+    depts.map(d => `<option value="${escHtml(d)}" ${d === (s.dept||'') ? 'selected' : ''}>${escHtml(d)}</option>`).join('');
+  // If staff has a dept not in list yet, add it as an option
+  if (s.dept && !depts.includes(s.dept)) {
+    deptEl.innerHTML += `<option value="${escHtml(s.dept)}" selected>${escHtml(s.dept)}</option>`;
+  }
   document.getElementById('p-manager').value = s.manager || '';
   document.getElementById('p-phone').value   = s.phone || '';
   document.getElementById('p-email').value   = s.email || '';
@@ -2114,19 +2148,22 @@ function updateRosterLockUI() {
   const icon  = document.getElementById('roster-lock-icon');
   const label = document.getElementById('roster-lock-label');
   const btn   = document.getElementById('roster-lock-btn');
-  const addBtn = document.getElementById('roster-add-btn');
-  const actTh = document.getElementById('roster-actions-th');
+  const addBtn     = document.getElementById('roster-add-btn');
+  const addDeptBtn = document.getElementById('roster-add-dept-btn');
+  const actTh      = document.getElementById('roster-actions-th');
   if (__rosterUnlocked) {
     icon.textContent = '🔓';
     label.textContent = 'Unlocked';
     btn.textContent = 'Lock';
     if (addBtn) addBtn.style.display = '';
+    if (addDeptBtn) addDeptBtn.style.display = '';
     if (actTh) actTh.style.display = '';
   } else {
     icon.textContent = '🔒';
     label.textContent = 'Locked';
     btn.textContent = 'Unlock to Edit';
     if (addBtn) addBtn.style.display = 'none';
+    if (addDeptBtn) addDeptBtn.style.display = 'none';
     if (actTh) actTh.style.display = 'none';
   }
 }
@@ -2223,6 +2260,40 @@ function renderRosterTab() {
 
     return deptHeader + rows;
   }).join('');
+}
+
+function openAddDept() {
+  if (!S.departments) S.departments = [];
+  const list = document.getElementById('dept-list-current');
+  list.innerHTML = (S.departments.length ? '<span style="font-size:10px;color:var(--taupe);width:100%;margin-bottom:2px">Current departments:</span>' : '') +
+    S.departments.map((d,i) => `<span style="display:flex;align-items:center;gap:4px;background:var(--alabaster);border:1px solid var(--sandstone);border-radius:100px;padding:3px 10px;font-size:11px;font-weight:600;color:var(--earth)">
+      ${escHtml(d)}
+      <button onclick="removeDept(${i})" style="background:none;border:none;color:var(--taupe);cursor:pointer;font-size:13px;line-height:1;padding:0 0 0 4px"
+        onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--taupe)'">×</button>
+    </span>`).join('');
+  document.getElementById('new-dept-name').value = '';
+  openModal('add-dept-modal');
+  setTimeout(() => document.getElementById('new-dept-name').focus(), 80);
+}
+
+function confirmAddDept() {
+  const val = document.getElementById('new-dept-name').value.trim();
+  if (!val) return;
+  if (!S.departments) S.departments = [];
+  if (!S.departments.includes(val)) {
+    S.departments.push(val);
+    S.departments.sort();
+    save();
+    renderRosterTab();
+  }
+  document.getElementById('new-dept-name').value = '';
+  // Refresh the current list in modal
+  openAddDept();
+}
+
+function removeDept(i) {
+  S.departments.splice(i, 1);
+  save(); renderRosterTab(); openAddDept();
 }
 
 function rosterDelete(id) {
