@@ -426,7 +426,19 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
         <div class="bph-title">Staff Roster</div>
         <div class="bph-date" style="color:var(--taupe)">View-only — editing requires manager PIN</div>
       </div>
-      <div style="display:flex;align-items:center;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <!-- Search -->
+        <div style="position:relative">
+          <input id="roster-search" type="text" placeholder="Search staff…"
+            oninput="renderRosterTab()"
+            style="border:1px solid var(--sandstone);border-radius:7px;padding:6px 10px 6px 30px;font-family:'Jost',sans-serif;font-size:12px;color:var(--onyx);outline:none;width:170px">
+          <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--taupe)">🔍</span>
+        </div>
+        <!-- Dept filter -->
+        <select id="roster-dept-filter" onchange="renderRosterTab()"
+          style="border:1px solid var(--sandstone);border-radius:7px;padding:6px 10px;font-family:'Jost',sans-serif;font-size:12px;color:var(--onyx);outline:none;background:white">
+          <option value="">All Departments</option>
+        </select>
         <div class="roster-lock" id="roster-lock-status">
           <span class="lock-icon" id="roster-lock-icon">🔒</span>
           <span id="roster-lock-label">Locked</span>
@@ -2119,51 +2131,98 @@ function updateRosterLockUI() {
   }
 }
 
+function formatVacDate(d) {
+  if (!d) return '';
+  const [y,m,day] = d.split('-');
+  return new Date(y,m-1,day).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+
 function renderRosterTab() {
   const tbody = document.getElementById('roster-tbody');
   if (!tbody) return;
   updateRosterLockUI();
+
+  // Update dept filter dropdown
+  const deptSel = document.getElementById('roster-dept-filter');
+  if (deptSel) {
+    const depts = [...new Set(S.staff.map(s => s.dept || '').filter(Boolean))].sort();
+    const cur = deptSel.value;
+    deptSel.innerHTML = '<option value="">All Departments</option>' +
+      depts.map(d => `<option value="${escHtml(d)}" ${d===cur?'selected':''}>${escHtml(d)}</option>`).join('');
+  }
+
   if (!S.staff || S.staff.length === 0) {
     tbody.innerHTML = '<tr><td colspan="8" class="roster-empty">No staff yet. Unlock and click + Add Staff.</td></tr>';
     return;
   }
+
+  // Filters
+  const search   = (document.getElementById('roster-search')?.value || '').toLowerCase().trim();
+  const deptFilter = deptSel ? deptSel.value : '';
+
+  let filtered = S.staff.filter(s => {
+    const matchSearch = !search ||
+      s.name.toLowerCase().includes(search) ||
+      (s.role||'').toLowerCase().includes(search) ||
+      (s.dept||'').toLowerCase().includes(search) ||
+      (s.manager||'').toLowerCase().includes(search);
+    const matchDept = !deptFilter || (s.dept||'') === deptFilter;
+    return matchSearch && matchDept;
+  });
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" class="roster-empty">No staff match your search.</td></tr>';
+    return;
+  }
+
+  // Group by department
+  const groups = {};
+  filtered.forEach(s => {
+    const dept = s.dept || '(No Department)';
+    if (!groups[dept]) groups[dept] = [];
+    groups[dept].push(s);
+  });
+  const sortedDepts = Object.keys(groups).sort((a,b) => a === '(No Department)' ? 1 : b === '(No Department)' ? -1 : a.localeCompare(b));
+
   const today = todayStr();
-  tbody.innerHTML = S.staff.map(s => {
-    const respPills = (s.resp || []).map(r => `<span class="roster-resp-pill">${escHtml(r)}</span>`).join('');
-    const onVac = s.vacStart && s.vacEnd && today >= s.vacStart && today <= s.vacEnd;
-    const vacBadge = onVac
-      ? `<span style="font-size:9px;background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:100px;padding:1px 7px;font-weight:600;margin-left:6px">🏖️ On Vacation</span>`
-      : (s.vacStart && s.vacEnd && s.vacEnd >= today && s.vacStart > today)
-        ? `<span style="font-size:9px;background:var(--alabaster);color:var(--taupe);border:1px solid var(--sandstone);border-radius:100px;padding:1px 7px;font-weight:600;margin-left:6px">🗓 Vac ${formatVacDate(s.vacStart)}</span>`
+  const colCount = __rosterUnlocked ? 8 : 7;
+
+  tbody.innerHTML = sortedDepts.map(dept => {
+    const deptHeader = `<tr>
+      <td colspan="${colCount}" style="background:var(--onyx);color:white;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:7px 14px">${escHtml(dept)}</td>
+    </tr>`;
+
+    const rows = groups[dept].map(s => {
+      const respPills = (s.resp||[]).map(r=>`<span class="roster-resp-pill">${escHtml(r)}</span>`).join('');
+      const onVac = s.vacStart && s.vacEnd && today >= s.vacStart && today <= s.vacEnd;
+      const vacBadge = onVac
+        ? `<span style="font-size:9px;background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:100px;padding:1px 7px;font-weight:600;margin-left:6px">🏖️ On Vacation</span>`
+        : (s.vacStart && s.vacEnd && s.vacEnd >= today && s.vacStart > today)
+          ? `<span style="font-size:9px;background:var(--alabaster);color:var(--taupe);border:1px solid var(--sandstone);border-radius:100px;padding:1px 7px;font-weight:600;margin-left:6px">🗓 Vac ${formatVacDate(s.vacStart)}</span>`
+          : '';
+      const actions = __rosterUnlocked
+        ? `<td style="white-space:nowrap;display:flex;gap:6px">
+             <button class="roster-edit-btn" onclick="openProfile('${escHtml(s.id)}')">✎ Edit</button>
+             <button class="roster-del-btn" onclick="rosterDelete('${escHtml(s.id)}')">✕</button>
+           </td>`
         : '';
-    const actions = __rosterUnlocked
-      ? `<td style="white-space:nowrap;display:flex;gap:6px">
-           <button class="roster-edit-btn" onclick="openProfile('${escHtml(s.id)}')">✎ Edit</button>
-           <button class="roster-del-btn" onclick="rosterDelete('${escHtml(s.id)}')">✕</button>
-         </td>`
-      : '';
-    return `<tr>
-      <td>
-        <div class="roster-tok-cell">
+      return `<tr>
+        <td><div class="roster-tok-cell">
           <div class="roster-tok" style="background:${escHtml(s.color)}">${escHtml(s.initials)}</div>
           <span class="roster-name">${escHtml(s.name)}</span>${vacBadge}
-        </div>
-      </td>
-      <td>${escHtml(s.role||'—')}</td>
-      <td>${escHtml(s.dept||'—')}</td>
-      <td>${escHtml(s.manager||'—')}</td>
-      <td>${s.phone ? `<a href="tel:${escHtml(s.phone)}" style="color:var(--earth);text-decoration:none">${escHtml(s.phone)}</a>` : '—'}</td>
-      <td>${s.email ? `<a href="mailto:${escHtml(s.email)}" style="color:var(--earth);text-decoration:none">${escHtml(s.email)}</a>` : '—'}</td>
-      <td><div class="roster-resp-pills">${respPills || '<span style="color:var(--taupe)">—</span>'}</div></td>
-      ${actions}
-    </tr>`;
-  }).join('');
+        </div></td>
+        <td>${escHtml(s.role||'—')}</td>
+        <td>${escHtml(s.dept||'—')}</td>
+        <td>${escHtml(s.manager||'—')}</td>
+        <td>${s.phone?`<a href="tel:${escHtml(s.phone)}" style="color:var(--earth);text-decoration:none">${escHtml(s.phone)}</a>`:'—'}</td>
+        <td>${s.email?`<a href="mailto:${escHtml(s.email)}" style="color:var(--earth);text-decoration:none">${escHtml(s.email)}</a>`:'—'}</td>
+        <td><div class="roster-resp-pills">${respPills||'<span style="color:var(--taupe)">—</span>'}</div></td>
+        ${actions}
+      </tr>`;
+    }).join('');
 
-  function formatVacDate(d) {
-    if (!d) return '';
-    const [y,m,day] = d.split('-');
-    return new Date(y,m-1,day).toLocaleDateString('en-US',{month:'short',day:'numeric'});
-  }
+    return deptHeader + rows;
+  }).join('');
 }
 
 function rosterDelete(id) {
