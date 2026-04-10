@@ -214,6 +214,11 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 .helper-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
 .helper-tag{background:var(--alabaster);border:1px solid var(--sandstone);border-radius:100px;padding:3px 10px;font-size:11px;font-weight:600;color:var(--earth);}
 .help-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--earth);margin:14px 0 8px;}
+.chat-bubble{display:flex;flex-direction:column;gap:2px;background:var(--alabaster);border:1px solid var(--sandstone);border-radius:10px;padding:8px 12px;}
+.chat-bubble-meta{display:flex;align-items:center;gap:8px;}
+.chat-bubble-name{font-size:11px;font-weight:700;color:var(--onyx);}
+.chat-bubble-ts{font-size:10px;color:var(--taupe);}
+.chat-bubble-text{font-size:12px;color:var(--onyx);line-height:1.45;}
 
 /* Help select */
 .helper-select{border:1px solid var(--sandstone);border-radius:7px;padding:7px 10px;font-family:'Jost',sans-serif;font-size:12px;color:var(--onyx);background:white;outline:none;flex:1;}
@@ -609,9 +614,22 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 
       <div class="help-section-title">Checklist</div>
       <div class="checklist-list" id="help-checklist"></div>
-      <div class="add-row-form">
+      <div class="add-row-form" style="margin-bottom:16px">
         <input class="add-row-input" id="help-check-input" placeholder="Add checklist item…" onkeydown="if(event.key==='Enter')addHelpCheck()">
         <button class="btn btn-ghost btn-sm" onclick="addHelpCheck()">+ Add</button>
+      </div>
+
+      <div class="help-section-title">Chat</div>
+      <div id="help-chat-log" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;max-height:180px;overflow-y:auto;padding-right:2px"></div>
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+        <select class="helper-select" id="help-chat-name-select" style="max-width:160px">
+          <option value="">— Your name —</option>
+        </select>
+        <input class="add-row-input" id="help-chat-outside-name" placeholder="Or type name…" style="max-width:130px">
+      </div>
+      <div class="add-row-form">
+        <textarea class="form-textarea" id="help-chat-input" placeholder="Type a message…" style="min-height:46px;flex:1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();addHelpChat();}"></textarea>
+        <button class="btn btn-primary btn-sm" style="align-self:flex-end" onclick="addHelpChat()">Send</button>
       </div>
     </div>
     <div class="modal-footer" style="justify-content:space-between">
@@ -1033,6 +1051,30 @@ function renderHelpModal() {
       <button class="checklist-del" onclick="removeHelpCheck(${i})">×</button>`;
     checkEl.appendChild(row);
   });
+
+  // Chat name select
+  const chatSel = document.getElementById('help-chat-name-select');
+  if (chatSel) {
+    chatSel.innerHTML = '<option value="">— Your name —</option>';
+    S.staff.forEach(s => {
+      const o = document.createElement('option');
+      o.value = s.name; o.textContent = s.name;
+      chatSel.appendChild(o);
+    });
+  }
+
+  // Chat log
+  const chatLog = document.getElementById('help-chat-log');
+  if (chatLog) {
+    chatLog.innerHTML = '';
+    (inst.chat||[]).forEach(msg => {
+      const b = document.createElement('div');
+      b.className = 'chat-bubble';
+      b.innerHTML = `<div class="chat-bubble-meta"><span class="chat-bubble-name">${escHtml(msg.name)}</span><span class="chat-bubble-ts">${escHtml(msg.ts)}</span></div><div class="chat-bubble-text">${escHtml(msg.text)}</div>`;
+      chatLog.appendChild(b);
+    });
+    chatLog.scrollTop = chatLog.scrollHeight;
+  }
 }
 
 function provideHelp() {
@@ -1081,6 +1123,25 @@ function addHelpCheck() {
   save(); renderHelpModal();
 }
 
+function addHelpChat() {
+  const textEl = document.getElementById('help-chat-input');
+  const txt = textEl.value.trim();
+  if (!txt) return;
+  const selName = document.getElementById('help-chat-name-select').value;
+  const outsideName = document.getElementById('help-chat-outside-name').value.trim();
+  const name = selName || outsideName || 'Unknown';
+  const inst = S.helpInstances[activeHelpId];
+  if (!inst) return;
+  if (!inst.chat) inst.chat = [];
+  inst.chat.push({
+    name,
+    text: txt,
+    ts: new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+  });
+  textEl.value = '';
+  save(); renderHelpModal();
+}
+
 function toggleHelpCheck(i, val) {
   const inst = S.helpInstances[activeHelpId];
   if (!inst) return;
@@ -1103,7 +1164,7 @@ function saveHelp() {
 
 function resolveHelp() {
   const inst = S.helpInstances[activeHelpId];
-  if (!inst) return;
+  if (!inst) { alert('Help instance not found. Refresh the page.'); return; }
   if (!confirm('Mark as resolved and remove the help token from the board?')) return;
   // Archive to help log
   if (!S.helpLog) S.helpLog = [];
@@ -1113,13 +1174,19 @@ function resolveHelp() {
     helpers: (inst.helpers||[]).join(', ') || '—',
     comments: (inst.comments||[]).map(c=>c.text).join(' · ') || '—',
     checklist: inst.checklist||[],
+    chat: inst.chat||[],
     status: inst.helpers && inst.helpers.length ? 'Resolved' : 'Resolved (No Helper)',
   });
-  // Remove from live board
-  removeFrom('live', inst.location, activeHelpId);
-  delete S.helpInstances[activeHelpId];
+  // Remove from live board — scan all cells (don't rely on inst.location alone)
+  const helpId = activeHelpId;
+  Object.keys(S.live).forEach(off => {
+    Object.keys(S.live[off]).forEach(col => {
+      S.live[off][col] = S.live[off][col].filter(x => x !== helpId);
+    });
+  });
+  delete S.helpInstances[helpId];
   activeHelpId = null;
-  save(); renderAll(); renderHelpLog(); closeModal('help-modal');
+  save(); renderAll(); renderHelpLog(); renderHelpLogTab(); closeModal('help-modal');
 }
 
 // ════════════════════════════════════════════════
@@ -1523,7 +1590,7 @@ function makeRosterHelpTok() {
   tok.addEventListener('dragstart', e => {
     const newId = newHelpId();
     // Create instance immediately so it exists when dropped
-    S.helpInstances[newId] = { id:newId, location:null, status:'active', comments:[], checklist:[], helpers:[] };
+    S.helpInstances[newId] = { id:newId, location:null, status:'active', comments:[], checklist:[], helpers:[], chat:[] };
     setDrag({ staffId:newId, srcBoard:'roster', srcZone:null }, e);
     setTimeout(() => tok.classList.add('drag-src'), 0);
   });
@@ -2066,6 +2133,21 @@ function renderHelpLogTab() {
         checkEl.appendChild(row);
       });
       card.appendChild(checkEl);
+    }
+
+    // Chat log
+    const chatMsgs = entry.chat || [];
+    if (chatMsgs.length > 0) {
+      const chatEl = document.createElement('div');
+      chatEl.style.cssText = 'display:flex;flex-direction:column;gap:5px';
+      chatEl.innerHTML = `<span style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe);margin-bottom:2px">Chat (${chatMsgs.length} message${chatMsgs.length===1?'':'s'})</span>`;
+      chatMsgs.forEach(msg => {
+        const row = document.createElement('div');
+        row.style.cssText = 'background:var(--alabaster);border-radius:7px;padding:6px 10px;font-size:11px';
+        row.innerHTML = `<span style="font-weight:700;color:var(--onyx)">${escHtml(msg.name)}</span> <span style="color:var(--taupe);font-size:10px">${escHtml(msg.ts)}</span><div style="margin-top:2px;color:var(--onyx)">${escHtml(msg.text)}</div>`;
+        chatEl.appendChild(row);
+      });
+      card.appendChild(chatEl);
     }
 
     body.appendChild(card);
