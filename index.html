@@ -594,6 +594,16 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
     <div class="modal-body">
       <div id="help-status-bar" class="help-status-bar active">🔴 &nbsp;Waiting for assistance…</div>
 
+      <div class="help-section-title">Requested By</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:4px">
+        <select class="helper-select" id="help-requestor-select">
+          <option value="">— Select your name —</option>
+        </select>
+        <input class="add-row-input" id="help-requestor-outside" placeholder="Or type name…" style="max-width:160px">
+        <button class="btn btn-ghost btn-sm" onclick="setRequestor()">Set</button>
+      </div>
+      <div id="help-requestor-display" style="margin-bottom:4px;font-size:12px;color:var(--onyx);font-weight:600;min-height:18px"></div>
+
       <div class="help-section-title">Helpers</div>
       <div class="helper-tags" id="help-helpers-list"></div>
       <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
@@ -1009,6 +1019,21 @@ function renderHelpModal() {
   bar.className = 'help-status-bar ' + inst.status;
   bar.textContent = isActive ? '🔴  Waiting for assistance…' : '🟢  Help is on the way!';
 
+  // Requestor
+  const reqSel = document.getElementById('help-requestor-select');
+  if (reqSel) {
+    reqSel.innerHTML = '<option value="">— Select your name —</option>';
+    S.staff.forEach(s => {
+      const o = document.createElement('option');
+      o.value = s.name; o.textContent = s.name;
+      reqSel.appendChild(o);
+    });
+  }
+  const reqDisplay = document.getElementById('help-requestor-display');
+  if (reqDisplay) {
+    reqDisplay.textContent = inst.requestedBy ? 'Requesting: ' + inst.requestedBy : '';
+  }
+
   // Helpers (stored as name strings)
   const hl = document.getElementById('help-helpers-list');
   hl.innerHTML = '';
@@ -1075,6 +1100,18 @@ function renderHelpModal() {
     });
     chatLog.scrollTop = chatLog.scrollHeight;
   }
+}
+
+function setRequestor() {
+  const sel = document.getElementById('help-requestor-select');
+  const outside = document.getElementById('help-requestor-outside');
+  const name = sel.value || outside.value.trim();
+  if (!name) return;
+  const inst = S.helpInstances[activeHelpId];
+  if (!inst) return;
+  inst.requestedBy = name;
+  outside.value = '';
+  save(); renderHelpModal();
 }
 
 function provideHelp() {
@@ -1178,8 +1215,9 @@ function resolveHelp() {
   S.helpLog.unshift({
     resolvedAt: new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}),
     location: inst.location || '—',
+    requestedBy: inst.requestedBy || '—',
     helpers: (inst.helpers||[]).join(', ') || '—',
-    comments: (inst.comments||[]).map(c=>c.text).join(' · ') || '—',
+    comments: (inst.comments||[]).map(c=>c.text).join('\n') || '',
     checklist: inst.checklist||[],
     chat: inst.chat||[],
     status: inst.helpers && inst.helpers.length ? 'Resolved' : 'Resolved (No Helper)',
@@ -2076,7 +2114,8 @@ function renderHelpLogTab() {
     const done     = checks.filter(c => c.done).length;
     const allDone  = checks.length > 0 && done === checks.length;
     const helpers  = entry.helpers || '—';
-    const notes    = entry.comments || '—';
+    const notes    = entry.comments || '';
+    const requestedBy = entry.requestedBy || '';
 
     const card = document.createElement('div');
     card.style.cssText = 'background:var(--white);border:1px solid var(--sandstone);border-radius:10px;padding:14px 18px;display:flex;flex-direction:column;gap:8px;position:relative';
@@ -2099,6 +2138,14 @@ function renderHelpLogTab() {
         onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--sandstone)'">×</button>`;
     card.appendChild(hdr);
 
+    // Requested by
+    if (requestedBy && requestedBy !== '—') {
+      const reqRow = document.createElement('div');
+      reqRow.style.cssText = 'display:flex;align-items:center;gap:8px;flex-wrap:wrap';
+      reqRow.innerHTML = `<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe)">Requested by:</span><span style="background:#fef3c7;border:1px solid #fde68a;border-radius:100px;padding:2px 10px;font-size:11px;font-weight:600;color:#92400e">${escHtml(requestedBy)}</span>`;
+      card.appendChild(reqRow);
+    }
+
     // Helpers row
     const helperRow = document.createElement('div');
     helperRow.style.cssText = 'display:flex;align-items:center;gap:8px;flex-wrap:wrap';
@@ -2119,13 +2166,11 @@ function renderHelpLogTab() {
     }
     card.appendChild(helperRow);
 
-    // Notes
-    if (notes && notes !== '—') {
-      const noteEl = document.createElement('div');
-      noteEl.style.cssText = 'font-size:12px;color:var(--onyx);background:var(--alabaster);border-radius:7px;padding:8px 12px;line-height:1.5';
-      noteEl.innerHTML = `<span style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe);display:block;margin-bottom:4px">Notes</span>${escHtml(notes)}`;
-      card.appendChild(noteEl);
-    }
+    // Notes (always show)
+    const noteEl = document.createElement('div');
+    noteEl.style.cssText = 'font-size:12px;color:var(--onyx);background:var(--alabaster);border-radius:7px;padding:8px 12px;line-height:1.5';
+    noteEl.innerHTML = `<span style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe);display:block;margin-bottom:4px">What they needed help with</span>${notes ? escHtml(notes).replace(/\n/g,'<br>') : '<span style="color:var(--sandstone)">No description</span>'}`;
+    card.appendChild(noteEl);
 
     // Checklist
     if (checks.length > 0) {
@@ -2142,19 +2187,34 @@ function renderHelpLogTab() {
       card.appendChild(checkEl);
     }
 
-    // Chat log
+    // Chat log (collapsible)
     const chatMsgs = entry.chat || [];
     if (chatMsgs.length > 0) {
-      const chatEl = document.createElement('div');
-      chatEl.style.cssText = 'display:flex;flex-direction:column;gap:5px';
-      chatEl.innerHTML = `<span style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe);margin-bottom:2px">Chat (${chatMsgs.length} message${chatMsgs.length===1?'':'s'})</span>`;
+      const chatWrap = document.createElement('div');
+      chatWrap.style.cssText = 'display:flex;flex-direction:column;gap:5px';
+      const chatToggleId = 'chat-body-' + i;
+      const chatHdr = document.createElement('div');
+      chatHdr.style.cssText = 'display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none';
+      chatHdr.innerHTML = `<span style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe)">Chat (${chatMsgs.length} message${chatMsgs.length===1?'':'s'})</span><span id="chat-chev-${i}" style="font-size:10px;color:var(--taupe)">▼</span>`;
+      chatHdr.onclick = () => {
+        const body = document.getElementById(chatToggleId);
+        const chev = document.getElementById('chat-chev-' + i);
+        const open = body.style.display !== 'none';
+        body.style.display = open ? 'none' : 'flex';
+        chev.textContent = open ? '▶' : '▼';
+      };
+      chatWrap.appendChild(chatHdr);
+      const chatBody = document.createElement('div');
+      chatBody.id = chatToggleId;
+      chatBody.style.cssText = 'display:flex;flex-direction:column;gap:4px';
       chatMsgs.forEach(msg => {
         const row = document.createElement('div');
         row.style.cssText = 'background:var(--alabaster);border-radius:7px;padding:6px 10px;font-size:11px';
         row.innerHTML = `<span style="font-weight:700;color:var(--onyx)">${escHtml(msg.name)}</span> <span style="color:var(--taupe);font-size:10px">${escHtml(msg.ts)}</span><div style="margin-top:2px;color:var(--onyx)">${escHtml(msg.text)}</div>`;
-        chatEl.appendChild(row);
+        chatBody.appendChild(row);
       });
-      card.appendChild(chatEl);
+      chatWrap.appendChild(chatBody);
+      card.appendChild(chatWrap);
     }
 
     body.appendChild(card);
