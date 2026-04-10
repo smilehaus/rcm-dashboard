@@ -1067,10 +1067,10 @@ function renderHelpModal() {
   const chatLog = document.getElementById('help-chat-log');
   if (chatLog) {
     chatLog.innerHTML = '';
-    (inst.chat||[]).forEach(msg => {
+    (inst.chat||[]).forEach((msg, idx) => {
       const b = document.createElement('div');
       b.className = 'chat-bubble';
-      b.innerHTML = `<div class="chat-bubble-meta"><span class="chat-bubble-name">${escHtml(msg.name)}</span><span class="chat-bubble-ts">${escHtml(msg.ts)}</span></div><div class="chat-bubble-text">${escHtml(msg.text)}</div>`;
+      b.innerHTML = `<div class="chat-bubble-meta"><span class="chat-bubble-name">${escHtml(msg.name)}</span><span class="chat-bubble-ts">${escHtml(msg.ts)}</span><button onclick="deleteHelpChat(${idx})" title="Delete message" style="margin-left:auto;background:none;border:none;color:var(--sandstone);cursor:pointer;font-size:13px;line-height:1;padding:0 2px" onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--sandstone)'">×</button></div><div class="chat-bubble-text">${escHtml(msg.text)}</div>`;
       chatLog.appendChild(b);
     });
     chatLog.scrollTop = chatLog.scrollHeight;
@@ -1139,6 +1139,13 @@ function addHelpChat() {
     ts: new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
   });
   textEl.value = '';
+  save(); renderHelpModal();
+}
+
+function deleteHelpChat(i) {
+  const inst = S.helpInstances[activeHelpId];
+  if (!inst || !inst.chat) return;
+  inst.chat.splice(i, 1);
   save(); renderHelpModal();
 }
 
