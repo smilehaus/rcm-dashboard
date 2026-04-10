@@ -83,10 +83,10 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 .grid-scroll{overflow-x:auto;}
 .rcm-grid{width:100%;border-collapse:collapse;min-width:1050px;}
 .rcm-grid th,.rcm-grid td{border:1px solid var(--sandstone);}
-.th-office{background:var(--onyx);color:white;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:12px 8px;text-align:center;width:78px;}
-.th-cat{background:var(--onyx);color:white;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:10px 4px;text-align:center;position:relative;}
+.th-office{background:#5C4F44;color:white;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:12px 8px;text-align:center;width:78px;}
+.th-cat{background:#5C4F44;color:white;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:10px 4px;text-align:center;position:relative;}
 .th-cat-inner{display:flex;align-items:center;justify-content:center;gap:6px;}
-.th-sub{background:#3f4448;color:rgba(255,255,255,.8);font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;padding:6px 4px;text-align:center;position:relative;}
+.th-sub{background:#7A6A5C;color:rgba(255,255,255,.9);font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;padding:6px 4px;text-align:center;position:relative;}
 .th-sub.oryx{background:var(--earth);color:white;font-weight:700;}
 .td-office{background:var(--alabaster);font-weight:800;color:var(--onyx);padding:0 10px;text-align:center;border-right:2px solid var(--sandstone);vertical-align:middle;white-space:nowrap;}
 .off-code{font-size:13px;font-weight:800;}
@@ -227,7 +227,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 .lock-icon{font-size:15px;}
 .roster-table-wrap{overflow-x:auto;}
 .roster-table{width:100%;border-collapse:collapse;min-width:900px;}
-.roster-table th{background:var(--onyx);color:white;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:10px 14px;text-align:left;white-space:nowrap;}
+.roster-table th{background:#5C4F44;color:white;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:10px 14px;text-align:left;white-space:nowrap;}
 .roster-table td{padding:10px 14px;border-bottom:1px solid var(--alabaster);font-size:12px;color:var(--onyx);vertical-align:middle;}
 .roster-table tr:last-child td{border-bottom:none;}
 .roster-table tr:hover td{background:rgba(242,239,232,.6);}
@@ -255,47 +255,8 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 <!-- ── HEADER ─────────────────────────────────── -->
 <header class="header">
   <!-- Logo -->
-  <img id="logo-png" src="./assets/logo.png" alt="Smile Haus" height="36"
-       style="object-fit:contain;display:block;filter:brightness(0) invert(1);"
-       onerror="this.style.display='none';document.getElementById('logo-svg').style.display='block'">
-  <svg id="logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 76" height="34" aria-label="Smile Haus" style="display:none">
-    <!-- SMILE -->
-    <text x="0" y="58"
-      font-family="'Palatino Linotype',Palatino,'Book Antiqua',Georgia,serif"
-      font-size="62" font-weight="400" fill="white" letter-spacing="8">SMILE</text>
-
-    <!-- Center icon: organic rounded-house / tooth-enamel outline -->
-    <!-- Outer organic shape — centered at x=243, scaled to fit 76px height -->
-    <path d="
-      M243,4
-      C255,4 268,9 274,19
-      C280,29 280,43 274,54
-      C268,65 255,72 243,72
-      C231,72 218,65 212,54
-      C206,43 206,29 212,19
-      C218,9 231,4 243,4 Z"
-      fill="none" stroke="white" stroke-width="3.2" stroke-linejoin="round"/>
-
-    <!-- Tooth shape inside the icon -->
-    <path d="
-      M229,24
-      C229,21 231,20 234,22
-      C236,24 239,25 243,25
-      C247,25 250,24 252,22
-      C255,20 257,21 257,24
-      C257,33 255,43 251,46
-      C249.5,47 248,45.5 247,42
-      C246,39 245,37.5 243,37.5
-      C241,37.5 240,39 239,42
-      C238,45.5 236.5,47 235,46
-      C231,43 229,33 229,24 Z"
-      fill="none" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
-
-    <!-- HAUS -->
-    <text x="278" y="58"
-      font-family="'Palatino Linotype',Palatino,'Book Antiqua',Georgia,serif"
-      font-size="62" font-weight="400" fill="white" letter-spacing="8">HAUS</text>
-  </svg>
+  <img src="./assets/logo.png?v=2" alt="Smile Haus" height="36"
+       style="object-fit:contain;display:block;filter:brightness(0) invert(1);">
   <div style="display:flex;align-items:center;gap:10px">
     <button onclick="rosterGated(publishState)" title="Publish roster &amp; offices for the whole team"
       style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);font-family:'Jost',sans-serif;font-size:10px;font-weight:700;letter-spacing:.8px;padding:5px 13px;border-radius:100px;cursor:pointer;transition:background .15s"
@@ -383,7 +344,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
     <div id="help-log-body" class="panel-body" style="padding:0;overflow-x:auto">
       <table style="width:100%;border-collapse:collapse;min-width:700px;font-size:12px">
         <thead>
-          <tr style="background:var(--onyx);color:white;text-align:left">
+          <tr style="background:#5C4F44;color:white;text-align:left">
             <th style="padding:8px 14px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;white-space:nowrap">Resolved At</th>
             <th style="padding:8px 14px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px">Location</th>
             <th style="padding:8px 14px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px">Helped By</th>
@@ -2247,7 +2208,7 @@ function renderRosterTab() {
 
   tbody.innerHTML = sortedDepts.map(dept => {
     const deptHeader = `<tr>
-      <td colspan="${colCount}" style="background:var(--onyx);color:white;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:7px 14px">${escHtml(dept)}</td>
+      <td colspan="${colCount}" style="background:#5C4F44;color:white;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:7px 14px">${escHtml(dept)}</td>
     </tr>`;
 
     const rows = groups[dept].map(s => {
