@@ -823,10 +823,11 @@ async function load() {
 }
 
 function save() {
-  S._savedAt = new Date().toISOString(); // always stamp local save time so it beats older publishes
+  S._savedAt = new Date().toISOString();
   localStorage.setItem('sh-rcm-v5', JSON.stringify(S));
   const el = document.getElementById('last-updated');
-  if (el) el.textContent = 'Saved ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  const t = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  if (el) { el.textContent = '✓ Saved ' + t; el.style.color='#4ade80'; setTimeout(()=>{el.style.color='';},1800); }
 }
 
 function publishState() {
@@ -1156,26 +1157,39 @@ function removeResp(i) {
 }
 
 function saveProfile() {
-  const idx = S.staff.findIndex(s => s.id === editingStaffId);
-  if (idx < 0) return;
-  const colorEl = document.getElementById('profile-colors');
-  const selColor = colorEl.querySelector('.color-swatch.selected');
+  try {
+    let idx = S.staff.findIndex(s => s.id === editingStaffId);
+    // If staff not found by ID (e.g. state reloaded), try matching by name
+    if (idx < 0) {
+      const nameVal = document.getElementById('p-name').value.trim();
+      idx = S.staff.findIndex(s => s.name === nameVal);
+    }
+    if (idx < 0) {
+      alert('Could not find staff member to save. Please close and reopen the profile.');
+      return;
+    }
+    const colorEl = document.getElementById('profile-colors');
+    const selColor = colorEl ? colorEl.querySelector('.color-swatch.selected') : null;
+    const currentResp = S.staff[idx].resp || [];
 
-  S.staff[idx] = {
-    ...S.staff[idx],
-    name:     document.getElementById('p-name').value.trim() || S.staff[idx].name,
-    initials: document.getElementById('p-initials').value.trim().toUpperCase() || S.staff[idx].initials,
-    color:    selColor ? selColor.style.background : S.staff[idx].color,
-    role:     document.getElementById('p-role').value.trim(),
-    dept:     document.getElementById('p-dept').value.trim(),
-    manager:  document.getElementById('p-manager').value.trim(),
-    phone:    document.getElementById('p-phone').value.trim(),
-    email:    document.getElementById('p-email').value.trim(),
-    resp:     getStaff(editingStaffId).resp || [],
-    vacStart: document.getElementById('p-vac-start').value,
-    vacEnd:   document.getElementById('p-vac-end').value,
-  };
-  save(); checkVacations(); renderAll(); renderRosterTab(); closeModal('profile-modal');
+    S.staff[idx] = {
+      ...S.staff[idx],
+      name:     document.getElementById('p-name').value.trim() || S.staff[idx].name,
+      initials: document.getElementById('p-initials').value.trim().toUpperCase() || S.staff[idx].initials,
+      color:    selColor ? selColor.style.background : S.staff[idx].color,
+      role:     document.getElementById('p-role').value.trim(),
+      dept:     document.getElementById('p-dept').value.trim(),
+      manager:  document.getElementById('p-manager').value.trim(),
+      phone:    document.getElementById('p-phone').value.trim(),
+      email:    document.getElementById('p-email').value.trim(),
+      resp:     currentResp,
+      vacStart: document.getElementById('p-vac-start').value,
+      vacEnd:   document.getElementById('p-vac-end').value,
+    };
+    save(); checkVacations(); renderAll(); renderRosterTab(); closeModal('profile-modal');
+  } catch(e) {
+    alert('Save failed: ' + e.message);
+  }
 }
 
 // ════════════════════════════════════════════════
