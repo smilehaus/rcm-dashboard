@@ -296,7 +296,14 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
       font-family="'Palatino Linotype',Palatino,'Book Antiqua',Georgia,serif"
       font-size="62" font-weight="400" fill="white" letter-spacing="8">HAUS</text>
   </svg>
-  <div class="live-pill"><div class="live-dot"></div>LIVE</div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <button onclick="rosterGated(publishState)" title="Publish roster &amp; offices for the whole team"
+      style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);font-family:'Jost',sans-serif;font-size:10px;font-weight:700;letter-spacing:.8px;padding:5px 13px;border-radius:100px;cursor:pointer;transition:background .15s"
+      onmouseover="this.style.background='rgba(255,255,255,.2)'" onmouseout="this.style.background='rgba(255,255,255,.1)'">
+      ↑ PUBLISH
+    </button>
+    <div class="live-pill"><div class="live-dot"></div>LIVE</div>
+  </div>
 </header>
 
 <main class="main">
@@ -786,14 +793,26 @@ let S = {
   lastAutoClear: '',  // date string of last 10pm auto-clear
 };
 
-function load() {
+async function load() {
+  let local = null, remote = null;
   try {
     const d = localStorage.getItem('sh-rcm-v5');
-    if (d) {
-      const p = JSON.parse(d);
-      Object.assign(S, p);
-    }
+    if (d) local = JSON.parse(d);
   } catch(e) {}
+  try {
+    const r = await fetch('./state.json?t=' + Date.now());
+    if (r.ok) remote = await r.json();
+  } catch(e) {}
+
+  // Pick whichever source is newer (remote wins on tie / no local)
+  let src = null;
+  if (remote && local) {
+    src = (remote._published || '') >= (local._published || '') ? remote : local;
+  } else {
+    src = remote || local;
+  }
+  if (src) Object.assign(S, src);
+
   // ensure live board has all current offices/cols
   S.offices.forEach(o => {
     if (!S.live[o.code]) S.live[o.code] = {};
@@ -802,9 +821,22 @@ function load() {
 }
 
 function save() {
+  S._published = S._published || new Date().toISOString(); // keep existing publish timestamp
   localStorage.setItem('sh-rcm-v5', JSON.stringify(S));
   const el = document.getElementById('last-updated');
   if (el) el.textContent = 'Saved ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+}
+
+function publishState() {
+  if (!__rosterUnlocked) { rosterGated(publishState); return; }
+  const out = { ...S, _published: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'state.json';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  alert('state.json downloaded.\n\nCommit it to the rcm-dashboard repo root to publish for the whole team.');
 }
 
 // ════════════════════════════════════════════════
@@ -2057,9 +2089,11 @@ setInterval(checkAutoClear, 60000);
 // ════════════════════════════════════════════════
 // BOOT
 // ════════════════════════════════════════════════
-load();
-setDate();
-renderAll();
+(async () => {
+  await load();
+  setDate();
+  renderAll();
+})();
 </script>
 </body>
 </html>
