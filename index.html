@@ -1209,6 +1209,12 @@ function saveHelp() {
 function resolveHelp() {
   const inst = S.helpInstances[activeHelpId];
   if (!inst) { alert('Help instance not found. Refresh the page.'); return; }
+  // Auto-capture any unposted comment text before resolving
+  const commentInp = document.getElementById('help-comment-input');
+  if (commentInp && commentInp.value.trim()) {
+    inst.comments.push({ text: commentInp.value.trim(), ts: new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) });
+    commentInp.value = '';
+  }
   if (!confirm('Mark as resolved and remove the help token from the board?')) return;
   // Archive to help log
   if (!S.helpLog) S.helpLog = [];
@@ -2166,11 +2172,14 @@ function renderHelpLogTab() {
     }
     card.appendChild(helperRow);
 
-    // Notes (always show)
-    const noteEl = document.createElement('div');
-    noteEl.style.cssText = 'font-size:12px;color:var(--onyx);background:var(--alabaster);border-radius:7px;padding:8px 12px;line-height:1.5';
-    noteEl.innerHTML = `<span style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe);display:block;margin-bottom:4px">What they needed help with</span>${notes ? escHtml(notes).replace(/\n/g,'<br>') : '<span style="color:var(--sandstone)">No description</span>'}`;
-    card.appendChild(noteEl);
+    // Notes (show only when there's real content)
+    const notesClean = notes && notes !== '—' ? notes.trim() : '';
+    if (notesClean) {
+      const noteEl = document.createElement('div');
+      noteEl.style.cssText = 'font-size:12px;color:var(--onyx);background:var(--alabaster);border-radius:7px;padding:8px 12px;line-height:1.5';
+      noteEl.innerHTML = `<span style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe);display:block;margin-bottom:4px">What they needed help with</span>${escHtml(notesClean).replace(/\n/g,'<br>')}`;
+      card.appendChild(noteEl);
+    }
 
     // Checklist
     if (checks.length > 0) {
@@ -2195,7 +2204,7 @@ function renderHelpLogTab() {
       const chatToggleId = 'chat-body-' + i;
       const chatHdr = document.createElement('div');
       chatHdr.style.cssText = 'display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none';
-      chatHdr.innerHTML = `<span style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe)">Chat (${chatMsgs.length} message${chatMsgs.length===1?'':'s'})</span><span id="chat-chev-${i}" style="font-size:10px;color:var(--taupe)">▼</span>`;
+      chatHdr.innerHTML = `<span style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe)">Chat (${chatMsgs.length} message${chatMsgs.length===1?'':'s'})</span><span id="chat-chev-${i}" style="font-size:10px;color:var(--taupe)">▶</span>`;
       chatHdr.onclick = () => {
         const body = document.getElementById(chatToggleId);
         const chev = document.getElementById('chat-chev-' + i);
@@ -2206,7 +2215,7 @@ function renderHelpLogTab() {
       chatWrap.appendChild(chatHdr);
       const chatBody = document.createElement('div');
       chatBody.id = chatToggleId;
-      chatBody.style.cssText = 'display:flex;flex-direction:column;gap:4px';
+      chatBody.style.cssText = 'display:none;flex-direction:column;gap:4px';
       chatMsgs.forEach(msg => {
         const row = document.createElement('div');
         row.style.cssText = 'background:var(--alabaster);border-radius:7px;padding:6px 10px;font-size:11px';
