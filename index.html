@@ -342,6 +342,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
     <button class="tab-btn active" id="tab-btn-live" onclick="switchTab('live')">⚡ &nbsp;Live Status</button>
     <button class="tab-btn" id="tab-btn-assign" onclick="switchTab('assign')">📋 &nbsp;Assignment Board</button>
     <button class="tab-btn" id="tab-btn-roster" onclick="switchTab('roster')">👥 &nbsp;Staff Roster</button>
+    <button class="tab-btn" id="tab-btn-helplog" onclick="switchTab('helplog')">🚨 &nbsp;Help Records</button>
   </div>
   <div class="legend">
     <div class="legend-item"><div class="ldot" style="background:var(--earth)"></div>Token = staff member</div>
@@ -468,6 +469,25 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
     </div>
     <div class="grid-scroll">
       <table class="rcm-grid" id="assign-table"></table>
+    </div>
+  </div>
+</div>
+
+<!-- ── HELP RECORDS TAB ───────────────────────── -->
+<div id="content-helplog" class="tab-content">
+  <div class="board-panel">
+    <div class="bph">
+      <div>
+        <div class="bph-title">Help Records</div>
+        <div class="bph-date" style="color:var(--taupe)">All resolved help requests — who asked, who helped</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span id="helplog-tab-count" style="font-size:11px;color:var(--taupe)"></span>
+        <button class="btn btn-ghost btn-sm" onclick="rosterGated(clearHelpLogAll)">Clear All</button>
+      </div>
+    </div>
+    <div id="helplog-tab-body" style="padding:16px 20px;display:flex;flex-direction:column;gap:12px">
+      <div id="helplog-empty" style="text-align:center;padding:40px;color:var(--taupe);font-size:13px">No help requests yet. Resolved requests will appear here.</div>
     </div>
   </div>
 </div>
@@ -1833,11 +1853,12 @@ function dropBreak(e, area) {
 // ════════════════════════════════════════════════
 
 function switchTab(tab) {
-  ['assign','live','roster'].forEach(t => {
+  ['assign','live','roster','helplog'].forEach(t => {
     document.getElementById('content-' + t).classList.toggle('active', t === tab);
     document.getElementById('tab-btn-' + t).classList.toggle('active', t === tab);
   });
   if (tab === 'roster') renderRosterTab();
+  if (tab === 'helplog') renderHelpLogTab();
 }
 
 function resetAssign() {
@@ -1924,7 +1945,103 @@ function toggleHelpLog() {
 function clearHelpLog() {
   if (!confirm('Clear the entire help request log?')) return;
   S.helpLog = [];
-  save(); renderHelpLog();
+  save(); renderHelpLog(); renderHelpLogTab();
+}
+
+function clearHelpLogAll() {
+  if (!confirm('Clear all help records? This cannot be undone.')) return;
+  S.helpLog = [];
+  save(); renderHelpLog(); renderHelpLogTab();
+}
+
+function deleteHelpEntry(i) {
+  S.helpLog.splice(i, 1);
+  save(); renderHelpLog(); renderHelpLogTab();
+}
+
+function renderHelpLogTab() {
+  const body  = document.getElementById('helplog-tab-body');
+  const empty = document.getElementById('helplog-empty');
+  const count = document.getElementById('helplog-tab-count');
+  if (!body) return;
+  const log = S.helpLog || [];
+  if (count) count.textContent = log.length + ' record' + (log.length === 1 ? '' : 's');
+
+  // Remove existing cards (keep empty div)
+  Array.from(body.children).forEach(el => { if (el.id !== 'helplog-empty') el.remove(); });
+
+  if (log.length === 0) {
+    empty.style.display = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  log.forEach((entry, i) => {
+    const checks   = entry.checklist || [];
+    const done     = checks.filter(c => c.done).length;
+    const allDone  = checks.length > 0 && done === checks.length;
+    const helpers  = entry.helpers || '—';
+    const notes    = entry.comments || '—';
+
+    const card = document.createElement('div');
+    card.style.cssText = 'background:var(--white);border:1px solid var(--sandstone);border-radius:10px;padding:14px 18px;display:flex;flex-direction:column;gap:8px;position:relative';
+
+    // Header row
+    const hdr = document.createElement('div');
+    hdr.style.cssText = 'display:flex;align-items:center;gap:10px;flex-wrap:wrap';
+    hdr.innerHTML = `
+      <span style="font-size:11px;font-weight:700;color:var(--earth);text-transform:uppercase;letter-spacing:.7px">📍 ${escHtml(entry.location)}</span>
+      <span style="font-size:10px;color:var(--taupe);margin-left:auto">${escHtml(entry.resolvedAt)}</span>
+      <button onclick="deleteHelpEntry(${i})" title="Delete record"
+        style="background:none;border:none;color:var(--sandstone);cursor:pointer;font-size:14px;line-height:1;padding:0 2px"
+        onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--sandstone)'">×</button>`;
+    card.appendChild(hdr);
+
+    // Helpers row
+    const helperRow = document.createElement('div');
+    helperRow.style.cssText = 'display:flex;align-items:center;gap:8px;flex-wrap:wrap';
+    helperRow.innerHTML = `<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe)">Helped by:</span>`;
+    const helperNames = helpers.split(',').map(h => h.trim()).filter(Boolean);
+    if (helperNames.length && helperNames[0] !== '—') {
+      helperNames.forEach(name => {
+        const tag = document.createElement('span');
+        tag.style.cssText = 'background:#f0fdf4;border:1px solid #bbf7d0;border-radius:100px;padding:2px 10px;font-size:11px;font-weight:600;color:#16a34a';
+        tag.textContent = name;
+        helperRow.appendChild(tag);
+      });
+    } else {
+      const none = document.createElement('span');
+      none.style.cssText = 'font-size:11px;color:var(--sandstone)';
+      none.textContent = 'No helpers recorded';
+      helperRow.appendChild(none);
+    }
+    card.appendChild(helperRow);
+
+    // Notes
+    if (notes && notes !== '—') {
+      const noteEl = document.createElement('div');
+      noteEl.style.cssText = 'font-size:12px;color:var(--onyx);background:var(--alabaster);border-radius:7px;padding:8px 12px;line-height:1.5';
+      noteEl.innerHTML = `<span style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe);display:block;margin-bottom:4px">Notes</span>${escHtml(notes)}`;
+      card.appendChild(noteEl);
+    }
+
+    // Checklist
+    if (checks.length > 0) {
+      const checkEl = document.createElement('div');
+      checkEl.style.cssText = 'display:flex;flex-direction:column;gap:4px';
+      checkEl.innerHTML = `<span style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe);margin-bottom:2px">Checklist ${done}/${checks.length}</span>`;
+      checks.forEach(item => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;align-items:center;gap:7px;font-size:11px';
+        const icon = item.done ? '✅' : '⬜';
+        row.innerHTML = `<span>${icon}</span><span style="color:var(--onyx);${item.done?'text-decoration:line-through;color:var(--taupe)':''}">${escHtml(item.text)}</span>`;
+        checkEl.appendChild(row);
+      });
+      card.appendChild(checkEl);
+    }
+
+    body.appendChild(card);
+  });
 }
 
 // ════════════════════════════════════════════════
