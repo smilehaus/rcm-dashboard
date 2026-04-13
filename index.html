@@ -58,8 +58,8 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 /* Roster token wrap */
 .rtok{display:flex;flex-direction:column;align-items:center;gap:5px;position:relative;}
 .rtok-name{font-size:9px;color:var(--earth);text-align:center;max-width:62px;line-height:1.3;font-weight:500;}
-.rtok-del{position:absolute;top:-4px;right:-4px;width:17px;height:17px;border-radius:50%;background:var(--taupe);color:white;border:none;font-size:11px;line-height:1;cursor:pointer;display:none;align-items:center;justify-content:center;font-weight:700;}
-.rtok:hover .rtok-del{display:flex;}
+.rtok-del{display:none !important;}
+.rtok:hover .rtok-del{display:none !important;}
 
 /* ── Tabs ─────────────────────────────────── */
 .tab-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
@@ -1730,15 +1730,8 @@ function makeRosterTok(staffId) {
   lbl.className = 'rtok-name';
   lbl.textContent = s.name;
 
-  const delBtn = document.createElement('button');
-  delBtn.className = 'rtok-del';
-  delBtn.textContent = '×';
-  delBtn.title = 'Remove staff';
-  delBtn.onclick = () => removeStaff(staffId);
-
   wrap.appendChild(tok);
   wrap.appendChild(lbl);
-  wrap.appendChild(delBtn);
   return wrap;
 }
 
