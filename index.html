@@ -1862,6 +1862,11 @@ function buildGrid(tableEl, boardId) {
         save(); renderAll();
       });
 
+      // Pink background on assignment board if help token present
+      if (!isLive && tokens.some(sid => sid.startsWith('help_'))) {
+        td.style.background = 'rgba(239,68,68,.07)';
+      }
+
       const inner = document.createElement('div');
       inner.className = 'cell-inner';
 
@@ -1882,17 +1887,27 @@ function buildGrid(tableEl, boardId) {
         }
       }
 
-      // Live tokens layer
+      // Live tokens layer — own_team floated right, rest on left
       const layer = document.createElement('div');
       layer.className = 'live-layer';
-      tokens.forEach(sid => {
-        layer.appendChild(makeTok(sid, {
-          isLive,
-          srcBoard: boardId,
-          srcZone: zoneKey,
-          showRemove: !isLive,
-        }));
+      layer.style.cssText = 'display:flex;align-items:center;flex-wrap:wrap;gap:4px;width:100%';
+
+      const mainTokens = tokens.filter(sid => sid !== 'own_team');
+      const ownTokens  = tokens.filter(sid => sid === 'own_team');
+
+      mainTokens.forEach(sid => {
+        layer.appendChild(makeTok(sid, { isLive, srcBoard: boardId, srcZone: zoneKey, showRemove: !isLive }));
       });
+
+      if (ownTokens.length) {
+        const spacer = document.createElement('div');
+        spacer.style.cssText = 'flex:1;min-width:4px';
+        layer.appendChild(spacer);
+        ownTokens.forEach(sid => {
+          layer.appendChild(makeTok(sid, { isLive, srcBoard: boardId, srcZone: zoneKey, showRemove: !isLive }));
+        });
+      }
+
       inner.appendChild(layer);
       td.appendChild(inner);
       tr.appendChild(td);
