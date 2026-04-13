@@ -601,9 +601,15 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
         <div style="font-size:10px;color:var(--taupe);margin-top:6px">Token auto-moves to Away Zone each day they're on vacation</div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('profile-modal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveProfile()">Save Profile</button>
+    <div class="modal-footer" style="justify-content:space-between">
+      <button class="btn btn-sm" id="profile-inactive-btn" onclick="markInactiveFromProfile()"
+        style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;font-size:11px;display:none">
+        Move to Inactive
+      </button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" onclick="closeModal('profile-modal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveProfile()">Save Profile</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1315,6 +1321,13 @@ function openProfile(staffId) {
   document.getElementById('p-vac-end').value   = s.vacEnd   || '';
 
   renderRespList(s.resp || []);
+
+  // Show "Move to Inactive" button only when unlocked and not already inactive
+  const inactiveBtn = document.getElementById('profile-inactive-btn');
+  if (inactiveBtn) {
+    inactiveBtn.style.display = (__rosterUnlocked && s.dept !== 'Inactive') ? '' : 'none';
+  }
+
   openModal('profile-modal');
 }
 
@@ -2520,6 +2533,8 @@ function rosterDelete(id) {
   openModal('inactive-modal');
 }
 
+let __pendingInactiveId = null;
+
 function confirmInactive() {
   if (!__pendingInactiveId) return;
   const reason = document.getElementById('inactive-reason-select').value;
@@ -2530,10 +2545,19 @@ function confirmInactive() {
   s.inactiveDate = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
   __pendingInactiveId = null;
   closeModal('inactive-modal');
+  closeModal('profile-modal');
   save(); renderAll(); renderRosterTab();
 }
 
-let __pendingInactiveId = null;
+// Can also be triggered from profile modal
+function markInactiveFromProfile() {
+  if (!editingStaffId) return;
+  __pendingInactiveId = editingStaffId;
+  const s = getStaff(editingStaffId);
+  document.getElementById('inactive-name-display').textContent = s.name;
+  document.getElementById('inactive-reason-select').value = 'Terminated';
+  openModal('inactive-modal');
+}
 
 // ════════════════════════════════════════════════
 // VACATION AUTO-MOVE
