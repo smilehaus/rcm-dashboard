@@ -503,6 +503,31 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
   </div>
 </div>
 
+<!-- ── GITHUB TOKEN MODAL ─────────────────────── -->
+<div class="modal-overlay" id="gh-token-modal">
+  <div class="modal sm">
+    <div class="modal-hdr">
+      <h3>🔑 &nbsp;GitHub Token Setup</h3>
+      <button class="modal-close" onclick="closeModal('gh-token-modal')">×</button>
+    </div>
+    <div class="simple-modal-body" style="display:flex;flex-direction:column;gap:12px">
+      <div style="font-size:12px;color:var(--taupe);line-height:1.6">
+        Enter a GitHub Personal Access Token with <strong>Contents: Read &amp; Write</strong> access to the <code>smilehaus/rcm-dashboard</code> repo.<br><br>
+        Create one at: <strong>GitHub → Settings → Developer Settings → Fine-grained tokens</strong><br>
+        Saved to this browser only — never shared.
+      </div>
+      <div class="form-group">
+        <div class="form-label">Personal Access Token</div>
+        <input class="form-input" id="gh-token-input" type="password" placeholder="github_pat_…">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('gh-token-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveGhToken()">Save &amp; Publish</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── INACTIVE MODAL ────────────────────────── -->
 <div class="modal-overlay" id="inactive-modal">
   <div class="modal sm">
@@ -878,8 +903,12 @@ let S = {
 
 const DATA_VERSION = 6; // bump when state schema changes to force-clear stale cache
 
+const LIVE_MODE = new URLSearchParams(location.search).has('live');
+
 async function load() {
   let local = null, remote = null;
+  // In ?live=1 mode (e.g. ClickUp embed) always skip localStorage and use remote
+  if (!LIVE_MODE) {
   try {
     const d = localStorage.getItem('sh-rcm-v5');
     if (d) {
@@ -893,14 +922,18 @@ async function load() {
       }
     }
   } catch(e) { localStorage.removeItem('sh-rcm-v5'); }
+  } // end !LIVE_MODE block
+
   try {
     const r = await fetch('./state.json?t=' + Date.now());
     if (r.ok) remote = await r.json();
   } catch(e) {}
 
-  // Local wins if user has saved since the last publish; remote wins if a newer publish exists
+  // In live mode: always use remote. Otherwise local wins unless remote is newer.
   let src = null;
-  if (remote && local) {
+  if (LIVE_MODE) {
+    src = remote;
+  } else if (remote && local) {
     const localTime  = local._savedAt  || local._published  || '';
     const remoteTime = remote._published || '';
     src = remoteTime > localTime ? remote : local;
@@ -925,16 +958,60 @@ function save() {
   if (el) { el.textContent = '✓ Saved ' + t; el.style.color='#4ade80'; setTimeout(()=>{el.style.color='';},1800); }
 }
 
-function publishState() {
+async function publishState() {
   if (!__rosterUnlocked) { rosterGated(publishState); return; }
-  const out = { ...S, _published: new Date().toISOString() };
-  const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'state.json';
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-  alert('state.json downloaded.\n\nCommit it to the rcm-dashboard repo root to publish for the whole team.');
+  const token = localStorage.getItem('sh-github-token');
+  if (!token) { openGhTokenModal(); return; }
+
+  const publishBtn = document.querySelector('[onclick="publishState()"]');
+  if (publishBtn) { publishBtn.textContent = '⏳ Publishing…'; publishBtn.disabled = true; }
+
+  try {
+    const out = { ...S, _published: new Date().toISOString() };
+    const content = JSON.stringify(out, null, 2);
+    const encoded = btoa(unescape(encodeURIComponent(content)));
+
+    // Get current SHA of state.json
+    const getRes = await fetch('https://api.github.com/repos/smilehaus/rcm-dashboard/contents/state.json', {
+      headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (!getRes.ok) {
+      if (getRes.status === 401) { alert('GitHub token invalid or expired. Re-enter it.'); localStorage.removeItem('sh-github-token'); openGhTokenModal(); return; }
+      throw new Error('GitHub API error: ' + getRes.status);
+    }
+    const current = await getRes.json();
+
+    // Commit updated state.json
+    const putRes = await fetch('https://api.github.com/repos/smilehaus/rcm-dashboard/contents/state.json', {
+      method: 'PUT',
+      headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'Publish dashboard state', content: encoded, sha: current.sha })
+    });
+    if (!putRes.ok) {
+      const err = await putRes.json();
+      throw new Error(err.message || 'Commit failed');
+    }
+    S._published = out._published;
+    save();
+    if (publishBtn) { publishBtn.textContent = '✓ Published!'; publishBtn.style.background='#16a34a'; }
+    setTimeout(() => { if (publishBtn) { publishBtn.textContent = '↑ Publish'; publishBtn.style.background=''; publishBtn.disabled = false; } }, 3000);
+  } catch(e) {
+    alert('Publish failed: ' + e.message);
+    if (publishBtn) { publishBtn.textContent = '↑ Publish'; publishBtn.disabled = false; }
+  }
+}
+
+function openGhTokenModal() {
+  document.getElementById('gh-token-input').value = localStorage.getItem('sh-github-token') || '';
+  openModal('gh-token-modal');
+}
+
+function saveGhToken() {
+  const t = document.getElementById('gh-token-input').value.trim();
+  if (!t) return;
+  localStorage.setItem('sh-github-token', t);
+  closeModal('gh-token-modal');
+  publishState();
 }
 
 // ════════════════════════════════════════════════
