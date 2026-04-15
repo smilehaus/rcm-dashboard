@@ -1,0 +1,25 @@
+name: Publish Dashboard State
+
+on:
+  repository_dispatch:
+    types: [publish-state]
+
+jobs:
+  commit-state:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Write state.json
+        run: |
+          echo '${{ toJson(github.event.client_payload.state) }}' > state.json
+
+      - name: Commit state.json
+        run: |
+          git config user.name "RCM Dashboard"
+          git config user.email "dashboard@smilehaus.com"
+          git add state.json
+          git diff --cached --quiet || git commit -m "Publish dashboard state [skip ci]"
+          git push

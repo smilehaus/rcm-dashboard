@@ -933,11 +933,21 @@ function save() {
   if (el) { el.textContent = '✓ Saved ' + t; el.style.color='#4ade80'; setTimeout(()=>{el.style.color='';},1800); }
 }
 
-// Netlify function endpoint — set after deploying to Netlify
-const PUBLISH_ENDPOINT = 'https://smilehaus-rcm.netlify.app/.netlify/functions/publish';
+// Fine-grained PAT with ONLY "Actions: Read & Write" on smilehaus/rcm-dashboard
+// This token cannot read/write files — it can only trigger workflows.
+// Safe to embed here since it has no file access.
+const GH_ACTIONS_TOKEN = localStorage.getItem('sh-actions-token') || '';
+const GH_REPO = 'smilehaus/rcm-dashboard';
 
 async function publishState() {
   if (!__rosterUnlocked) { rosterGated(publishState); return; }
+
+  const token = localStorage.getItem('sh-actions-token');
+  if (!token) {
+    const t = prompt('Enter the shared publish token (ask your manager):');
+    if (!t) return;
+    localStorage.setItem('sh-actions-token', t.trim());
+  }
 
   const publishBtn = document.querySelector('[onclick="publishState()"]');
   const origText = publishBtn ? publishBtn.textContent : '';
@@ -945,16 +955,22 @@ async function publishState() {
 
   try {
     const out = { ...S, _published: new Date().toISOString() };
-    const pin = S.rosterPin || 'smilehaus2024';
 
-    const res = await fetch(PUBLISH_ENDPOINT, {
+    const res = await fetch(`https://api.github.com/repos/${GH_REPO}/dispatches`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ state: out, password: pin }),
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('sh-actions-token'),
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ event_type: 'publish-state', client_payload: { state: out } }),
     });
 
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Publish failed');
+    if (res.status === 401) {
+      localStorage.removeItem('sh-actions-token');
+      throw new Error('Token invalid or expired. Try publishing again to re-enter.');
+    }
+    if (!res.ok) throw new Error('GitHub dispatch failed: ' + res.status);
 
     S._published = out._published;
     save();
