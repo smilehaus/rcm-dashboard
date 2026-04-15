@@ -933,20 +933,17 @@ function save() {
   if (el) { el.textContent = '✓ Saved ' + t; el.style.color='#4ade80'; setTimeout(()=>{el.style.color='';},1800); }
 }
 
-// Fine-grained PAT with ONLY "Actions: Read & Write" on smilehaus/rcm-dashboard
-// This token cannot read/write files — it can only trigger workflows.
-// Safe to embed here since it has no file access.
-const GH_ACTIONS_TOKEN = localStorage.getItem('sh-actions-token') || '';
 const GH_REPO = 'smilehaus/rcm-dashboard';
 
 async function publishState() {
   if (!__rosterUnlocked) { rosterGated(publishState); return; }
 
-  const token = localStorage.getItem('sh-actions-token');
+  let token = localStorage.getItem('sh-pub-token');
   if (!token) {
-    const t = prompt('Enter the shared publish token (ask your manager):');
-    if (!t) return;
-    localStorage.setItem('sh-actions-token', t.trim());
+    token = prompt('Enter the publish token (ask your manager — one-time entry):');
+    if (!token) return;
+    localStorage.setItem('sh-pub-token', token.trim());
+    token = token.trim();
   }
 
   const publishBtn = document.querySelector('[onclick="publishState()"]');
@@ -955,22 +952,23 @@ async function publishState() {
 
   try {
     const out = { ...S, _published: new Date().toISOString() };
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(out, null, 2))));
 
-    const res = await fetch(`https://api.github.com/repos/${GH_REPO}/dispatches`, {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + localStorage.getItem('sh-actions-token'),
-        'Accept': 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ event_type: 'publish-state', client_payload: { state: out } }),
+    // Get current SHA
+    const getRes = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/state.json`, {
+      headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' }
     });
+    if (getRes.status === 401) { localStorage.removeItem('sh-pub-token'); throw new Error('Token invalid — try publishing again to re-enter.'); }
+    if (!getRes.ok) throw new Error('Could not read state.json: ' + getRes.status);
+    const current = await getRes.json();
 
-    if (res.status === 401) {
-      localStorage.removeItem('sh-actions-token');
-      throw new Error('Token invalid or expired. Try publishing again to re-enter.');
-    }
-    if (!res.ok) throw new Error('GitHub dispatch failed: ' + res.status);
+    // Commit
+    const putRes = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/state.json`, {
+      method: 'PUT',
+      headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'Publish dashboard state [skip ci]', content, sha: current.sha }),
+    });
+    if (!putRes.ok) { const e = await putRes.json(); throw new Error(e.message || 'Commit failed: ' + putRes.status); }
 
     S._published = out._published;
     save();
