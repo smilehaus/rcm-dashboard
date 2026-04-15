@@ -1,59 +1,576 @@
 {
-  "_published": "2020-01-01T00:00:00.000Z",
   "staff": [
-    {"id":"adela",    "name":"Adela",            "initials":"AD","color":"#7BA8C4","phone":"","email":"","role":"","dept":"","manager":"","resp":[]},
-    {"id":"vanessa",  "name":"Vanessa",          "initials":"VA","color":"#9896C8","phone":"","email":"","role":"","dept":"","manager":"","resp":[]},
-    {"id":"valerie",  "name":"Valerie",          "initials":"VL","color":"#A58BC4","phone":"","email":"","role":"","dept":"","manager":"","resp":[]},
-    {"id":"becky",    "name":"Becky",            "initials":"BE","color":"#C4935A","phone":"","email":"","role":"","dept":"","manager":"","resp":[]},
-    {"id":"brittani", "name":"Brittani",         "initials":"BR","color":"#6DAA8F","phone":"","email":"","role":"","dept":"","manager":"","resp":[]},
-    {"id":"lovely",   "name":"Lovely (REACH)",   "initials":"LV","color":"#C47898","phone":"","email":"","role":"","dept":"","manager":"","resp":[]},
-    {"id":"princess", "name":"Princess (REACH)", "initials":"PN","color":"#C4A85A","phone":"","email":"","role":"","dept":"","manager":"","resp":[]},
-    {"id":"rob",      "name":"Rob (REACH)",      "initials":"RB","color":"#5AAAC4","phone":"","email":"","role":"","dept":"","manager":"","resp":[]},
-    {"id":"kirk",     "name":"Kirk (REACH)",     "initials":"KK","color":"#8A9BAA","phone":"","email":"","role":"","dept":"","manager":"","resp":[]},
-    {"id":"myk",      "name":"Myk",             "initials":"MK","color":"#C47070","phone":"","email":"","role":"","dept":"","manager":"","resp":[]},
-    {"id":"gianna",   "name":"Gianna",          "initials":"GI","color":"#5AAAA5","phone":"","email":"","role":"","dept":"","manager":"","resp":[]},
-    {"id":"alexis",   "name":"Alexis",          "initials":"AX","color":"#C4708A","phone":"","email":"","role":"","dept":"","manager":"","resp":[]},
-    {"id":"lynn",     "name":"Lynn",            "initials":"LN","color":"#9A78C4","phone":"","email":"","role":"","dept":"","manager":"","resp":[]},
-    {"id":"own_team", "name":"Own Team",        "initials":"OT","color":"#9A8E80","phone":"","email":"","role":"","dept":"","manager":"","resp":[]}
+    {
+      "id": "adela",
+      "name": "Adela",
+      "initials": "AJ",
+      "color": "rgb(123, 168, 196)",
+      "phone": "",
+      "email": "",
+      "role": "Regional Manager - North",
+      "dept": "Management",
+      "manager": "Anh",
+      "resp": [],
+      "vacStart": "",
+      "vacEnd": "",
+      "inactiveReason": "Inactive",
+      "inactiveDate": "Apr 13, 2026"
+    },
+    {
+      "id": "vanessa",
+      "name": "Vanessa",
+      "initials": "VA",
+      "color": "rgb(152, 150, 200)",
+      "phone": "",
+      "email": "",
+      "role": "Patient Coordinator",
+      "dept": "Front Team",
+      "manager": "Adela",
+      "resp": [],
+      "vacStart": "",
+      "vacEnd": ""
+    },
+    {
+      "id": "valerie",
+      "name": "Valerie",
+      "initials": "VL",
+      "color": "rgb(165, 139, 196)",
+      "phone": "",
+      "email": "",
+      "role": "Patient Coordinator",
+      "dept": "Front Team",
+      "manager": "Karina",
+      "resp": [],
+      "vacStart": "",
+      "vacEnd": ""
+    },
+    {
+      "id": "becky",
+      "name": "Becky",
+      "initials": "RR",
+      "color": "rgb(196, 147, 90)",
+      "phone": "",
+      "email": "",
+      "role": "RCM Manager",
+      "dept": "Management",
+      "manager": "Anh",
+      "resp": [],
+      "vacStart": "",
+      "vacEnd": ""
+    },
+    {
+      "id": "rob",
+      "name": "Rob (REACH)",
+      "initials": "RB",
+      "color": "rgb(90, 170, 196)",
+      "phone": "",
+      "email": "",
+      "role": "Insurance Verifier",
+      "dept": "RCM - Ins Verification",
+      "manager": "Aby",
+      "resp": [],
+      "vacStart": "",
+      "vacEnd": ""
+    },
+    {
+      "id": "myk",
+      "name": "Myk (REACH)",
+      "initials": "MK",
+      "color": "rgb(196, 112, 112)",
+      "phone": "",
+      "email": "",
+      "role": "Ins Verifier",
+      "dept": "RCM - Ins Verification",
+      "manager": "Aby",
+      "resp": [],
+      "vacStart": "",
+      "vacEnd": ""
+    },
+    {
+      "id": "gianna",
+      "name": "Gianna",
+      "initials": "GI",
+      "color": "rgb(90, 170, 165)",
+      "phone": "",
+      "email": "",
+      "role": "Office Manager",
+      "dept": "Management",
+      "manager": "Karina",
+      "resp": [],
+      "vacStart": "",
+      "vacEnd": ""
+    },
+    {
+      "id": "own_team",
+      "name": "Own Team",
+      "initials": "OT",
+      "color": "#9A8E80",
+      "phone": "",
+      "email": "",
+      "role": "",
+      "dept": "",
+      "manager": "",
+      "resp": []
+    },
+    {
+      "id": "staff_1775850979464",
+      "name": "Karina",
+      "initials": "KR",
+      "color": "rgb(152, 150, 200)",
+      "phone": "",
+      "email": "",
+      "role": "Regional Manager - South",
+      "dept": "Management",
+      "manager": "Anh",
+      "resp": [],
+      "vacStart": "",
+      "vacEnd": ""
+    },
+    {
+      "id": "staff_1776091315164",
+      "name": "Lovely (REACH)",
+      "initials": "LO",
+      "color": "rgb(196, 112, 138)",
+      "phone": "",
+      "email": "",
+      "role": "Claims Submissions",
+      "dept": "RCM - Claims",
+      "manager": "Aby",
+      "resp": [
+        "Submit all claims needing attachmments/narratives",
+        "Recreating/resubmitting old legacy PMS claims",
+        "Correcting errored claims to submit",
+        "Resubmitting denied claims"
+      ],
+      "vacStart": "",
+      "vacEnd": "",
+      "inactiveReason": "Terminated",
+      "inactiveDate": "Apr 13, 2026"
+    }
   ],
   "offices": [
-    {"code":"SQ",   "lbl":"SQ",    "name":"On the Square"},
-    {"code":"GT",   "lbl":"GT",    "name":"Georgetown"},
-    {"code":"ATX",  "lbl":"ATX",   "name":"Austin"},
-    {"code":"MP",   "lbl":"MP",    "name":"Med Pkwy"},
-    {"code":"NBDA", "lbl":"NBDA",  "name":"New Braunfels"},
-    {"code":"IC",   "lbl":"IC",    "name":"Implant Ctr"},
-    {"code":"AR",   "lbl":"AR",    "name":"Arboretum"},
-    {"code":"PF",   "lbl":"PF",    "name":"Pflugerville"},
-    {"code":"SATX", "lbl":"S.ATX", "name":"South Austin"}
+    {
+      "code": "SQ",
+      "lbl": "SQ",
+      "name": "On the Square"
+    },
+    {
+      "code": "GT",
+      "lbl": "GT",
+      "name": "Georgetown"
+    },
+    {
+      "code": "ATX",
+      "lbl": "ATX",
+      "name": "Austin"
+    },
+    {
+      "code": "MP",
+      "lbl": "MP",
+      "name": "Med Pkwy"
+    },
+    {
+      "code": "NBDA",
+      "lbl": "NBDA",
+      "name": "New Braunfels"
+    },
+    {
+      "code": "IC",
+      "lbl": "IC",
+      "name": "Implant Ctr"
+    },
+    {
+      "code": "AR",
+      "lbl": "AR",
+      "name": "Arboretum"
+    },
+    {
+      "code": "PF",
+      "lbl": "PF",
+      "name": "Pflugerville"
+    },
+    {
+      "code": "SATX",
+      "lbl": "S.ATX",
+      "name": "South Austin"
+    },
+    {
+      "code": "AM",
+      "lbl": "AM",
+      "name": "Anderson Mill"
+    }
   ],
   "columns": [
-    {"id":"ins_verif",    "lbl":"Ins Verification","cat":"",                   "oryx":false},
-    {"id":"claims_old",   "lbl":"Old PMS",         "cat":"Claims (Sending)",   "oryx":false},
-    {"id":"claims_oryx",  "lbl":"Oryx",            "cat":"Claims (Sending)",   "oryx":true},
-    {"id":"posting_old",  "lbl":"Old PMS",         "cat":"Posting",            "oryx":false},
-    {"id":"posting_oryx", "lbl":"Oryx",            "cat":"Posting",            "oryx":true},
-    {"id":"aging_old",    "lbl":"Old PMS",         "cat":"Aging",              "oryx":false},
-    {"id":"aging_oryx",   "lbl":"Oryx",            "cat":"Aging",              "oryx":true},
-    {"id":"collect_old",  "lbl":"Old PMS",         "cat":"Collecting / Stmts", "oryx":false},
-    {"id":"collect_oryx", "lbl":"Oryx",            "cat":"Collecting / Stmts", "oryx":true}
+    {
+      "id": "ins_verif",
+      "lbl": "Ins Verification",
+      "cat": "",
+      "oryx": false
+    },
+    {
+      "id": "claims_old",
+      "lbl": "Old PMS",
+      "cat": "Claims (Sending)",
+      "oryx": false
+    },
+    {
+      "id": "claims_oryx",
+      "lbl": "Oryx",
+      "cat": "Claims (Sending)",
+      "oryx": true
+    },
+    {
+      "id": "posting_old",
+      "lbl": "Old PMS",
+      "cat": "Posting",
+      "oryx": false
+    },
+    {
+      "id": "posting_oryx",
+      "lbl": "Oryx",
+      "cat": "Posting",
+      "oryx": true
+    },
+    {
+      "id": "aging_old",
+      "lbl": "Old PMS",
+      "cat": "Aging",
+      "oryx": false
+    },
+    {
+      "id": "aging_oryx",
+      "lbl": "Oryx",
+      "cat": "Aging",
+      "oryx": true
+    },
+    {
+      "id": "collect_old",
+      "lbl": "Old PMS",
+      "cat": "Collecting / Stmts",
+      "oryx": false
+    },
+    {
+      "id": "collect_oryx",
+      "lbl": "Oryx",
+      "cat": "Collecting / Stmts",
+      "oryx": true
+    }
   ],
   "assign": {
-    "SQ":  {"ins_verif":["own_team"],"claims_old":[],"claims_oryx":["lovely"],"posting_old":[],"posting_oryx":["adela"],"aging_old":[],"aging_oryx":["vanessa","adela"],"collect_old":["adela"],"collect_oryx":[]},
-    "GT":  {"ins_verif":["brittani"],"claims_old":[],"claims_oryx":["lovely"],"posting_old":["becky"],"posting_oryx":["valerie"],"aging_old":["valerie"],"aging_oryx":["becky"],"collect_old":[],"collect_oryx":["valerie"]},
-    "ATX": {"ins_verif":["princess"],"claims_old":[],"claims_oryx":["lovely"],"posting_old":[],"posting_oryx":[],"aging_old":[],"aging_oryx":[],"collect_old":[],"collect_oryx":[]},
-    "MP":  {"ins_verif":["myk"],"claims_old":[],"claims_oryx":["lovely"],"posting_old":[],"posting_oryx":[],"aging_old":[],"aging_oryx":[],"collect_old":[],"collect_oryx":[]},
-    "NBDA":{"ins_verif":["rob"],"claims_old":[],"claims_oryx":["lovely"],"posting_old":[],"posting_oryx":[],"aging_old":[],"aging_oryx":[],"collect_old":["lynn"],"collect_oryx":[]},
-    "IC":  {"ins_verif":["own_team"],"claims_old":[],"claims_oryx":["adela","vanessa"],"posting_old":[],"posting_oryx":["adela"],"aging_old":[],"aging_oryx":[],"collect_old":["adela"],"collect_oryx":[]},
-    "AR":  {"ins_verif":["rob"],"claims_old":[],"claims_oryx":["lovely"],"posting_old":[],"posting_oryx":["gianna","alexis"],"aging_old":[],"aging_oryx":[],"collect_old":["own_team"],"collect_oryx":[]},
-    "PF":  {"ins_verif":["princess"],"claims_old":[],"claims_oryx":["lovely"],"posting_old":[],"posting_oryx":[],"aging_old":[],"aging_oryx":[],"collect_old":["own_team"],"collect_oryx":[]},
-    "SATX":{"ins_verif":["kirk"],"claims_old":[],"claims_oryx":["lovely"],"posting_old":[],"posting_oryx":[],"aging_old":[],"aging_oryx":[],"collect_old":["lynn"],"collect_oryx":[]}
+    "SQ": {
+      "ins_verif": [
+        "own_team"
+      ],
+      "claims_old": [],
+      "claims_oryx": [
+        "staff_1776091315164"
+      ],
+      "posting_old": [],
+      "posting_oryx": [
+        "adela"
+      ],
+      "aging_old": [],
+      "aging_oryx": [
+        "vanessa",
+        "adela"
+      ],
+      "collect_old": [
+        "adela"
+      ],
+      "collect_oryx": [
+        "adela",
+        "vanessa"
+      ]
+    },
+    "GT": {
+      "ins_verif": [
+        "becky"
+      ],
+      "claims_old": [],
+      "claims_oryx": [
+        "staff_1776091315164"
+      ],
+      "posting_old": [
+        "becky"
+      ],
+      "posting_oryx": [
+        "valerie"
+      ],
+      "aging_old": [
+        "valerie"
+      ],
+      "aging_oryx": [
+        "becky"
+      ],
+      "collect_old": [],
+      "collect_oryx": [
+        "valerie"
+      ]
+    },
+    "ATX": {
+      "ins_verif": [
+        "own_team",
+        "help_1776095487849_1"
+      ],
+      "claims_old": [],
+      "claims_oryx": [
+        "staff_1776091315164"
+      ],
+      "posting_old": [],
+      "posting_oryx": [],
+      "aging_old": [],
+      "aging_oryx": [],
+      "collect_old": [],
+      "collect_oryx": []
+    },
+    "MP": {
+      "ins_verif": [
+        "myk"
+      ],
+      "claims_old": [],
+      "claims_oryx": [
+        "staff_1776091315164"
+      ],
+      "posting_old": [],
+      "posting_oryx": [],
+      "aging_old": [],
+      "aging_oryx": [],
+      "collect_old": [],
+      "collect_oryx": []
+    },
+    "NBDA": {
+      "ins_verif": [
+        "rob"
+      ],
+      "claims_old": [],
+      "claims_oryx": [
+        "staff_1776091315164"
+      ],
+      "posting_old": [],
+      "posting_oryx": [],
+      "aging_old": [],
+      "aging_oryx": [],
+      "collect_old": [
+        "lynn"
+      ],
+      "collect_oryx": []
+    },
+    "IC": {
+      "ins_verif": [
+        "own_team"
+      ],
+      "claims_old": [],
+      "claims_oryx": [
+        "adela",
+        "vanessa"
+      ],
+      "posting_old": [],
+      "posting_oryx": [
+        "adela"
+      ],
+      "aging_old": [],
+      "aging_oryx": [],
+      "collect_old": [
+        "adela"
+      ],
+      "collect_oryx": []
+    },
+    "AR": {
+      "ins_verif": [
+        "rob"
+      ],
+      "claims_old": [],
+      "claims_oryx": [
+        "staff_1776091315164"
+      ],
+      "posting_old": [],
+      "posting_oryx": [
+        "gianna"
+      ],
+      "aging_old": [],
+      "aging_oryx": [],
+      "collect_old": [
+        "own_team"
+      ],
+      "collect_oryx": []
+    },
+    "PF": {
+      "ins_verif": [
+        "own_team"
+      ],
+      "claims_old": [],
+      "claims_oryx": [
+        "staff_1776091315164"
+      ],
+      "posting_old": [],
+      "posting_oryx": [],
+      "aging_old": [],
+      "aging_oryx": [],
+      "collect_old": [
+        "own_team"
+      ],
+      "collect_oryx": []
+    },
+    "SATX": {
+      "ins_verif": [],
+      "claims_old": [],
+      "claims_oryx": [
+        "staff_1776091315164"
+      ],
+      "posting_old": [],
+      "posting_oryx": [],
+      "aging_old": [],
+      "aging_oryx": [],
+      "collect_old": [
+        "lynn"
+      ],
+      "collect_oryx": []
+    },
+    "AM": {
+      "ins_verif": [
+        "own_team"
+      ],
+      "claims_old": [],
+      "claims_oryx": [
+        "staff_1776091315164"
+      ],
+      "posting_old": [],
+      "posting_oryx": [],
+      "aging_old": [],
+      "aging_oryx": [],
+      "collect_old": [],
+      "collect_oryx": []
+    }
   },
-  "live": {},
+  "live": {
+    "SQ": {
+      "ins_verif": [],
+      "claims_old": [],
+      "claims_oryx": [],
+      "posting_old": [],
+      "posting_oryx": [],
+      "aging_old": [],
+      "aging_oryx": [],
+      "collect_old": [],
+      "collect_oryx": []
+    },
+    "GT": {
+      "ins_verif": [],
+      "claims_old": [],
+      "claims_oryx": [],
+      "posting_old": [],
+      "posting_oryx": [],
+      "aging_old": [],
+      "aging_oryx": [],
+      "collect_old": [],
+      "collect_oryx": []
+    },
+    "ATX": {
+      "ins_verif": [],
+      "claims_old": [],
+      "claims_oryx": [],
+      "posting_old": [],
+      "posting_oryx": [],
+      "aging_old": [],
+      "aging_oryx": [],
+      "collect_old": [],
+      "collect_oryx": []
+    },
+    "MP": {
+      "ins_verif": [],
+      "claims_old": [],
+      "claims_oryx": [],
+      "posting_old": [],
+      "posting_oryx": [],
+      "aging_old": [],
+      "aging_oryx": [],
+      "collect_old": [],
+      "collect_oryx": []
+    },
+    "NBDA": {
+      "ins_verif": [],
+      "claims_old": [],
+      "claims_oryx": [],
+      "posting_old": [],
+      "posting_oryx": [],
+      "aging_old": [],
+      "aging_oryx": [],
+      "collect_old": [],
+      "collect_oryx": []
+    },
+    "IC": {
+      "ins_verif": [],
+      "claims_old": [],
+      "claims_oryx": [],
+      "posting_old": [],
+      "posting_oryx": [],
+      "aging_old": [],
+      "aging_oryx": [],
+      "collect_old": [],
+      "collect_oryx": []
+    },
+    "AR": {
+      "ins_verif": [],
+      "claims_old": [],
+      "claims_oryx": [],
+      "posting_old": [],
+      "posting_oryx": [],
+      "aging_old": [],
+      "aging_oryx": [],
+      "collect_old": [],
+      "collect_oryx": []
+    },
+    "PF": {
+      "ins_verif": [],
+      "claims_old": [],
+      "claims_oryx": [],
+      "posting_old": [],
+      "posting_oryx": [],
+      "aging_old": [],
+      "aging_oryx": [],
+      "collect_old": [],
+      "collect_oryx": []
+    },
+    "SATX": {
+      "ins_verif": [],
+      "claims_old": [],
+      "claims_oryx": [],
+      "posting_old": [],
+      "posting_oryx": [],
+      "aging_old": [],
+      "aging_oryx": [],
+      "collect_old": [],
+      "collect_oryx": []
+    },
+    "AM": {
+      "ins_verif": [],
+      "claims_old": [],
+      "claims_oryx": [],
+      "posting_old": [],
+      "posting_oryx": [],
+      "aging_old": [],
+      "aging_oryx": [],
+      "collect_old": [],
+      "collect_oryx": []
+    }
+  },
   "lunch": [],
   "off": [],
   "helpInstances": {},
   "helpLog": [],
   "vacationActive": [],
-  "lastAutoClear": ""
+  "lastAutoClear": "Mon Apr 13 2026",
+  "departments": [
+    "Front Team",
+    "Management",
+    "Patient Outreach",
+    "RCM",
+    "RCM - Aging",
+    "RCM - Claims",
+    "RCM - Dental Billing",
+    "RCM - Ins Verification"
+  ],
+  "_published": "2026-04-15T00:26:50.432Z",
+  "_v": 6,
+  "_savedAt": "2026-04-14T03:00:23.155Z"
 }
