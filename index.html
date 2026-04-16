@@ -727,7 +727,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
     <div class="modal-body">
       <div style="display:flex;align-items:flex-start;gap:20px;margin-bottom:20px;flex-wrap:wrap">
         <div id="profile-avatar" class="profile-avatar"></div>
-        <div style="flex:1;min-width:200px">
+        <div style="min-width:200px">
           <div class="form-group" style="margin-bottom:10px">
             <div class="form-label">Token Color</div>
             <div class="color-picker-row" id="profile-colors"></div>
@@ -736,6 +736,20 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
             <div class="form-label">Initials</div>
             <input class="form-input" id="p-initials" maxlength="3" style="width:80px">
           </div>
+        </div>
+        <!-- Currently Working On -->
+        <div style="flex:1;min-width:220px;border-left:1px solid var(--sandstone);padding-left:20px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <div class="form-label">📋 &nbsp;Currently Working On</div>
+            <span style="font-size:10px;color:var(--taupe)">Saves with profile</span>
+          </div>
+          <div id="p-work-list" style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px;max-height:150px;overflow-y:auto"></div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input class="add-row-input" id="p-work-input" placeholder="Add task…" style="flex:1;font-size:11px;padding:5px 9px"
+              onkeydown="if(event.key==='Enter')addWorkItem()">
+            <button class="btn btn-ghost btn-sm" onclick="addWorkItem()" style="white-space:nowrap">+ Add</button>
+          </div>
+          <div style="font-size:10px;color:var(--taupe);margin-top:6px">Check off daily tasks — stays saved so staff can reuse each day</div>
         </div>
       </div>
       <div class="form-grid">
@@ -1590,6 +1604,9 @@ function openProfile(staffId) {
   document.getElementById('p-home-office').value = s.homeOffice || '';
   document.getElementById('p-phone').value   = s.phone || '';
   document.getElementById('p-email').value   = s.email || '';
+  // Load work items into local buffer and render
+  _workItems = (s.workItems || []).map(w => ({ text: w.text, checked: w.checked }));
+  renderWorkList();
 
   // Color swatches
   const colorEl = document.getElementById('profile-colors');
@@ -1653,6 +1670,46 @@ function removeResp(i) {
   renderRespList(s.resp);
 }
 
+// ── Currently Working On ──────────────────────────
+let _workItems = []; // local buffer while modal is open
+
+function renderWorkList() {
+  const el = document.getElementById('p-work-list');
+  if (!el) return;
+  if (_workItems.length === 0) {
+    el.innerHTML = '<div style="font-size:11px;color:var(--taupe);padding:4px 0">No tasks added yet.</div>';
+    return;
+  }
+  el.innerHTML = _workItems.map((item, i) => `
+    <div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:${item.checked ? '#f0fdf4' : 'var(--alabaster)'};border:1px solid ${item.checked ? '#bbf7d0' : 'var(--sandstone)'};border-radius:7px;transition:all .15s">
+      <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleWorkItem(${i})"
+        style="accent-color:var(--earth);width:14px;height:14px;cursor:pointer;flex-shrink:0">
+      <span style="flex:1;font-size:12px;color:${item.checked ? '#15803d' : 'var(--onyx)'};${item.checked ? 'text-decoration:line-through' : ''}">${escHtml(item.text)}</span>
+      <button onclick="deleteWorkItem(${i})" style="background:none;border:none;color:var(--sandstone);cursor:pointer;font-size:13px;line-height:1;padding:0"
+        onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--sandstone)'">×</button>
+    </div>`).join('');
+}
+
+function addWorkItem() {
+  const inp = document.getElementById('p-work-input');
+  const val = inp.value.trim();
+  if (!val) return;
+  _workItems.push({ text: val, checked: false });
+  inp.value = '';
+  renderWorkList();
+  inp.focus();
+}
+
+function toggleWorkItem(i) {
+  _workItems[i].checked = !_workItems[i].checked;
+  renderWorkList();
+}
+
+function deleteWorkItem(i) {
+  _workItems.splice(i, 1);
+  renderWorkList();
+}
+
 function saveProfile() {
   try {
     let idx = S.staff.findIndex(s => s.id === editingStaffId);
@@ -1680,9 +1737,10 @@ function saveProfile() {
       homeOffice: document.getElementById('p-home-office').value,
       phone:      document.getElementById('p-phone').value.trim(),
       email:    document.getElementById('p-email').value.trim(),
-      resp:     currentResp,
-      vacStart: document.getElementById('p-vac-start').value,
-      vacEnd:   document.getElementById('p-vac-end').value,
+      resp:      currentResp,
+      workItems: _workItems.map(w => ({ text: w.text, checked: w.checked })),
+      vacStart:  document.getElementById('p-vac-start').value,
+      vacEnd:    document.getElementById('p-vac-end').value,
     };
     save(); checkVacations(); renderAll(); renderRosterTab(); closeModal('profile-modal');
   } catch(e) {
