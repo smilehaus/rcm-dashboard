@@ -1612,7 +1612,7 @@ function openProfile(staffId) {
   document.getElementById('p-phone').value   = s.phone || '';
   document.getElementById('p-email').value   = s.email || '';
   // Load work items into local buffer and render
-  _workItems = (s.workItems || []).map(w => ({ text: w.text, checked: w.checked }));
+  _workItems = (s.workItems || []).map(w => ({ text: w.text, checked: !!w.checked, completed: !!w.completed }));
   renderWorkList();
 
   // Color swatches
@@ -1686,22 +1686,46 @@ function renderWorkList() {
   if (_workItems.length === 0) {
     el.innerHTML = '<div style="font-size:11px;color:var(--taupe);padding:4px 0">No tasks added yet.</div>';
   } else {
-    el.innerHTML = _workItems.map((item, i) => `
-      <div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:${item.checked ? '#f0fdf4' : 'var(--alabaster)'};border:1px solid ${item.checked ? '#bbf7d0' : 'var(--sandstone)'};border-radius:7px">
-        <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleWorkItem(${i})"
+    el.innerHTML = _workItems.map((item, i) => {
+      if (item.completed) {
+        // COMPLETED state — muted, labeled, no blinking dot, no checkbox
+        return `<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:#f8fafc;border:1px solid var(--sandstone);border-radius:7px;opacity:.75">
+          <span style="width:14px;height:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px">✓</span>
+          <span style="font-size:10px;font-weight:700;letter-spacing:.8px;color:var(--taupe);text-transform:uppercase;flex-shrink:0">Completed</span>
+          <span style="flex:1;font-size:12px;color:var(--taupe);text-decoration:line-through">${escHtml(item.text)}</span>
+          <button onclick="deleteWorkItem(${i})" style="background:none;border:none;color:var(--sandstone);cursor:pointer;font-size:13px;line-height:1;padding:0"
+            onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--sandstone)'">×</button>
+        </div>`;
+      }
+      if (item.checked) {
+        // ACTIVE state — green blinking, show Resolve button
+        return `<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:7px">
+          <input type="checkbox" checked onchange="toggleWorkItem(${i})"
+            style="accent-color:#16a34a;width:14px;height:14px;cursor:pointer;flex-shrink:0">
+          <span class="work-live-dot"></span>
+          <span style="flex:1;font-size:12px;color:#15803d;font-weight:600">${escHtml(item.text)}</span>
+          <button onclick="resolveWorkItem(${i})"
+            style="background:#dcfce7;border:1px solid #86efac;border-radius:6px;color:#15803d;font-size:10px;font-weight:700;padding:3px 9px;cursor:pointer;white-space:nowrap;font-family:'Jost',sans-serif"
+            onmouseover="this.style.background='#bbf7d0'" onmouseout="this.style.background='#dcfce7'">✓ Resolve</button>
+          <button onclick="deleteWorkItem(${i})" style="background:none;border:none;color:var(--sandstone);cursor:pointer;font-size:13px;line-height:1;padding:0"
+            onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--sandstone)'">×</button>
+        </div>`;
+      }
+      // DEFAULT state — plain, unchecked
+      return `<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:var(--alabaster);border:1px solid var(--sandstone);border-radius:7px">
+        <input type="checkbox" onchange="toggleWorkItem(${i})"
           style="accent-color:#16a34a;width:14px;height:14px;cursor:pointer;flex-shrink:0">
-        ${item.checked
-          ? `<span class="work-live-dot"></span>`
-          : `<span style="width:8px;height:8px;flex-shrink:0"></span>`}
-        <span style="flex:1;font-size:12px;color:${item.checked ? '#15803d' : 'var(--onyx)'};font-weight:${item.checked ? '600' : '400'}">${escHtml(item.text)}</span>
+        <span style="width:8px;height:8px;flex-shrink:0"></span>
+        <span style="flex:1;font-size:12px;color:var(--onyx)">${escHtml(item.text)}</span>
         <button onclick="deleteWorkItem(${i})" style="background:none;border:none;color:var(--sandstone);cursor:pointer;font-size:13px;line-height:1;padding:0"
           onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--sandstone)'">×</button>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   }
-  // Sync header badges — show checked items as live green pills next to name
+  // Header badges — only show actively checked (not completed) items
   const badges = document.getElementById('profile-work-badges');
   if (badges) {
-    const active = _workItems.filter(w => w.checked);
+    const active = _workItems.filter(w => w.checked && !w.completed);
     badges.innerHTML = active.map(w =>
       `<span style="display:inline-flex;align-items:center;gap:5px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:100px;padding:2px 10px;font-size:10px;font-weight:700;color:#15803d">
         <span class="work-live-dot"></span>${escHtml(w.text)}
@@ -1714,14 +1738,21 @@ function addWorkItem() {
   const inp = document.getElementById('p-work-input');
   const val = inp.value.trim();
   if (!val) return;
-  _workItems.push({ text: val, checked: false });
+  _workItems.push({ text: val, checked: false, completed: false });
   inp.value = '';
   renderWorkList();
   inp.focus();
 }
 
 function toggleWorkItem(i) {
+  if (_workItems[i].completed) return; // can't toggle a completed item
   _workItems[i].checked = !_workItems[i].checked;
+  renderWorkList();
+}
+
+function resolveWorkItem(i) {
+  _workItems[i].checked   = false;
+  _workItems[i].completed = true;
   renderWorkList();
 }
 
@@ -1758,7 +1789,7 @@ function saveProfile() {
       phone:      document.getElementById('p-phone').value.trim(),
       email:    document.getElementById('p-email').value.trim(),
       resp:      currentResp,
-      workItems: _workItems.map(w => ({ text: w.text, checked: w.checked })),
+      workItems: _workItems.map(w => ({ text: w.text, checked: w.checked, completed: w.completed })),
       vacStart:  document.getElementById('p-vac-start').value,
       vacEnd:    document.getElementById('p-vac-end').value,
     };
@@ -3041,10 +3072,10 @@ function midnightReset() {
   S.lunch = [];
   S.off   = [];
 
-  // ── Uncheck all "Currently Working On" items for every staff member ──
+  // ── Reset all "Currently Working On" items for every staff member ──
   S.staff.forEach(s => {
     if (Array.isArray(s.workItems)) {
-      s.workItems.forEach(w => { w.checked = false; });
+      s.workItems.forEach(w => { w.checked = false; w.completed = false; });
     }
   });
 
