@@ -498,7 +498,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
           <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Live Status Board</span>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
-          <div style="display:flex;gap-x:10px;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
             <span>Shows <strong>who is assigned where today</strong> across all 10 offices and all RCM categories.</span>
           </div>
@@ -516,11 +516,11 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Ghost text (faint names) shows what's on the <strong>Assignment Board</strong> as a reference behind the live view.</span>
+            <span>Ghost text (faint names) shows what's on the <strong>Assignment Board</strong> as a reference behind the live view. <strong>OWN TEAM</strong> appears on the right side of a cell — that office handles it in-house.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span><strong>OWN TEAM</strong> ghost text appears on the right side of a cell — it means that office handles it in-house.</span>
+            <span>The board <strong>auto-resets at midnight Central Time</strong> — all tokens clear for a fresh start each day.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
@@ -541,15 +541,11 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
         <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>This is the <strong>permanent reference layout</strong> — the default "who covers what" for each office and category.</span>
+            <span>The <strong>permanent reference layout</strong> — the default "who covers what" for each office and category. These show as ghost names on the Live Board.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span><strong>Editing requires the manager PIN.</strong> Click <em>Unlock to Edit</em> in the board header, enter the PIN, then drag tokens to set assignments.</span>
-          </div>
-          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
-            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Drag tokens here to set standing assignments. These show as ghost names on the Live Board.</span>
+            <span><strong>Editing requires the manager PIN.</strong> Click <em>Unlock to Edit</em> in the board header, enter the PIN, then drag tokens to set assignments. Remove buttons appear on tokens when unlocked.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
@@ -557,11 +553,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Click <strong>↺ Reset Defaults</strong> (visible when unlocked) to restore the original assignment layout if needed.</span>
-          </div>
-          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
-            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>You can <strong>add or rename columns</strong> using the pencil icon on any column header, and add new offices with the + button (admin only).</span>
+            <span>Click <strong>↺ Reset Defaults</strong> (visible when unlocked) to restore the original layout. You can also add or rename columns using the pencil icon on any column header.</span>
           </div>
         </div>
       </div>
@@ -578,7 +570,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
         <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Lists all active staff with their role, department, manager, and responsibilities.</span>
+            <span>Lists all staff with their role, department, manager, <strong>home office</strong>, phone, email, and responsibilities.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
@@ -586,15 +578,53 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>To <strong>remove a staff member</strong>, open their profile and click <em>Move to Inactive</em>. Choose Terminated or Inactive as the reason — they move to the Inactive department instead of being deleted.</span>
+            <span>To <strong>remove a staff member</strong>, open their profile → click <em>Move to Inactive</em> → choose Terminated or Inactive. They move to the Inactive department instead of being deleted permanently.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Drag any staff token from the roster panel directly onto the Live or Assignment boards to place them.</span>
+            <span><strong>Management</strong> always sorts to the top; <strong>Inactive</strong> staff sort to the bottom in gray.</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:1px;background:var(--sandstone)"></div>
+
+      <!-- Staff Profile & Currently Working On -->
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <span style="font-size:20px">👤</span>
+          <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Staff Profile &amp; Daily Task List</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Click any staff token to open their profile. From here you can update their name, role, department, manager, home office, phone, email, responsibilities, and vacation dates.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span><strong>Management</strong> always sorts to the top; <strong>Inactive</strong> staff always sort to the bottom (shown in gray).</span>
+            <span>Each profile has a <strong>Currently Working On</strong> checklist — add daily tasks once and reuse them every day. Tasks have three states:</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:5px;padding-left:22px;margin-top:2px">
+            <div style="display:flex;gap:8px;align-items:center;font-size:12px;color:var(--onyx)">
+              <span style="background:var(--alabaster);border:1px solid var(--sandstone);border-radius:6px;padding:2px 8px;font-size:10px;font-weight:600;color:var(--taupe);white-space:nowrap">Unchecked</span>
+              <span>In the list, not started yet for today.</span>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;font-size:12px;color:var(--onyx)">
+              <span style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:600;color:#15803d;white-space:nowrap">● Active</span>
+              <span>Currently working on this — shows as a <strong>green blinking pill</strong> next to their name at the top of the profile.</span>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;font-size:12px;color:var(--onyx)">
+              <span style="background:#f8fafc;border:1px solid var(--sandstone);border-radius:6px;padding:2px 8px;font-size:10px;font-weight:600;color:var(--taupe);white-space:nowrap">✓ Completed</span>
+              <span>Done for the day — stays visible in the list with a strikethrough until midnight.</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Click <strong>✓ Resolve</strong> on an active task to mark it completed. Click <strong>Delete</strong> to permanently remove a task from the list.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>At <strong>midnight Central Time</strong> all task states reset — completed tasks go back to unchecked so the list is fresh each morning.</span>
           </div>
         </div>
       </div>
@@ -610,23 +640,19 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
         <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Click <strong>🚨 Need Help</strong> in the header to create a help request. Fill in what's needed and who's requesting.</span>
+            <span>Click <strong>🚨 Need Help</strong> in the header to create a help request — fill in what's needed and who's requesting.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Drag the red help token from the panel into a grid cell on the Live Board to show which office/category needs help.</span>
+            <span>Drag the red help token into a Live Board cell to show which office/category needs help. That cell turns pink.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Click the pulsing red token anytime to open it — you can <strong>add chat messages</strong>, mark helpers, update the checklist, and add notes.</span>
+            <span>Click the pulsing red token to open it — add <strong>chat messages</strong> back and forth, mark helpers, update the checklist, and add notes.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Click <strong>Mark Helped</strong> when someone steps in — the token turns green. Click <strong>Resolve &amp; Remove</strong> when the issue is fully resolved — it archives to Help Records.</span>
-          </div>
-          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
-            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>All resolved requests are saved in the <strong>Help Records</strong> tab with the full chat history and details.</span>
+            <span>Click <strong>Mark Helped</strong> when someone steps in (token turns green). Click <strong>Resolve &amp; Remove</strong> when fully resolved — it archives to the Help Records tab with the full chat history.</span>
           </div>
         </div>
       </div>
@@ -642,19 +668,19 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
         <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Every change <strong>saves automatically</strong> — you don't need to press anything. Look for <em style="color:#4ade80">☁ Synced</em> in the header to confirm.</span>
+            <span>Every change <strong>saves automatically</strong> — no publish needed. Look for <em style="color:#4ade80">☁ Synced</em> in the header to confirm it went through.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>The dashboard checks for updates from other locations every 15 seconds and refreshes automatically.</span>
+            <span>The dashboard checks for updates from other locations every <strong>15 seconds</strong> and refreshes automatically — anyone at any location sees the same state.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>The <strong>Publish</strong> button in the top-right forces an immediate sync — use it only if you need to push changes right away.</span>
+            <span>The <strong>Publish</strong> button (top-right, PIN required) forces an immediate sync if needed — day-to-day, auto-save handles everything.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Publish requires the <strong>manager PIN</strong>. Day-to-day, auto-save handles everything without it.</span>
+            <span>At <strong>midnight Central Time</strong> the live board and all daily task lists reset automatically for the new day.</span>
           </div>
         </div>
       </div>
