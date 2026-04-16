@@ -3008,11 +3008,77 @@ function checkAutoClear() {
 setInterval(checkAutoClear, 60000);
 
 // ════════════════════════════════════════════════
+// MIDNIGHT RESET (Central Time)
+// ════════════════════════════════════════════════
+
+function ctDateStr() {
+  // Returns current date as 'YYYY-MM-DD' in Central Time (handles DST automatically)
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'America/Chicago' });
+}
+
+function midnightReset() {
+  const today = ctDateStr();
+  // Only reset once per calendar day CT
+  if (S._lastResetDate === today) return;
+
+  const isFirstBoot = !S._lastResetDate;
+  S._lastResetDate = today;
+
+  if (isFirstBoot) {
+    // First time ever — just record the date, don't wipe anything
+    save();
+    return;
+  }
+
+  // ── New day: clear live board ──
+  S.offices.forEach(o => {
+    if (S.live[o.code]) {
+      Object.keys(S.live[o.code]).forEach(col => {
+        S.live[o.code][col] = [];
+      });
+    }
+  });
+  S.lunch = [];
+  S.off   = [];
+
+  // ── Uncheck all "Currently Working On" items for every staff member ──
+  S.staff.forEach(s => {
+    if (Array.isArray(s.workItems)) {
+      s.workItems.forEach(w => { w.checked = false; });
+    }
+  });
+
+  save();
+  renderAll();
+
+  // Banner notification
+  const banner = document.createElement('div');
+  banner.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#1e293b;color:white;padding:10px 22px;border-radius:100px;font-size:12px;font-weight:600;z-index:9999;box-shadow:0 4px 18px rgba(0,0,0,.3)';
+  banner.textContent = '🌅 New day — live board & task lists reset';
+  document.body.appendChild(banner);
+  setTimeout(() => banner.remove(), 4000);
+}
+
+function scheduleMidnightCheck() {
+  // Calculate ms until next midnight CT
+  const now = new Date();
+  const tomorrowCT = new Date(now.toLocaleString('en-US', { timeZone: 'America/Chicago' }));
+  tomorrowCT.setHours(24, 0, 10, 0); // midnight + 10s buffer
+  const msTillMidnight = tomorrowCT - new Date(now.toLocaleString('en-US', { timeZone: 'America/Chicago' }));
+  setTimeout(() => {
+    midnightReset();
+    setInterval(midnightReset, 24 * 60 * 60 * 1000); // then every 24h
+  }, Math.max(msTillMidnight, 1000));
+}
+
+// ════════════════════════════════════════════════
 // BOOT
 // ════════════════════════════════════════════════
 (async () => {
   await load();
   setDate();
+  midnightReset();        // check on load (catches missed midnight if browser was closed)
+  scheduleMidnightCheck(); // then fire exactly at midnight CT each day
   renderAll();
 })();
 </script>
