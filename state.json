@@ -146,6 +146,18 @@
       "vacEnd": "",
       "inactiveReason": "Terminated",
       "inactiveDate": "Apr 13, 2026"
+    },
+    {
+      "id": "staff_1776356706814",
+      "name": "Roneish",
+      "initials": "RO",
+      "color": "rgb(196, 112, 138)",
+      "phone": "",
+      "email": "",
+      "role": "",
+      "dept": "",
+      "manager": "",
+      "resp": []
     }
   ],
   "offices": [
@@ -570,7 +582,7 @@
     "RCM - Dental Billing",
     "RCM - Ins Verification"
   ],
-  "_published": "2026-04-15T00:26:50.432Z",
+  "_published": "2026-04-16T16:25:08.171Z",
   "_v": 6,
-  "_savedAt": "2026-04-14T03:00:23.155Z"
+  "_savedAt": "2026-04-16T16:25:06.814Z"
 }
