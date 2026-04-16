@@ -423,6 +423,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
             <th>Role / Title</th>
             <th>Department</th>
             <th>Manager</th>
+            <th>Home Office</th>
             <th>Phone</th>
             <th>Email</th>
             <th>Responsibilities</th>
@@ -443,8 +444,13 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
         <div class="bph-title">Assignment Board</div>
         <div class="bph-date" style="color:var(--taupe)">Permanent role assignments — admin reference</div>
       </div>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-ghost btn-sm" onclick="resetAssign()">↺ Reset Defaults</button>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="roster-lock" id="assign-lock-status" style="font-size:11px;font-weight:600;color:var(--earth);display:flex;align-items:center;gap:6px">
+          <span id="assign-lock-icon">🔒</span>
+          <span id="assign-lock-label">Locked</span>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="assign-lock-btn" onclick="assignLockToggle()">Unlock to Edit</button>
+        <button class="btn btn-ghost btn-sm" id="assign-reset-btn" onclick="resetAssign()" style="display:none">↺ Reset Defaults</button>
       </div>
     </div>
     <div class="grid-scroll">
@@ -528,11 +534,16 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
           <span style="font-size:20px">📋</span>
           <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Assignment Board</span>
+          <span style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:100px;padding:2px 10px;font-size:10px;font-weight:700">🔒 Admin Only</span>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
             <span>This is the <strong>permanent reference layout</strong> — the default "who covers what" for each office and category.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span><strong>Editing requires the manager PIN.</strong> Click <em>Unlock to Edit</em> in the board header, enter the PIN, then drag tokens to set assignments.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
@@ -544,11 +555,11 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Click <strong>↺ Reset Defaults</strong> to restore the original assignment layout if needed.</span>
+            <span>Click <strong>↺ Reset Defaults</strong> (visible when unlocked) to restore the original assignment layout if needed.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>You can <strong>add or rename columns</strong> using the pencil icon on any column header, and add new offices with the + button.</span>
+            <span>You can <strong>add or rename columns</strong> using the pencil icon on any column header, and add new offices with the + button (admin only).</span>
           </div>
         </div>
       </div>
@@ -560,6 +571,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
           <span style="font-size:20px">👥</span>
           <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Staff Roster</span>
+          <span style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:100px;padding:2px 10px;font-size:10px;font-weight:700">🔒 Admin Only</span>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
@@ -744,6 +756,22 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
         <div class="form-group">
           <div class="form-label">Manager</div>
           <input class="form-input" id="p-manager">
+        </div>
+        <div class="form-group">
+          <div class="form-label">Home Office</div>
+          <select class="form-input" id="p-home-office" style="cursor:pointer">
+            <option value="">— Select office —</option>
+            <option value="SQ">SQ — On the Square</option>
+            <option value="GT">GT — Georgetown</option>
+            <option value="ATX">ATX — Austin</option>
+            <option value="MP">MP — Medical Parkway</option>
+            <option value="NBDA">NBDA — New Braunfels Dental Arts</option>
+            <option value="IC">IC — Implant Center</option>
+            <option value="AR">AR — Arboretum</option>
+            <option value="PF">PF — Pflugerville</option>
+            <option value="SATX">S.ATX — South Austin</option>
+            <option value="AM">AM — Anderson Mill</option>
+          </select>
         </div>
         <div class="form-group">
           <div class="form-label">Phone</div>
@@ -1559,6 +1587,7 @@ function openProfile(staffId) {
     deptEl.innerHTML += `<option value="${escHtml(s.dept)}" selected>${escHtml(s.dept)}</option>`;
   }
   document.getElementById('p-manager').value = s.manager || '';
+  document.getElementById('p-home-office').value = s.homeOffice || '';
   document.getElementById('p-phone').value   = s.phone || '';
   document.getElementById('p-email').value   = s.email || '';
 
@@ -1647,8 +1676,9 @@ function saveProfile() {
       color:    selColor ? selColor.style.background : S.staff[idx].color,
       role:     document.getElementById('p-role').value.trim(),
       dept:     document.getElementById('p-dept').value.trim(),
-      manager:  document.getElementById('p-manager').value.trim(),
-      phone:    document.getElementById('p-phone').value.trim(),
+      manager:    document.getElementById('p-manager').value.trim(),
+      homeOffice: document.getElementById('p-home-office').value,
+      phone:      document.getElementById('p-phone').value.trim(),
       email:    document.getElementById('p-email').value.trim(),
       resp:     currentResp,
       vacStart: document.getElementById('p-vac-start').value,
@@ -2117,6 +2147,11 @@ function buildGrid(tableEl, boardId) {
       td.addEventListener('drop', e => {
         e.preventDefault();
         td.classList.remove('over');
+        // Assignment board requires manager unlock
+        if (!isLive && !__rosterUnlocked) {
+          rosterGated(() => buildGrid(tableEl, boardId));
+          return;
+        }
         const info = getDrag(e);
         if (!info) return;
         // For help tokens dropped on live board: set location
@@ -2188,8 +2223,9 @@ function buildGrid(tableEl, boardId) {
       const mainTokens = tokens.filter(sid => sid !== 'own_team');
       const ownTokens  = tokens.filter(sid => sid === 'own_team');
 
+      const canEditAssign = !isLive && __rosterUnlocked;
       mainTokens.forEach(sid => {
-        layer.appendChild(makeTok(sid, { isLive, srcBoard: boardId, srcZone: zoneKey, showRemove: !isLive }));
+        layer.appendChild(makeTok(sid, { isLive, srcBoard: boardId, srcZone: zoneKey, showRemove: canEditAssign }));
       });
 
       if (ownTokens.length) {
@@ -2197,7 +2233,7 @@ function buildGrid(tableEl, boardId) {
         spacer.style.cssText = 'flex:1;min-width:4px';
         layer.appendChild(spacer);
         ownTokens.forEach(sid => {
-          layer.appendChild(makeTok(sid, { isLive, srcBoard: boardId, srcZone: zoneKey, showRemove: !isLive }));
+          layer.appendChild(makeTok(sid, { isLive, srcBoard: boardId, srcZone: zoneKey, showRemove: canEditAssign }));
         });
       }
 
@@ -2623,20 +2659,43 @@ function updateRosterLockUI() {
   const addBtn     = document.getElementById('roster-add-btn');
   const addDeptBtn = document.getElementById('roster-add-dept-btn');
   const actTh      = document.getElementById('roster-actions-th');
+  // Assignment board lock UI
+  const aIcon  = document.getElementById('assign-lock-icon');
+  const aLabel = document.getElementById('assign-lock-label');
+  const aBtn   = document.getElementById('assign-lock-btn');
+  const aReset = document.getElementById('assign-reset-btn');
   if (__rosterUnlocked) {
-    icon.textContent = '🔓';
-    label.textContent = 'Unlocked';
-    btn.textContent = 'Lock';
-    if (addBtn) addBtn.style.display = '';
+    if (icon)  icon.textContent  = '🔓';
+    if (label) label.textContent = 'Unlocked';
+    if (btn)   btn.textContent   = 'Lock';
+    if (addBtn)     addBtn.style.display     = '';
     if (addDeptBtn) addDeptBtn.style.display = '';
-    if (actTh) actTh.style.display = '';
+    if (actTh)      actTh.style.display      = '';
+    if (aIcon)  aIcon.textContent  = '🔓';
+    if (aLabel) aLabel.textContent = 'Unlocked';
+    if (aBtn)   aBtn.textContent   = 'Lock';
+    if (aReset) aReset.style.display = '';
   } else {
-    icon.textContent = '🔒';
-    label.textContent = 'Locked';
-    btn.textContent = 'Unlock to Edit';
-    if (addBtn) addBtn.style.display = 'none';
+    if (icon)  icon.textContent  = '🔒';
+    if (label) label.textContent = 'Locked';
+    if (btn)   btn.textContent   = 'Unlock to Edit';
+    if (addBtn)     addBtn.style.display     = 'none';
     if (addDeptBtn) addDeptBtn.style.display = 'none';
-    if (actTh) actTh.style.display = 'none';
+    if (actTh)      actTh.style.display      = 'none';
+    if (aIcon)  aIcon.textContent  = '🔒';
+    if (aLabel) aLabel.textContent = 'Locked';
+    if (aBtn)   aBtn.textContent   = 'Unlock to Edit';
+    if (aReset) aReset.style.display = 'none';
+  }
+}
+
+function assignLockToggle() {
+  if (__rosterUnlocked) {
+    __rosterUnlocked = false;
+    updateRosterLockUI();
+    renderAll();
+  } else {
+    rosterGated(() => { updateRosterLockUI(); renderAll(); });
   }
 }
 
@@ -2661,7 +2720,7 @@ function renderRosterTab() {
   }
 
   if (!S.staff || S.staff.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" class="roster-empty">No staff yet. Unlock and click + Add Staff.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" class="roster-empty">No staff yet. Unlock and click + Add Staff.</td></tr>';
     return;
   }
 
@@ -2680,7 +2739,7 @@ function renderRosterTab() {
   });
 
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" class="roster-empty">No staff match your search.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" class="roster-empty">No staff match your search.</td></tr>';
     return;
   }
 
@@ -2702,7 +2761,7 @@ function renderRosterTab() {
   });
 
   const today = todayStr();
-  const colCount = __rosterUnlocked ? 8 : 7;
+  const colCount = __rosterUnlocked ? 9 : 8;
 
   tbody.innerHTML = sortedDepts.map(dept => {
     const deptHeader = `<tr>
@@ -2731,6 +2790,7 @@ function renderRosterTab() {
         <td>${escHtml(s.role||'—')}</td>
         <td>${escHtml(s.dept||'—')}</td>
         <td>${escHtml(s.manager||'—')}</td>
+        <td>${s.homeOffice?`<span style="background:var(--alabaster);border:1px solid var(--sandstone);border-radius:100px;padding:2px 9px;font-size:10px;font-weight:700;color:var(--earth)">${escHtml(s.homeOffice)}</span>`:'—'}</td>
         <td>${s.phone?`<a href="tel:${escHtml(s.phone)}" style="color:var(--earth);text-decoration:none">${escHtml(s.phone)}</a>`:'—'}</td>
         <td>${s.email?`<a href="mailto:${escHtml(s.email)}" style="color:var(--earth);text-decoration:none">${escHtml(s.email)}</a>`:'—'}</td>
         <td><div class="roster-resp-pills">${respPills||'<span style="color:var(--taupe)">—</span>'}</div></td>
