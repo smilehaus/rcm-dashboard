@@ -880,106 +880,143 @@ const DATA_VERSION = 6; // bump when state schema changes to force-clear stale c
 
 const LIVE_MODE = new URLSearchParams(location.search).has('live');
 
-async function load() {
-  let local = null, remote = null;
-  // In ?live=1 mode (e.g. ClickUp embed) always skip localStorage and use remote
-  if (!LIVE_MODE) {
+// ── Firebase Realtime Database (REST API — no SDK needed) ─────────────────
+const FB_URL = 'https://smilehaus-rcm-default-rtdb.firebaseio.com/state.json';
+let _fbSaveTimer = null;
+let _fbPollTimer = null;
+let _lastFbWrite = '';   // ISO string of last write we pushed
+
+async function fbRead() {
   try {
-    const d = localStorage.getItem('sh-rcm-v5');
-    if (d) {
-      const p = JSON.parse(d);
-      // Clear stale cache if version mismatch or columns are in wrong format
-      const colsValid = Array.isArray(p.columns) && p.columns[0] && typeof p.columns[0].id === 'string' && !p.columns[0].subs;
-      if (p._v !== DATA_VERSION || !colsValid) {
-        localStorage.removeItem('sh-rcm-v5');
-      } else {
-        local = p;
+    const r = await fetch(FB_URL + '?t=' + Date.now());
+    if (r.ok) { const d = await r.json(); return d || null; }
+  } catch(e) {}
+  return null;
+}
+
+async function fbWrite(data) {
+  try {
+    const r = await fetch(FB_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return r.ok;
+  } catch(e) { return false; }
+}
+
+function scheduleFbSave() {
+  clearTimeout(_fbSaveTimer);
+  _fbSaveTimer = setTimeout(async () => {
+    S._savedAt = new Date().toISOString();
+    _lastFbWrite = S._savedAt;
+    const ok = await fbWrite({ ...S });
+    const el = document.getElementById('last-updated');
+    if (el) {
+      el.textContent = ok ? '☁ Synced' : '⚠ Sync failed';
+      el.style.color = ok ? '#4ade80' : '#f87171';
+      setTimeout(() => { if (el) el.style.color = ''; }, 2000);
+    }
+  }, 1200);
+}
+
+function startFbPolling() {
+  clearInterval(_fbPollTimer);
+  _fbPollTimer = setInterval(async () => {
+    const remote = await fbRead();
+    if (!remote || !remote._savedAt) return;
+    // Only apply if this is newer than what we last wrote (avoid echo)
+    if (remote._savedAt > (_lastFbWrite || '') && remote._savedAt > (S._savedAt || '')) {
+      const colsValid = Array.isArray(remote.columns) && remote.columns[0] && typeof remote.columns[0].id === 'string';
+      if (remote._v === DATA_VERSION && colsValid) {
+        Object.assign(S, remote);
+        renderAll();
       }
     }
-  } catch(e) { localStorage.removeItem('sh-rcm-v5'); }
-  } // end !LIVE_MODE block
+  }, 15000); // poll every 15 seconds
+}
+// ─────────────────────────────────────────────────────────────────────────
 
-  try {
-    const r = await fetch('./state.json?t=' + Date.now());
-    if (r.ok) remote = await r.json();
-  } catch(e) {}
+async function load() {
+  // Always try Firebase first (real-time shared source of truth)
+  const remote = await fbRead();
 
-  // In live mode: always use remote. Otherwise local wins unless remote is newer.
-  let src = null;
-  if (LIVE_MODE) {
-    src = remote;
-  } else if (remote && local) {
-    const localTime  = local._savedAt  || local._published  || '';
-    const remoteTime = remote._published || '';
-    src = remoteTime > localTime ? remote : local;
-  } else {
-    src = remote || local;
+  // Also check localStorage as a fallback
+  let local = null;
+  if (!LIVE_MODE) {
+    try {
+      const d = localStorage.getItem('sh-rcm-v5');
+      if (d) {
+        const p = JSON.parse(d);
+        const colsValid = Array.isArray(p.columns) && p.columns[0] && typeof p.columns[0].id === 'string' && !p.columns[0].subs;
+        if (p._v === DATA_VERSION && colsValid) local = p;
+        else localStorage.removeItem('sh-rcm-v5');
+      }
+    } catch(e) { localStorage.removeItem('sh-rcm-v5'); }
   }
+
+  // Pick the most recent source
+  let src = null;
+  if (remote && remote._v === DATA_VERSION) {
+    const remoteTime = remote._savedAt || remote._published || '';
+    const localTime  = local ? (local._savedAt || local._published || '') : '';
+    src = (remote && (!local || remoteTime >= localTime)) ? remote : local;
+  } else {
+    src = local || remote;
+  }
+
   if (src) Object.assign(S, src);
 
-  // ensure live board has all current offices/cols
+  // Ensure live board has all current offices/cols
   S.offices.forEach(o => {
     if (!S.live[o.code]) S.live[o.code] = {};
     S.columns.forEach(c => { if (!S.live[o.code][c.id]) S.live[o.code][c.id] = []; });
   });
+
+  // If Firebase was empty or outdated and we have local data, push it up
+  if (local && (!remote || !remote._v)) {
+    fbWrite({ ...S });
+  }
+
+  // Start polling for remote changes
+  startFbPolling();
 }
 
 function save() {
   S._v = DATA_VERSION;
   S._savedAt = new Date().toISOString();
-  localStorage.setItem('sh-rcm-v5', JSON.stringify(S));
+  // Keep a local cache for offline resilience
+  try { localStorage.setItem('sh-rcm-v5', JSON.stringify(S)); } catch(e) {}
+  // Push to Firebase (debounced)
+  scheduleFbSave();
   const el = document.getElementById('last-updated');
   const t = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  if (el) { el.textContent = '✓ Saved ' + t; el.style.color='#4ade80'; setTimeout(()=>{el.style.color='';},1800); }
+  if (el) { el.textContent = '↑ Saving ' + t; el.style.color = '#facc15'; }
 }
 
-const GH_REPO = 'smilehaus/rcm-dashboard';
-
 async function publishState() {
+  // publishState is now just a manual "force sync" — still PIN-gated
   if (!__rosterUnlocked) { rosterGated(publishState); return; }
 
-  let token = localStorage.getItem('sh-pub-token');
-  if (!token) {
-    token = prompt('Enter the publish token (ask your manager — one-time entry):');
-    if (!token) return;
-    localStorage.setItem('sh-pub-token', token.trim());
-    token = token.trim();
-  }
-
-  const publishBtn = document.querySelector('[onclick="publishState()"]');
+  const publishBtn = document.querySelector('[onclick="rosterGated(publishState)"]');
   const origText = publishBtn ? publishBtn.textContent : '';
-  if (publishBtn) { publishBtn.textContent = '⏳ Publishing…'; publishBtn.disabled = true; }
+  if (publishBtn) { publishBtn.textContent = '⏳ Syncing…'; publishBtn.disabled = true; }
 
-  try {
-    const out = { ...S, _published: new Date().toISOString() };
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(out, null, 2))));
+  S._savedAt = new Date().toISOString();
+  _lastFbWrite = S._savedAt;
+  try { localStorage.setItem('sh-rcm-v5', JSON.stringify(S)); } catch(e) {}
+  const ok = await fbWrite({ ...S });
 
-    // Get current SHA
-    const getRes = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/state.json`, {
-      headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' }
-    });
-    if (getRes.status === 401) { localStorage.removeItem('sh-pub-token'); throw new Error('Token invalid — try publishing again to re-enter.'); }
-    if (!getRes.ok) throw new Error('Could not read state.json: ' + getRes.status);
-    const current = await getRes.json();
-
-    // Commit
-    const putRes = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/state.json`, {
-      method: 'PUT',
-      headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: 'Publish dashboard state [skip ci]', content, sha: current.sha }),
-    });
-    if (!putRes.ok) { const e = await putRes.json(); throw new Error(e.message || 'Commit failed: ' + putRes.status); }
-
-    S._published = out._published;
-    save();
-    if (publishBtn) { publishBtn.textContent = '✓ Published!'; publishBtn.style.background = '#16a34a'; }
+  if (publishBtn) {
+    publishBtn.textContent = ok ? '✓ Synced!' : '⚠ Failed';
+    publishBtn.style.background = ok ? '#16a34a' : '#dc2626';
     setTimeout(() => {
-      if (publishBtn) { publishBtn.textContent = origText; publishBtn.style.background = ''; publishBtn.disabled = false; }
+      publishBtn.textContent = origText;
+      publishBtn.style.background = '';
+      publishBtn.disabled = false;
     }, 3000);
-  } catch(e) {
-    alert('Publish failed: ' + e.message);
-    if (publishBtn) { publishBtn.textContent = origText; publishBtn.disabled = false; }
   }
+  if (!ok) alert('Sync to Firebase failed — check your internet connection.');
 }
 
 // ════════════════════════════════════════════════
