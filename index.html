@@ -1171,6 +1171,26 @@ function scheduleFbSave() {
   }, 1200);
 }
 
+// ── Desktop Notifications ─────────────────────────────────────────────────
+function requestNotifPermission() {
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+}
+
+function notifyHelp(description) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  const n = new Notification('🚨 NEED HELP — Smile Haus RCM', {
+    body: description || 'A team member needs help. Open the dashboard to respond.',
+    icon: 'https://smilehaus.github.io/rcm-dashboard/favicon.ico',
+    badge: 'https://smilehaus.github.io/rcm-dashboard/favicon.ico',
+    requireInteraction: true,   // stays until dismissed
+    tag: 'sh-help-alert',       // replaces previous help notif instead of stacking
+  });
+  n.onclick = () => { window.focus(); n.close(); };
+}
+// ─────────────────────────────────────────────────────────────────────────
+
 function startFbPolling() {
   clearInterval(_fbPollTimer);
   _fbPollTimer = setInterval(async () => {
@@ -1180,6 +1200,17 @@ function startFbPolling() {
     if (remote._savedAt > (_lastFbWrite || '') && remote._savedAt > (S._savedAt || '')) {
       const colsValid = Array.isArray(remote.columns) && remote.columns[0] && typeof remote.columns[0].id === 'string';
       if (remote._v === DATA_VERSION && colsValid) {
+        // Check for new active help instances from remote before merging
+        const existingIds = new Set(Object.keys(S.helpInstances || {}));
+        const remoteHelp  = remote.helpInstances || {};
+        const newHelpIds  = Object.keys(remoteHelp).filter(id =>
+          !existingIds.has(id) && remoteHelp[id].status === 'active' && remoteHelp[id].location
+        );
+        if (newHelpIds.length > 0) {
+          const inst = remoteHelp[newHelpIds[0]];
+          const desc = inst.description ? `"${inst.description}"` : 'A team member needs help!';
+          notifyHelp(desc);
+        }
         Object.assign(S, remote);
         renderAll();
       }
@@ -2296,9 +2327,14 @@ function buildGrid(tableEl, boardId) {
         }
         const info = getDrag(e);
         if (!info) return;
-        // For help tokens dropped on live board: set location
+        // For help tokens dropped on live board: set location + notify
         if (info.staffId.startsWith('help_') && boardId === 'live') {
-          if (S.helpInstances[info.staffId]) S.helpInstances[info.staffId].location = zoneKey;
+          if (S.helpInstances[info.staffId]) {
+            S.helpInstances[info.staffId].location = zoneKey;
+            const inst = S.helpInstances[info.staffId];
+            const desc = inst.description ? `"${inst.description}"` : 'A team member needs help!';
+            notifyHelp(desc);
+          }
         }
         removeFrom(info.srcBoard, info.srcZone, info.staffId);
         addToGrid(boardId, office.code, col.id, info.staffId);
@@ -3143,6 +3179,7 @@ function scheduleMidnightCheck() {
   setDate();
   midnightReset();        // check on load (catches missed midnight if browser was closed)
   scheduleMidnightCheck(); // then fire exactly at midnight CT each day
+  requestNotifPermission(); // ask for desktop notification permission
   renderAll();
 })();
 </script>
