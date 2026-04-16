@@ -309,6 +309,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
     <button class="tab-btn" id="tab-btn-assign" onclick="switchTab('assign')">📋 &nbsp;Assignment Board</button>
     <button class="tab-btn" id="tab-btn-roster" onclick="switchTab('roster')">👥 &nbsp;Staff Roster</button>
     <button class="tab-btn" id="tab-btn-helplog" onclick="switchTab('helplog')">🚨 &nbsp;Help Records</button>
+    <button class="tab-btn" id="tab-btn-guide" onclick="switchTab('guide')">📖 &nbsp;How To Use</button>
   </div>
   <div class="legend">
     <div class="legend-item"><div class="ldot" style="background:var(--earth)"></div>Token = staff member</div>
@@ -467,6 +468,183 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
     </div>
     <div id="helplog-tab-body" style="padding:16px 20px;display:flex;flex-direction:column;gap:12px">
       <div id="helplog-empty" style="text-align:center;padding:40px;color:var(--taupe);font-size:13px">No help requests yet. Resolved requests will appear here.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── HOW TO USE TAB ─────────────────────────── -->
+<div id="content-guide" class="tab-content">
+  <div class="board-panel">
+    <div class="bph">
+      <div>
+        <div class="bph-title">How To Use</div>
+        <div class="bph-date" style="color:var(--taupe)">Quick reference guide for the RCM Dashboard</div>
+      </div>
+    </div>
+    <div style="padding:24px 28px;display:flex;flex-direction:column;gap:28px;max-width:860px">
+
+      <!-- Live Status -->
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <span style="font-size:20px">⚡</span>
+          <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Live Status Board</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
+          <div style="display:flex;gap-x:10px;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Shows <strong>who is assigned where today</strong> across all 10 offices and all RCM categories.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span><strong>Drag any staff token</strong> from the roster or another cell into any grid cell to assign them.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span><strong>Right-click</strong> a token in a cell to send them to Lunch, Away/Off, or remove them from that spot.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Cells with a <strong style="color:#ef4444">pink background</strong> have an active Help Request in that spot.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Ghost text (faint names) shows what's on the <strong>Assignment Board</strong> as a reference behind the live view.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span><strong>OWN TEAM</strong> ghost text appears on the right side of a cell — it means that office handles it in-house.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Changes <strong>sync automatically</strong> within seconds — anyone viewing the dashboard will see updates in real time.</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:1px;background:var(--sandstone)"></div>
+
+      <!-- Assignment Board -->
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <span style="font-size:20px">📋</span>
+          <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Assignment Board</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>This is the <strong>permanent reference layout</strong> — the default "who covers what" for each office and category.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Drag tokens here to set standing assignments. These show as ghost names on the Live Board.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Use <strong>OWN TEAM</strong> (the dark token) to mark that an office handles a category themselves.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Click <strong>↺ Reset Defaults</strong> to restore the original assignment layout if needed.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>You can <strong>add or rename columns</strong> using the pencil icon on any column header, and add new offices with the + button.</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:1px;background:var(--sandstone)"></div>
+
+      <!-- Staff Roster -->
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <span style="font-size:20px">👥</span>
+          <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Staff Roster</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Lists all active staff with their role, department, manager, and responsibilities.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span><strong>Unlock to Edit</strong> requires the manager PIN. Once unlocked you can add staff, edit profiles, and manage departments.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>To <strong>remove a staff member</strong>, open their profile and click <em>Move to Inactive</em>. Choose Terminated or Inactive as the reason — they move to the Inactive department instead of being deleted.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Drag any staff token from the roster panel directly onto the Live or Assignment boards to place them.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span><strong>Management</strong> always sorts to the top; <strong>Inactive</strong> staff always sort to the bottom (shown in gray).</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:1px;background:var(--sandstone)"></div>
+
+      <!-- Help Requests -->
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <span style="font-size:20px">🚨</span>
+          <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Help Requests</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Click <strong>🚨 Need Help</strong> in the header to create a help request. Fill in what's needed and who's requesting.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Drag the red help token from the panel into a grid cell on the Live Board to show which office/category needs help.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Click the pulsing red token anytime to open it — you can <strong>add chat messages</strong>, mark helpers, update the checklist, and add notes.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Click <strong>Mark Helped</strong> when someone steps in — the token turns green. Click <strong>Resolve &amp; Remove</strong> when the issue is fully resolved — it archives to Help Records.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>All resolved requests are saved in the <strong>Help Records</strong> tab with the full chat history and details.</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:1px;background:var(--sandstone)"></div>
+
+      <!-- Sync -->
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <span style="font-size:20px">☁</span>
+          <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Saving &amp; Syncing</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Every change <strong>saves automatically</strong> — you don't need to press anything. Look for <em style="color:#4ade80">☁ Synced</em> in the header to confirm.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>The dashboard checks for updates from other locations every 15 seconds and refreshes automatically.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>The <strong>Publish</strong> button in the top-right forces an immediate sync — use it only if you need to push changes right away.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Publish requires the <strong>manager PIN</strong>. Day-to-day, auto-save handles everything without it.</span>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -2146,7 +2324,7 @@ function dropBreak(e, area) {
 // ════════════════════════════════════════════════
 
 function switchTab(tab) {
-  ['assign','live','roster','helplog'].forEach(t => {
+  ['assign','live','roster','helplog','guide'].forEach(t => {
     document.getElementById('content-' + t).classList.toggle('active', t === tab);
     document.getElementById('tab-btn-' + t).classList.toggle('active', t === tab);
   });
