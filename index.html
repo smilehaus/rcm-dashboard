@@ -312,6 +312,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
     <button class="tab-btn" id="tab-btn-roster" onclick="switchTab('roster')">👥 &nbsp;Staff Roster</button>
     <button class="tab-btn" id="tab-btn-helplog" onclick="switchTab('helplog')">🚨 &nbsp;Help Records</button>
     <button class="tab-btn" id="tab-btn-guide" onclick="switchTab('guide')">📖 &nbsp;How To Use</button>
+    <button class="tab-btn" id="tab-btn-kpi" onclick="switchTab('kpi')">📊 &nbsp;KPIs</button>
   </div>
   <div class="legend">
     <div class="legend-item"><div class="ldot" style="background:var(--earth)"></div>Token = staff member</div>
@@ -686,6 +687,28 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
       </div>
 
     </div>
+  </div>
+</div>
+
+<!-- ── KPI TAB ─────────────────────────────────── -->
+<div id="content-kpi" class="tab-content">
+  <div class="board-panel">
+    <div class="bph" style="flex-wrap:wrap;gap:10px">
+      <div>
+        <div class="bph-title">Office KPIs</div>
+        <div class="bph-date" style="color:var(--taupe)">Monthly performance metrics — all 10 offices</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <select id="kpi-period" onchange="renderKpiTab()"
+          style="border:1px solid var(--sandstone);border-radius:7px;padding:6px 10px;font-family:'Jost',sans-serif;font-size:12px;color:var(--onyx);outline:none;background:white"></select>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--earth)">
+          <span id="kpi-lock-icon">🔒</span><span id="kpi-lock-lbl">Locked</span>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="kpi-lock-btn" onclick="kpiLockToggle()">Unlock to Edit</button>
+      </div>
+    </div>
+    <div id="kpi-office-pills" style="padding:10px 20px;border-bottom:1px solid var(--sandstone);display:flex;gap:6px;flex-wrap:wrap"></div>
+    <div id="kpi-body" style="padding:20px 24px"></div>
   </div>
 </div>
 
@@ -1113,6 +1136,7 @@ function emptyBoard(offices, cols) {
 }
 
 let S = {
+  kpi: {},
   staff:   clone(STAFF_DEF),
   offices: clone(OFFICE_DEF),
   columns: clone(COL_DEF),
@@ -1128,6 +1152,36 @@ let S = {
 };
 
 const DATA_VERSION = 6; // bump when state schema changes to force-clear stale cache
+
+// ── KPI Definitions ───────────────────────────────────────────────────────
+const KPI_DEFS = [
+  { id: 'dailyProduction',   label: 'Daily Production',   format: 'currency', higher: true,
+    officeGoals: {SQ:5600,GT:15625,ATX:6570,MP:6250,NBDA:6250,IC:12500,AR:6250,PF:6250,SATX:9400,AM:6250},
+    icon: '💰', desc: 'Avg daily adjusted production' },
+  { id: 'monthlyProduction', label: 'Monthly Production', format: 'currency', higher: true,
+    officeGoals: {SQ:78000,GT:250000,ATX:105000,MP:100000,NBDA:100000,IC:100000,AR:100000,PF:100000,SATX:150000,AM:100000},
+    icon: '📈', desc: 'Total monthly adjusted production' },
+  { id: 'collectionRate',    label: 'Collection Rate',    format: 'percent',  higher: true,  goal: 95,
+    icon: '💳', desc: 'Collections as % of production' },
+  { id: 'hygieneReappt',    label: 'Hygiene Re-appt %',  format: 'percent',  higher: true,  goal: 90,
+    icon: '📅', desc: 'Patients leaving with next appt scheduled' },
+  { id: 'cancellationRate', label: 'Cancellation Rate',  format: 'percent',  higher: false, goal: 5,
+    icon: '❌', desc: 'Cancelled / total appointments' },
+  { id: 'caseAcceptance',   label: 'Case Acceptance',    format: 'percent',  higher: true,  goal: 45,
+    icon: '✅', desc: 'Treatment plans accepted by patients' },
+  { id: 'perioPercent',     label: 'Perio Patient %',    format: 'percent',  higher: true,  goal: 30,
+    icon: '🦷', desc: 'Hygiene patients in Perio Program' },
+  { id: 'newPatients',      label: 'New Patients',       format: 'number',   higher: true,  goal: 30,
+    icon: '🆕', desc: 'New patients seen this month' },
+  { id: 'googleReviews',    label: 'Google Reviews',     format: 'number',   higher: true,  goal: 40,
+    icon: '⭐', desc: 'Reviews received this month (~2/day)' },
+  { id: 'missedCallPct',    label: 'Missed Call %',      format: 'percent',  higher: false, goal: 10,
+    icon: '📞', desc: 'Missed calls as % of total calls' },
+  { id: 'arDays',           label: 'AR Days',            format: 'number',   higher: false, goal: 30,
+    icon: '📋', desc: 'Average days in accounts receivable' },
+  { id: 'arOver30',         label: 'AR Over 30 Days',   format: 'currency', higher: false, goal: 20000,
+    icon: '⚠️', desc: 'Total AR balance older than 30 days' },
+];
 
 const LIVE_MODE = new URLSearchParams(location.search).has('live');
 
@@ -2473,6 +2527,281 @@ function renderBreak() {
   });
 }
 
+// ════════════════════════════════════════════════
+// KPI TAB
+// ════════════════════════════════════════════════
+
+let _kpiOffice = 'ALL';
+
+function kpiGoalFor(def, offCode) {
+  if (def.officeGoals) return def.officeGoals[offCode] || null;
+  return def.goal || null;
+}
+
+function kpiStatus(def, actual, offCode) {
+  if (actual === null || actual === undefined || actual === '' || isNaN(Number(actual))) return 'empty';
+  const goal = kpiGoalFor(def, offCode);
+  if (!goal) return 'empty';
+  const ratio = Number(actual) / goal;
+  if (def.higher) {
+    if (ratio >= 1)    return 'green';
+    if (ratio >= 0.85) return 'yellow';
+    return 'red';
+  } else {
+    if (ratio <= 1)    return 'green';
+    if (ratio <= 1.15) return 'yellow';
+    return 'red';
+  }
+}
+
+function fmtKpiVal(def, val) {
+  if (val === null || val === undefined || val === '' || isNaN(Number(val))) return '—';
+  const n = Number(val);
+  if (def.format === 'currency') return '$' + n.toLocaleString('en-US', {maximumFractionDigits:0});
+  if (def.format === 'percent')  return n.toFixed(1) + '%';
+  return n.toLocaleString('en-US', {maximumFractionDigits:1});
+}
+
+function fmtKpiGoal(def, offCode) {
+  return fmtKpiVal(def, kpiGoalFor(def, offCode));
+}
+
+const KPI_STATUS_STYLE = {
+  green:  {bg:'#f0fdf4', border:'#bbf7d0', text:'#15803d', bar:'#16a34a'},
+  yellow: {bg:'#fffbeb', border:'#fde68a', text:'#92400e', bar:'#f59e0b'},
+  red:    {bg:'#fef2f2', border:'#fecaca', text:'#dc2626', bar:'#ef4444'},
+  empty:  {bg:'var(--alabaster)', border:'var(--sandstone)', text:'var(--taupe)', bar:'var(--sandstone)'},
+};
+
+function kpiProgressPct(def, actual, offCode) {
+  if (actual === null || actual === undefined || actual === '' || isNaN(Number(actual))) return 0;
+  const goal = kpiGoalFor(def, offCode);
+  if (!goal) return 0;
+  const v = Number(actual);
+  if (def.higher) return Math.min(100, Math.round((v / goal) * 100));
+  return v <= goal ? 100 : Math.max(0, Math.round((goal / v) * 100));
+}
+
+function kpiLockToggle() {
+  if (__rosterUnlocked) {
+    __rosterUnlocked = false;
+    updateRosterLockUI();
+    renderKpiTab();
+  } else {
+    rosterGated(() => { updateRosterLockUI(); renderKpiTab(); });
+  }
+}
+
+function setKpiValue(period, offCode, kpiId, val) {
+  if (!S.kpi) S.kpi = {};
+  if (!S.kpi[period]) S.kpi[period] = {};
+  if (!S.kpi[period][offCode]) S.kpi[period][offCode] = {};
+  S.kpi[period][offCode][kpiId] = (val === '' || val === null) ? null : Number(val);
+  save();
+}
+
+function kpiPeriodOptions() {
+  const opts = [];
+  const now = new Date();
+  for (let i = 0; i < 13; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const val = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+    const label = d.toLocaleDateString('en-US', {month:'long', year:'numeric'});
+    opts.push({val, label});
+  }
+  return opts;
+}
+
+function kpiCurrentPeriod() {
+  const now = new Date();
+  return now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+}
+
+function renderKpiTab() {
+  // Period selector
+  const periodSel = document.getElementById('kpi-period');
+  if (periodSel) {
+    const opts = kpiPeriodOptions();
+    const cur = periodSel.value || kpiCurrentPeriod();
+    periodSel.innerHTML = opts.map(o =>
+      `<option value="${o.val}" ${o.val===cur?'selected':''}>${o.label}</option>`
+    ).join('');
+  }
+  const period = document.getElementById('kpi-period')?.value || kpiCurrentPeriod();
+
+  // Office pills
+  const pillsEl = document.getElementById('kpi-office-pills');
+  if (pillsEl) {
+    const offices = [{code:'ALL', name:'All Offices'}, ...S.offices.map(o => ({code:o.code, name:o.name||o.code}))];
+    pillsEl.innerHTML = offices.map(o => {
+      const active = _kpiOffice === o.code;
+      return `<button onclick="_kpiOffice='${escHtml(o.code)}';renderKpiTab()"
+        style="padding:5px 14px;border-radius:100px;font-family:'Jost',sans-serif;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid ${active?'var(--onyx)':'var(--sandstone)'};background:${active?'var(--onyx)':'white'};color:${active?'white':'var(--earth)'};transition:all .15s">${escHtml(o.code==='ALL'?'All Offices':o.code)}</button>`;
+    }).join('');
+  }
+
+  const body = document.getElementById('kpi-body');
+  if (!body) return;
+  if (_kpiOffice === 'ALL') renderKpiOverview(body, period);
+  else renderKpiDetail(body, period, _kpiOffice);
+}
+
+function renderKpiOverview(body, period) {
+  if (!S.kpi) S.kpi = {};
+  const periodData = S.kpi[period] || {};
+
+  // Key KPIs for overview table
+  const overviewIds = ['monthlyProduction','collectionRate','hygieneReappt','cancellationRate','caseAcceptance','arDays','arOver30'];
+  const defs = KPI_DEFS.filter(d => overviewIds.includes(d.id));
+
+  let html = `
+    <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div style="font-size:11px;color:var(--taupe)">Key metrics overview — click an office name to see all 12 KPIs.</div>
+      ${__rosterUnlocked ? '<span style="font-size:10px;font-weight:700;color:#15803d;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:100px;padding:2px 10px">🔓 Unlocked — click an office to enter values</span>' : ''}
+    </div>
+    <div style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;min-width:800px;font-size:12px">
+      <thead>
+        <tr style="background:#5C4F44;color:white">
+          <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px">Office</th>
+          ${defs.map(d => `<th style="padding:10px 10px;text-align:center;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap">${d.label}</th>`).join('')}
+          <th style="padding:10px 10px;text-align:center;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px">Score</th>
+        </tr>
+        <tr style="background:#7A6A5C">
+          <th style="padding:4px 14px;color:rgba(255,255,255,.7);font-size:9px;font-weight:400;text-align:left">Goal →</th>
+          ${defs.map(d => {
+            // Show a representative goal (use GT for office-specific ones)
+            const sample = d.officeGoals ? fmtKpiVal(d, d.officeGoals['GT']) + '*' : fmtKpiGoal(d, 'GT');
+            return `<th style="padding:4px 10px;text-align:center;color:rgba(255,255,255,.7);font-size:9px;font-weight:400">${sample}</th>`;
+          }).join('')}
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>`;
+
+  S.offices.forEach((off, idx) => {
+    const offData = periodData[off.code] || {};
+    let greenCount = 0, totalWithData = 0;
+
+    const cells = defs.map(d => {
+      const actual = offData[d.id];
+      const status = kpiStatus(d, actual, off.code);
+      if (status !== 'empty') { totalWithData++; if (status==='green') greenCount++; }
+      const s = KPI_STATUS_STYLE[status];
+      return `<td style="padding:7px 8px;text-align:center;border-bottom:1px solid var(--sandstone)">
+        <span style="display:inline-block;background:${s.bg};color:${s.text};border:1px solid ${s.border};border-radius:6px;padding:2px 8px;font-size:11px;font-weight:${status==='empty'?'400':'600'};white-space:nowrap">${fmtKpiVal(d,actual)}</span>
+      </td>`;
+    }).join('');
+
+    const score = totalWithData > 0 ? Math.round((greenCount/totalWithData)*100) : null;
+    const scoreBg = score===null?'var(--alabaster)':score>=80?'#f0fdf4':score>=60?'#fffbeb':'#fef2f2';
+    const scoreClr = score===null?'var(--taupe)':score>=80?'#15803d':score>=60?'#92400e':'#dc2626';
+
+    html += `<tr style="background:${idx%2===0?'white':'rgba(242,239,232,.35)'}">
+      <td style="padding:10px 14px;border-bottom:1px solid var(--sandstone)">
+        <button onclick="_kpiOffice='${escHtml(off.code)}';renderKpiTab()"
+          style="background:none;border:none;cursor:pointer;font-family:'Jost',sans-serif;font-weight:800;font-size:13px;color:var(--onyx);padding:0;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--sandstone)">${escHtml(off.code)}</button>
+        <div style="font-size:9px;color:var(--taupe);margin-top:1px">${escHtml(off.name||'')}</div>
+      </td>
+      ${cells}
+      <td style="padding:7px 10px;text-align:center;border-bottom:1px solid var(--sandstone)">
+        ${score!==null?`<span style="background:${scoreBg};color:${scoreClr};border-radius:100px;padding:3px 10px;font-size:11px;font-weight:700">${score}%</span>`:'<span style="color:var(--taupe);font-size:11px">—</span>'}
+      </td>
+    </tr>`;
+  });
+
+  html += `</tbody></table></div>
+    <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;align-items:center">
+      <span style="font-size:10px;color:var(--taupe);font-weight:600">STATUS:</span>
+      <span style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;border-radius:6px;padding:2px 10px;font-size:10px;font-weight:700">✓ On Goal</span>
+      <span style="background:#fffbeb;color:#92400e;border:1px solid #fde68a;border-radius:6px;padding:2px 10px;font-size:10px;font-weight:700">~ Close (within 15%)</span>
+      <span style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:6px;padding:2px 10px;font-size:10px;font-weight:700">✗ Below Goal</span>
+      <span style="background:var(--alabaster);color:var(--taupe);border:1px solid var(--sandstone);border-radius:6px;padding:2px 10px;font-size:10px;font-weight:700">— No Data</span>
+      <span style="font-size:9px;color:var(--taupe);margin-left:6px">* Monthly Production goal varies by office</span>
+    </div>`;
+
+  body.innerHTML = html;
+}
+
+function renderKpiDetail(body, period, offCode) {
+  if (!S.kpi) S.kpi = {};
+  const offData = (S.kpi[period] && S.kpi[period][offCode]) ? S.kpi[period][offCode] : {};
+  const off = S.offices.find(o => o.code === offCode) || {code:offCode, name:offCode};
+
+  let greenCount = 0, yellowCount = 0, redCount = 0, emptyCount = 0;
+  KPI_DEFS.forEach(d => {
+    const s = kpiStatus(d, offData[d.id], offCode);
+    if (s==='green') greenCount++;
+    else if (s==='yellow') yellowCount++;
+    else if (s==='red') redCount++;
+    else emptyCount++;
+  });
+  const totalWithData = greenCount + yellowCount + redCount;
+  const score = totalWithData > 0 ? Math.round((greenCount/totalWithData)*100) : null;
+
+  let html = `
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--sandstone)">
+      <div>
+        <div style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:19px;color:var(--onyx)">${escHtml(off.code)} — ${escHtml(off.name||'')}</div>
+        <div style="font-size:11px;color:var(--taupe);margin-top:3px">${totalWithData} of ${KPI_DEFS.length} metrics entered for this period</div>
+        ${__rosterUnlocked ? '<div style="font-size:10px;font-weight:700;color:#15803d;margin-top:6px">🔓 Edit mode — enter values below</div>' : '<div style="font-size:10px;color:var(--taupe);margin-top:4px">Unlock to enter or edit values</div>'}
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        ${score!==null?`<div style="text-align:center;background:${score>=80?'#f0fdf4':score>=60?'#fffbeb':'#fef2f2'};border:1px solid ${score>=80?'#bbf7d0':score>=60?'#fde68a':'#fecaca'};border-radius:12px;padding:10px 20px">
+          <div style="font-size:26px;font-weight:800;color:${score>=80?'#15803d':score>=60?'#92400e':'#dc2626'};line-height:1">${score}%</div>
+          <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:${score>=80?'#15803d':score>=60?'#92400e':'#dc2626'};margin-top:3px">On Goal</div>
+        </div>`:''}
+        <div style="display:flex;flex-direction:column;gap:5px">
+          ${greenCount>0?`<span style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700">${greenCount} ✓ On Goal</span>`:''}
+          ${yellowCount>0?`<span style="background:#fffbeb;color:#92400e;border:1px solid #fde68a;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700">${yellowCount} ~ Close</span>`:''}
+          ${redCount>0?`<span style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700">${redCount} ✗ Below Goal</span>`:''}
+          ${emptyCount>0?`<span style="background:var(--alabaster);color:var(--taupe);border:1px solid var(--sandstone);border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700">${emptyCount} — No Data</span>`:''}
+        </div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px">`;
+
+  KPI_DEFS.forEach(d => {
+    const actual = offData[d.id];
+    const status = kpiStatus(d, actual, offCode);
+    const s = KPI_STATUS_STYLE[status];
+    const pct = kpiProgressPct(d, actual, offCode);
+    const goal = kpiGoalFor(d, offCode);
+
+    html += `
+      <div style="background:${s.bg};border:1.5px solid ${s.border};border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:${s.text}">${d.icon} ${escHtml(d.label)}</div>
+          <span style="font-size:9px;font-weight:700;white-space:nowrap;border-radius:100px;padding:1px 7px;background:rgba(0,0,0,.06);color:${s.text}">
+            ${{green:'✓ On Goal',yellow:'~ Close',red:'✗ Below',empty:'—'}[status]}
+          </span>
+        </div>
+        <div>
+          ${__rosterUnlocked
+            ? `<input type="number" value="${actual!==null&&actual!==undefined&&actual!==''?actual:''}"
+                placeholder="Enter value"
+                onchange="setKpiValue('${period}','${escHtml(offCode)}','${d.id}',this.value);renderKpiTab()"
+                style="width:100%;font-size:22px;font-weight:800;color:${s.text};background:transparent;border:none;border-bottom:2px solid ${s.border};outline:none;font-family:'Jost',sans-serif;padding:2px 0;margin-bottom:2px">`
+            : `<div style="font-size:24px;font-weight:800;color:${s.text};line-height:1.1">${fmtKpiVal(d,actual)}</div>`
+          }
+        </div>
+        <div style="font-size:9.5px;color:${s.text};opacity:.75">${escHtml(d.desc)}</div>
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:9px;font-weight:600;color:${s.text};opacity:.8">Goal: ${fmtKpiGoal(d,offCode)}</span>
+            <span style="font-size:9px;font-weight:600;color:${s.text};opacity:.8">${pct}%</span>
+          </div>
+          <div style="background:rgba(0,0,0,.1);border-radius:100px;height:5px;overflow:hidden">
+            <div style="background:${s.bar};height:5px;width:${pct}%;border-radius:100px;transition:width .4s"></div>
+          </div>
+        </div>
+      </div>`;
+  });
+
+  html += '</div>';
+  body.innerHTML = html;
+}
+
 function renderAll() {
   checkVacations();
   renderRoster();
@@ -2538,12 +2867,13 @@ function dropBreak(e, area) {
 // ════════════════════════════════════════════════
 
 function switchTab(tab) {
-  ['assign','live','roster','helplog','guide'].forEach(t => {
+  ['assign','live','roster','helplog','guide','kpi'].forEach(t => {
     document.getElementById('content-' + t).classList.toggle('active', t === tab);
     document.getElementById('tab-btn-' + t).classList.toggle('active', t === tab);
   });
   if (tab === 'roster') renderRosterTab();
   if (tab === 'helplog') renderHelpLogTab();
+  if (tab === 'kpi') renderKpiTab();
 }
 
 function resetAssign() {
@@ -2864,6 +3194,19 @@ function updateRosterLockUI() {
     if (aLabel) aLabel.textContent = 'Locked';
     if (aBtn)   aBtn.textContent   = 'Unlock to Edit';
     if (aReset) aReset.style.display = 'none';
+  }
+  // KPI lock UI
+  const kpiIcon = document.getElementById('kpi-lock-icon');
+  const kpiLbl  = document.getElementById('kpi-lock-lbl');
+  const kpiBtn  = document.getElementById('kpi-lock-btn');
+  if (__rosterUnlocked) {
+    if (kpiIcon) kpiIcon.textContent = '🔓';
+    if (kpiLbl)  kpiLbl.textContent  = 'Unlocked';
+    if (kpiBtn)  kpiBtn.textContent  = 'Lock';
+  } else {
+    if (kpiIcon) kpiIcon.textContent = '🔒';
+    if (kpiLbl)  kpiLbl.textContent  = 'Locked';
+    if (kpiBtn)  kpiBtn.textContent  = 'Unlock to Edit';
   }
 }
 
