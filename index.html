@@ -122,6 +122,14 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 .gtok:hover .tok-remove{display:flex;}
 .drop-cell.over{background:rgba(135,119,101,.1);outline:2px dashed var(--taupe);outline-offset:-1px;}
 
+/* IV Verified-to date strip (ins_verif column, bottom of each cell) */
+.iv-date-bar{display:flex;align-items:center;justify-content:flex-end;gap:5px;margin-top:auto;padding-top:6px;border-top:1px solid var(--sandstone);}
+.iv-date-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--earth);white-space:nowrap;}
+.iv-date-val{font-size:11px;font-weight:700;color:var(--onyx);}
+.iv-date-val.empty{color:var(--taupe);}
+.iv-date-inp{font-family:'Jost',sans-serif;font-size:11px;font-weight:600;color:var(--onyx);background:var(--alabaster);border:1px solid var(--sandstone);border-radius:5px;padding:2px 5px;cursor:pointer;max-width:110px;}
+.iv-date-inp:focus{outline:none;border-color:var(--earth);}
+
 /* ── Away Zone ────────────────────────────── */
 .away-panel{border-radius:var(--radius);border:2px dashed var(--taupe);background:rgba(214,205,189,.18);padding:16px 20px;}
 .away-hdr{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
@@ -1149,6 +1157,7 @@ let S = {
   vacationActive: [], // staff IDs currently auto-placed in off zone by vacation
   lastAutoClear: '',  // date string of last 10pm auto-clear
   departments: [],    // user-defined department list
+  ivDates: {},        // { officeCode: 'YYYY-MM-DD' } — IV verified-to dates, never auto-cleared
 };
 
 const DATA_VERSION = 6; // bump when state schema changes to force-clear stale cache
@@ -1303,6 +1312,9 @@ async function load() {
 
   if (src) Object.assign(S, src);
 
+  // Ensure ivDates map exists (added in DATA_VERSION 6+)
+  if (!S.ivDates) S.ivDates = {};
+
   // Ensure live board has all current offices/cols
   S.offices.forEach(o => {
     if (!S.live[o.code]) S.live[o.code] = {};
@@ -1328,6 +1340,19 @@ function save() {
   const el = document.getElementById('last-updated');
   const t = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
   if (el) { el.textContent = '↑ Saving ' + t; el.style.color = '#facc15'; }
+}
+
+// ── IV Verified Date helpers ──────────────────
+function fmtIvDateRcm(iso) {
+  if (!iso) return '—';
+  return new Date(iso + 'T00:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+}
+function setIvDate(code, date) {
+  if (!S.ivDates) S.ivDates = {};
+  if (date) S.ivDates[code] = date;
+  else delete S.ivDates[code];
+  save();
+  renderAll();
 }
 
 async function publishState() {
@@ -2470,6 +2495,38 @@ function buildGrid(tableEl, boardId) {
       }
 
       inner.appendChild(layer);
+
+      // IV Verified-to date — only on the ins_verif column
+      if (col.id === 'ins_verif') {
+        const dateBar = document.createElement('div');
+        dateBar.className = 'iv-date-bar';
+
+        const lbl = document.createElement('span');
+        lbl.className = 'iv-date-lbl';
+        lbl.textContent = 'Verified to:';
+        dateBar.appendChild(lbl);
+
+        const ivDate = (S.ivDates && S.ivDates[office.code]) || '';
+
+        if (__rosterUnlocked) {
+          // Editable date input when roster is unlocked
+          const inp = document.createElement('input');
+          inp.type = 'date';
+          inp.className = 'iv-date-inp';
+          inp.value = ivDate;
+          inp.onchange = e => setIvDate(office.code, e.target.value || null);
+          dateBar.appendChild(inp);
+        } else {
+          // Read-only label
+          const val = document.createElement('span');
+          val.className = 'iv-date-val' + (ivDate ? '' : ' empty');
+          val.textContent = fmtIvDateRcm(ivDate);
+          dateBar.appendChild(val);
+        }
+
+        inner.appendChild(dateBar);
+      }
+
       td.appendChild(inner);
       tr.appendChild(td);
     });
