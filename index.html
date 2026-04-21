@@ -143,9 +143,14 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 .iv-date-val{font-size:11px;font-weight:700;color:var(--onyx);}
 .iv-date-val.empty{color:var(--taupe);}
 .iv-date-inp{font-family:'Jost',sans-serif;font-size:11px;font-weight:600;color:var(--onyx);background:var(--alabaster);border:1px solid var(--sandstone);border-radius:5px;padding:2px 5px;cursor:pointer;max-width:110px;}
-/* IV expiry alert — glowing ⚠️ (Option D) */
-.iv-alert{font-size:13px;display:inline-block;animation:iv-warn-glow 1.1s ease-in-out infinite;line-height:1;}
+/* IV date status indicators */
+.iv-alert{font-size:13px;display:inline-block;animation:iv-warn-glow 1.1s ease-in-out infinite;line-height:1;flex-shrink:0;}
 @keyframes iv-warn-glow{0%,100%{opacity:1;filter:drop-shadow(0 0 0px rgba(239,68,68,0));}50%{opacity:.45;filter:drop-shadow(0 0 5px rgba(239,68,68,.95));}}
+.iv-dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0;}
+.iv-dot.green{background:#22c55e;animation:iv-green-pulse 2s ease-in-out infinite;}
+.iv-dot.yellow{background:#eab308;animation:iv-yellow-pulse 1.4s ease-in-out infinite;}
+@keyframes iv-green-pulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.65);}60%{box-shadow:0 0 0 5px rgba(34,197,94,0);}}
+@keyframes iv-yellow-pulse{0%,100%{box-shadow:0 0 0 0 rgba(234,179,8,.75);}60%{box-shadow:0 0 0 5px rgba(234,179,8,0);}}
 .iv-date-inp:focus{outline:none;border-color:var(--earth);}
 
 /* ── Away Zone ────────────────────────────── */
@@ -345,6 +350,9 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
     <div class="legend-item"><div class="ldot" style="background:var(--live);animation:livering 1.9s ease-out infinite"></div>Blinking = active</div>
     <div class="legend-item"><div class="ldot" style="background:var(--sandstone)"></div>Ghost = assigned (ref)</div>
     <div class="legend-item"><div class="ldot" style="background:#ef4444"></div>Red flash = needs help</div>
+    <div class="legend-item"><div class="ldot" style="background:#22c55e;animation:iv-green-pulse 2s ease-in-out infinite"></div>IV verified (4+ days)</div>
+    <div class="legend-item"><div class="ldot" style="background:#eab308;animation:iv-yellow-pulse 1.4s ease-in-out infinite"></div>IV expiring (2–3 days)</div>
+    <div class="legend-item" style="font-size:9px">⚠️ IV expired / unset</div>
   </div>
 </div>
 
@@ -2625,16 +2633,37 @@ function buildGrid(tableEl, boardId) {
 
         const ivDate = (S.ivDates && S.ivDates[office.code]) || '';
 
-        // Alert if date is unset or not at least tomorrow
-        const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD local
-        const needsAlert = !ivDate || ivDate <= todayStr;
-        if (needsAlert) {
-          const alert = document.createElement('span');
-          alert.className = 'iv-alert';
-          alert.title = ivDate ? 'Verification expired or due today' : 'No verification date set';
-          alert.textContent = '⚠️';
-          dateBar.appendChild(alert);
-        }
+        // Traffic-light status based on days until expiry
+        // Red ⚠️ : unset or ≤ today+1  |  Yellow dot: today+2–3  |  Green dot: today+4+
+        (function() {
+          const now = new Date();
+          function isoPlus(n) {
+            const d = new Date(now); d.setDate(d.getDate() + n);
+            return d.toLocaleDateString('en-CA');
+          }
+          const d1 = isoPlus(1), d3 = isoPlus(3);
+
+          if (!ivDate || ivDate <= d1) {
+            // RED — expired or expiring ≤ tomorrow
+            const el = document.createElement('span');
+            el.className = 'iv-alert';
+            el.title = ivDate ? 'IV verification expires today or tomorrow — update needed' : 'No IV verification date set';
+            el.textContent = '⚠️';
+            dateBar.appendChild(el);
+          } else if (ivDate <= d3) {
+            // YELLOW — 2–3 days out
+            const el = document.createElement('span');
+            el.className = 'iv-dot yellow';
+            el.title = 'IV verification expiring in 2–3 days';
+            dateBar.appendChild(el);
+          } else {
+            // GREEN — 4+ days out
+            const el = document.createElement('span');
+            el.className = 'iv-dot green';
+            el.title = 'IV verification current (4+ days remaining)';
+            dateBar.appendChild(el);
+          }
+        })();
 
         const lbl = document.createElement('span');
         lbl.className = 'iv-date-lbl';
