@@ -90,6 +90,10 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 .checkin-lbl{font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.45);white-space:nowrap;}
 .checkin-pill select{background:transparent;border:none;color:rgba(255,255,255,.9);font-family:'Jost',sans-serif;font-size:10px;font-weight:700;letter-spacing:.5px;cursor:pointer;outline:none;max-width:90px;}
 .checkin-pill select option{background:#2A2E31;color:white;}
+.admin-lock-badge{display:flex;align-items:center;gap:5px;font-size:9px;font-weight:800;letter-spacing:.8px;padding:4px 11px;border-radius:100px;white-space:nowrap;transition:all .2s;}
+.admin-lock-badge.unlocked{background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.4);color:#86efac;}
+.admin-lock-badge.locked{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);color:rgba(255,255,255,.45);cursor:pointer;}
+.admin-lock-badge.locked:hover{background:rgba(255,255,255,.13);color:rgba(255,255,255,.7);}
 
 /* ── Notification Banner ─────────────────────────────────────────────────── */
 #notif-banner{position:fixed;top:78px;right:18px;z-index:99999;width:300px;
@@ -373,8 +377,11 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
     <div class="checkin-pill" title="Check in as yourself to receive assignment notifications">
       <span class="checkin-lbl">CHECK IN AS</span>
       <select id="checkin-select" onchange="onCheckInChange(this.value)">
-        <option value="">— Me —</option>
+        <option value="">— Sign Out —</option>
       </select>
+    </div>
+    <div id="admin-lock-badge" class="admin-lock-badge locked" onclick="adminBadgeClick()" title="Management staff: check in to unlock admin features">
+      🔒 <span id="admin-lock-text">LOCKED</span>
     </div>
     <div class="live-pill"><div class="live-dot"></div>LIVE</div>
   </div>
@@ -516,11 +523,11 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
           style="border:1px solid var(--sandstone);border-radius:7px;padding:6px 10px;font-family:'Jost',sans-serif;font-size:12px;color:var(--onyx);outline:none;background:white">
           <option value="">All Departments</option>
         </select>
-        <div class="roster-lock" id="roster-lock-status">
+        <div class="roster-lock" id="roster-lock-status" style="display:none">
           <span class="lock-icon" id="roster-lock-icon">🔒</span>
           <span id="roster-lock-label">Locked</span>
         </div>
-        <button class="btn btn-ghost btn-sm" id="roster-lock-btn" onclick="rosterLockToggle()">Unlock to Edit</button>
+        <button class="btn btn-ghost btn-sm" id="roster-lock-btn" onclick="rosterLockToggle()" style="display:none">Unlock to Edit</button>
         <button class="btn btn-ghost btn-sm" id="roster-add-dept-btn" onclick="rosterGated(openAddDept)" style="display:none">+ Add Department</button>
         <button class="btn btn-primary btn-sm" id="roster-add-btn" onclick="rosterGated(openAddStaff)" style="display:none">+ Add Staff</button>
       </div>
@@ -556,11 +563,11 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
         <div class="bph-date" style="color:var(--taupe)">Permanent role assignments — admin reference</div>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
-        <div class="roster-lock" id="assign-lock-status" style="font-size:11px;font-weight:600;color:var(--earth);display:flex;align-items:center;gap:6px">
+        <div class="roster-lock" id="assign-lock-status" style="font-size:11px;font-weight:600;color:var(--earth);display:none;align-items:center;gap:6px">
           <span id="assign-lock-icon">🔒</span>
           <span id="assign-lock-label">Locked</span>
         </div>
-        <button class="btn btn-ghost btn-sm" id="assign-lock-btn" onclick="assignLockToggle()">Unlock to Edit</button>
+        <button class="btn btn-ghost btn-sm" id="assign-lock-btn" onclick="assignLockToggle()" style="display:none">Unlock to Edit</button>
         <button class="btn btn-ghost btn-sm" id="assign-reset-btn" onclick="resetAssign()" style="display:none">↺ Reset Defaults</button>
       </div>
     </div>
@@ -1530,6 +1537,7 @@ function notifyHelp(description) {
 let _checkinId        = localStorage.getItem('sh-checkin-id') || '';
 let _naSnapshot       = []; // fingerprints of NA items checked-in user has already seen
 let _pendingCheckinId = ''; // staff ID waiting for PIN confirmation
+let _adminCheckedIn   = false; // true when a Management dept staff is checked in via PIN
 
 function genPin() {
   return String(Math.floor(1000 + Math.random() * 9000));
@@ -1560,6 +1568,14 @@ function onCheckInChange(id) {
     _checkinId = '';
     localStorage.removeItem('sh-checkin-id');
     _naSnapshot = [];
+    // If admin was checked in, lock everything on sign-out
+    if (_adminCheckedIn) {
+      _adminCheckedIn   = false;
+      __rosterUnlocked  = false;
+      updateRosterLockUI();
+      renderRosterTab();
+    }
+    updateAdminBadge();
     populateCheckinSelect();
     return;
   }
@@ -1586,6 +1602,14 @@ function submitCheckinPin() {
     _checkinId = _pendingCheckinId;
     localStorage.setItem('sh-checkin-id', _checkinId);
     _naSnapshot = getNaSnapshot(_checkinId);
+    // If Management dept — auto-unlock admin features
+    if ((s.dept || '').toLowerCase().includes('management')) {
+      _adminCheckedIn  = true;
+      __rosterUnlocked = true;
+      updateRosterLockUI();
+      renderRosterTab();
+    }
+    updateAdminBadge();
     populateCheckinSelect(); // update dropdown to show name
     closeModal('checkin-pin-modal');
     _pendingCheckinId = '';
@@ -1608,6 +1632,32 @@ function cancelCheckin() {
   // Restore dropdown
   const sel = document.getElementById('checkin-select');
   if (sel) sel.value = _checkinId || '';
+}
+
+// ── Admin badge (header) ──────────────────────────────────────────────────
+function updateAdminBadge() {
+  const badge = document.getElementById('admin-lock-badge');
+  const text  = document.getElementById('admin-lock-text');
+  if (!badge || !text) return;
+  if (_adminCheckedIn || __rosterUnlocked) {
+    const who = _adminCheckedIn ? getStaff(_checkinId).name.split(' ')[0] : 'Admin';
+    badge.className = 'admin-lock-badge unlocked';
+    text.textContent = '🔓 ' + who.toUpperCase();
+    badge.title = 'Admin unlocked — ' + who + ' is checked in';
+    badge.onclick = () => {}; // clicking unlocked badge does nothing
+  } else {
+    badge.className = 'admin-lock-badge locked';
+    text.textContent = 'LOCKED';
+    badge.title = 'Check in as Management to unlock admin features';
+    badge.onclick = adminBadgeClick;
+  }
+}
+
+function adminBadgeClick() {
+  // If no management staff is checked in, prompt to check in
+  if (!_adminCheckedIn && !__rosterUnlocked) {
+    alert('Check in as a Management staff member using the CHECK IN AS dropdown to unlock admin features.');
+  }
 }
 
 // ── Profile PIN helpers ───────────────────────────────────────────────────
@@ -1796,6 +1846,9 @@ async function load() {
   let pinBackfilled = false;
   S.staff.forEach(s => { if (!s.pin) { s.pin = genPin(); pinBackfilled = true; } });
   if (pinBackfilled) fbWrite({ ...S }); // persist new PINs immediately
+
+  // Apply vacation auto-placement once on load (not on every render)
+  checkVacations();
 
   // Snapshot current NA items so first poll doesn't re-fire for existing assignments
   _naSnapshot = getNaSnapshot(_checkinId);
@@ -3749,7 +3802,6 @@ function renderKpiDetail(body, period, offCode) {
 }
 
 function renderAll() {
-  checkVacations();
   renderRoster();
   renderOOO();
   buildGrid(document.getElementById('assign-table'), 'assign');
@@ -3757,6 +3809,7 @@ function renderAll() {
   renderBreak();
   renderHelpLog();
   populateCheckinSelect();
+  updateAdminBadge();
 }
 
 function renderOOO() {
@@ -4130,6 +4183,12 @@ function rosterLockToggle() {
 
 function rosterGated(fn) {
   if (__rosterUnlocked) { fn(); return; }
+  if (_adminCheckedIn) {
+    __rosterUnlocked = true;
+    updateRosterLockUI();
+    fn();
+    return;
+  }
   __pinPendingAction = fn;
   openPinModal();
 }
@@ -4229,6 +4288,8 @@ function updateRosterLockUI() {
     if (kpiLbl)  kpiLbl.textContent  = 'Locked';
     if (kpiBtn)  kpiBtn.textContent  = 'Unlock to Edit';
   }
+  // Sync header admin badge
+  updateAdminBadge();
 }
 
 function assignLockToggle() {
@@ -4505,6 +4566,7 @@ function midnightReset() {
   });
   S.lunch = [];
   S.off   = [];
+  checkVacations(); // re-add vacation-active staff after clearing
 
   // ── Reset all "Currently Working On" items for every staff member ──
   S.staff.forEach(s => {
