@@ -65,11 +65,27 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 .gtok-name{font-size:8.5px;color:var(--onyx);font-weight:600;text-align:center;max-width:50px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
 /* ── Split tile (in-cell token, E-style) ── */
-.gtile{display:flex;align-items:stretch;border-radius:6px;overflow:hidden;box-shadow:0 2px 5px rgba(0,0,0,.16);cursor:grab;transition:transform .12s;height:26px;user-select:none;position:relative;flex-shrink:0;width:calc(50% - 2px);min-width:0;}
+.gtile{display:flex;align-items:stretch;border-radius:6px;overflow:hidden;box-shadow:0 2px 5px rgba(0,0,0,.16);cursor:grab;transition:transform .12s;height:26px;user-select:none;position:relative;flex-shrink:0;width:100%;min-width:0;}
 .gtile:active{cursor:grabbing;}
+/* Token hover tooltip wrapper — carries 50% width so layout unchanged */
+.gtile-wrap{position:relative;width:calc(50% - 2px);flex-shrink:0;}
 /* 1–2 tokens: span full width so name isn't truncated */
-.live-layer.few-toks .gtile{width:100%;}
+.live-layer.few-toks .gtile-wrap{width:100%;}
 .gtile:hover{transform:translateY(-1px);}
+.gtile-tip{position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);background:#fff;border:1px solid var(--sandstone);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.14);padding:10px 12px;min-width:190px;max-width:260px;z-index:500;display:none;pointer-events:none;}
+.gtile-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--sandstone);}
+.gtile-tip::before{content:'';position:absolute;top:calc(100% - 1px);left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#fff;z-index:1;}
+.gtile-wrap:hover .gtile-tip{display:block;}
+.gtile-tip-name{font-size:11px;font-weight:800;color:var(--onyx);margin-bottom:7px;padding-bottom:5px;border-bottom:1px solid var(--sandstone);}
+.gtile-tip-row{display:flex;align-items:flex-start;gap:6px;margin-bottom:5px;}
+.gtile-tip-row:last-child{margin-bottom:0;}
+.gtile-tip-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:3px;}
+.gtile-tip-dot.green{background:#22c55e;}
+.gtile-tip-dot.red{background:#ef4444;}
+.gtile-tip-dot.yellow{background:#eab308;}
+.gtile-tip-text{font-size:11px;font-weight:600;color:var(--onyx);line-height:1.4;}
+.gtile-tip-due{font-size:9.5px;color:var(--taupe);margin-top:1px;}
+.gtile-tip-empty{font-size:11px;color:var(--taupe);font-style:italic;}
 .gtile-init{width:26px;min-width:26px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:white;flex-shrink:0;}
 .gtile-name{background:var(--white);padding:0 8px;display:flex;align-items:center;font-size:9.5px;font-weight:700;color:var(--onyx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-top:1px solid var(--sandstone);border-bottom:1px solid var(--sandstone);border-right:1px solid var(--sandstone);flex:1;}
 /* Live blink on whole tile — box-shadow is not clipped by overflow:hidden */
@@ -1954,7 +1970,7 @@ function openProfile(staffId) {
   _workItems = (s.workItems || []).map(w => ({ text: w.text, checked: !!w.checked, completed: !!w.completed }));
   renderWorkList();
   // Load newly assigned items
-  _naItems = (s.newlyAssigned || []).map(n => ({ text: n.text, priority: n.priority || 'asap', dueDate: n.dueDate || '', resolved: !!n.resolved }));
+  _naItems = (s.newlyAssigned || []).map(n => ({ text: n.text, priority: n.priority || 'asap', dueDate: n.dueDate || '', checked: !!n.checked, resolved: !!n.resolved }));
   renderNewlyAssigned();
 
   // Color swatches
@@ -2065,16 +2081,7 @@ function renderWorkList() {
       </div>`;
     }).join('');
   }
-  // Header badges — only show actively checked (not completed) items
-  const badges = document.getElementById('profile-work-badges');
-  if (badges) {
-    const active = _workItems.filter(w => w.checked && !w.completed);
-    badges.innerHTML = active.map(w =>
-      `<span style="display:inline-flex;align-items:center;gap:5px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:100px;padding:2px 10px;font-size:10px;font-weight:700;color:#15803d">
-        <span class="work-live-dot"></span>${escHtml(w.text)}
-      </span>`
-    ).join('');
-  }
+  renderProfileBadges();
 }
 
 function addWorkItem() {
@@ -2085,6 +2092,12 @@ function addWorkItem() {
   inp.value = '';
   renderWorkList();
   inp.focus();
+}
+
+function toggleNaItem(i) {
+  if (_naItems[i].resolved) return;
+  _naItems[i].checked = !_naItems[i].checked;
+  renderNewlyAssigned();
 }
 
 function toggleWorkItem(i) {
@@ -2111,7 +2124,27 @@ function deleteWorkItem(i) {
 }
 
 // ── Newly Assigned ─────────────────────────────────
-let _naItems = []; // { text, priority:'asap'|'next', resolved:false }
+let _naItems = []; // { text, priority:'asap'|'next', dueDate:'', checked:false, resolved:false }
+
+// Shared badge renderer — combines checked work items + checked NA items
+function renderProfileBadges() {
+  const badges = document.getElementById('profile-work-badges');
+  if (!badges) return;
+  const workActive = _workItems.filter(w => w.checked && !w.completed);
+  const naActive   = _naItems.filter(n => n.checked && !n.resolved);
+  badges.innerHTML = [
+    ...workActive.map(w =>
+      `<span style="display:inline-flex;align-items:center;gap:5px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:100px;padding:2px 10px;font-size:10px;font-weight:700;color:#15803d">
+        <span class="work-live-dot"></span>${escHtml(w.text)}
+      </span>`),
+    ...naActive.map(n => {
+      const isAsap = n.priority === 'asap';
+      return `<span style="display:inline-flex;align-items:center;gap:5px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:100px;padding:2px 10px;font-size:10px;font-weight:700;color:#15803d">
+        <span class="work-live-dot"></span>${escHtml(n.text)}
+      </span>`;
+    })
+  ].join('');
+}
 
 function renderNewlyAssigned() {
   const el = document.getElementById('p-na-list');
@@ -2126,26 +2159,18 @@ function renderNewlyAssigned() {
 
   if (_naItems.length === 0) {
     el.innerHTML = '<div style="font-size:11px;color:var(--taupe);padding:4px 0">No assignments added.</div>';
+    renderProfileBadges();
     return;
   }
 
   el.innerHTML = _naItems.map((item, i) => {
     const isAsap = item.priority === 'asap';
-    const dotCls = isAsap ? 'na-dot-asap' : 'na-dot-next';
     const label  = isAsap ? 'START ASAP NOW' : 'START NEXT';
     const labelColor = isAsap ? '#ef4444' : '#ca8a04';
     const labelBg    = isAsap ? '#fef2f2' : '#fefce8';
     const labelBdr   = isAsap ? '#fecaca' : '#fef08a';
 
-    const adminBtns = canEdit ? `
-      <button onclick="resolveNewlyAssigned(${i})"
-        style="background:#dcfce7;border:1px solid #86efac;border-radius:6px;color:#15803d;font-size:10px;font-weight:700;padding:3px 9px;cursor:pointer;white-space:nowrap;font-family:'Jost',sans-serif;flex-shrink:0"
-        onmouseover="this.style.background='#bbf7d0'" onmouseout="this.style.background='#dcfce7'">✓ Done</button>
-      <button onclick="deleteNewlyAssigned(${i})"
-        style="background:#fef2f2;border:1px solid #fecaca;border-radius:6px;color:#dc2626;font-size:10px;font-weight:700;padding:3px 8px;cursor:pointer;white-space:nowrap;font-family:'Jost',sans-serif;flex-shrink:0"
-        onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">Delete</button>
-    ` : '';
-
+    // ── RESOLVED (green DONE) ──
     if (item.resolved) {
       return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px">
         <span style="width:16px;height:16px;border-radius:50%;background:#22c55e;display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:900;flex-shrink:0">✓</span>
@@ -2160,33 +2185,49 @@ function renderNewlyAssigned() {
       </div>`;
     }
 
+    // ── CHECKED / IN PROGRESS (green, shows in badges) ──
+    if (item.checked) {
+      return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:8px">
+        <input type="checkbox" checked onchange="toggleNaItem(${i})"
+          style="accent-color:#16a34a;width:14px;height:14px;cursor:pointer;flex-shrink:0">
+        <span class="work-live-dot"></span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;color:#15803d;font-weight:700">${escHtml(item.text)}</div>
+          ${item.dueDate ? `<div style="font-size:10px;color:#16a34a;margin-top:1px">Due: ${item.dueDate}</div>` : ''}
+        </div>
+        ${canEdit ? `
+          <button onclick="resolveNewlyAssigned(${i})"
+            style="background:#dcfce7;border:1px solid #86efac;border-radius:6px;color:#15803d;font-size:10px;font-weight:700;padding:3px 9px;cursor:pointer;white-space:nowrap;font-family:'Jost',sans-serif;flex-shrink:0"
+            onmouseover="this.style.background='#bbf7d0'" onmouseout="this.style.background='#dcfce7'">✓ Done</button>
+          <button onclick="deleteNewlyAssigned(${i})"
+            style="background:#fef2f2;border:1px solid #fecaca;border-radius:6px;color:#dc2626;font-size:10px;font-weight:700;padding:3px 8px;cursor:pointer;white-space:nowrap;font-family:'Jost',sans-serif;flex-shrink:0"
+            onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">Delete</button>
+        ` : ''}
+      </div>`;
+    }
+
+    // ── UNSTARTED ──
     const dueLine = item.dueDate ? `<div style="font-size:10px;color:${labelColor};margin-top:1px;font-weight:600">Due: ${item.dueDate}</div>` : '';
     return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:${isAsap ? '#fff5f5' : '#fffdf0'};border:1.5px solid ${labelBdr};border-radius:8px">
-      <span class="${dotCls}"></span>
+      <input type="checkbox" onchange="toggleNaItem(${i})"
+        style="accent-color:#16a34a;width:14px;height:14px;cursor:pointer;flex-shrink:0">
       <div style="flex:1;min-width:0">
         <span style="font-size:9px;font-weight:800;letter-spacing:.5px;color:${labelColor};background:${labelBg};border:1px solid ${labelBdr};border-radius:4px;padding:1px 6px;white-space:nowrap">${label}</span>
         <div style="font-size:12px;color:var(--onyx);font-weight:600;margin-top:3px">${escHtml(item.text)}</div>
         ${dueLine}
       </div>
-      ${adminBtns}
+      ${canEdit ? `
+        <button onclick="resolveNewlyAssigned(${i})"
+          style="background:#dcfce7;border:1px solid #86efac;border-radius:6px;color:#15803d;font-size:10px;font-weight:700;padding:3px 9px;cursor:pointer;white-space:nowrap;font-family:'Jost',sans-serif;flex-shrink:0"
+          onmouseover="this.style.background='#bbf7d0'" onmouseout="this.style.background='#dcfce7'">✓ Done</button>
+        <button onclick="deleteNewlyAssigned(${i})"
+          style="background:#fef2f2;border:1px solid #fecaca;border-radius:6px;color:#dc2626;font-size:10px;font-weight:700;padding:3px 8px;cursor:pointer;white-space:nowrap;font-family:'Jost',sans-serif;flex-shrink:0"
+          onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">Delete</button>
+      ` : ''}
     </div>`;
   }).join('');
 
-  // Update header badges for unresolved items
-  const badges = document.getElementById('profile-work-badges');
-  if (badges) {
-    const unresolved = _naItems.filter(n => !n.resolved);
-    const existing = badges.innerHTML;
-    // Append newly assigned badges after existing work badges
-    badges.innerHTML = existing; // keep existing work badges
-    unresolved.forEach(n => {
-      const isAsap = n.priority === 'asap';
-      const span = document.createElement('span');
-      span.style.cssText = `display:inline-flex;align-items:center;gap:5px;background:${isAsap ? '#fef2f2' : '#fefce8'};border:1px solid ${isAsap ? '#fecaca' : '#fef08a'};border-radius:100px;padding:2px 10px;font-size:10px;font-weight:700;color:${isAsap ? '#dc2626' : '#ca8a04'}`;
-      span.innerHTML = `<span class="${isAsap ? 'na-dot-asap' : 'na-dot-next'}"></span>${escHtml(n.text)}`;
-      badges.appendChild(span);
-    });
-  }
+  renderProfileBadges();
 }
 
 function addNewlyAssigned() {
@@ -2244,7 +2285,7 @@ function saveProfile() {
       email:    document.getElementById('p-email').value.trim(),
       resp:      currentResp,
       workItems: _workItems.map(w => ({ text: w.text, checked: w.checked, completed: w.completed })),
-      newlyAssigned: _naItems.map(n => ({ text: n.text, priority: n.priority, dueDate: n.dueDate || '', resolved: n.resolved })),
+      newlyAssigned: _naItems.map(n => ({ text: n.text, priority: n.priority, dueDate: n.dueDate || '', checked: n.checked, resolved: n.resolved })),
       vacStart:  document.getElementById('p-vac-start').value,
       vacEnd:    document.getElementById('p-vac-end').value,
     };
@@ -2435,7 +2476,6 @@ function makeTok(staffId, opts) {
   // ── Split tile (E-style) ──
   const wrap = document.createElement('div');
   wrap.className = 'gtile' + (isLive ? ' live' : '');
-  wrap.title = s.name + (s.role ? ' · ' + s.role : '') + (s.phone ? ' · ' + s.phone : '');
   wrap.draggable = true;
 
   const init = document.createElement('div');
@@ -2443,15 +2483,60 @@ function makeTok(staffId, opts) {
   init.style.background = s.color;
   init.textContent = s.initials;
 
-  const name = document.createElement('div');
-  name.className = 'gtile-name';
-  name.textContent = firstName(s.name);
+  const nameLbl = document.createElement('div');
+  nameLbl.className = 'gtile-name';
+  nameLbl.textContent = firstName(s.name);
 
   wrap.appendChild(init);
-  wrap.appendChild(name);
+  wrap.appendChild(nameLbl);
 
-  // Guard: if a drag is already in progress (e.g. dragging from roster),
-  // block this tile's dragstart so it can't overwrite window.__drag
+  // ── Hover tooltip: checked work items + all newly assigned ──
+  const outer = document.createElement('div');
+  outer.className = 'gtile-wrap';
+
+  const tip = document.createElement('div');
+  tip.className = 'gtile-tip';
+
+  const nameRow = document.createElement('div');
+  nameRow.className = 'gtile-tip-name';
+  nameRow.textContent = s.name + (s.role ? ' · ' + s.role : '');
+  tip.appendChild(nameRow);
+
+  const workActive = (s.workItems     || []).filter(w => w.checked && !w.completed);
+  const naAll      = (s.newlyAssigned || []).filter(n => !n.resolved);
+
+  if (workActive.length === 0 && naAll.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'gtile-tip-empty';
+    empty.textContent = 'Nothing assigned yet';
+    tip.appendChild(empty);
+  } else {
+    workActive.forEach(w => {
+      const row = document.createElement('div');
+      row.className = 'gtile-tip-row';
+      row.innerHTML = `<span class="gtile-tip-dot green"></span>
+        <div><div class="gtile-tip-text">${escHtml(w.text)}</div></div>`;
+      tip.appendChild(row);
+    });
+    naAll.forEach(n => {
+      const isAsap = n.priority === 'asap';
+      const dotColor = isAsap ? 'red' : 'yellow';
+      const label = isAsap ? '🔴 ASAP' : '🟡 Next';
+      const row = document.createElement('div');
+      row.className = 'gtile-tip-row';
+      row.innerHTML = `<span class="gtile-tip-dot ${dotColor}"></span>
+        <div>
+          <div class="gtile-tip-text">${escHtml(n.text)}</div>
+          ${n.dueDate ? `<div class="gtile-tip-due">Due: ${n.dueDate} · ${label}</div>` : `<div class="gtile-tip-due">${label}</div>`}
+        </div>`;
+      tip.appendChild(row);
+    });
+  }
+
+  outer.appendChild(wrap);
+  outer.appendChild(tip);
+
+  // ── Guard: block this tile's dragstart during an external drag ──
   wrap.addEventListener('dragstart', e => {
     if (__isDragging) { e.preventDefault(); e.stopPropagation(); return; }
     setDrag({ staffId, srcBoard, srcZone }, e);
@@ -2482,7 +2567,7 @@ function makeTok(staffId, opts) {
     wrap.appendChild(rb);
   }
 
-  return wrap;
+  return outer;
 }
 
 function makeHelpTokEl(helpId, srcBoard, srcZone) {
