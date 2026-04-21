@@ -2631,8 +2631,8 @@ function addNewlyAssigned() {
 }
 
 function resolveNewlyAssigned(i) {
-  if (!__rosterUnlocked) { rosterGated(() => resolveNewlyAssigned(i)); return; }
   _naItems[i].resolved = true;
+  _naItems[i].checked  = false; // remove from live badges
   renderNewlyAssigned();
 }
 
