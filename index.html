@@ -626,7 +626,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Once checked in, your name appears in the header and you receive <strong>notifications</strong> whenever a new task is assigned to you — a banner alert with a sound (🔴 ASAP = urgent chime, 🟡 Next = bright ding).</span>
+            <span>Once checked in, your name appears in the header and you receive <strong>notifications</strong> whenever a new task is assigned to you — a banner alert with a sound (🔴 ASAP = urgent chime, 🟡 Next = bright ding). <strong>Important:</strong> click anywhere on the page once after loading to activate audio — browsers require at least one click before allowing sounds.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
@@ -1766,20 +1766,46 @@ function revealProfilePin() {
 }
 
 // ── Sounds ────────────────────────────────────────────────────────────────
-// Single shared AudioContext — unlocked on first user gesture so background
-// poll-triggered sounds aren't blocked by the browser autoplay policy.
+// Shared AudioContext kept alive with a silent pulse every 25s so it never
+// goes back to suspended between background poll ticks.
 let _audioCtx = null;
+let _audioUnlocked = false;
+
 function _getAudioCtx() {
   if (!_audioCtx) {
-    try { _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+    try { _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { return null; }
   }
-  if (_audioCtx && _audioCtx.state === 'suspended') {
-    _audioCtx.resume().catch(() => {});
-  }
+  if (_audioCtx.state === 'suspended') _audioCtx.resume().catch(() => {});
   return _audioCtx;
 }
-// Unlock on any click so the context is warm before a notification fires
-document.addEventListener('click', () => _getAudioCtx(), { once: false, passive: true });
+
+function _silentPulse() {
+  try {
+    const ctx = _getAudioCtx();
+    if (!ctx || ctx.state !== 'running') return;
+    // Play a 1-sample silent buffer — keeps the context from suspending
+    const buf = ctx.createBuffer(1, 1, ctx.sampleRate);
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(ctx.destination);
+    src.start();
+  } catch(e) {}
+}
+
+function _unlockAudio() {
+  if (_audioUnlocked) return;
+  const ctx = _getAudioCtx();
+  if (ctx && ctx.state === 'running') {
+    _audioUnlocked = true;
+    // Keep alive: silent pulse every 25s so context never suspends between polls
+    setInterval(_silentPulse, 25000);
+  }
+}
+
+// Unlock on any user interaction — after this, sounds will play from polls
+document.addEventListener('click',      _unlockAudio, { passive: true });
+document.addEventListener('keydown',    _unlockAudio, { passive: true });
+document.addEventListener('touchstart', _unlockAudio, { passive: true });
 
 function playMarimba() {
   // ASAP sound: three descending marimba notes G5→E5→C5
