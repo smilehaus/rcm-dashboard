@@ -932,6 +932,12 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
           </div>
           <div style="display:flex;gap:6px;align-items:center">
             <div style="display:flex;align-items:center;gap:5px;flex:1">
+              <div style="font-size:10px;font-weight:700;color:var(--taupe);white-space:nowrap">Assigned by</div>
+              <select id="p-na-assignedby" style="border:1px solid var(--sandstone);border-radius:7px;padding:4px 8px;font-family:'Jost',sans-serif;font-size:11px;color:var(--onyx);background:white;outline:none;flex:1">
+                <option value="">— Select —</option>
+              </select>
+            </div>
+            <div style="display:flex;align-items:center;gap:5px;flex:1">
               <div style="font-size:10px;font-weight:700;color:var(--taupe);white-space:nowrap">Due Date</div>
               <input type="date" id="p-na-due" style="border:1px solid var(--sandstone);border-radius:7px;padding:4px 8px;font-family:'Jost',sans-serif;font-size:11px;color:var(--onyx);background:white;outline:none;flex:1">
             </div>
@@ -1970,7 +1976,7 @@ function openProfile(staffId) {
   _workItems = (s.workItems || []).map(w => ({ text: w.text, checked: !!w.checked, completed: !!w.completed }));
   renderWorkList();
   // Load newly assigned items
-  _naItems = (s.newlyAssigned || []).map(n => ({ text: n.text, priority: n.priority || 'asap', dueDate: n.dueDate || '', checked: !!n.checked, resolved: !!n.resolved }));
+  _naItems = (s.newlyAssigned || []).map(n => ({ text: n.text, priority: n.priority || 'asap', dueDate: n.dueDate || '', assignedBy: n.assignedBy || '', checked: !!n.checked, resolved: !!n.resolved }));
   renderNewlyAssigned();
 
   // Color swatches
@@ -2156,12 +2162,22 @@ function renderNewlyAssigned() {
   const lockedBtn = document.getElementById('na-locked-btn');
   if (addRow) addRow.style.display = canEdit ? 'flex' : 'none';
   if (lockedBtn) lockedBtn.style.display = canEdit ? 'none' : '';
+  if (canEdit) populateNaAssignedBy();
 
   if (_naItems.length === 0) {
     el.innerHTML = '<div style="font-size:11px;color:var(--taupe);padding:4px 0">No assignments added.</div>';
     renderProfileBadges();
     return;
   }
+
+  const resolveBtn = (i) =>
+    `<button onclick="resolveNewlyAssigned(${i})"
+      style="background:#dcfce7;border:1px solid #86efac;border-radius:6px;color:#15803d;font-size:10px;font-weight:700;padding:3px 9px;cursor:pointer;white-space:nowrap;font-family:'Jost',sans-serif;flex-shrink:0"
+      onmouseover="this.style.background='#bbf7d0'" onmouseout="this.style.background='#dcfce7'">✓ Resolve</button>`;
+  const deleteBtn = (i) =>
+    `<button onclick="deleteNewlyAssigned(${i})"
+      style="background:#fef2f2;border:1px solid #fecaca;border-radius:6px;color:#dc2626;font-size:10px;font-weight:700;padding:3px 8px;cursor:pointer;white-space:nowrap;font-family:'Jost',sans-serif;flex-shrink:0"
+      onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">Delete</button>`;
 
   el.innerHTML = _naItems.map((item, i) => {
     const isAsap = item.priority === 'asap';
@@ -2170,64 +2186,78 @@ function renderNewlyAssigned() {
     const labelBg    = isAsap ? '#fef2f2' : '#fefce8';
     const labelBdr   = isAsap ? '#fecaca' : '#fef08a';
 
+    // shared meta line: assigned by + due date
+    const metaParts = [];
+    if (item.assignedBy) metaParts.push(`Assigned by: <strong>${escHtml(item.assignedBy)}</strong>`);
+    if (item.dueDate)    metaParts.push(`Due: ${item.dueDate}`);
+    const metaLine = metaParts.length
+      ? `<div style="font-size:10px;color:var(--taupe);margin-top:2px">${metaParts.join(' &nbsp;·&nbsp; ')}</div>`
+      : '';
+
     // ── RESOLVED (green DONE) ──
     if (item.resolved) {
+      const metaGreen = metaParts.length
+        ? `<div style="font-size:10px;color:#16a34a;margin-top:2px">${metaParts.join(' &nbsp;·&nbsp; ')}</div>`
+        : '';
       return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px">
         <span style="width:16px;height:16px;border-radius:50%;background:#22c55e;display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:900;flex-shrink:0">✓</span>
         <div style="flex:1;min-width:0">
           <div style="font-size:12px;color:#15803d;font-weight:700">${escHtml(item.text)}</div>
-          ${item.dueDate ? `<div style="font-size:10px;color:#16a34a;margin-top:1px">Due: ${item.dueDate}</div>` : ''}
+          ${metaGreen}
         </div>
         <span style="font-size:9px;font-weight:800;letter-spacing:.5px;color:#15803d;background:#dcfce7;border:1px solid #86efac;border-radius:4px;padding:1px 6px;white-space:nowrap;flex-shrink:0">DONE</span>
-        ${canEdit ? `<button onclick="deleteNewlyAssigned(${i})"
-          style="background:#fef2f2;border:1px solid #fecaca;border-radius:6px;color:#dc2626;font-size:10px;font-weight:700;padding:3px 8px;cursor:pointer;white-space:nowrap;font-family:'Jost',sans-serif;flex-shrink:0"
-          onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">Delete</button>` : ''}
+        ${canEdit ? deleteBtn(i) : ''}
       </div>`;
     }
 
     // ── CHECKED / IN PROGRESS (green, shows in badges) ──
     if (item.checked) {
+      const metaGreen = metaParts.length
+        ? `<div style="font-size:10px;color:#16a34a;margin-top:2px">${metaParts.join(' &nbsp;·&nbsp; ')}</div>`
+        : '';
       return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:8px">
         <input type="checkbox" checked onchange="toggleNaItem(${i})"
           style="accent-color:#16a34a;width:14px;height:14px;cursor:pointer;flex-shrink:0">
         <span class="work-live-dot"></span>
         <div style="flex:1;min-width:0">
           <div style="font-size:12px;color:#15803d;font-weight:700">${escHtml(item.text)}</div>
-          ${item.dueDate ? `<div style="font-size:10px;color:#16a34a;margin-top:1px">Due: ${item.dueDate}</div>` : ''}
+          ${metaGreen}
         </div>
-        ${canEdit ? `
-          <button onclick="resolveNewlyAssigned(${i})"
-            style="background:#dcfce7;border:1px solid #86efac;border-radius:6px;color:#15803d;font-size:10px;font-weight:700;padding:3px 9px;cursor:pointer;white-space:nowrap;font-family:'Jost',sans-serif;flex-shrink:0"
-            onmouseover="this.style.background='#bbf7d0'" onmouseout="this.style.background='#dcfce7'">✓ Done</button>
-          <button onclick="deleteNewlyAssigned(${i})"
-            style="background:#fef2f2;border:1px solid #fecaca;border-radius:6px;color:#dc2626;font-size:10px;font-weight:700;padding:3px 8px;cursor:pointer;white-space:nowrap;font-family:'Jost',sans-serif;flex-shrink:0"
-            onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">Delete</button>
-        ` : ''}
+        ${resolveBtn(i)}
+        ${canEdit ? deleteBtn(i) : ''}
       </div>`;
     }
 
     // ── UNSTARTED ──
-    const dueLine = item.dueDate ? `<div style="font-size:10px;color:${labelColor};margin-top:1px;font-weight:600">Due: ${item.dueDate}</div>` : '';
+    const metaColored = metaParts.length
+      ? `<div style="font-size:10px;color:${labelColor};margin-top:2px;font-weight:600">${metaParts.join(' &nbsp;·&nbsp; ')}</div>`
+      : '';
     return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:${isAsap ? '#fff5f5' : '#fffdf0'};border:1.5px solid ${labelBdr};border-radius:8px">
       <input type="checkbox" onchange="toggleNaItem(${i})"
         style="accent-color:#16a34a;width:14px;height:14px;cursor:pointer;flex-shrink:0">
       <div style="flex:1;min-width:0">
         <span style="font-size:9px;font-weight:800;letter-spacing:.5px;color:${labelColor};background:${labelBg};border:1px solid ${labelBdr};border-radius:4px;padding:1px 6px;white-space:nowrap">${label}</span>
         <div style="font-size:12px;color:var(--onyx);font-weight:600;margin-top:3px">${escHtml(item.text)}</div>
-        ${dueLine}
+        ${metaColored}
       </div>
-      ${canEdit ? `
-        <button onclick="resolveNewlyAssigned(${i})"
-          style="background:#dcfce7;border:1px solid #86efac;border-radius:6px;color:#15803d;font-size:10px;font-weight:700;padding:3px 9px;cursor:pointer;white-space:nowrap;font-family:'Jost',sans-serif;flex-shrink:0"
-          onmouseover="this.style.background='#bbf7d0'" onmouseout="this.style.background='#dcfce7'">✓ Done</button>
-        <button onclick="deleteNewlyAssigned(${i})"
-          style="background:#fef2f2;border:1px solid #fecaca;border-radius:6px;color:#dc2626;font-size:10px;font-weight:700;padding:3px 8px;cursor:pointer;white-space:nowrap;font-family:'Jost',sans-serif;flex-shrink:0"
-          onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">Delete</button>
-      ` : ''}
+      ${resolveBtn(i)}
+      ${canEdit ? deleteBtn(i) : ''}
     </div>`;
   }).join('');
 
   renderProfileBadges();
+}
+
+function populateNaAssignedBy() {
+  const sel = document.getElementById('p-na-assignedby');
+  if (!sel) return;
+  const current = sel.value;
+  sel.innerHTML = '<option value="">— Select —</option>' +
+    [...S.staff]
+      .filter(s => s.dept !== 'Inactive')
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map(s => `<option value="${escHtml(s.name)}" ${s.name === current ? 'selected' : ''}>${escHtml(s.name)}</option>`)
+      .join('');
 }
 
 function addNewlyAssigned() {
@@ -2235,11 +2265,13 @@ function addNewlyAssigned() {
   const inp = document.getElementById('p-na-input');
   const pri = document.getElementById('p-na-priority');
   const due = document.getElementById('p-na-due');
+  const aby = document.getElementById('p-na-assignedby');
   const val = inp.value.trim();
   if (!val) return;
-  _naItems.push({ text: val, priority: pri.value, dueDate: due ? due.value : '', resolved: false });
+  _naItems.push({ text: val, priority: pri.value, dueDate: due ? due.value : '', assignedBy: aby ? aby.value : '', checked: false, resolved: false });
   inp.value = '';
   if (due) due.value = '';
+  if (aby) aby.value = '';
   renderNewlyAssigned();
   inp.focus();
 }
@@ -2285,7 +2317,7 @@ function saveProfile() {
       email:    document.getElementById('p-email').value.trim(),
       resp:      currentResp,
       workItems: _workItems.map(w => ({ text: w.text, checked: w.checked, completed: w.completed })),
-      newlyAssigned: _naItems.map(n => ({ text: n.text, priority: n.priority, dueDate: n.dueDate || '', checked: n.checked, resolved: n.resolved })),
+      newlyAssigned: _naItems.map(n => ({ text: n.text, priority: n.priority, dueDate: n.dueDate || '', assignedBy: n.assignedBy || '', checked: n.checked, resolved: n.resolved })),
       vacStart:  document.getElementById('p-vac-start').value,
       vacEnd:    document.getElementById('p-vac-end').value,
     };
@@ -2524,10 +2556,11 @@ function makeTok(staffId, opts) {
       const label = isAsap ? '🔴 ASAP' : '🟡 Next';
       const row = document.createElement('div');
       row.className = 'gtile-tip-row';
+      const tipMeta = [label, n.assignedBy ? 'By: ' + n.assignedBy : '', n.dueDate ? 'Due: ' + n.dueDate : ''].filter(Boolean).join(' · ');
       row.innerHTML = `<span class="gtile-tip-dot ${dotColor}"></span>
         <div>
           <div class="gtile-tip-text">${escHtml(n.text)}</div>
-          ${n.dueDate ? `<div class="gtile-tip-due">Due: ${n.dueDate} · ${label}</div>` : `<div class="gtile-tip-due">${label}</div>`}
+          <div class="gtile-tip-due">${tipMeta}</div>
         </div>`;
       tip.appendChild(row);
     });
