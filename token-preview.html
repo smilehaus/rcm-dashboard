@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Token Variations — All Options</title>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Jost',sans-serif;background:#F2EFE8;padding:20px;color:#2A2E31}
+
+h1{font-size:13px;font-weight:800;letter-spacing:.5px;color:#877765;text-transform:uppercase;margin-bottom:16px}
+
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+
+.option{background:#fff;border:2px solid #D6CDBD;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.opt-title{font-size:12px;font-weight:800;color:#2A2E31;letter-spacing:.3px}
+.opt-sub{font-size:10.5px;color:#877765;line-height:1.5}
+
+.cell{background:#F2EFE8;border:1px solid #D6CDBD;border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:6px;min-height:80px}
+.cell-label{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#877765;padding-bottom:5px;border-bottom:1px solid #D6CDBD}
+.toks{display:flex;flex-wrap:wrap;gap:6px;align-items:center;flex:1}
+.toks-col{display:flex;flex-direction:column;gap:4px;flex:1}
+.iv-bar{display:flex;align-items:center;justify-content:flex-end;gap:5px;padding-top:5px;border-top:1px solid #D6CDBD}
+.iv-lbl{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#877765}
+.iv-val{font-size:10.5px;font-weight:700;color:#2A2E31}
+.hint{font-size:9.5px;color:#C2B09E;font-style:italic;text-align:center}
+
+@keyframes ring{0%,100%{box-shadow:0 0 0 0 rgba(74,222,128,.7),0 2px 8px rgba(0,0,0,.18)}60%{box-shadow:0 0 0 7px rgba(74,222,128,0),0 2px 8px rgba(0,0,0,.18)}}
+@keyframes sqring{0%,100%{box-shadow:0 0 0 0 rgba(74,222,128,.7),0 2px 6px rgba(0,0,0,.18)}60%{box-shadow:0 0 0 7px rgba(74,222,128,0),0 2px 6px rgba(0,0,0,.18)}}
+
+
+/* ══════════════════════════════════════
+   ORIGINAL 3 (A / B / C)
+══════════════════════════════════════ */
+
+/* A: Circle, tooltip */
+.ta{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:10.5px;color:white;border:2.5px solid rgba(255,255,255,.4);box-shadow:0 2px 8px rgba(0,0,0,.2);position:relative;cursor:pointer;transition:transform .12s}
+.ta:hover{transform:scale(1.12)}
+.ta::after{content:attr(data-name);position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:#2A2E31;color:white;font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:4px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:10}
+.ta:hover::after{opacity:1}
+.ta.live{animation:ring 1.9s ease-out infinite}
+
+/* B: Pill chip */
+.tb{display:inline-flex;align-items:center;gap:5px;background:white;border:1px solid #D6CDBD;border-radius:100px;padding:3px 9px 3px 4px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.08);transition:box-shadow .12s,transform .12s}
+.tb:hover{box-shadow:0 3px 8px rgba(0,0,0,.14);transform:translateY(-1px)}
+.tb-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:white;flex-shrink:0}
+.tb-name{font-size:11px;font-weight:700;color:#2A2E31;white-space:nowrap}
+.tb.live .tb-dot{animation:ring 1.9s ease-out infinite}
+
+/* C: Square badge, tooltip */
+.tc{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:10.5px;color:white;box-shadow:0 2px 6px rgba(0,0,0,.18);position:relative;cursor:pointer;transition:transform .12s}
+.tc:hover{transform:scale(1.12)}
+.tc::after{content:attr(data-name);position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:#2A2E31;color:white;font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:4px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:10}
+.tc:hover::after{opacity:1}
+.tc.live{animation:sqring 1.9s ease-out infinite}
+
+
+/* ══════════════════════════════════════
+   NEW VARIATIONS (D / E / F / G / H)
+══════════════════════════════════════ */
+
+/* D: Full-name pill — name IS the token, colored bg */
+.td{display:inline-flex;align-items:center;justify-content:center;background:#7BA8C4;border-radius:100px;padding:5px 11px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.18);transition:transform .12s,box-shadow .12s;position:relative}
+.td:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,.22)}
+.td-name{font-size:10px;font-weight:800;color:white;letter-spacing:.2px;white-space:nowrap}
+.td.live{animation:ring 1.9s ease-out infinite}
+
+/* E: Split tile — color block left + name right */
+.te{display:inline-flex;align-items:stretch;border-radius:7px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.16);cursor:pointer;transition:transform .12s,box-shadow .12s;height:30px}
+.te:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,.22)}
+.te-init{width:30px;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:800;color:white;flex-shrink:0}
+.te-name{background:white;padding:0 8px;display:flex;align-items:center;font-size:10px;font-weight:700;color:#2A2E31;white-space:nowrap;border-top:1px solid #D6CDBD;border-bottom:1px solid #D6CDBD;border-right:1px solid #D6CDBD;border-radius:0 7px 7px 0}
+.te.live .te-init{animation:sqring 1.9s ease-out infinite}
+
+/* F: Name-tag chip — left colored bar accent */
+.tf{display:inline-flex;align-items:center;background:white;border:1px solid #D6CDBD;border-left:4px solid #7BA8C4;border-radius:6px;padding:4px 9px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.09);transition:transform .12s,box-shadow .12s;min-width:72px}
+.tf:hover{box-shadow:0 3px 9px rgba(0,0,0,.15);transform:translateY(-1px)}
+.tf-name{font-size:10.5px;font-weight:700;color:#2A2E31;white-space:nowrap}
+.tf.live{box-shadow:0 0 0 0 rgba(74,222,128,.6);animation:tf-ring 1.9s ease-out infinite}
+@keyframes tf-ring{0%,100%{box-shadow:0 0 0 0 rgba(74,222,128,.6),0 1px 4px rgba(0,0,0,.09)}60%{box-shadow:0 0 0 6px rgba(74,222,128,0),0 1px 4px rgba(0,0,0,.09)}}
+
+/* G: Monogram block — circle + attached name banner below as one unit */
+.tg{display:inline-flex;flex-direction:column;align-items:center;cursor:pointer;gap:0;transition:transform .12s}
+.tg:hover{transform:scale(1.08)}
+.tg-circle{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:10px;color:white;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.tg-label{background:#2A2E31;color:white;font-size:8px;font-weight:700;padding:1px 5px;border-radius:0 0 4px 4px;margin-top:-1px;white-space:nowrap;letter-spacing:.2px}
+.tg.live .tg-circle{animation:ring 1.9s ease-out infinite}
+
+/* H: Compact stacked — smaller circle, tighter name, very space-efficient */
+.th{display:inline-flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;transition:transform .12s}
+.th:hover{transform:scale(1.08)}
+.th-circle{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:9px;color:white;box-shadow:0 2px 5px rgba(0,0,0,.2)}
+.th-name{font-size:8.5px;font-weight:700;color:#2A2E31;white-space:nowrap;line-height:1}
+.th.live .th-circle{animation:ring 1.9s ease-out infinite}
+
+</style>
+</head>
+<body>
+
+<h1>Token Design Options — All 8 Variations</h1>
+
+<div class="grid">
+
+  <!-- A -->
+  <div class="option">
+    <div class="opt-title">A — Circle + tooltip</div>
+    <div class="opt-sub">36px circle, initials only. Name appears on hover. Max density.</div>
+    <div class="cell">
+      <div class="cell-label">Ins Verification</div>
+      <div class="toks">
+        <div class="ta live" style="background:#7BA8C4" data-name="Valerie">VL</div>
+        <div class="ta live" style="background:#C47898" data-name="Becky">RR</div>
+      </div>
+      <div class="iv-bar"><span class="iv-lbl">Verified to:</span><span class="iv-val">Apr 21, 2026</span></div>
+    </div>
+    <div class="cell">
+      <div class="cell-label">Aging — Oryx</div>
+      <div class="toks">
+        <div class="ta live" style="background:#9896C8" data-name="Saviour">SV</div>
+        <div class="ta live" style="background:#C4935A" data-name="Melanie">ML</div>
+        <div class="ta live" style="background:#7BA8C4" data-name="Valerie">VL</div>
+      </div>
+    </div>
+    <div class="hint">hover to see name</div>
+  </div>
+
+  <!-- B -->
+  <div class="option">
+    <div class="opt-title">B — Pill chip</div>
+    <div class="opt-sub">Dot + name always visible, stacks vertically. Most readable.</div>
+    <div class="cell">
+      <div class="cell-label">Ins Verification</div>
+      <div class="toks-col">
+        <div class="tb live"><div class="tb-dot" style="background:#7BA8C4">VL</div><span class="tb-name">Valerie</span></div>
+        <div class="tb live"><div class="tb-dot" style="background:#C47898">RR</div><span class="tb-name">Becky</span></div>
+      </div>
+      <div class="iv-bar"><span class="iv-lbl">Verified to:</span><span class="iv-val">Apr 21, 2026</span></div>
+    </div>
+    <div class="cell">
+      <div class="cell-label">Aging — Oryx</div>
+      <div class="toks-col">
+        <div class="tb live"><div class="tb-dot" style="background:#9896C8">SV</div><span class="tb-name">Saviour</span></div>
+        <div class="tb live"><div class="tb-dot" style="background:#C4935A">ML</div><span class="tb-name">Melanie</span></div>
+        <div class="tb live"><div class="tb-dot" style="background:#7BA8C4">VL</div><span class="tb-name">Valerie</span></div>
+      </div>
+    </div>
+    <div class="hint">name always visible</div>
+  </div>
+
+  <!-- C -->
+  <div class="option">
+    <div class="opt-title">C — Square badge + tooltip</div>
+    <div class="opt-sub">36px rounded square, initials only. Name on hover. Badge feel.</div>
+    <div class="cell">
+      <div class="cell-label">Ins Verification</div>
+      <div class="toks">
+        <div class="tc live" style="background:#7BA8C4" data-name="Valerie">VL</div>
+        <div class="tc live" style="background:#C47898" data-name="Becky">RR</div>
+      </div>
+      <div class="iv-bar"><span class="iv-lbl">Verified to:</span><span class="iv-val">Apr 21, 2026</span></div>
+    </div>
+    <div class="cell">
+      <div class="cell-label">Aging — Oryx</div>
+      <div class="toks">
+        <div class="tc live" style="background:#9896C8" data-name="Saviour">SV</div>
+        <div class="tc live" style="background:#C4935A" data-name="Melanie">ML</div>
+        <div class="tc live" style="background:#7BA8C4" data-name="Valerie">VL</div>
+      </div>
+    </div>
+    <div class="hint">hover to see name</div>
+  </div>
+
+  <!-- D -->
+  <div class="option">
+    <div class="opt-title">D — Name pill (no initials)</div>
+    <div class="opt-sub">Full first name on colored pill. Name is the token. Wraps horizontally.</div>
+    <div class="cell">
+      <div class="cell-label">Ins Verification</div>
+      <div class="toks">
+        <div class="td live" style="background:#7BA8C4"><span class="td-name">Valerie</span></div>
+        <div class="td live" style="background:#C47898"><span class="td-name">Becky</span></div>
+      </div>
+      <div class="iv-bar"><span class="iv-lbl">Verified to:</span><span class="iv-val">Apr 21, 2026</span></div>
+    </div>
+    <div class="cell">
+      <div class="cell-label">Aging — Oryx</div>
+      <div class="toks">
+        <div class="td live" style="background:#9896C8"><span class="td-name">Saviour</span></div>
+        <div class="td live" style="background:#C4935A"><span class="td-name">Melanie</span></div>
+        <div class="td live" style="background:#7BA8C4"><span class="td-name">Valerie</span></div>
+      </div>
+    </div>
+    <div class="hint">name always visible, wraps</div>
+  </div>
+
+  <!-- E -->
+  <div class="option">
+    <div class="opt-title">E — Split tile</div>
+    <div class="opt-sub">Color block with initials on left, name on white right. One compact strip.</div>
+    <div class="cell">
+      <div class="cell-label">Ins Verification</div>
+      <div class="toks-col">
+        <div class="te live"><div class="te-init" style="background:#7BA8C4">VL</div><div class="te-name">Valerie</div></div>
+        <div class="te live"><div class="te-init" style="background:#C47898">RR</div><div class="te-name">Becky</div></div>
+      </div>
+      <div class="iv-bar"><span class="iv-lbl">Verified to:</span><span class="iv-val">Apr 21, 2026</span></div>
+    </div>
+    <div class="cell">
+      <div class="cell-label">Aging — Oryx</div>
+      <div class="toks-col">
+        <div class="te live"><div class="te-init" style="background:#9896C8">SV</div><div class="te-name">Saviour</div></div>
+        <div class="te live"><div class="te-init" style="background:#C4935A">ML</div><div class="te-name">Melanie</div></div>
+        <div class="te live"><div class="te-init" style="background:#7BA8C4">VL</div><div class="te-name">Valerie</div></div>
+      </div>
+    </div>
+    <div class="hint">initials + name, low height</div>
+  </div>
+
+  <!-- F -->
+  <div class="option">
+    <div class="opt-title">F — Name-tag chip</div>
+    <div class="opt-sub">White chip with colored left-border accent. Like a staff badge. No initials.</div>
+    <div class="cell">
+      <div class="cell-label">Ins Verification</div>
+      <div class="toks-col">
+        <div class="tf live" style="border-left-color:#7BA8C4"><span class="tf-name">Valerie</span></div>
+        <div class="tf live" style="border-left-color:#C47898"><span class="tf-name">Becky</span></div>
+      </div>
+      <div class="iv-bar"><span class="iv-lbl">Verified to:</span><span class="iv-val">Apr 21, 2026</span></div>
+    </div>
+    <div class="cell">
+      <div class="cell-label">Aging — Oryx</div>
+      <div class="toks-col">
+        <div class="tf live" style="border-left-color:#9896C8"><span class="tf-name">Saviour</span></div>
+        <div class="tf live" style="border-left-color:#C4935A"><span class="tf-name">Melanie</span></div>
+        <div class="tf live" style="border-left-color:#7BA8C4"><span class="tf-name">Valerie</span></div>
+      </div>
+    </div>
+    <div class="hint">clean badge feel</div>
+  </div>
+
+  <!-- G -->
+  <div class="option">
+    <div class="opt-title">G — Circle + name banner</div>
+    <div class="opt-sub">Circle merges into a dark name banner below — one connected unit. Dense.</div>
+    <div class="cell">
+      <div class="cell-label">Ins Verification</div>
+      <div class="toks">
+        <div class="tg live">
+          <div class="tg-circle" style="background:#7BA8C4">VL</div>
+          <div class="tg-label">Valerie</div>
+        </div>
+        <div class="tg live">
+          <div class="tg-circle" style="background:#C47898">RR</div>
+          <div class="tg-label">Becky</div>
+        </div>
+      </div>
+      <div class="iv-bar"><span class="iv-lbl">Verified to:</span><span class="iv-val">Apr 21, 2026</span></div>
+    </div>
+    <div class="cell">
+      <div class="cell-label">Aging — Oryx</div>
+      <div class="toks">
+        <div class="tg live">
+          <div class="tg-circle" style="background:#9896C8">SV</div>
+          <div class="tg-label">Saviour</div>
+        </div>
+        <div class="tg live">
+          <div class="tg-circle" style="background:#C4935A">ML</div>
+          <div class="tg-label">Melanie</div>
+        </div>
+        <div class="tg live">
+          <div class="tg-circle" style="background:#7BA8C4">VL</div>
+          <div class="tg-label">Valerie</div>
+        </div>
+      </div>
+    </div>
+    <div class="hint">one connected piece</div>
+  </div>
+
+  <!-- H -->
+  <div class="option">
+    <div class="opt-title">H — Mini stack</div>
+    <div class="opt-sub">Smaller 28px circle + tight name below. Compact but always readable.</div>
+    <div class="cell">
+      <div class="cell-label">Ins Verification</div>
+      <div class="toks">
+        <div class="th live">
+          <div class="th-circle" style="background:#7BA8C4">VL</div>
+          <span class="th-name">Valerie</span>
+        </div>
+        <div class="th live">
+          <div class="th-circle" style="background:#C47898">RR</div>
+          <span class="th-name">Becky</span>
+        </div>
+      </div>
+      <div class="iv-bar"><span class="iv-lbl">Verified to:</span><span class="iv-val">Apr 21, 2026</span></div>
+    </div>
+    <div class="cell">
+      <div class="cell-label">Aging — Oryx</div>
+      <div class="toks">
+        <div class="th live">
+          <div class="th-circle" style="background:#9896C8">SV</div>
+          <span class="th-name">Saviour</span>
+        </div>
+        <div class="th live">
+          <div class="th-circle" style="background:#C4935A">ML</div>
+          <span class="th-name">Melanie</span>
+        </div>
+        <div class="th live">
+          <div class="th-circle" style="background:#7BA8C4">VL</div>
+          <span class="th-name">Valerie</span>
+        </div>
+      </div>
+    </div>
+    <div class="hint">compact, always visible</div>
+  </div>
+
+</div>
+</body>
+</html>

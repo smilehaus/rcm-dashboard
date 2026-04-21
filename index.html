@@ -36,14 +36,16 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 .panel-body{padding:14px 20px;}
 
 /* ── Tokens ───────────────────────────────── */
-.token{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:white;letter-spacing:.3px;border:2.5px solid rgba(255,255,255,.35);box-shadow:0 3px 10px rgba(0,0,0,.2);transition:transform .14s,box-shadow .14s;user-select:none;flex-shrink:0;cursor:grab;position:relative;width:46px;height:46px;font-size:11px;}
+/* Roster token (square badge) */
+.token{border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;color:white;letter-spacing:.3px;border:2.5px solid rgba(255,255,255,.35);box-shadow:0 3px 10px rgba(0,0,0,.2);transition:transform .14s,box-shadow .14s;user-select:none;flex-shrink:0;cursor:grab;position:relative;width:46px;height:46px;font-size:11px;}
 .token:active{cursor:grabbing;}
-.token:hover{transform:scale(1.1);box-shadow:0 5px 16px rgba(0,0,0,.28);}
+.token:hover{transform:scale(1.08);box-shadow:0 5px 16px rgba(0,0,0,.28);}
 .token.sm{width:38px;height:38px;font-size:10px;}
 .token.drag-src{opacity:.3;}
 
 /* Live blink */
 @keyframes livering{0%,100%{box-shadow:0 0 0 0 rgba(74,222,128,.75),0 2px 8px rgba(0,0,0,.18);}60%{box-shadow:0 0 0 9px rgba(74,222,128,0),0 2px 8px rgba(0,0,0,.18);}}
+@keyframes sqring{0%,100%{box-shadow:0 0 0 0 rgba(74,222,128,.7),0 2px 6px rgba(0,0,0,.18);}60%{box-shadow:0 0 0 7px rgba(74,222,128,0),0 2px 6px rgba(0,0,0,.18);}}
 .token.live{animation:livering 1.9s ease-out infinite;}
 
 /* Help token */
@@ -52,10 +54,20 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 @keyframes helpring{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.8),0 2px 8px rgba(0,0,0,.2);}60%{box-shadow:0 0 0 10px rgba(239,68,68,0),0 2px 8px rgba(0,0,0,.2);}}
 @keyframes helpring-green{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.8),0 2px 8px rgba(0,0,0,.2);}60%{box-shadow:0 0 0 10px rgba(34,197,94,0),0 2px 8px rgba(0,0,0,.2);}}
 
-/* Grid token with name label */
+/* Legacy grid token (kept for help token) */
 .gtok{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:grab;}
 .gtok:active{cursor:grabbing;}
 .gtok-name{font-size:8.5px;color:var(--onyx);font-weight:600;text-align:center;max-width:50px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* ── Split tile (in-cell token, E-style) ── */
+.gtile{display:flex;align-items:stretch;border-radius:6px;overflow:hidden;box-shadow:0 2px 5px rgba(0,0,0,.16);cursor:grab;transition:transform .12s,box-shadow .12s;height:26px;user-select:none;position:relative;flex-shrink:0;width:100%;}
+.gtile:active{cursor:grabbing;}
+.gtile:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,.22);}
+.gtile-init{width:26px;min-width:26px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:white;flex-shrink:0;}
+.gtile-name{background:var(--white);padding:0 8px;display:flex;align-items:center;font-size:9.5px;font-weight:700;color:var(--onyx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-top:1px solid var(--sandstone);border-bottom:1px solid var(--sandstone);border-right:1px solid var(--sandstone);flex:1;}
+.gtile.live .gtile-init{animation:sqring 1.9s ease-out infinite;}
+.gtile.drag-src{opacity:.3;}
+.gtile-help{background:#fef2f2;border-top:1px solid #fca5a5;border-bottom:1px solid #fca5a5;border-right:1px solid #fca5a5;padding:0 8px;display:flex;align-items:center;font-size:9px;font-weight:800;color:#ef4444;white-space:nowrap;flex:1;}
 
 /* Roster token wrap */
 .rtok{display:flex;flex-direction:column;align-items:center;gap:5px;position:relative;}
@@ -120,6 +132,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 /* Remove button on assignment tokens */
 .tok-remove{position:absolute;top:-5px;right:-5px;width:16px;height:16px;border-radius:50%;background:var(--taupe);color:white;border:none;font-size:10px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:10;font-weight:700;}
 .gtok:hover .tok-remove{display:flex;}
+.gtile:hover .tok-remove{display:flex;}
 .drop-cell.over{background:rgba(135,119,101,.1);outline:2px dashed var(--taupe);outline-offset:-1px;}
 
 /* IV Verified-to date strip (ins_verif column, bottom of each cell) */
@@ -2211,37 +2224,39 @@ function makeTok(staffId, opts) {
   if (staffId.startsWith('help_')) return makeHelpTokEl(staffId, srcBoard, srcZone);
 
   const s = getStaff(staffId);
+
+  // ── Split tile (E-style) ──
   const wrap = document.createElement('div');
-  wrap.className = 'gtok';
+  wrap.className = 'gtile' + (isLive ? ' live' : '');
+  wrap.title = s.name + (s.role ? ' · ' + s.role : '') + (s.phone ? ' · ' + s.phone : '');
+  wrap.draggable = true;
 
-  const tok = document.createElement('div');
-  tok.className = 'token sm' + (isLive ? ' live' : '');
-  tok.style.background = s.color;
-  tok.textContent = s.initials;
-  tok.title = s.name + (s.role ? '\n' + s.role : '') + (s.phone ? '\n' + s.phone : '');
-  tok.draggable = true;
+  const init = document.createElement('div');
+  init.className = 'gtile-init';
+  init.style.background = s.color;
+  init.textContent = s.initials;
 
-  tok.addEventListener('dragstart', e => {
+  const name = document.createElement('div');
+  name.className = 'gtile-name';
+  name.textContent = firstName(s.name);
+
+  wrap.appendChild(init);
+  wrap.appendChild(name);
+
+  wrap.addEventListener('dragstart', e => {
     setDrag({ staffId, srcBoard, srcZone }, e);
-    setTimeout(() => tok.classList.add('drag-src'), 0);
+    setTimeout(() => wrap.classList.add('drag-src'), 0);
   });
-  tok.addEventListener('dragend', () => { clearDrag(); tok.classList.remove('drag-src'); });
-  tok.addEventListener('contextmenu', e => {
+  wrap.addEventListener('dragend', () => { clearDrag(); wrap.classList.remove('drag-src'); });
+  wrap.addEventListener('contextmenu', e => {
     e.preventDefault();
     e.stopPropagation();
     showCtxMenu(e.clientX, e.clientY, { staffId, srcBoard, srcZone });
   });
-  tok.addEventListener('click', e => {
+  wrap.addEventListener('click', e => {
     e.stopPropagation();
     if (!__isDragging) openProfile(staffId);
   });
-
-  wrap.appendChild(tok);
-
-  const lbl = document.createElement('div');
-  lbl.className = 'gtok-name';
-  lbl.textContent = firstName(s.name);
-  wrap.appendChild(lbl);
 
   if (showRemove) {
     const rb = document.createElement('button');
@@ -2261,38 +2276,46 @@ function makeTok(staffId, opts) {
 
 function makeHelpTokEl(helpId, srcBoard, srcZone) {
   const inst = S.helpInstances[helpId];
+  const isHelped = inst && inst.status === 'helped';
+
+  // ── Split tile for HELP ──
   const wrap = document.createElement('div');
-  wrap.className = 'gtok';
+  wrap.className = 'gtile';
+  wrap.title = 'NEED HELP — click to open';
+  wrap.draggable = true;
 
-  const tok = document.createElement('div');
-  tok.className = 'token sm ' + (inst && inst.status === 'helped' ? 'help-helped' : 'help-active');
-  tok.textContent = '!';
-  tok.title = 'NEED HELP — click to open';
-  tok.draggable = true;
-  tok.style.fontSize = '16px';
-  tok.style.fontWeight = '900';
+  const init = document.createElement('div');
+  init.className = 'gtile-init';
+  init.style.background = isHelped ? '#16a34a' : '#ef4444';
+  init.style.fontSize = '14px';
+  init.style.fontWeight = '900';
+  init.textContent = '!';
+  if (!isHelped) init.style.animation = 'helpring 1.2s ease-out infinite';
 
-  tok.addEventListener('dragstart', e => {
+  const lbl = document.createElement('div');
+  lbl.className = 'gtile-help';
+  lbl.style.color = isHelped ? '#16a34a' : '#ef4444';
+  lbl.style.background = isHelped ? '#f0fdf4' : '#fef2f2';
+  lbl.style.borderColor = isHelped ? '#86efac' : '#fca5a5';
+  lbl.textContent = isHelped ? 'HELPED' : 'HELP';
+
+  wrap.appendChild(init);
+  wrap.appendChild(lbl);
+
+  wrap.addEventListener('dragstart', e => {
     setDrag({ staffId:helpId, srcBoard, srcZone }, e);
-    setTimeout(() => tok.classList.add('drag-src'), 0);
+    setTimeout(() => wrap.classList.add('drag-src'), 0);
   });
-  tok.addEventListener('dragend', () => { clearDrag(); tok.classList.remove('drag-src'); });
-  tok.addEventListener('click', e => {
+  wrap.addEventListener('dragend', () => { clearDrag(); wrap.classList.remove('drag-src'); });
+  wrap.addEventListener('click', e => {
     e.stopPropagation();
     if (!__isDragging) openHelpModal(helpId);
   });
-  tok.addEventListener('contextmenu', e => {
+  wrap.addEventListener('contextmenu', e => {
     e.preventDefault(); e.stopPropagation();
     showCtxMenu(e.clientX, e.clientY, { staffId:helpId, srcBoard, srcZone });
   });
 
-  wrap.appendChild(tok);
-  const lbl = document.createElement('div');
-  lbl.className = 'gtok-name';
-  lbl.style.color = '#ef4444';
-  lbl.style.fontWeight = '700';
-  lbl.textContent = 'HELP';
-  wrap.appendChild(lbl);
   return wrap;
 }
 
@@ -2567,7 +2590,7 @@ function buildGrid(tableEl, boardId) {
       // Live tokens layer — own_team floated right, rest on left
       const layer = document.createElement('div');
       layer.className = 'live-layer';
-      layer.style.cssText = 'display:flex;align-items:center;flex-wrap:wrap;gap:4px;width:100%';
+      layer.style.cssText = 'display:flex;flex-direction:column;align-items:stretch;gap:3px;width:100%';
 
       const mainTokens = tokens.filter(sid => sid !== 'own_team');
       const ownTokens  = tokens.filter(sid => sid === 'own_team');
