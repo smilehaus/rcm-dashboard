@@ -2623,18 +2623,18 @@ function renderNewlyAssigned() {
       ? `<div style="font-size:10px;color:var(--taupe);margin-top:2px">${metaParts.join(' &nbsp;·&nbsp; ')}</div>`
       : '';
 
-    // ── RESOLVED (green DONE) ──
+    // ── RESOLVED (muted completed style, matches Currently Working On) ──
     if (item.resolved) {
-      const metaGreen = metaParts.length
-        ? `<div style="font-size:10px;color:#16a34a;margin-top:2px">${metaParts.join(' &nbsp;·&nbsp; ')}</div>`
-        : '';
-      return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px">
-        <span style="width:16px;height:16px;border-radius:50%;background:#22c55e;display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:900;flex-shrink:0">✓</span>
+      return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:#f8fafc;border:1px solid var(--sandstone);border-radius:8px;opacity:.88">
+        <span style="width:14px;height:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px">✓</span>
+        <span style="font-size:10px;font-weight:700;letter-spacing:.8px;color:var(--taupe);text-transform:uppercase;flex-shrink:0">Resolved</span>
         <div style="flex:1;min-width:0">
-          <div style="font-size:12px;color:#15803d;font-weight:700">${escHtml(item.text)}</div>
-          ${metaGreen}
+          <div style="font-size:12px;color:var(--onyx);text-decoration:line-through">${escHtml(item.text)}</div>
+          ${metaParts.length ? `<div style="font-size:10px;color:var(--taupe);margin-top:1px;text-decoration:line-through">${metaParts.join(' &nbsp;·&nbsp; ')}</div>` : ''}
         </div>
-        <span style="font-size:9px;font-weight:800;letter-spacing:.5px;color:#15803d;background:#dcfce7;border:1px solid #86efac;border-radius:4px;padding:1px 6px;white-space:nowrap;flex-shrink:0">DONE</span>
+        <button onclick="reopenNewlyAssigned(${i})"
+          style="background:var(--alabaster);border:1px solid var(--sandstone);border-radius:6px;color:var(--earth);font-size:10px;font-weight:700;padding:3px 8px;cursor:pointer;white-space:nowrap;font-family:'Jost',sans-serif;flex-shrink:0"
+          onmouseover="this.style.background='var(--sandstone)'" onmouseout="this.style.background='var(--alabaster)'">↩ Reopen</button>
         ${canEdit ? deleteBtn(i) : ''}
       </div>`;
     }
@@ -2708,6 +2708,11 @@ function addNewlyAssigned() {
 function resolveNewlyAssigned(i) {
   _naItems[i].resolved = true;
   _naItems[i].checked  = false; // remove from live badges
+  renderNewlyAssigned();
+}
+
+function reopenNewlyAssigned(i) {
+  _naItems[i].resolved = false;
   renderNewlyAssigned();
 }
 
