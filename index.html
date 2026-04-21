@@ -95,23 +95,29 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 .admin-lock-badge.locked{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);color:rgba(255,255,255,.45);cursor:pointer;}
 .admin-lock-badge.locked:hover{background:rgba(255,255,255,.13);color:rgba(255,255,255,.7);}
 
-/* ── Notification Banner ─────────────────────────────────────────────────── */
-#notif-banner{position:fixed;top:78px;right:18px;z-index:99999;width:300px;
-  background:white;border-radius:14px;overflow:hidden;
-  box-shadow:0 20px 56px rgba(42,46,49,.22),0 6px 20px rgba(42,46,49,.14);
-  display:none;opacity:0;transform:translateY(-20px) scale(.95);
-  transition:opacity .28s ease,transform .38s cubic-bezier(.34,1.4,.64,1);}
-#notif-banner.banner-visible{opacity:1;transform:translateY(0) scale(1);}
-#notif-accent-bar{height:4px;background:linear-gradient(90deg,#ef4444,#f97316,#eab308);}
+/* ── Notification Alert (centered modal-style, requires OK) ──────────────── */
+#notif-overlay{position:fixed;inset:0;z-index:99990;background:rgba(42,46,49,.38);
+  display:none;opacity:0;transition:opacity .22s ease;}
+#notif-overlay.notif-overlay-visible{opacity:1;}
+#notif-banner{position:fixed;top:50%;left:50%;transform:translate(-50%,-60%) scale(.94);z-index:99999;width:460px;max-width:calc(100vw - 36px);
+  background:white;border-radius:18px;overflow:hidden;
+  box-shadow:0 28px 72px rgba(42,46,49,.28),0 8px 24px rgba(42,46,49,.18);
+  display:none;opacity:0;
+  transition:opacity .26s ease,transform .36s cubic-bezier(.34,1.3,.64,1);}
+#notif-banner.banner-visible{opacity:1;transform:translate(-50%,-50%) scale(1);}
+#notif-accent-bar{height:6px;background:linear-gradient(90deg,#ef4444,#f97316,#eab308);}
 #notif-accent-bar.next{background:linear-gradient(90deg,#eab308,#86efac,#22c55e);}
-#notif-body{padding:14px 16px 14px 14px;display:flex;gap:11px;align-items:flex-start;position:relative;}
-.notif-avatar{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:12px;flex-shrink:0;}
+#notif-body{padding:22px 24px 18px 22px;display:flex;gap:16px;align-items:flex-start;}
+.notif-avatar{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:16px;flex-shrink:0;}
 .notif-content{flex:1;min-width:0;}
-.notif-title{font-size:9.5px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;color:var(--earth);margin-bottom:4px;}
-.notif-text{font-size:13px;font-weight:700;color:var(--onyx);line-height:1.35;}
-.notif-meta{font-size:10px;color:var(--earth);margin-top:5px;font-weight:600;}
-.notif-close{position:absolute;top:6px;right:8px;background:none;border:none;color:var(--taupe);font-size:18px;line-height:1;cursor:pointer;padding:2px 4px;transition:color .12s;}
-.notif-close:hover{color:var(--onyx);}
+.notif-title{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--earth);margin-bottom:7px;}
+.notif-text{font-size:17px;font-weight:700;color:var(--onyx);line-height:1.4;}
+.notif-meta{font-size:12px;color:var(--earth);margin-top:8px;font-weight:600;}
+#notif-footer{padding:0 22px 18px;display:flex;justify-content:flex-end;}
+#notif-ok-btn{background:var(--onyx);color:white;border:none;border-radius:9px;padding:10px 32px;font-size:13px;font-weight:700;font-family:'Jost',sans-serif;cursor:pointer;letter-spacing:.3px;transition:background .14s;}
+#notif-ok-btn:hover{background:#444;}
+/* hide old close X */
+.notif-close{display:none;}
 
 /* ── PIN display (profile, admin-only) ───────────────────────────────────── */
 .pin-display{font-size:20px;font-weight:800;letter-spacing:7px;color:var(--onyx);background:var(--alabaster);border:1px solid var(--sandstone);border-radius:8px;padding:7px 14px;width:100px;text-align:center;font-family:'Jost',sans-serif;}
@@ -1808,7 +1814,7 @@ function showNotif(staffId, naItem) {
 function _fireNextNotif() {
   if (!_notifQueue.length) return;
   const { staffId, naItem } = _notifQueue[0];
-  const s = getStaff(staffId);
+  const s = getStaff(staffId) || {};
   const isAsap = naItem.priority === 'asap';
 
   // Play sound
@@ -1826,22 +1832,25 @@ function _fireNextNotif() {
   if (naItem.dueDate)    metaParts.push('Due: '  + fmtNaDate(naItem.dueDate));
   document.getElementById('notif-meta').textContent = metaParts.join(' · ');
 
-  // Animate in
-  const banner = document.getElementById('notif-banner');
-  banner.style.display = 'block';
-  requestAnimationFrame(() => requestAnimationFrame(() => banner.classList.add('banner-visible')));
-
-  // Auto-dismiss after 7s
-  clearTimeout(_notifTimer);
-  _notifTimer = setTimeout(dismissNotif, 7000);
+  // Animate in — show overlay + banner; stays until user clicks OK
+  const overlay = document.getElementById('notif-overlay');
+  const banner  = document.getElementById('notif-banner');
+  overlay.style.display = 'block';
+  banner.style.display  = 'block';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    overlay.classList.add('notif-overlay-visible');
+    banner.classList.add('banner-visible');
+  }));
 }
 
 function dismissNotif() {
-  clearTimeout(_notifTimer);
-  const banner = document.getElementById('notif-banner');
+  const overlay = document.getElementById('notif-overlay');
+  const banner  = document.getElementById('notif-banner');
+  overlay.classList.remove('notif-overlay-visible');
   banner.classList.remove('banner-visible');
   setTimeout(() => {
-    banner.style.display = 'none';
+    overlay.style.display = 'none';
+    banner.style.display  = 'none';
     _notifQueue.shift();
     if (_notifQueue.length > 0) setTimeout(_fireNextNotif, 420);
   }, 340);
@@ -4694,17 +4703,20 @@ function scheduleMidnightCheck() {
   </div>
 </div>
 
-<!-- ── Notification Banner ───────────────────────────────────────────────── -->
+<!-- ── Notification Overlay + Alert ─────────────────────────────────────── -->
+<div id="notif-overlay"></div>
 <div id="notif-banner">
   <div id="notif-accent-bar"></div>
   <div id="notif-body">
     <div class="notif-avatar" id="notif-avatar"></div>
     <div class="notif-content">
-      <div class="notif-title" id="notif-title">New Assignment</div>
+      <div class="notif-title" id="notif-title"></div>
       <div class="notif-text" id="notif-text"></div>
       <div class="notif-meta" id="notif-meta"></div>
     </div>
-    <button class="notif-close" onclick="dismissNotif()">×</button>
+  </div>
+  <div id="notif-footer">
+    <button id="notif-ok-btn" onclick="dismissNotif()">OK</button>
   </div>
 </div>
 
