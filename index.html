@@ -1071,6 +1071,38 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
   </div>
 </div>
 
+<!-- ── IV DATE ATTRIBUTION MODAL ─────────────────── -->
+<div class="modal-overlay" id="iv-date-modal">
+  <div class="modal sm">
+    <div class="modal-hdr">
+      <h3>🗓 &nbsp;IV Date Updated</h3>
+      <button class="modal-close" onclick="cancelIvDate()">×</button>
+    </div>
+    <div class="simple-modal-body" style="display:flex;flex-direction:column;gap:14px">
+      <div style="background:var(--alabaster);border:1px solid var(--sandstone);border-radius:8px;padding:12px 14px;display:flex;gap:20px;align-items:center;flex-wrap:wrap">
+        <div>
+          <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--earth);margin-bottom:3px">Office</div>
+          <div style="font-size:13px;font-weight:700;color:var(--onyx)" id="ivd-office"></div>
+        </div>
+        <div>
+          <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--earth);margin-bottom:3px">Verified to</div>
+          <div style="font-size:13px;font-weight:700;color:var(--onyx)" id="ivd-date"></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Updated by</div>
+        <select class="form-input" id="ivd-staff-sel">
+          <option value="">— Select name —</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="cancelIvDate()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmIvDate()">Save</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ════════════════════════════════════════════════
 // DATA DEFAULTS
@@ -1347,13 +1379,50 @@ function fmtIvDateRcm(iso) {
   if (!iso) return '—';
   return new Date(iso + 'T00:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
 }
-function setIvDate(code, date) {
+
+let __ivPending = null; // { code, oldDate, newDate }
+
+function openIvDateModal(code, oldDate, newDate) {
+  __ivPending = { code, oldDate, newDate };
+  const office = S.offices.find(o => o.code === code);
+  document.getElementById('ivd-office').textContent = office ? (office.name || office.lbl) : code;
+  document.getElementById('ivd-date').textContent = fmtIvDateRcm(newDate);
+  // Populate staff dropdown from roster (exclude Inactive)
+  const sel = document.getElementById('ivd-staff-sel');
+  sel.innerHTML = '<option value="">— Select name —</option>';
+  (S.staff || [])
+    .filter(s => s.dept !== 'Inactive' && s.id !== 'own_team')
+    .sort((a,b) => (a.name||'').localeCompare(b.name||''))
+    .forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.name;
+      opt.textContent = s.name;
+      sel.appendChild(opt);
+    });
+  openModal('iv-date-modal');
+}
+
+function confirmIvDate() {
+  if (!__ivPending) return;
+  const setBy = document.getElementById('ivd-staff-sel').value || null;
+  setIvDate(__ivPending.code, __ivPending.newDate, setBy);
+  __ivPending = null;
+  closeModal('iv-date-modal');
+}
+
+function cancelIvDate() {
+  __ivPending = null;
+  closeModal('iv-date-modal');
+  renderAll(); // restore old date value in the input
+}
+
+function setIvDate(code, date, setBy) {
   if (!S.ivDates) S.ivDates = {};
   const oldDate = S.ivDates[code] || null;
   if (date) S.ivDates[code] = date;
   else delete S.ivDates[code];
 
-  // Log the change to Help Records
+  // Log the change to Help Records — permanent, no delete
   if (!S.helpLog) S.helpLog = [];
   const office = S.offices.find(o => o.code === code);
   const officeName = office ? office.name || office.lbl : code;
@@ -1365,8 +1434,9 @@ function setIvDate(code, date) {
     location: `${code} — Ins Verification`,
     oldDate: oldDate || null,
     newDate: date || null,
+    setBy: setBy || null,
     comments: `IV verified date set to: ${fmtIvDateRcm(date)}${oldDate ? ` (was: ${fmtIvDateRcm(oldDate)})` : ''}`,
-    helpers: '—',
+    helpers: setBy || '—',
     status: 'IV Date Updated',
     checklist: [],
   });
@@ -2536,7 +2606,7 @@ function buildGrid(tableEl, boardId) {
           inp.type = 'date';
           inp.className = 'iv-date-inp';
           inp.value = ivDate;
-          inp.onchange = e => setIvDate(office.code, e.target.value || null);
+          inp.onchange = e => openIvDateModal(office.code, ivDate || null, e.target.value || null);
           dateBar.appendChild(inp);
         } else {
           // Read-only label on assign board when locked
@@ -3022,7 +3092,7 @@ function renderHelpLog() {
       return `<tr style="${rowBg}">
         <td style="padding:9px 14px;color:var(--earth);font-weight:600;white-space:nowrap">${escHtml(entry.resolvedAt)}</td>
         <td style="padding:9px 14px;white-space:nowrap">🗓 ${escHtml(entry.location)}</td>
-        <td style="padding:9px 14px;color:#1d4ed8;font-weight:700">IV Date</td>
+        <td style="padding:9px 14px;color:#15803d;font-weight:700">${escHtml(entry.setBy || '—')}</td>
         <td style="padding:9px 14px;color:var(--onyx);max-width:260px">${escHtml(change)}</td>
         <td style="padding:9px 14px;color:var(--taupe)">—</td>
       </tr>`;
@@ -3086,18 +3156,14 @@ function renderHelpLogTab() {
     const card = document.createElement('div');
     card.style.cssText = 'background:var(--white);border:1px solid var(--sandstone);border-radius:10px;padding:14px 18px;display:flex;flex-direction:column;gap:8px;position:relative';
 
-    // ── IV Date change entries ────────────────────────────────
+    // ── IV Date change entries (permanent — no delete button) ────
     if (entry.type === 'iv_date') {
-      const delBtn = `<button onclick="deleteHelpEntry(${i})" title="Delete record"
-        style="background:none;border:none;color:var(--sandstone);cursor:pointer;font-size:14px;line-height:1;padding:0 2px;margin-left:auto"
-        onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--sandstone)'">×</button>`;
       card.innerHTML = `
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <span style="font-size:15px">🗓</span>
           <span style="font-size:11px;font-weight:700;color:var(--earth);text-transform:uppercase;letter-spacing:.7px">${escHtml(entry.office)} — Ins Verification</span>
           <span style="font-size:10px;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:100px;padding:2px 10px">IV Date Updated</span>
-          <span style="font-size:10px;color:var(--taupe)">${escHtml(entry.resolvedAt)}</span>
-          ${delBtn}
+          <span style="font-size:10px;color:var(--taupe);margin-left:auto">${escHtml(entry.resolvedAt)}</span>
         </div>
         <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:8px 12px;background:var(--alabaster);border-radius:7px;border:1px solid var(--sandstone)">
           ${entry.oldDate
@@ -3105,7 +3171,12 @@ function renderHelpLogTab() {
                <span style="font-size:16px;color:var(--taupe)">→</span>`
             : ''}
           <div><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe);margin-bottom:2px">Set to</div><div style="font-size:13px;font-weight:700;color:var(--onyx)">${fmtIvDateRcm(entry.newDate)}</div></div>
-        </div>`;
+        </div>
+        ${entry.setBy ? `
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe)">Updated by:</span>
+          <span style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:100px;padding:2px 10px;font-size:11px;font-weight:600;color:#15803d">${escHtml(entry.setBy)}</span>
+        </div>` : ''}`;
       body.appendChild(card);
       return;
     }
