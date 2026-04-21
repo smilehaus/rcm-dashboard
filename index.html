@@ -60,7 +60,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 .gtok-name{font-size:8.5px;color:var(--onyx);font-weight:600;text-align:center;max-width:50px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
 /* ── Split tile (in-cell token, E-style) ── */
-.gtile{display:flex;align-items:stretch;border-radius:6px;overflow:hidden;box-shadow:0 2px 5px rgba(0,0,0,.16);cursor:grab;transition:transform .12s,box-shadow .12s;height:26px;user-select:none;position:relative;flex-shrink:0;width:100%;}
+.gtile{display:flex;align-items:stretch;border-radius:6px;overflow:hidden;box-shadow:0 2px 5px rgba(0,0,0,.16);cursor:grab;transition:transform .12s,box-shadow .12s;height:26px;user-select:none;position:relative;flex-shrink:0;width:calc(50% - 2px);min-width:0;}
 .gtile:active{cursor:grabbing;}
 .gtile:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,.22);}
 .gtile-init{width:26px;min-width:26px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:white;flex-shrink:0;}
@@ -120,14 +120,14 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 
 /* Drop cells */
 .drop-cell{padding:0;vertical-align:top;}
-.cell-inner{min-height:80px;min-width:82px;padding:5px;position:relative;display:flex;flex-direction:column;gap:2px;}
+.cell-inner{min-height:80px;min-width:82px;padding:5px;position:relative;display:flex;flex-direction:column;gap:3px;}
 
-/* Ghost assignments (light background text in live board) */
-.ghost-layer{display:flex;flex-wrap:wrap;gap:3px;position:absolute;top:4px;left:4px;right:4px;pointer-events:none;width:calc(100% - 8px);}
-.ghost-name{font-size:12px;color:#2A2E31;font-weight:600;white-space:nowrap;letter-spacing:.2px;}
+/* Ghost assignments (in-flow, always at top of cell) */
+.ghost-layer{display:flex;flex-wrap:wrap;gap:3px;width:100%;pointer-events:none;padding-bottom:3px;border-bottom:1px solid var(--sandstone);}
+.ghost-name{font-size:11px;color:#2A2E31;font-weight:600;white-space:nowrap;letter-spacing:.2px;}
 
-/* Live tokens layer */
-.live-layer{display:flex;flex-wrap:wrap;gap:4px;align-items:center;justify-content:center;flex:1;z-index:1;position:relative;min-height:46px;}
+/* Live tokens layer — 2-column wrap, max 4 tiles (2×2) */
+.live-layer{display:flex;flex-wrap:wrap;gap:3px;width:100%;align-items:flex-start;}
 
 /* Remove button on assignment tokens */
 .tok-remove{position:absolute;top:-5px;right:-5px;width:16px;height:16px;border-radius:50%;background:var(--taupe);color:white;border:none;font-size:10px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:10;font-weight:700;}
@@ -2587,26 +2587,27 @@ function buildGrid(tableEl, boardId) {
         }
       }
 
-      // Live tokens layer — own_team floated right, rest on left
+      // Live tokens layer — 2×2 grid (max 4 tokens), tiles are half-width
       const layer = document.createElement('div');
       layer.className = 'live-layer';
-      layer.style.cssText = 'display:flex;flex-direction:column;align-items:stretch;gap:3px;width:100%';
 
       const mainTokens = tokens.filter(sid => sid !== 'own_team');
       const ownTokens  = tokens.filter(sid => sid === 'own_team');
+      // Merge all tokens, cap at 4 for the 2×2 layout
+      const allDisplay = [...mainTokens, ...ownTokens].slice(0, 4);
+      const overflow   = [...mainTokens, ...ownTokens].length - 4;
 
       const canEditAssign = !isLive && __rosterUnlocked;
-      mainTokens.forEach(sid => {
+      allDisplay.forEach(sid => {
         layer.appendChild(makeTok(sid, { isLive, srcBoard: boardId, srcZone: zoneKey, showRemove: canEditAssign }));
       });
 
-      if (ownTokens.length) {
-        const spacer = document.createElement('div');
-        spacer.style.cssText = 'flex:1;min-width:4px';
-        layer.appendChild(spacer);
-        ownTokens.forEach(sid => {
-          layer.appendChild(makeTok(sid, { isLive, srcBoard: boardId, srcZone: zoneKey, showRemove: canEditAssign }));
-        });
+      // "+N more" badge if overflow
+      if (overflow > 0) {
+        const more = document.createElement('div');
+        more.style.cssText = 'width:calc(50% - 2px);height:26px;border-radius:6px;background:var(--sandstone);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:var(--earth);';
+        more.textContent = '+' + overflow;
+        layer.appendChild(more);
       }
 
       inner.appendChild(layer);
