@@ -3158,7 +3158,7 @@ function renderHelpLogTab() {
     const card = document.createElement('div');
     card.style.cssText = 'background:var(--white);border:1px solid var(--sandstone);border-radius:10px;padding:14px 18px;display:flex;flex-direction:column;gap:8px;position:relative';
 
-    // ── IV Date change entries (permanent — no delete button) ────
+    // ── IV Date change entries ────────────────────────────────
     if (entry.type === 'iv_date') {
       card.innerHTML = `
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -3178,7 +3178,13 @@ function renderHelpLogTab() {
         <div style="display:flex;align-items:center;gap:8px">
           <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe)">Updated by:</span>
           <span style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:100px;padding:2px 10px;font-size:11px;font-weight:600;color:#15803d">${escHtml(entry.setBy)}</span>
-        </div>` : ''}`;
+        </div>` : ''}
+        <div style="display:flex;justify-content:flex-end;padding-top:6px;border-top:1px solid var(--sandstone);margin-top:4px">
+          <button class="btn btn-ghost btn-sm"
+            style="font-size:11px;color:#dc2626;border-color:rgba(220,38,38,.3);padding:3px 12px"
+            onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background=''"
+            onclick="deleteHelpEntry(${i})">🗑 Delete Record</button>
+        </div>`;
       body.appendChild(card);
       return;
     }
