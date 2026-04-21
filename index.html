@@ -61,6 +61,8 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 
 /* ── Split tile (in-cell token, E-style) ── */
 .gtile{display:flex;align-items:stretch;border-radius:6px;overflow:hidden;box-shadow:0 2px 5px rgba(0,0,0,.16);cursor:grab;transition:transform .12s,box-shadow .12s;height:26px;user-select:none;position:relative;flex-shrink:0;width:calc(50% - 2px);min-width:0;}
+/* 1–2 tokens: span full width so name isn't truncated */
+.live-layer.few-toks .gtile{width:100%;}
 .gtile:active{cursor:grabbing;}
 .gtile:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,.22);}
 .gtile-init{width:26px;min-width:26px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:white;flex-shrink:0;}
@@ -2596,6 +2598,9 @@ function buildGrid(tableEl, boardId) {
       // Merge all tokens, cap at 4 for the 2×2 layout
       const allDisplay = [...mainTokens, ...ownTokens].slice(0, 4);
       const overflow   = [...mainTokens, ...ownTokens].length - 4;
+
+      // Full-width tiles when only 1 or 2 tokens
+      if (allDisplay.length <= 2) layer.classList.add('few-toks');
 
       const canEditAssign = !isLive && __rosterUnlocked;
       allDisplay.forEach(sid => {
