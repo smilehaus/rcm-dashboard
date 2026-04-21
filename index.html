@@ -617,37 +617,56 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
       <div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
           <span style="font-size:20px">🔐</span>
-          <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Check In As</span>
+          <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Check In As — Daily Start of Shift</span>
         </div>
-        <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
+        <div style="display:flex;flex-direction:column;gap:10px;padding-left:30px">
+
+          <!-- Step by step -->
+          <div style="font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--taupe);margin-bottom:2px">How to check in</div>
+          <div style="display:flex;flex-direction:column;gap:6px;padding-left:4px">
+            <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+              <span style="background:var(--onyx);color:white;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0;margin-top:1px">1</span>
+              <span>Click anywhere on the page first — a tab, a token, anything. This activates audio so notification sounds work.</span>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+              <span style="background:var(--onyx);color:white;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0;margin-top:1px">2</span>
+              <span>Click the <strong>CHECK IN AS</strong> dropdown in the top-right header and select your name.</span>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+              <span style="background:var(--onyx);color:white;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0;margin-top:1px">3</span>
+              <span>Enter your <strong>4-digit PIN</strong> when prompted. Your PIN is private — only managers can look it up in the Staff Roster.</span>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+              <span style="background:var(--onyx);color:white;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0;margin-top:1px">4</span>
+              <span>You're in. Your name appears in the header badge and you'll now receive alerts for any new assignments.</span>
+            </div>
+          </div>
+
+          <div style="height:1px;background:var(--sandstone);margin:4px 0"></div>
+
+          <!-- What you get -->
+          <div style="font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--taupe);margin-bottom:2px">What checking in does</div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Use the <strong>CHECK IN AS</strong> dropdown in the header to identify yourself. Select your name, then enter your <strong>4-digit PIN</strong> when prompted.</span>
+            <span><strong>Notifications</strong> — whenever an admin assigns you a new task, a large alert appears center screen with the task details and plays a sound. It stays until you click <strong>OK</strong>. 🔴 ASAP = urgent marimba chime &nbsp;·&nbsp; 🟡 Next = bright ding.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Once checked in, your name appears in the header and you receive <strong>sound + screen notifications</strong> whenever a new task is assigned to you. A large centered alert appears with the task details and stays on screen until you click <strong>OK</strong>. 🔴 ASAP triggers an urgent marimba chime — 🟡 Next triggers a bright ding.</span>
+            <span><strong>Management staff</strong> get instant full admin access — no separate unlock needed. The header badge shows <strong>🔓 [Name]</strong>. Everyone else sees <strong>🔒 LOCKED</strong> and still needs the PIN unlock to edit.</span>
           </div>
-          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx);background:#fefce8;border:1px solid #fef08a;border-radius:8px;padding:10px 12px;margin-top:2px">
+
+          <div style="height:1px;background:var(--sandstone);margin:4px 0"></div>
+
+          <!-- Tips -->
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx);background:#fefce8;border:1px solid #fef08a;border-radius:8px;padding:10px 12px">
             <span style="font-size:15px;flex-shrink:0">💡</span>
-            <span><strong>To activate sound:</strong> click anywhere on the page once after opening it (a tab, a token, anything). The browser requires one click before allowing audio. After that, notification sounds play automatically — even when you're working on something else in the same tab.</span>
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <span><strong>Sound tip:</strong> after your first click, notification sounds keep playing automatically all shift — even while you're working on something else in the same tab.</span>
+              <span><strong>Forgot your PIN?</strong> Ask a manager — they can view or regenerate it from your profile in the Staff Roster.</span>
+              <span><strong>Signing out:</strong> select <em>— Sign Out —</em> from the dropdown. Management access is revoked immediately.</span>
+            </div>
           </div>
-          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
-            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span><strong>Management dept staff</strong> who check in automatically unlock all admin features — no separate PIN unlock needed. The header badge shows <strong>🔓 [Name]</strong> when management access is active, and <strong>🔒 LOCKED</strong> otherwise.</span>
-          </div>
-          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
-            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Non-management staff can still check in to receive notifications — but editing the roster, assignments, and profiles still requires the PIN unlock button.</span>
-          </div>
-          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
-            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Each staff member's <strong>Check-In PIN</strong> is visible inside their profile (admin/management only). If you forget yours, ask a manager to look it up or generate a new one with <em>↺ New</em>.</span>
-          </div>
-          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
-            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Select <strong>— Sign Out —</strong> from the dropdown to clear your check-in. Management access is revoked immediately on sign-out.</span>
-          </div>
+
         </div>
       </div>
 
