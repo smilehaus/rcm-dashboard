@@ -2312,10 +2312,10 @@ function openProfile(staffId) {
   document.getElementById('p-home-office').value = s.homeOffice || '';
   document.getElementById('p-phone').value   = s.phone || '';
   document.getElementById('p-email').value   = s.email || '';
-  // PIN (admin-only)
+  // PIN (admin-only — use __rosterUnlocked directly; canEdit isn't defined yet here)
   const pinRow = document.getElementById('p-pin-row');
   if (pinRow) {
-    if (canEdit) {
+    if (__rosterUnlocked) {
       const pin = s.pin || genPin();
       document.getElementById('p-pin').value = pin;
       document.getElementById('p-pin-display').textContent = pin;
