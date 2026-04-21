@@ -135,8 +135,9 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 .gtile-help{background:#fef2f2;border-top:1px solid #fca5a5;border-bottom:1px solid #fca5a5;border-right:1px solid #fca5a5;padding:0 8px;display:flex;align-items:center;font-size:9px;font-weight:800;color:#ef4444;white-space:nowrap;flex:1;}
 
 /* Roster token wrap */
-.rtok{display:flex;flex-direction:column;align-items:center;gap:5px;position:relative;}
+.rtok{display:flex;flex-direction:column;align-items:center;gap:4px;position:relative;}
 .rtok-name{font-size:9px;color:var(--earth);text-align:center;max-width:62px;line-height:1.3;font-weight:500;}
+.rtok-pin{font-size:9px;font-weight:800;letter-spacing:3px;color:var(--onyx);background:var(--alabaster);border:1px solid var(--sandstone);border-radius:5px;padding:2px 6px;font-family:'Courier New',monospace;}
 .rtok-del{display:none !important;}
 .rtok:hover .rtok-del{display:none !important;}
 
@@ -536,6 +537,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
             <th>Phone</th>
             <th>Email</th>
             <th>Responsibilities</th>
+            <th id="roster-pin-th" style="display:none">Check-In PIN</th>
             <th id="roster-actions-th" style="display:none">Actions</th>
           </tr>
         </thead>
@@ -3122,6 +3124,16 @@ function makeRosterTok(staffId) {
 
   wrap.appendChild(tok);
   wrap.appendChild(lbl);
+
+  // PIN chip — only visible to admin (roster unlocked)
+  if (__rosterUnlocked && s.pin) {
+    const pinChip = document.createElement('div');
+    pinChip.className = 'rtok-pin';
+    pinChip.textContent = s.pin;
+    pinChip.title = 'Check-In PIN for ' + s.name;
+    wrap.appendChild(pinChip);
+  }
+
   return wrap;
 }
 
@@ -4163,6 +4175,7 @@ function updateRosterLockUI() {
   const aLabel = document.getElementById('assign-lock-label');
   const aBtn   = document.getElementById('assign-lock-btn');
   const aReset = document.getElementById('assign-reset-btn');
+  const pinTh = document.getElementById('roster-pin-th');
   if (__rosterUnlocked) {
     if (icon)  icon.textContent  = '🔓';
     if (label) label.textContent = 'Unlocked';
@@ -4170,10 +4183,23 @@ function updateRosterLockUI() {
     if (addBtn)     addBtn.style.display     = '';
     if (addDeptBtn) addDeptBtn.style.display = '';
     if (actTh)      actTh.style.display      = '';
+    if (pinTh)      pinTh.style.display      = '';
     if (aIcon)  aIcon.textContent  = '🔓';
     if (aLabel) aLabel.textContent = 'Unlocked';
     if (aBtn)   aBtn.textContent   = 'Lock';
     if (aReset) aReset.style.display = '';
+    // If staff profile is open, reveal the PIN row now
+    const profileModal = document.getElementById('profile-modal');
+    if (profileModal && profileModal.classList.contains('open') && editingStaffId) {
+      const s = getStaff(editingStaffId);
+      const pinRow = document.getElementById('p-pin-row');
+      if (pinRow && s) {
+        const pin = s.pin || genPin();
+        document.getElementById('p-pin').value = pin;
+        document.getElementById('p-pin-display').textContent = pin;
+        pinRow.style.display = '';
+      }
+    }
   } else {
     if (icon)  icon.textContent  = '🔒';
     if (label) label.textContent = 'Locked';
@@ -4181,10 +4207,14 @@ function updateRosterLockUI() {
     if (addBtn)     addBtn.style.display     = 'none';
     if (addDeptBtn) addDeptBtn.style.display = 'none';
     if (actTh)      actTh.style.display      = 'none';
+    if (pinTh)      pinTh.style.display      = 'none';
     if (aIcon)  aIcon.textContent  = '🔒';
     if (aLabel) aLabel.textContent = 'Locked';
     if (aBtn)   aBtn.textContent   = 'Unlock to Edit';
     if (aReset) aReset.style.display = 'none';
+    // Hide PIN row in profile if visible
+    const pinRow = document.getElementById('p-pin-row');
+    if (pinRow) pinRow.style.display = 'none';
   }
   // KPI lock UI
   const kpiIcon = document.getElementById('kpi-lock-icon');
@@ -4273,7 +4303,7 @@ function renderRosterTab() {
   });
 
   const today = todayStr();
-  const colCount = __rosterUnlocked ? 9 : 8;
+  const colCount = __rosterUnlocked ? 10 : 8;
 
   tbody.innerHTML = sortedDepts.map(dept => {
     const deptHeader = `<tr>
@@ -4306,6 +4336,7 @@ function renderRosterTab() {
         <td>${s.phone?`<a href="tel:${escHtml(s.phone)}" style="color:var(--earth);text-decoration:none">${escHtml(s.phone)}</a>`:'—'}</td>
         <td>${s.email?`<a href="mailto:${escHtml(s.email)}" style="color:var(--earth);text-decoration:none">${escHtml(s.email)}</a>`:'—'}</td>
         <td><div class="roster-resp-pills">${respPills||'<span style="color:var(--taupe)">—</span>'}</div></td>
+        ${__rosterUnlocked ? `<td><span style="font-size:12px;font-weight:800;letter-spacing:3px;color:var(--onyx);font-family:'Courier New',monospace">${escHtml(s.pin||'—')}</span></td>` : ''}
         ${actions}
       </tr>`;
     }).join('');
