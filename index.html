@@ -60,14 +60,15 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 .gtok-name{font-size:8.5px;color:var(--onyx);font-weight:600;text-align:center;max-width:50px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
 /* ── Split tile (in-cell token, E-style) ── */
-.gtile{display:flex;align-items:stretch;border-radius:6px;overflow:hidden;box-shadow:0 2px 5px rgba(0,0,0,.16);cursor:pointer;transition:transform .12s,box-shadow .12s;height:26px;user-select:none;position:relative;flex-shrink:0;width:calc(50% - 2px);min-width:0;}
+.gtile{display:flex;align-items:stretch;border-radius:6px;overflow:hidden;box-shadow:0 2px 5px rgba(0,0,0,.16);cursor:pointer;transition:transform .12s;height:26px;user-select:none;position:relative;flex-shrink:0;width:calc(50% - 2px);min-width:0;}
 /* 1–2 tokens: span full width so name isn't truncated */
 .live-layer.few-toks .gtile{width:100%;}
-.gtile:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,.22);}
+.gtile:hover{transform:translateY(-1px);}
 .gtile-init{width:26px;min-width:26px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:white;flex-shrink:0;cursor:grab;}
 .gtile-init:active{cursor:grabbing;}
 .gtile-name{background:var(--white);padding:0 8px;display:flex;align-items:center;font-size:9.5px;font-weight:700;color:var(--onyx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-top:1px solid var(--sandstone);border-bottom:1px solid var(--sandstone);border-right:1px solid var(--sandstone);flex:1;}
-.gtile.live .gtile-init{animation:sqring 1.9s ease-out infinite;}
+/* Live blink on whole tile — box-shadow is not clipped by overflow:hidden */
+.gtile.live{animation:sqring 1.9s ease-out infinite;}
 .gtile.drag-src{opacity:.3;}
 .gtile-help{background:#fef2f2;border-top:1px solid #fca5a5;border-bottom:1px solid #fca5a5;border-right:1px solid #fca5a5;padding:0 8px;display:flex;align-items:center;font-size:9px;font-weight:800;color:#ef4444;white-space:nowrap;flex:1;}
 
@@ -346,13 +347,12 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
     <button class="tab-btn" id="tab-btn-kpi" onclick="switchTab('kpi')">📊 &nbsp;KPIs</button>
   </div>
   <div class="legend">
-    <div class="legend-item"><div class="ldot" style="background:var(--earth)"></div>Token = staff member</div>
-    <div class="legend-item"><div class="ldot" style="background:var(--live);animation:livering 1.9s ease-out infinite"></div>Blinking = active</div>
+    <div class="legend-item"><div class="ldot" style="background:var(--live);animation:livering 1.9s ease-out infinite"></div>Blinking = active on live board</div>
     <div class="legend-item"><div class="ldot" style="background:var(--sandstone)"></div>Ghost = assigned (ref)</div>
-    <div class="legend-item"><div class="ldot" style="background:#ef4444"></div>Red flash = needs help</div>
-    <div class="legend-item"><div class="ldot" style="background:#22c55e;animation:iv-green-pulse 2s ease-in-out infinite"></div>IV verified (4+ days)</div>
-    <div class="legend-item"><div class="ldot" style="background:#eab308;animation:iv-yellow-pulse 1.4s ease-in-out infinite"></div>IV expiring (2–3 days)</div>
-    <div class="legend-item" style="font-size:9px">⚠️ IV expired / unset</div>
+    <div class="legend-item"><div class="ldot" style="background:#ef4444;animation:helpring 1.2s ease-out infinite"></div>Red flash = needs help</div>
+    <div class="legend-item" style="gap:5px"><span style="font-size:11px;line-height:1">⚠️</span>IV not set or expires today/tomorrow</div>
+    <div class="legend-item"><div class="ldot" style="background:#eab308;animation:iv-yellow-pulse 1.4s ease-in-out infinite"></div>IV expires in 2–3 days</div>
+    <div class="legend-item"><div class="ldot" style="background:#22c55e;animation:iv-green-pulse 2s ease-in-out infinite"></div>IV verified 4+ days out</div>
   </div>
 </div>
 
