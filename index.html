@@ -999,6 +999,24 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
             <div class="form-label">Initials</div>
             <input class="form-input" id="p-initials" maxlength="3" style="width:80px">
           </div>
+          <!-- Check-In PIN — admin only -->
+          <div class="form-group" id="p-pin-row" style="margin-top:10px">
+            <div class="form-label">Check-In PIN</div>
+            <!-- Unlocked view -->
+            <div id="p-pin-unlocked" style="display:none;align-items:center;gap:6px;flex-wrap:wrap">
+              <span class="pin-display" id="p-pin-display">––––</span>
+              <input type="hidden" id="p-pin">
+              <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 9px" onclick="copyPinFromProfile()">Copy</button>
+              <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 9px" onclick="regenPin()">↺ New</button>
+            </div>
+            <!-- Locked view -->
+            <div id="p-pin-locked" style="display:flex">
+              <button onclick="rosterGated(revealProfilePin)"
+                style="display:flex;align-items:center;gap:5px;background:var(--alabaster);border:1px solid var(--sandstone);border-radius:7px;padding:5px 12px;font-size:11px;font-weight:700;color:var(--taupe);cursor:pointer;font-family:'Jost',sans-serif">
+                🔒 View PIN
+              </button>
+            </div>
+          </div>
         </div>
         <!-- Currently Working On -->
         <div style="flex:1;min-width:220px;border-left:1px solid var(--sandstone);padding-left:20px">
@@ -1094,15 +1112,6 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
         <div class="form-group">
           <div class="form-label">Email</div>
           <input class="form-input" id="p-email" type="email">
-        </div>
-        <div class="form-group" id="p-pin-row" style="display:none">
-          <div class="form-label">Check-In PIN <span style="font-size:9px;color:var(--taupe);font-weight:500">— admin only · share with member if forgotten</span></div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <span class="pin-display" id="p-pin-display">––––</span>
-            <input type="hidden" id="p-pin">
-            <button class="btn btn-ghost btn-sm" style="font-size:10px" onclick="copyPinFromProfile()">Copy</button>
-            <button class="btn btn-ghost btn-sm" style="font-size:10px" onclick="regenPin()">Regenerate</button>
-          </div>
         </div>
       </div>
       <div style="margin-top:18px">
@@ -1676,6 +1685,24 @@ function regenPin() {
   const newPin = genPin();
   document.getElementById('p-pin').value = newPin;
   document.getElementById('p-pin-display').textContent = newPin;
+}
+
+function _refreshProfilePinView() {
+  const unlocked = document.getElementById('p-pin-unlocked');
+  const locked   = document.getElementById('p-pin-locked');
+  if (!unlocked || !locked) return;
+  if (__rosterUnlocked) {
+    unlocked.style.display = 'flex';
+    locked.style.display   = 'none';
+  } else {
+    unlocked.style.display = 'none';
+    locked.style.display   = 'flex';
+  }
+}
+
+function revealProfilePin() {
+  // Called after admin unlocks via rosterGated — just refresh the view
+  _refreshProfilePinView();
 }
 
 // ── Sounds ────────────────────────────────────────────────────────────────
@@ -2367,18 +2394,11 @@ function openProfile(staffId) {
   document.getElementById('p-home-office').value = s.homeOffice || '';
   document.getElementById('p-phone').value   = s.phone || '';
   document.getElementById('p-email').value   = s.email || '';
-  // PIN (admin-only — use __rosterUnlocked directly; canEdit isn't defined yet here)
-  const pinRow = document.getElementById('p-pin-row');
-  if (pinRow) {
-    if (__rosterUnlocked) {
-      const pin = s.pin || genPin();
-      document.getElementById('p-pin').value = pin;
-      document.getElementById('p-pin-display').textContent = pin;
-      pinRow.style.display = '';
-    } else {
-      pinRow.style.display = 'none';
-    }
-  }
+  // PIN — always show row; unlocked view vs locked button depends on admin state
+  const pin = s.pin || genPin();
+  document.getElementById('p-pin').value = pin;
+  document.getElementById('p-pin-display').textContent = pin;
+  _refreshProfilePinView();
   // Load work items into local buffer and render
   _workItems = (s.workItems || []).map(w => ({ text: w.text, checked: !!w.checked, completed: !!w.completed }));
   renderWorkList();
@@ -4237,18 +4257,8 @@ function updateRosterLockUI() {
     if (aLabel) aLabel.textContent = 'Unlocked';
     if (aBtn)   aBtn.textContent   = 'Lock';
     if (aReset) aReset.style.display = '';
-    // If staff profile is open, reveal the PIN row now
-    const profileModal = document.getElementById('profile-modal');
-    if (profileModal && profileModal.classList.contains('open') && editingStaffId) {
-      const s = getStaff(editingStaffId);
-      const pinRow = document.getElementById('p-pin-row');
-      if (pinRow && s) {
-        const pin = s.pin || genPin();
-        document.getElementById('p-pin').value = pin;
-        document.getElementById('p-pin-display').textContent = pin;
-        pinRow.style.display = '';
-      }
-    }
+    // Refresh PIN view if profile is open
+    _refreshProfilePinView();
   } else {
     if (icon)  icon.textContent  = '🔒';
     if (label) label.textContent = 'Locked';
@@ -4261,9 +4271,8 @@ function updateRosterLockUI() {
     if (aLabel) aLabel.textContent = 'Locked';
     if (aBtn)   aBtn.textContent   = 'Unlock to Edit';
     if (aReset) aReset.style.display = 'none';
-    // Hide PIN row in profile if visible
-    const pinRow = document.getElementById('p-pin-row');
-    if (pinRow) pinRow.style.display = 'none';
+    // Refresh PIN view (shows locked button)
+    _refreshProfilePinView();
   }
   // KPI lock UI
   const kpiIcon = document.getElementById('kpi-lock-icon');
