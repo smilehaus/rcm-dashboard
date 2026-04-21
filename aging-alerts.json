@@ -1,13 +1,13 @@
 {
-  "generated": "2026-04-21T23:40:03.411Z",
+  "generated": "2026-04-21T23:58:58.608Z",
   "offices": {
     "SQ": {
       "overdue": 0,
       "priority": 0
     },
     "GT": {
-      "overdue": 34,
-      "priority": 9
+      "overdue": 24,
+      "priority": 6
     },
     "ATX": {
       "overdue": 3,
@@ -18,7 +18,7 @@
       "priority": 14
     },
     "NBDA": {
-      "overdue": 25,
+      "overdue": 24,
       "priority": 4
     },
     "IC": {
@@ -27,7 +27,7 @@
     },
     "AR": {
       "overdue": 13,
-      "priority": 11
+      "priority": 2
     },
     "PF": {
       "overdue": 0,
