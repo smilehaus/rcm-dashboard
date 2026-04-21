@@ -3131,8 +3131,10 @@ function clearHelpLogAll() {
 }
 
 function deleteHelpEntry(i) {
-  S.helpLog.splice(i, 1);
-  save(); renderHelpLog(); renderHelpLogTab();
+  rosterGated(() => {
+    S.helpLog.splice(i, 1);
+    save(); renderHelpLog(); renderHelpLogTab();
+  });
 }
 
 function renderHelpLogTab() {
@@ -3201,10 +3203,7 @@ function renderHelpLogTab() {
     hdr.innerHTML = `
       <span style="font-size:11px;font-weight:700;color:var(--earth);text-transform:uppercase;letter-spacing:.7px">📍 ${escHtml(entry.location)}</span>
       <span style="font-size:10px;font-weight:700;background:${statusBg};color:${statusColor};border:1px solid ${statusBorder};border-radius:100px;padding:2px 10px">${escHtml(statusVal)}</span>
-      <span style="font-size:10px;color:var(--taupe);margin-left:auto">${escHtml(entry.resolvedAt)}</span>
-      <button onclick="deleteHelpEntry(${i})" title="Delete record"
-        style="background:none;border:none;color:var(--sandstone);cursor:pointer;font-size:14px;line-height:1;padding:0 2px"
-        onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--sandstone)'">×</button>`;
+      <span style="font-size:10px;color:var(--taupe);margin-left:auto">${escHtml(entry.resolvedAt)}</span>`;
     card.appendChild(hdr);
 
     // Requested by
@@ -3288,6 +3287,19 @@ function renderHelpLogTab() {
       chatWrap.appendChild(chatBody);
       card.appendChild(chatWrap);
     }
+
+    // Admin delete button — PIN-gated
+    const footer = document.createElement('div');
+    footer.style.cssText = 'display:flex;justify-content:flex-end;padding-top:6px;border-top:1px solid var(--sandstone);margin-top:4px';
+    const delBtn = document.createElement('button');
+    delBtn.className = 'btn btn-ghost btn-sm';
+    delBtn.style.cssText = 'font-size:11px;color:#dc2626;border-color:rgba(220,38,38,.3);padding:3px 12px';
+    delBtn.textContent = '🗑 Delete Record';
+    delBtn.onmouseover = () => { delBtn.style.background = '#fef2f2'; };
+    delBtn.onmouseout  = () => { delBtn.style.background = ''; };
+    delBtn.onclick = () => deleteHelpEntry(i);
+    footer.appendChild(delBtn);
+    card.appendChild(footer);
 
     body.appendChild(card);
   });
