@@ -2401,7 +2401,8 @@ function makeRosterTok(staffId) {
 function renderRoster() {
   const c = document.getElementById('roster-tokens');
   c.innerHTML = '';
-  S.staff.forEach(s => c.appendChild(makeRosterTok(s.id)));
+  const sorted = [...S.staff].sort((a, b) => a.name.localeCompare(b.name));
+  sorted.forEach(s => c.appendChild(makeRosterTok(s.id)));
   // NEED HELP token at end
   c.appendChild(makeRosterHelpTok());
 }
