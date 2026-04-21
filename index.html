@@ -60,12 +60,12 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 .gtok-name{font-size:8.5px;color:var(--onyx);font-weight:600;text-align:center;max-width:50px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
 /* ── Split tile (in-cell token, E-style) ── */
-.gtile{display:flex;align-items:stretch;border-radius:6px;overflow:hidden;box-shadow:0 2px 5px rgba(0,0,0,.16);cursor:pointer;transition:transform .12s;height:26px;user-select:none;position:relative;flex-shrink:0;width:calc(50% - 2px);min-width:0;}
+.gtile{display:flex;align-items:stretch;border-radius:6px;overflow:hidden;box-shadow:0 2px 5px rgba(0,0,0,.16);cursor:grab;transition:transform .12s;height:26px;user-select:none;position:relative;flex-shrink:0;width:calc(50% - 2px);min-width:0;}
+.gtile:active{cursor:grabbing;}
 /* 1–2 tokens: span full width so name isn't truncated */
 .live-layer.few-toks .gtile{width:100%;}
 .gtile:hover{transform:translateY(-1px);}
-.gtile-init{width:26px;min-width:26px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:white;flex-shrink:0;cursor:grab;}
-.gtile-init:active{cursor:grabbing;}
+.gtile-init{width:26px;min-width:26px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:white;flex-shrink:0;}
 .gtile-name{background:var(--white);padding:0 8px;display:flex;align-items:center;font-size:9.5px;font-weight:700;color:var(--onyx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-top:1px solid var(--sandstone);border-bottom:1px solid var(--sandstone);border-right:1px solid var(--sandstone);flex:1;}
 /* Live blink on whole tile — box-shadow is not clipped by overflow:hidden */
 .gtile.live{animation:sqring 1.9s ease-out infinite;}
@@ -2238,16 +2238,15 @@ function makeTok(staffId, opts) {
   const s = getStaff(staffId);
 
   // ── Split tile (E-style) ──
-  // wrap is NOT draggable — only the init block is, matching old .token.sm pattern
   const wrap = document.createElement('div');
   wrap.className = 'gtile' + (isLive ? ' live' : '');
   wrap.title = s.name + (s.role ? ' · ' + s.role : '') + (s.phone ? ' · ' + s.phone : '');
+  wrap.draggable = true;
 
   const init = document.createElement('div');
   init.className = 'gtile-init';
   init.style.background = s.color;
   init.textContent = s.initials;
-  init.draggable = true;  // drag handle is the color block only
 
   const name = document.createElement('div');
   name.className = 'gtile-name';
@@ -2256,14 +2255,15 @@ function makeTok(staffId, opts) {
   wrap.appendChild(init);
   wrap.appendChild(name);
 
-  // Drag events on init block only — avoids blocking drops onto parent td
-  init.addEventListener('dragstart', e => {
+  // Guard: if a drag is already in progress (e.g. dragging from roster),
+  // block this tile's dragstart so it can't overwrite window.__drag
+  wrap.addEventListener('dragstart', e => {
+    if (__isDragging) { e.preventDefault(); e.stopPropagation(); return; }
     setDrag({ staffId, srcBoard, srcZone }, e);
     setTimeout(() => wrap.classList.add('drag-src'), 0);
   });
-  init.addEventListener('dragend', () => { clearDrag(); wrap.classList.remove('drag-src'); });
+  wrap.addEventListener('dragend', () => { clearDrag(); wrap.classList.remove('drag-src'); });
 
-  // Interaction events on whole tile
   wrap.addEventListener('contextmenu', e => {
     e.preventDefault();
     e.stopPropagation();
@@ -2294,10 +2294,11 @@ function makeHelpTokEl(helpId, srcBoard, srcZone) {
   const inst = S.helpInstances[helpId];
   const isHelped = inst && inst.status === 'helped';
 
-  // ── Split tile for HELP — init block is drag handle ──
+  // ── Split tile for HELP ──
   const wrap = document.createElement('div');
   wrap.className = 'gtile';
   wrap.title = 'NEED HELP — click to open';
+  wrap.draggable = true;
 
   const init = document.createElement('div');
   init.className = 'gtile-init';
@@ -2305,7 +2306,6 @@ function makeHelpTokEl(helpId, srcBoard, srcZone) {
   init.style.fontSize = '14px';
   init.style.fontWeight = '900';
   init.textContent = '!';
-  init.draggable = true;
   if (!isHelped) init.style.animation = 'helpring 1.2s ease-out infinite';
 
   const lbl = document.createElement('div');
@@ -2318,11 +2318,12 @@ function makeHelpTokEl(helpId, srcBoard, srcZone) {
   wrap.appendChild(init);
   wrap.appendChild(lbl);
 
-  init.addEventListener('dragstart', e => {
+  wrap.addEventListener('dragstart', e => {
+    if (__isDragging) { e.preventDefault(); e.stopPropagation(); return; }
     setDrag({ staffId:helpId, srcBoard, srcZone }, e);
     setTimeout(() => wrap.classList.add('drag-src'), 0);
   });
-  init.addEventListener('dragend', () => { clearDrag(); wrap.classList.remove('drag-src'); });
+  wrap.addEventListener('dragend', () => { clearDrag(); wrap.classList.remove('drag-src'); });
   wrap.addEventListener('click', e => {
     e.stopPropagation();
     if (!__isDragging) openHelpModal(helpId);
