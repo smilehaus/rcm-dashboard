@@ -429,7 +429,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
     <button class="tab-btn active" id="tab-btn-live" onclick="switchTab('live')">⚡ &nbsp;Live Status</button>
     <button class="tab-btn" id="tab-btn-assign" onclick="switchTab('assign')">📋 &nbsp;Assignment Board</button>
     <button class="tab-btn" id="tab-btn-roster" onclick="switchTab('roster')">👥 &nbsp;Staff Roster</button>
-    <button class="tab-btn" id="tab-btn-helplog" onclick="switchTab('helplog')">🚨 &nbsp;Help Records</button>
+    <button class="tab-btn" id="tab-btn-helplog" onclick="switchTab('helplog')">📋 &nbsp;Records</button>
     <button class="tab-btn" id="tab-btn-guide" onclick="switchTab('guide')">📖 &nbsp;How To Use</button>
     <button class="tab-btn" id="tab-btn-kpi" onclick="switchTab('kpi')">📊 &nbsp;KPIs</button>
   </div>
@@ -583,22 +583,72 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
   </div>
 </div>
 
-<!-- ── HELP RECORDS TAB ───────────────────────── -->
+<!-- ── RECORDS TAB ─────────────────────────────── -->
 <div id="content-helplog" class="tab-content">
   <div class="board-panel">
     <div class="bph">
       <div>
-        <div class="bph-title">Help Records</div>
-        <div class="bph-date" style="color:var(--taupe)">All resolved help requests — who asked, who helped</div>
+        <div class="bph-title">Records</div>
+        <div class="bph-date" style="color:var(--taupe)">Help requests, IV date changes &amp; staff check-ins</div>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
-        <span id="helplog-tab-count" style="font-size:11px;color:var(--taupe)"></span>
-        <button class="btn btn-ghost btn-sm" onclick="rosterGated(clearHelpLogAll)">Clear All</button>
+        <span style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:100px;padding:2px 10px;font-size:10px;font-weight:700">🔒 Management Only</span>
       </div>
     </div>
-    <div id="helplog-tab-body" style="padding:16px 20px;display:flex;flex-direction:column;gap:12px">
-      <div id="helplog-empty" style="text-align:center;padding:40px;color:var(--taupe);font-size:13px">No help requests yet. Resolved requests will appear here.</div>
+
+    <!-- LOCKED STATE -->
+    <div id="records-locked" style="display:none;padding:60px 20px;text-align:center">
+      <div style="font-size:32px;margin-bottom:12px">🔒</div>
+      <div style="font-size:14px;font-weight:700;color:var(--onyx);margin-bottom:6px">Management Access Only</div>
+      <div style="font-size:12px;color:var(--taupe)">Check in as a Management team member to view Records.</div>
     </div>
+
+    <!-- UNLOCKED STATE -->
+    <div id="records-unlocked" style="display:none">
+      <!-- Inner sub-tabs -->
+      <div style="display:flex;gap:6px;padding:14px 20px 0;border-bottom:1px solid var(--sandstone)">
+        <button id="rec-tab-btn-help" onclick="switchRecordsTab('help')"
+          style="font-family:'Jost',sans-serif;font-size:11px;font-weight:700;padding:6px 16px;border-radius:8px 8px 0 0;border:1px solid var(--sandstone);border-bottom:none;cursor:pointer;background:white;color:var(--onyx)">
+          🚨 Help Records
+        </button>
+        <button id="rec-tab-btn-iv" onclick="switchRecordsTab('iv')"
+          style="font-family:'Jost',sans-serif;font-size:11px;font-weight:700;padding:6px 16px;border-radius:8px 8px 0 0;border:1px solid var(--sandstone);border-bottom:none;cursor:pointer;background:var(--alabaster);color:var(--taupe)">
+          📅 IV Date Records
+        </button>
+        <button id="rec-tab-btn-checkin" onclick="switchRecordsTab('checkin')"
+          style="font-family:'Jost',sans-serif;font-size:11px;font-weight:700;padding:6px 16px;border-radius:8px 8px 0 0;border:1px solid var(--sandstone);border-bottom:none;cursor:pointer;background:var(--alabaster);color:var(--taupe)">
+          🔐 Check-in Records
+        </button>
+      </div>
+
+      <!-- Help Records body -->
+      <div id="records-body-help" style="padding:16px 20px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:4px">
+          <button class="btn btn-ghost btn-sm" onclick="rosterGated(clearHelpLogAll)" style="font-size:10px;color:#dc2626;border-color:rgba(220,38,38,.3)">🗑 Clear All Help Records</button>
+        </div>
+        <div id="helplog-tab-body" style="display:flex;flex-direction:column;gap:12px">
+          <div id="helplog-empty" style="text-align:center;padding:40px;color:var(--taupe);font-size:13px">No help requests yet.</div>
+        </div>
+      </div>
+
+      <!-- IV Date Records body -->
+      <div id="records-body-iv" style="display:none;padding:16px 20px;display:none;flex-direction:column;gap:12px">
+        <div id="iv-records-body" style="display:flex;flex-direction:column;gap:12px">
+          <div id="iv-records-empty" style="text-align:center;padding:40px;color:var(--taupe);font-size:13px">No IV date changes logged yet.</div>
+        </div>
+      </div>
+
+      <!-- Check-in Records body -->
+      <div id="records-body-checkin" style="display:none;padding:16px 20px">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+          <button class="btn btn-ghost btn-sm" onclick="rosterGated(clearCheckinLog)" style="font-size:10px;color:#dc2626;border-color:rgba(220,38,38,.3)">🗑 Clear Check-in Log</button>
+        </div>
+        <div id="checkin-records-body">
+          <div id="checkin-records-empty" style="text-align:center;padding:40px;color:var(--taupe);font-size:13px">No check-in activity yet.</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -721,7 +771,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Click the date field directly on the live board to update it. Select your name when prompted — every change is logged to <strong>Help Records</strong> with who updated it, the old date, and the new date.</span>
+            <span>Click the date field directly on the live board to update it. Select your name when prompted — every change is logged to the <strong>Records</strong> tab (IV Date Records) with who updated it, the old date, and the new date.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
@@ -922,7 +972,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>The <strong>Help Records</strong> tab stores all resolved help requests and IV date changes. Individual records can be deleted (PIN required). <em>Clear All</em> wipes the full log (also PIN required).</span>
+            <span>The <strong>Records</strong> tab (management only) stores all resolved help requests, IV date changes, and staff check-in/out history — each in its own sub-tab. Individual records can be deleted and logs can be cleared (admin PIN required).</span>
           </div>
         </div>
       </div>
@@ -1520,7 +1570,8 @@ let S = {
   lunch:   [],
   off:     [],
   helpInstances: {},  // { id: { id,location,status,comments,checklist,helpers } }
-  helpLog: [],        // archived resolved help requests
+  helpLog: [],        // archived resolved help requests + IV date changes
+  checkinLog: [],     // check-in / check-out events { staffName, staffId, action, ts }
   vacationActive: [], // staff IDs currently auto-placed in off zone by vacation
   lastAutoClear: '',  // date string of last 10pm auto-clear
   departments: [],    // user-defined department list
@@ -1621,6 +1672,15 @@ function notifyHelp(description) {
 }
 // ─────────────────────────────────────────────────────────────────────────
 
+// ── Central Time timestamp ────────────────────────────────────────────────
+function ctNow() {
+  return new Date().toLocaleString('en-US', {
+    timeZone: 'America/Chicago',
+    month: 'short', day: 'numeric', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  }) + ' CT';
+}
+
 // ── Check-In state ────────────────────────────────────────────────────────
 let _checkinId        = localStorage.getItem('sh-checkin-id') || '';
 let _naSnapshot       = []; // fingerprints of NA items checked-in user has already seen
@@ -1652,7 +1712,15 @@ function populateCheckinSelect() {
 // Called by the CHECK IN AS dropdown onchange
 function onCheckInChange(id) {
   if (!id) {
-    // Sign out — no PIN needed
+    // Sign out — log it then clear
+    if (_checkinId) {
+      const so = getStaff(_checkinId);
+      if (so) {
+        if (!S.checkinLog) S.checkinLog = [];
+        S.checkinLog.unshift({ staffId: so.id, staffName: so.name, action: 'out', ts: ctNow() });
+        save();
+      }
+    }
     _checkinId = '';
     localStorage.removeItem('sh-checkin-id');
     _naSnapshot = [];
@@ -1690,6 +1758,10 @@ function submitCheckinPin() {
     _checkinId = _pendingCheckinId;
     localStorage.setItem('sh-checkin-id', _checkinId);
     _naSnapshot = getNaSnapshot(_checkinId);
+    // Log check-in to Records
+    if (!S.checkinLog) S.checkinLog = [];
+    S.checkinLog.unshift({ staffId: s.id, staffName: s.name, action: 'in', ts: ctNow() });
+    save();
     // If Management dept — auto-unlock admin features
     if ((s.dept || '').toLowerCase().includes('management')) {
       _adminCheckedIn  = true;
@@ -4128,82 +4200,73 @@ function deleteHelpEntry(i) {
   });
 }
 
-function renderHelpLogTab() {
-  const body  = document.getElementById('helplog-tab-body');
-  const empty = document.getElementById('helplog-empty');
-  const count = document.getElementById('helplog-tab-count');
-  if (!body) return;
-  const log = S.helpLog || [];
-  if (count) count.textContent = log.length + ' record' + (log.length === 1 ? '' : 's');
+// ── Records Tab ───────────────────────────────────────────────────────────
+let _activeRecordsTab = 'help';
 
-  // Remove existing cards (keep empty div)
-  Array.from(body.children).forEach(el => { if (el.id !== 'helplog-empty') el.remove(); });
+function switchRecordsTab(tab) {
+  _activeRecordsTab = tab;
+  ['help','iv','checkin'].forEach(t => {
+    const btn  = document.getElementById('rec-tab-btn-' + t);
+    const body = document.getElementById('records-body-' + t);
+    const active = t === tab;
+    if (btn)  { btn.style.background = active ? 'white' : 'var(--alabaster)'; btn.style.color = active ? 'var(--onyx)' : 'var(--taupe)'; }
+    if (body) body.style.display = active ? (t === 'iv' ? 'flex' : 'block') : 'none';
+  });
+  // fix iv body flex direction
+  const ivBody = document.getElementById('records-body-iv');
+  if (ivBody && tab === 'iv') ivBody.style.flexDirection = 'column';
+}
 
-  if (log.length === 0) {
-    empty.style.display = '';
+function renderRecordsTab() {
+  const locked   = document.getElementById('records-locked');
+  const unlocked = document.getElementById('records-unlocked');
+  if (!locked || !unlocked) return;
+
+  if (!_adminCheckedIn) {
+    locked.style.display   = '';
+    unlocked.style.display = 'none';
     return;
   }
-  empty.style.display = 'none';
+  locked.style.display   = 'none';
+  unlocked.style.display = '';
+
+  _renderHelpRecords();
+  _renderIvRecords();
+  _renderCheckinRecords();
+}
+
+function _renderHelpRecords() {
+  const body  = document.getElementById('helplog-tab-body');
+  const empty = document.getElementById('helplog-empty');
+  if (!body) return;
+  const log = (S.helpLog || []).filter(e => e.type !== 'iv_date');
+
+  Array.from(body.children).forEach(el => { if (el.id !== 'helplog-empty') el.remove(); });
+  if (log.length === 0) { if (empty) empty.style.display = ''; return; }
+  if (empty) empty.style.display = 'none';
 
   log.forEach((entry, i) => {
+    const realIdx = (S.helpLog || []).indexOf(entry);
     const card = document.createElement('div');
     card.style.cssText = 'background:var(--white);border:1px solid var(--sandstone);border-radius:10px;padding:14px 18px;display:flex;flex-direction:column;gap:8px;position:relative';
 
-    // ── IV Date change entries ────────────────────────────────
-    if (entry.type === 'iv_date') {
-      card.innerHTML = `
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <span style="font-size:15px">🗓</span>
-          <span style="font-size:11px;font-weight:700;color:var(--earth);text-transform:uppercase;letter-spacing:.7px">${escHtml(entry.office)} — Ins Verification</span>
-          <span style="font-size:10px;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:100px;padding:2px 10px">IV Date Updated</span>
-          <span style="font-size:10px;color:var(--taupe);margin-left:auto">${escHtml(entry.resolvedAt)}</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:8px 12px;background:var(--alabaster);border-radius:7px;border:1px solid var(--sandstone)">
-          ${entry.oldDate
-            ? `<div><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe);margin-bottom:2px">Previously</div><div style="font-size:13px;font-weight:600;color:var(--earth);text-decoration:line-through">${fmtIvDateRcm(entry.oldDate)}</div></div>
-               <span style="font-size:16px;color:var(--taupe)">→</span>`
-            : ''}
-          <div><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe);margin-bottom:2px">Set to</div><div style="font-size:13px;font-weight:700;color:var(--onyx)">${fmtIvDateRcm(entry.newDate)}</div></div>
-        </div>
-        ${entry.setBy ? `
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe)">Updated by:</span>
-          <span style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:100px;padding:2px 10px;font-size:11px;font-weight:600;color:#15803d">${escHtml(entry.setBy)}</span>
-        </div>` : ''}
-        <div style="display:flex;justify-content:flex-end;padding-top:6px;border-top:1px solid var(--sandstone);margin-top:4px">
-          <button class="btn btn-ghost btn-sm"
-            style="font-size:11px;color:#dc2626;border-color:rgba(220,38,38,.3);padding:3px 12px"
-            onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background=''"
-            onclick="deleteHelpEntry(${i})">🗑 Delete Record</button>
-        </div>`;
-      body.appendChild(card);
-      return;
-    }
-
-    // ── Standard help request entries ─────────────────────────
     const checks   = entry.checklist || [];
     const done     = checks.filter(c => c.done).length;
-    const allDone  = checks.length > 0 && done === checks.length;
     const helpers  = entry.helpers || '—';
     const notes    = entry.comments || '';
     const requestedBy = entry.requestedBy || '';
-
-    // Status badge
     const statusVal = entry.status || 'Resolved';
     const statusColor = statusVal.includes('No Helper') ? '#92400e' : '#15803d';
     const statusBg    = statusVal.includes('No Helper') ? '#fef3c7' : '#f0fdf4';
     const statusBorder= statusVal.includes('No Helper') ? '#fde68a' : '#bbf7d0';
 
-    // Header row
     const hdr = document.createElement('div');
     hdr.style.cssText = 'display:flex;align-items:center;gap:10px;flex-wrap:wrap';
-    hdr.innerHTML = `
-      <span style="font-size:11px;font-weight:700;color:var(--earth);text-transform:uppercase;letter-spacing:.7px">📍 ${escHtml(entry.location)}</span>
+    hdr.innerHTML = `<span style="font-size:11px;font-weight:700;color:var(--earth);text-transform:uppercase;letter-spacing:.7px">📍 ${escHtml(entry.location)}</span>
       <span style="font-size:10px;font-weight:700;background:${statusBg};color:${statusColor};border:1px solid ${statusBorder};border-radius:100px;padding:2px 10px">${escHtml(statusVal)}</span>
       <span style="font-size:10px;color:var(--taupe);margin-left:auto">${escHtml(entry.resolvedAt)}</span>`;
     card.appendChild(hdr);
 
-    // Requested by
     if (requestedBy && requestedBy !== '—') {
       const reqRow = document.createElement('div');
       reqRow.style.cssText = 'display:flex;align-items:center;gap:8px;flex-wrap:wrap';
@@ -4211,7 +4274,6 @@ function renderHelpLogTab() {
       card.appendChild(reqRow);
     }
 
-    // Helpers row
     const helperRow = document.createElement('div');
     helperRow.style.cssText = 'display:flex;align-items:center;gap:8px;flex-wrap:wrap';
     helperRow.innerHTML = `<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe)">Helped by:</span>`;
@@ -4220,27 +4282,23 @@ function renderHelpLogTab() {
       helperNames.forEach(name => {
         const tag = document.createElement('span');
         tag.style.cssText = 'background:#f0fdf4;border:1px solid #bbf7d0;border-radius:100px;padding:2px 10px;font-size:11px;font-weight:600;color:#16a34a';
-        tag.textContent = name;
-        helperRow.appendChild(tag);
+        tag.textContent = name; helperRow.appendChild(tag);
       });
     } else {
       const none = document.createElement('span');
       none.style.cssText = 'font-size:11px;color:var(--sandstone)';
-      none.textContent = 'No helpers recorded';
-      helperRow.appendChild(none);
+      none.textContent = 'No helpers recorded'; helperRow.appendChild(none);
     }
     card.appendChild(helperRow);
 
-    // Notes (show only when there's real content)
     const notesClean = notes && notes !== '—' ? notes.trim() : '';
     if (notesClean) {
       const noteEl = document.createElement('div');
       noteEl.style.cssText = 'font-size:12px;color:var(--onyx);background:var(--alabaster);border-radius:7px;padding:8px 12px;line-height:1.5';
-      noteEl.innerHTML = `<span style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe);display:block;margin-bottom:4px">What they needed help with</span>${escHtml(notesClean).replace(/\n/g,'<br>')}`;
+      noteEl.innerHTML = `<span style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe);display:block;margin-bottom:4px">Notes</span>${escHtml(notesClean).replace(/\n/g,'<br>')}`;
       card.appendChild(noteEl);
     }
 
-    // Checklist
     if (checks.length > 0) {
       const checkEl = document.createElement('div');
       checkEl.style.cssText = 'display:flex;flex-direction:column;gap:4px';
@@ -4248,28 +4306,25 @@ function renderHelpLogTab() {
       checks.forEach(item => {
         const row = document.createElement('div');
         row.style.cssText = 'display:flex;align-items:center;gap:7px;font-size:11px';
-        const icon = item.done ? '✅' : '⬜';
-        row.innerHTML = `<span>${icon}</span><span style="color:var(--onyx);${item.done?'text-decoration:line-through;color:var(--taupe)':''}">${escHtml(item.text)}</span>`;
+        row.innerHTML = `<span>${item.done ? '✅' : '⬜'}</span><span style="color:var(--onyx);${item.done?'text-decoration:line-through;color:var(--taupe)':''}">${escHtml(item.text)}</span>`;
         checkEl.appendChild(row);
       });
       card.appendChild(checkEl);
     }
 
-    // Chat log (collapsible)
     const chatMsgs = entry.chat || [];
     if (chatMsgs.length > 0) {
       const chatWrap = document.createElement('div');
       chatWrap.style.cssText = 'display:flex;flex-direction:column;gap:5px';
-      const chatToggleId = 'chat-body-' + i;
+      const chatToggleId = 'chat-body-hr-' + i;
       const chatHdr = document.createElement('div');
       chatHdr.style.cssText = 'display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none';
-      chatHdr.innerHTML = `<span style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe)">Chat (${chatMsgs.length} message${chatMsgs.length===1?'':'s'})</span><span id="chat-chev-${i}" style="font-size:10px;color:var(--taupe)">▶</span>`;
+      chatHdr.innerHTML = `<span style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe)">Chat (${chatMsgs.length})</span><span id="chat-chev-hr-${i}" style="font-size:10px;color:var(--taupe)">▶</span>`;
       chatHdr.onclick = () => {
-        const body = document.getElementById(chatToggleId);
-        const chev = document.getElementById('chat-chev-' + i);
-        const open = body.style.display !== 'none';
-        body.style.display = open ? 'none' : 'flex';
-        chev.textContent = open ? '▶' : '▼';
+        const cb = document.getElementById(chatToggleId);
+        const cv = document.getElementById('chat-chev-hr-' + i);
+        const open = cb.style.display !== 'none';
+        cb.style.display = open ? 'none' : 'flex'; cv.textContent = open ? '▶' : '▼';
       };
       chatWrap.appendChild(chatHdr);
       const chatBody = document.createElement('div');
@@ -4281,11 +4336,9 @@ function renderHelpLogTab() {
         row.innerHTML = `<span style="font-weight:700;color:var(--onyx)">${escHtml(msg.name)}</span> <span style="color:var(--taupe);font-size:10px">${escHtml(msg.ts)}</span><div style="margin-top:2px;color:var(--onyx)">${escHtml(msg.text)}</div>`;
         chatBody.appendChild(row);
       });
-      chatWrap.appendChild(chatBody);
-      card.appendChild(chatWrap);
+      chatWrap.appendChild(chatBody); card.appendChild(chatWrap);
     }
 
-    // Admin delete button — PIN-gated
     const footer = document.createElement('div');
     footer.style.cssText = 'display:flex;justify-content:flex-end;padding-top:6px;border-top:1px solid var(--sandstone);margin-top:4px';
     const delBtn = document.createElement('button');
@@ -4294,12 +4347,94 @@ function renderHelpLogTab() {
     delBtn.textContent = '🗑 Delete Record';
     delBtn.onmouseover = () => { delBtn.style.background = '#fef2f2'; };
     delBtn.onmouseout  = () => { delBtn.style.background = ''; };
-    delBtn.onclick = () => deleteHelpEntry(i);
-    footer.appendChild(delBtn);
-    card.appendChild(footer);
-
+    delBtn.onclick = () => deleteHelpEntry(realIdx);
+    footer.appendChild(delBtn); card.appendChild(footer);
     body.appendChild(card);
   });
+}
+
+function _renderIvRecords() {
+  const body  = document.getElementById('iv-records-body');
+  const empty = document.getElementById('iv-records-empty');
+  if (!body) return;
+  const log = (S.helpLog || []).filter(e => e.type === 'iv_date');
+
+  Array.from(body.children).forEach(el => { if (el.id !== 'iv-records-empty') el.remove(); });
+  if (log.length === 0) { if (empty) empty.style.display = ''; return; }
+  if (empty) empty.style.display = 'none';
+
+  log.forEach((entry, i) => {
+    const realIdx = (S.helpLog || []).indexOf(entry);
+    const card = document.createElement('div');
+    card.style.cssText = 'background:var(--white);border:1px solid var(--sandstone);border-radius:10px;padding:14px 18px;display:flex;flex-direction:column;gap:8px';
+    card.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span style="font-size:15px">🗓</span>
+        <span style="font-size:11px;font-weight:700;color:var(--earth);text-transform:uppercase;letter-spacing:.7px">${escHtml(entry.office)} — Ins Verification</span>
+        <span style="font-size:10px;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:100px;padding:2px 10px">IV Date Updated</span>
+        <span style="font-size:10px;color:var(--taupe);margin-left:auto">${escHtml(entry.resolvedAt)}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:8px 12px;background:var(--alabaster);border-radius:7px;border:1px solid var(--sandstone)">
+        ${entry.oldDate ? `<div><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe);margin-bottom:2px">Previously</div><div style="font-size:13px;font-weight:600;color:var(--earth);text-decoration:line-through">${fmtIvDateRcm(entry.oldDate)}</div></div><span style="font-size:16px;color:var(--taupe)">→</span>` : ''}
+        <div><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe);margin-bottom:2px">Set to</div><div style="font-size:13px;font-weight:700;color:var(--onyx)">${fmtIvDateRcm(entry.newDate)}</div></div>
+      </div>
+      ${entry.setBy ? `<div style="display:flex;align-items:center;gap:8px"><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe)">Updated by:</span><span style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:100px;padding:2px 10px;font-size:11px;font-weight:600;color:#15803d">${escHtml(entry.setBy)}</span></div>` : ''}
+      <div style="display:flex;justify-content:flex-end;padding-top:6px;border-top:1px solid var(--sandstone);margin-top:4px">
+        <button class="btn btn-ghost btn-sm" style="font-size:11px;color:#dc2626;border-color:rgba(220,38,38,.3);padding:3px 12px"
+          onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background=''"
+          onclick="deleteHelpEntry(${realIdx})">🗑 Delete Record</button>
+      </div>`;
+    body.appendChild(card);
+  });
+}
+
+function _renderCheckinRecords() {
+  const body  = document.getElementById('checkin-records-body');
+  const empty = document.getElementById('checkin-records-empty');
+  if (!body) return;
+  const log = S.checkinLog || [];
+
+  Array.from(body.children).forEach(el => { if (el.id !== 'checkin-records-empty') el.remove(); });
+  if (log.length === 0) { if (empty) empty.style.display = ''; return; }
+  if (empty) empty.style.display = 'none';
+
+  // Table
+  const table = document.createElement('table');
+  table.style.cssText = 'width:100%;border-collapse:collapse;font-size:12px';
+  table.innerHTML = `<thead><tr style="background:#5C4F44;color:white;text-align:left">
+    <th style="padding:8px 14px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px">Time (CT)</th>
+    <th style="padding:8px 14px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px">Staff</th>
+    <th style="padding:8px 14px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.7px">Action</th>
+  </tr></thead>`;
+  const tbody = document.createElement('tbody');
+  log.forEach((entry, i) => {
+    const isIn = entry.action === 'in';
+    const rowBg = i % 2 === 0 ? '' : 'background:rgba(242,239,232,.5)';
+    const tr = document.createElement('tr');
+    tr.style.cssText = rowBg;
+    tr.innerHTML = `
+      <td style="padding:9px 14px;color:var(--earth);font-weight:600;white-space:nowrap">${escHtml(entry.ts)}</td>
+      <td style="padding:9px 14px;font-weight:700;color:var(--onyx)">${escHtml(entry.staffName)}</td>
+      <td style="padding:9px 14px">
+        <span style="font-size:10px;font-weight:700;background:${isIn ? '#f0fdf4' : '#fef2f2'};color:${isIn ? '#15803d' : '#dc2626'};border:1px solid ${isIn ? '#bbf7d0' : '#fecaca'};border-radius:100px;padding:2px 10px">
+          ${isIn ? '🟢 Checked In' : '🔴 Checked Out'}
+        </span>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  body.appendChild(table);
+}
+
+function clearCheckinLog() {
+  if (!confirm('Clear the entire check-in log? This cannot be undone.')) return;
+  S.checkinLog = [];
+  save(); renderRecordsTab();
+}
+
+function renderHelpLogTab() {
+  // Legacy call — now delegates to renderRecordsTab
+  renderRecordsTab();
 }
 
 // ════════════════════════════════════════════════
