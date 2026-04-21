@@ -607,6 +607,42 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
     </div>
     <div style="padding:24px 28px;display:flex;flex-direction:column;gap:28px;max-width:860px">
 
+      <!-- Check In As -->
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <span style="font-size:20px">🔐</span>
+          <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Check In As</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Use the <strong>CHECK IN AS</strong> dropdown in the header to identify yourself. Select your name, then enter your <strong>4-digit PIN</strong> when prompted.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Once checked in, your name appears in the header and you receive <strong>notifications</strong> whenever a new task is assigned to you — a banner alert with a sound (🔴 ASAP = urgent chime, 🟡 Next = bright ding).</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span><strong>Management dept staff</strong> who check in automatically unlock all admin features — no separate PIN unlock needed. The header badge shows <strong>🔓 [Name]</strong> when management access is active, and <strong>🔒 LOCKED</strong> otherwise.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Non-management staff can still check in to receive notifications — but editing the roster, assignments, and profiles still requires the PIN unlock button.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Each staff member's <strong>Check-In PIN</strong> is visible inside their profile (admin/management only). If you forget yours, ask a manager to look it up or generate a new one with <em>↺ New</em>.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Select <strong>— Sign Out —</strong> from the dropdown to clear your check-in. Management access is revoked immediately on sign-out.</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:1px;background:var(--sandstone)"></div>
+
       <!-- Live Status Board -->
       <div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
@@ -620,11 +656,11 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span><strong>Staff tokens</strong> are split tiles — colored initials block on the left, first name on the right. The roster at the top shows square badges sorted A–Z. Active tokens on the live board have a <strong>green pulsing ring</strong>.</span>
+            <span><strong>Staff tokens</strong> are split tiles — colored initials block on the left, first name on the right. Active tokens on the live board have a <strong>green pulsing ring</strong>.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span><strong>Drag</strong> any token from the roster or another cell into a grid cell. Each cell holds up to <strong>4 tokens</strong> in a 2×2 layout. Tokens stay on the board until you remove them or the board resets at midnight.</span>
+            <span><strong>Drag</strong> any token from the roster strip or another cell into a grid cell. Each cell holds up to <strong>4 tokens</strong>. Tokens stay on the board until removed or the board resets at midnight.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
@@ -632,11 +668,11 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span><strong>Hover over any token</strong> on the live board to see a quick-view card — shows what the staff member is currently working on (green dot) and any newly assigned tasks (🔴 ASAP / 🟡 Next) with due dates and who assigned them.</span>
+            <span><strong>Hover over any token</strong> to see a quick-view card — shows what the staff member is working on (green dot) and any newly assigned tasks (🔴 ASAP / 🟡 Next) with due dates and who assigned them.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Ghost text at the top of each cell shows the <strong>Assignment Board</strong> as a reference. <strong>OWN TEAM</strong> means that office handles it in-house.</span>
+            <span>Ghost text at the top of each cell shows the <strong>Assignment Board</strong> default. <strong>OWN TEAM</strong> means that office handles it in-house.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
@@ -660,7 +696,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Click the date field directly on the live board to update it. You'll be asked to select your name — this logs the change to <strong>Help Records</strong> for tracking.</span>
+            <span>Click the date field directly on the live board to update it. Select your name when prompted — every change is logged to <strong>Help Records</strong> with who updated it, the old date, and the new date.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
@@ -669,7 +705,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
           <div style="display:flex;flex-direction:column;gap:6px;padding-left:22px;margin-top:2px">
             <div style="display:flex;gap:10px;align-items:center;font-size:12px;color:var(--onyx)">
               <span style="width:9px;height:9px;border-radius:50%;background:#ef4444;display:inline-block;flex-shrink:0;box-shadow:0 0 0 3px rgba(239,68,68,.3)"></span>
-              <span><strong>Red flash</strong> — Not set or not verified through tomorrow. Update immediately.</span>
+              <span><strong>Red flash</strong> — Not set, or not verified through tomorrow. Update immediately.</span>
             </div>
             <div style="display:flex;gap:10px;align-items:center;font-size:12px;color:var(--onyx)">
               <span style="width:9px;height:9px;border-radius:50%;background:#eab308;display:inline-block;flex-shrink:0;box-shadow:0 0 0 3px rgba(234,179,8,.3)"></span>
@@ -679,10 +715,6 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
               <span style="width:9px;height:9px;border-radius:50%;background:#22c55e;display:inline-block;flex-shrink:0;box-shadow:0 0 0 3px rgba(34,197,94,.25)"></span>
               <span><strong>Green</strong> — Verified 4+ days out. All good.</span>
             </div>
-          </div>
-          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
-            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Every date change is logged to <strong>Help Records</strong> with who set it, the old date, and the new date.</span>
           </div>
         </div>
       </div>
@@ -698,11 +730,19 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
         <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Click any staff token to open their profile. Update name, role, department, manager, home office, phone, email, responsibilities, and vacation dates. Hit <strong>Save Profile</strong> to apply.</span>
+            <span>Click any staff token (on the live board, roster strip, or roster tab) to open their profile. Update name, role, department, manager, home office, phone, email, responsibilities, and vacation dates. Hit <strong>Save Profile</strong> to apply.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Active <strong>green pills</strong> next to the staff member's name show what they're currently working on and any Newly Assigned tasks they've checked off — visible to anyone who opens the profile.</span>
+            <span>Active <strong>green pills</strong> next to the staff member's name show what they're currently working on and any Newly Assigned tasks they've checked — visible to anyone who opens the profile.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>The <strong>Check-In PIN</strong> field (next to Initials) is only visible to management / unlocked admins. Use it to look up or regenerate a staff member's PIN if they forget it.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Set <strong>Vacation Start / End</strong> dates to automatically move a staff member to the Off list while they're away. They return to active on the day after their end date.</span>
           </div>
         </div>
       </div>
@@ -718,7 +758,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
         <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>A reusable daily checklist in the staff profile. Add tasks once — they stay saved and reset to unchecked each morning at midnight.</span>
+            <span>A reusable daily checklist inside each staff profile. Add tasks once — they stay saved and reset to unchecked each morning at midnight.</span>
           </div>
           <div style="display:flex;flex-direction:column;gap:5px;padding-left:22px;margin-top:2px">
             <div style="display:flex;gap:8px;align-items:center;font-size:12px;color:var(--onyx)">
@@ -727,16 +767,16 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
             </div>
             <div style="display:flex;gap:8px;align-items:center;font-size:12px;color:var(--onyx)">
               <span style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:600;color:#15803d;white-space:nowrap">● Active</span>
-              <span>Currently on this — appears as a <strong>green blinking pill</strong> in the profile header and in the <strong>hover tooltip</strong> on the live board.</span>
+              <span>Currently on this — shows as a <strong>green blinking pill</strong> in the profile header and in the live board hover tooltip.</span>
             </div>
             <div style="display:flex;gap:8px;align-items:center;font-size:12px;color:var(--onyx)">
               <span style="background:#f8fafc;border:1px solid var(--sandstone);border-radius:6px;padding:2px 8px;font-size:10px;font-weight:600;color:var(--taupe);white-space:nowrap">✓ Completed</span>
-              <span>Done for the day — strikethrough until midnight reset.</span>
+              <span>Done for the day — strikethrough + ↩ Reopen button. Resets at midnight.</span>
             </div>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Click <strong>✓ Resolve</strong> on an active task to mark it completed. Click <strong>Delete</strong> to permanently remove it from the list.</span>
+            <span>Check a task to go Active → check it again to mark it <strong>Completed</strong>. Click <strong>↩ Reopen</strong> if you marked it done by mistake. <strong>Delete</strong> permanently removes it from the list.</span>
           </div>
         </div>
       </div>
@@ -753,33 +793,33 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
         <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Admins can assign tasks directly to a staff member from inside their profile. Each task includes a <strong>priority</strong>, an optional <strong>due date</strong> (MM/DD/YYYY), and <strong>who assigned it</strong>.</span>
+            <span>Admins can push tasks directly to a staff member from inside their profile. Each task includes a <strong>priority</strong>, an optional <strong>due date</strong>, and <strong>who assigned it</strong>. Staff are notified automatically if they're checked in.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>To add a task: click <em>🔒 Unlock to Add Assignment</em>, enter the PIN, fill in the description, pick a priority and assigned-by name, set a due date, then click <strong>+ Add</strong>.</span>
+            <span>To add a task: click <em>🔒 Unlock to Add Assignment</em> (or check in as management), fill in the description, pick priority and assigned-by, set a due date, then click <strong>+ Add</strong>.</span>
           </div>
           <div style="display:flex;flex-direction:column;gap:6px;padding-left:22px;margin-top:2px">
             <div style="display:flex;gap:10px;align-items:center;font-size:12px;color:var(--onyx)">
               <span style="width:9px;height:9px;border-radius:50%;background:#ef4444;display:inline-block;flex-shrink:0;box-shadow:0 0 0 3px rgba(239,68,68,.25)"></span>
-              <span><strong>🔴 START ASAP NOW</strong> — Start this immediately. Shows on the live board hover card with a red dot.</span>
+              <span><strong>START ASAP NOW</strong> — Start this immediately. Triggers an urgent notification with a marimba chime.</span>
             </div>
             <div style="display:flex;gap:10px;align-items:center;font-size:12px;color:var(--onyx)">
               <span style="width:9px;height:9px;border-radius:50%;background:#eab308;display:inline-block;flex-shrink:0;box-shadow:0 0 0 3px rgba(234,179,8,.25)"></span>
-              <span><strong>🟡 START NEXT</strong> — Start after finishing the current assignment. Shows with a yellow dot.</span>
+              <span><strong>START NEXT</strong> — Start after finishing the current assignment. Triggers a bright ding notification.</span>
             </div>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span><strong>Check the checkbox</strong> on any task to mark it in progress — the row turns green and it appears as a green pill in the profile header and in the live board hover card, visible to the whole team.</span>
+            <span><strong>Check the checkbox</strong> on a task to mark it in progress — the row turns green and a pill appears in the profile header and live board hover card.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span><strong>✓ Resolve</strong> — available to <em>all users</em>. Marks the task complete (solid green DONE state). <strong>Delete</strong> is admin-only and permanently removes it.</span>
+            <span><strong>✓ Resolve</strong> is available to <em>all staff</em> — marks the task done (muted strikethrough style). If you resolve by mistake, click <strong>↩ Reopen</strong> to bring it back. <strong>Delete</strong> is admin-only and permanently removes the task.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>All Newly Assigned tasks (unresolved) show in the <strong>live board hover tooltip</strong> with their priority dot, assigned-by name, and due date — so managers can see a staff member's workload at a glance without opening the profile.</span>
+            <span>All unresolved tasks appear in the <strong>live board hover tooltip</strong> so managers can see a staff member's workload at a glance without opening the profile.</span>
           </div>
         </div>
       </div>
@@ -796,11 +836,11 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
         <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>The <strong>permanent reference layout</strong> — who covers what for each office and category. These show as ghost names on the Live Board.</span>
+            <span>The <strong>permanent reference layout</strong> — who covers what for each office and category. These names appear as ghost text on the Live Board.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span><strong>Editing requires the manager PIN.</strong> Click <em>Unlock to Edit</em>, enter the PIN, then drag tokens to set assignments. Remove buttons appear on tokens when unlocked.</span>
+            <span><strong>Management staff</strong> who are checked in can edit immediately. Others click <em>Unlock to Edit</em> and enter the manager PIN. When unlocked, drag tokens to set assignments — Remove buttons appear on each token.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
@@ -821,15 +861,19 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
         <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Full staff directory — role, department, manager, home office, phone, email, and responsibilities. Editing requires the manager PIN.</span>
+            <span>Full staff directory — role, department, manager, home office, phone, email, responsibilities, and Check-In PIN. <strong>Management staff</strong> who are checked in can edit freely. Others click <em>Unlock to Edit</em> and enter the manager PIN.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>To remove a staff member: open their profile → click <em>Move to Inactive</em>. They move to the Inactive department instead of being permanently deleted.</span>
+            <span>When unlocked, the PIN column is visible in the table. Click any row to open that staff member's profile and edit details or view / regenerate their PIN.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span><strong>Management</strong> always sorts to the top; <strong>Inactive</strong> staff sort to the bottom in gray.</span>
+            <span>To deactivate a staff member: open their profile → click <em>Move to Inactive</em>. They move to the Inactive department instead of being permanently deleted.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span><strong>Management</strong> always sorts to the top of the table; <strong>Inactive</strong> staff sort to the bottom in gray.</span>
           </div>
         </div>
       </div>
@@ -845,7 +889,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
         <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Click <strong>🚨 Need Help</strong> in the header to create a help request. Drag the red token into a Live Board cell to show which office/category needs help.</span>
+            <span>Click <strong>🚨 Need Help</strong> in the header to create a help request. Drag the red token into a Live Board cell to flag which office/category needs help.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
@@ -860,28 +904,36 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 
       <div style="height:1px;background:var(--sandstone)"></div>
 
-      <!-- Saving & Syncing -->
+      <!-- Saving, Syncing & Backup -->
       <div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
           <span style="font-size:20px">☁</span>
-          <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Saving &amp; Syncing</span>
+          <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Saving, Syncing &amp; Backup</span>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Every change <strong>saves automatically</strong> — no publish needed. Look for <em style="color:#4ade80">☁ Synced</em> in the header to confirm.</span>
+            <span>Every change <strong>saves automatically</strong> to the cloud — no publish needed. Look for <em style="color:#4ade80">☁ Synced</em> in the header to confirm.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>The dashboard checks for updates every <strong>15 seconds</strong> — anyone at any location sees the same state automatically.</span>
+            <span>The dashboard checks for updates every <strong>15 seconds</strong> — any location sees the same state automatically.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>The <strong>Publish</strong> button (top-right, PIN required) forces an immediate sync if needed.</span>
+            <span>The <strong>↑ Publish</strong> button (top-right, PIN required) forces an immediate sync push if needed.</span>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
             <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>At <strong>midnight Central Time</strong> the live board resets and all daily task lists (Currently Working On) go back to unchecked for the new day. Newly Assigned tasks are <em>not</em> cleared at midnight — they persist until resolved or deleted.</span>
+            <span>The <strong>↓ Backup</strong> button downloads a full JSON snapshot of the current state to your computer — useful before making big changes.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>An <strong>automatic backup</strong> also runs every 3 hours via GitHub — snapshots are stored for 30 days and committed to the repository, so nothing is ever lost.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>At <strong>midnight Central Time</strong> the live board resets and Currently Working On checklists go back to unchecked. Newly Assigned tasks are <em>not</em> cleared — they persist until resolved or deleted.</span>
           </div>
         </div>
       </div>
