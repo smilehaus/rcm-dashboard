@@ -227,6 +227,14 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 @keyframes iv-yellow-pulse{0%,100%{box-shadow:0 0 0 0 rgba(234,179,8,.75);}60%{box-shadow:0 0 0 5px rgba(234,179,8,0);}}
 .iv-date-inp:focus{outline:none;border-color:var(--earth);}
 
+/* ── Aging Alerts ────────────────────────── */
+.aging-alert-bar{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px;justify-content:center;}
+.aging-badge{font-size:8px;font-weight:800;letter-spacing:.4px;padding:1px 6px;border-radius:100px;line-height:14px;cursor:default;}
+.aging-badge.overdue{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;}
+.aging-badge.priority{background:#fefce8;color:#a16207;border:1px solid #fde68a;}
+@keyframes aging-flash{0%,100%{opacity:1;}50%{opacity:.5;}}
+.aging-badge.overdue.has-count{animation:aging-flash 1.6s ease-in-out infinite;}
+
 /* ── Away Zone ────────────────────────────── */
 .away-panel{border-radius:var(--radius);border:2px dashed var(--taupe);background:rgba(214,205,189,.18);padding:16px 20px;}
 .away-hdr{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
@@ -600,7 +608,8 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
     <div id="records-locked" style="display:none;padding:60px 20px;text-align:center">
       <div style="font-size:32px;margin-bottom:12px">🔒</div>
       <div style="font-size:14px;font-weight:700;color:var(--onyx);margin-bottom:6px">Management Access Only</div>
-      <div style="font-size:12px;color:var(--taupe)">Check in as a Management team member to view Records.</div>
+      <div style="font-size:12px;color:var(--taupe);margin-bottom:16px">Check in as a Management team member, or enter admin PIN to view Records.</div>
+      <button class="btn btn-ghost btn-sm" onclick="recordsPinUnlock()" style="font-size:11px;font-weight:700;padding:6px 20px;border-color:var(--earth);color:var(--earth)">🔑 Unlock with PIN</button>
     </div>
 
     <!-- UNLOCKED STATE -->
@@ -3681,6 +3690,30 @@ function buildGrid(tableEl, boardId) {
         inner.appendChild(dateBar);
       }
 
+      // Aging alert badges — OVERDUE on aging_old, PRIORITY on aging_oryx
+      if (col.id === 'aging_old') {
+        const alertBar = document.createElement('div');
+        alertBar.className = 'aging-alert-bar';
+        alertBar.dataset.office = office.code;
+        alertBar.dataset.agingType = 'old';
+        const data = _agingAlerts[office.code];
+        if (data && data.overdue > 0) {
+          alertBar.innerHTML = `<span class="aging-badge overdue has-count" title="${data.overdue} overdue claims (past 1yr timely filing) — unworked">⛔ ${data.overdue}</span>`;
+        }
+        inner.appendChild(alertBar);
+      }
+      if (col.id === 'aging_oryx') {
+        const alertBar = document.createElement('div');
+        alertBar.className = 'aging-alert-bar';
+        alertBar.dataset.office = office.code;
+        alertBar.dataset.agingType = 'oryx';
+        const data = _agingAlerts[office.code];
+        if (data && data.priority > 0) {
+          alertBar.innerHTML = `<span class="aging-badge priority" title="${data.priority} claims approaching 1yr timely filing — unworked">⚠️ ${data.priority}</span>`;
+        }
+        inner.appendChild(alertBar);
+      }
+
       td.appendChild(inner);
       tr.appendChild(td);
     });
@@ -4217,12 +4250,23 @@ function switchRecordsTab(tab) {
   if (ivBody && tab === 'iv') ivBody.style.flexDirection = 'column';
 }
 
+let __recordsUnlocked = false; // true when Records unlocked via PIN (persists until page reload)
+
+function recordsPinUnlock() {
+  __pinPendingAction = () => {
+    __recordsUnlocked = true;
+    renderRecordsTab();
+  };
+  openPinModal();
+}
+
 function renderRecordsTab() {
   const locked   = document.getElementById('records-locked');
   const unlocked = document.getElementById('records-unlocked');
   if (!locked || !unlocked) return;
 
-  if (!_adminCheckedIn) {
+  // Auto-show if management is checked in OR if unlocked via PIN
+  if (!_adminCheckedIn && !__recordsUnlocked) {
     locked.style.display   = '';
     unlocked.style.display = 'none';
     return;
@@ -4867,6 +4911,53 @@ function scheduleMidnightCheck() {
 // ════════════════════════════════════════════════
 // BOOT
 // ════════════════════════════════════════════════
+// ════════════════════════════════════════════════
+// AGING ALERTS — ClickUp Integration
+// ════════════════════════════════════════════════
+// Aging alert counts per office: { SQ: { overdue: N, priority: N }, ... }
+// Generated daily by scripts/flag-recent-dos.ts → aging-alerts.json
+let _agingAlerts = {};
+
+async function fetchAgingAlerts() {
+  try {
+    // Try same-origin path first (GitHub Pages deployment), then localhost fallback
+    const urls = ['./aging-alerts.json', 'aging-alerts.json'];
+    let data = null;
+    for (const url of urls) {
+      try {
+        const r = await fetch(url, { cache: 'no-cache' });
+        if (r.ok) { data = await r.json(); break; }
+      } catch (_) {}
+    }
+    if (!data) { console.warn('aging-alerts.json not found — run flag-recent-dos.ts to generate'); return; }
+    _agingAlerts = data.offices || {};
+    renderAgingBadges();
+    console.log('Aging alerts loaded:', data.generated, '—', Object.values(_agingAlerts).reduce((s,o) => s + o.overdue, 0), 'overdue,', Object.values(_agingAlerts).reduce((s,o) => s + o.priority, 0), 'priority');
+  } catch (e) {
+    console.warn('Failed to load aging alerts:', e);
+  }
+}
+
+function renderAgingBadges() {
+  document.querySelectorAll('.aging-alert-bar').forEach(el => {
+    const office = el.dataset.office;
+    const type   = el.dataset.agingType; // 'old' or 'oryx'
+    if (!office) return;
+    const data = _agingAlerts[office];
+    if (!data) { el.innerHTML = ''; return; }
+
+    if (type === 'old') {
+      el.innerHTML = data.overdue > 0
+        ? `<span class="aging-badge overdue has-count" title="${data.overdue} overdue claims (past 1yr timely filing) — unworked">⛔ ${data.overdue}</span>`
+        : '';
+    } else if (type === 'oryx') {
+      el.innerHTML = data.priority > 0
+        ? `<span class="aging-badge priority" title="${data.priority} claims approaching 1yr timely filing — unworked">⚠️ ${data.priority}</span>`
+        : '';
+    }
+  });
+}
+
 (async () => {
   await load();
   setDate();
@@ -4874,6 +4965,10 @@ function scheduleMidnightCheck() {
   scheduleMidnightCheck(); // then fire exactly at midnight CT each day
   requestNotifPermission(); // ask for desktop notification permission
   renderAll();
+  // Fetch aging alerts from ClickUp (async, non-blocking — badges appear when data arrives)
+  fetchAgingAlerts();
+  // Refresh aging alerts every 15 minutes
+  setInterval(fetchAgingAlerts, 15 * 60 * 1000);
 })();
 </script>
 

@@ -1,0 +1,45 @@
+{
+  "generated": "2026-04-21T23:01:57.015Z",
+  "offices": {
+    "SQ": {
+      "overdue": 0,
+      "priority": 0
+    },
+    "GT": {
+      "overdue": 34,
+      "priority": 9
+    },
+    "ATX": {
+      "overdue": 3,
+      "priority": 2
+    },
+    "MP": {
+      "overdue": 11,
+      "priority": 14
+    },
+    "NBDA": {
+      "overdue": 25,
+      "priority": 4
+    },
+    "IC": {
+      "overdue": 0,
+      "priority": 0
+    },
+    "AR": {
+      "overdue": 13,
+      "priority": 11
+    },
+    "PF": {
+      "overdue": 0,
+      "priority": 0
+    },
+    "SATX": {
+      "overdue": 0,
+      "priority": 0
+    },
+    "AM": {
+      "overdue": 0,
+      "priority": 0
+    }
+  }
+}
