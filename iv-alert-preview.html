@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IV Alert Options</title>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Jost',sans-serif;background:#F2EFE8;padding:28px;color:#2A2E31}
+h1{font-size:12px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#877765;margin-bottom:20px}
+
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+
+.card{background:#fff;border:2px solid #D6CDBD;border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.card-title{font-size:12px;font-weight:800;color:#2A2E31}
+.card-sub{font-size:10.5px;color:#877765;line-height:1.5}
+
+/* Simulated cell */
+.cell{background:#F2EFE8;border:1px solid #D6CDBD;border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.cell-label{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#877765;padding-bottom:5px;border-bottom:1px solid #D6CDBD}
+.ghost{font-size:11px;font-weight:600;color:#2A2E31;padding-bottom:4px;border-bottom:1px solid #D6CDBD}
+.tile-row{display:flex;gap:4px;margin-bottom:2px}
+.tile{display:flex;align-items:stretch;border-radius:6px;overflow:hidden;height:26px;flex:1}
+.tile-init{width:26px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:white;flex-shrink:0}
+.tile-name{background:white;padding:0 8px;display:flex;align-items:center;font-size:9.5px;font-weight:700;color:#2A2E31;border:1px solid #D6CDBD;border-left:none;flex:1}
+
+.iv-bar{display:flex;align-items:center;justify-content:flex-end;gap:5px;padding-top:5px;border-top:1px solid #D6CDBD}
+.iv-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#877765;white-space:nowrap}
+.iv-val{font-size:11px;font-weight:700;color:#2A2E31}
+.iv-empty{font-size:11px;font-weight:700;color:#C2B09E}
+
+/* ── OPTION A: Flashing fire emoji ── */
+.alert-fire{font-size:14px;animation:fire-pulse 1.2s ease-in-out infinite;display:inline-block}
+@keyframes fire-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.85)}}
+
+/* ── OPTION B: Flashing red SOS badge ── */
+.alert-sos{font-size:8px;font-weight:900;letter-spacing:.5px;background:#ef4444;color:white;padding:2px 5px;border-radius:4px;animation:sos-blink 1s ease-in-out infinite;display:inline-flex;align-items:center}
+@keyframes sos-blink{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(239,68,68,.7)}60%{opacity:.6;box-shadow:0 0 0 5px rgba(239,68,68,0)}}
+
+/* ── OPTION C: Pulsing red dot (like live dot but urgent) ── */
+.alert-dot{width:9px;height:9px;border-radius:50%;background:#ef4444;display:inline-block;animation:dot-ring 1.1s ease-out infinite;flex-shrink:0}
+@keyframes dot-ring{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.8)}60%{box-shadow:0 0 0 6px rgba(239,68,68,0)}}
+
+/* ── OPTION D: Flashing ⚠️ warning with glow ── */
+.alert-warn{font-size:13px;animation:warn-glow 1.1s ease-in-out infinite;display:inline-block}
+@keyframes warn-glow{0%,100%{opacity:1;filter:drop-shadow(0 0 0px rgba(239,68,68,0))}50%{opacity:.5;filter:drop-shadow(0 0 4px rgba(239,68,68,.9))}}
+
+/* ── OPTION E: Flashing "UNVERIFIED" red chip ── */
+.alert-chip{font-size:7.5px;font-weight:900;letter-spacing:.6px;background:transparent;color:#ef4444;border:1.5px solid #ef4444;padding:1px 5px;border-radius:100px;animation:chip-blink 1.1s ease-in-out infinite;display:inline-flex;align-items:center;white-space:nowrap}
+@keyframes chip-blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* ── OPTION F: Shaking red ! circle ── */
+.alert-bang{width:15px;height:15px;border-radius:50%;background:#ef4444;color:white;font-size:9px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;animation:bang-shake 1.8s ease-in-out infinite;flex-shrink:0}
+@keyframes bang-shake{0%,100%{transform:rotate(0deg)}5%{transform:rotate(-12deg)}10%{transform:rotate(12deg)}15%{transform:rotate(-8deg)}20%{transform:rotate(0deg)}80%,90%{transform:rotate(0deg)}}
+
+</style>
+</head>
+<body>
+
+<h1>IV Alert Indicator — 6 Options (all trigger when date is unset or expired)</h1>
+
+<div class="grid">
+
+  <!-- A -->
+  <div class="card">
+    <div class="card-title">A — Flashing fire 🔥</div>
+    <div class="card-sub">Emoji pulses in opacity. Instantly recognizable. Fun but clear urgency.</div>
+    <div class="cell">
+      <div class="cell-label">Ins Verification</div>
+      <div class="ghost">Becky Valerie</div>
+      <div class="tile-row">
+        <div class="tile"><div class="tile-init" style="background:#C47898">RR</div><div class="tile-name">Becky</div></div>
+        <div class="tile"><div class="tile-init" style="background:#7BA8C4">VL</div><div class="tile-name">Valerie</div></div>
+      </div>
+      <div class="iv-bar">
+        <span class="alert-fire">🔥</span>
+        <span class="iv-lbl">Verified to:</span>
+        <span class="iv-empty">Not set</span>
+      </div>
+    </div>
+    <div class="cell">
+      <div class="cell-label">Ins Verification</div>
+      <div class="ghost">Valerie</div>
+      <div class="tile-row">
+        <div class="tile"><div class="tile-init" style="background:#7BA8C4">VL</div><div class="tile-name">Valerie</div></div>
+      </div>
+      <div class="iv-bar">
+        <span class="alert-fire">🔥</span>
+        <span class="iv-lbl">Verified to:</span>
+        <span class="iv-val" style="color:#ef4444">Apr 20, 2026</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- B -->
+  <div class="card">
+    <div class="card-title">B — Flashing SOS badge</div>
+    <div class="card-sub">Bold red pill badge, text "SOS". Pulses outward ring. Very alarming.</div>
+    <div class="cell">
+      <div class="cell-label">Ins Verification</div>
+      <div class="ghost">Becky Valerie</div>
+      <div class="tile-row">
+        <div class="tile"><div class="tile-init" style="background:#C47898">RR</div><div class="tile-name">Becky</div></div>
+        <div class="tile"><div class="tile-init" style="background:#7BA8C4">VL</div><div class="tile-name">Valerie</div></div>
+      </div>
+      <div class="iv-bar">
+        <span class="alert-sos">SOS</span>
+        <span class="iv-lbl">Verified to:</span>
+        <span class="iv-empty">Not set</span>
+      </div>
+    </div>
+    <div class="cell">
+      <div class="cell-label">Ins Verification</div>
+      <div class="ghost">Valerie</div>
+      <div class="tile-row">
+        <div class="tile"><div class="tile-init" style="background:#7BA8C4">VL</div><div class="tile-name">Valerie</div></div>
+      </div>
+      <div class="iv-bar">
+        <span class="alert-sos">SOS</span>
+        <span class="iv-lbl">Verified to:</span>
+        <span class="iv-val" style="color:#ef4444">Apr 20, 2026</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- C -->
+  <div class="card">
+    <div class="card-title">C — Pulsing red dot</div>
+    <div class="card-sub">Small red dot with outward ring pulse — same rhythm as the live dot, just red. Subtle but clear.</div>
+    <div class="cell">
+      <div class="cell-label">Ins Verification</div>
+      <div class="ghost">Becky Valerie</div>
+      <div class="tile-row">
+        <div class="tile"><div class="tile-init" style="background:#C47898">RR</div><div class="tile-name">Becky</div></div>
+        <div class="tile"><div class="tile-init" style="background:#7BA8C4">VL</div><div class="tile-name">Valerie</div></div>
+      </div>
+      <div class="iv-bar">
+        <span class="alert-dot"></span>
+        <span class="iv-lbl">Verified to:</span>
+        <span class="iv-empty">Not set</span>
+      </div>
+    </div>
+    <div class="cell">
+      <div class="cell-label">Ins Verification</div>
+      <div class="ghost">Valerie</div>
+      <div class="tile-row">
+        <div class="tile"><div class="tile-init" style="background:#7BA8C4">VL</div><div class="tile-name">Valerie</div></div>
+      </div>
+      <div class="iv-bar">
+        <span class="alert-dot"></span>
+        <span class="iv-lbl">Verified to:</span>
+        <span class="iv-val" style="color:#ef4444">Apr 20, 2026</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- D -->
+  <div class="card">
+    <div class="card-title">D — Glowing ⚠️ warning</div>
+    <div class="card-sub">Warning triangle glows red at peak. Familiar universal symbol. Moderate urgency feel.</div>
+    <div class="cell">
+      <div class="cell-label">Ins Verification</div>
+      <div class="ghost">Becky Valerie</div>
+      <div class="tile-row">
+        <div class="tile"><div class="tile-init" style="background:#C47898">RR</div><div class="tile-name">Becky</div></div>
+        <div class="tile"><div class="tile-init" style="background:#7BA8C4">VL</div><div class="tile-name">Valerie</div></div>
+      </div>
+      <div class="iv-bar">
+        <span class="alert-warn">⚠️</span>
+        <span class="iv-lbl">Verified to:</span>
+        <span class="iv-empty">Not set</span>
+      </div>
+    </div>
+    <div class="cell">
+      <div class="cell-label">Ins Verification</div>
+      <div class="ghost">Valerie</div>
+      <div class="tile-row">
+        <div class="tile"><div class="tile-init" style="background:#7BA8C4">VL</div><div class="tile-name">Valerie</div></div>
+      </div>
+      <div class="iv-bar">
+        <span class="alert-warn">⚠️</span>
+        <span class="iv-lbl">Verified to:</span>
+        <span class="iv-val" style="color:#ef4444">Apr 20, 2026</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- E -->
+  <div class="card">
+    <div class="card-title">E — Blinking "UNVERIFIED" chip</div>
+    <div class="card-sub">Red outlined pill with label text. Blinks on/off. Self-explanatory — no guessing what it means.</div>
+    <div class="cell">
+      <div class="cell-label">Ins Verification</div>
+      <div class="ghost">Becky Valerie</div>
+      <div class="tile-row">
+        <div class="tile"><div class="tile-init" style="background:#C47898">RR</div><div class="tile-name">Becky</div></div>
+        <div class="tile"><div class="tile-init" style="background:#7BA8C4">VL</div><div class="tile-name">Valerie</div></div>
+      </div>
+      <div class="iv-bar">
+        <span class="alert-chip">UNVERIFIED</span>
+        <span class="iv-lbl">Verified to:</span>
+        <span class="iv-empty">Not set</span>
+      </div>
+    </div>
+    <div class="cell">
+      <div class="cell-label">Ins Verification</div>
+      <div class="ghost">Valerie</div>
+      <div class="tile-row">
+        <div class="tile"><div class="tile-init" style="background:#7BA8C4">VL</div><div class="tile-name">Valerie</div></div>
+      </div>
+      <div class="iv-bar">
+        <span class="alert-chip">UNVERIFIED</span>
+        <span class="iv-lbl">Verified to:</span>
+        <span class="iv-val" style="color:#ef4444">Apr 20, 2026</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- F -->
+  <div class="card">
+    <div class="card-title">F — Shaking red ! circle</div>
+    <div class="card-sub">Small red circle with "!" shakes left-right every few seconds. Eye-catching without constant motion.</div>
+    <div class="cell">
+      <div class="cell-label">Ins Verification</div>
+      <div class="ghost">Becky Valerie</div>
+      <div class="tile-row">
+        <div class="tile"><div class="tile-init" style="background:#C47898">RR</div><div class="tile-name">Becky</div></div>
+        <div class="tile"><div class="tile-init" style="background:#7BA8C4">VL</div><div class="tile-name">Valerie</div></div>
+      </div>
+      <div class="iv-bar">
+        <span class="alert-bang">!</span>
+        <span class="iv-lbl">Verified to:</span>
+        <span class="iv-empty">Not set</span>
+      </div>
+    </div>
+    <div class="cell">
+      <div class="cell-label">Ins Verification</div>
+      <div class="ghost">Valerie</div>
+      <div class="tile-row">
+        <div class="tile"><div class="tile-init" style="background:#7BA8C4">VL</div><div class="tile-name">Valerie</div></div>
+      </div>
+      <div class="iv-bar">
+        <span class="alert-bang">!</span>
+        <span class="iv-lbl">Verified to:</span>
+        <span class="iv-val" style="color:#ef4444">Apr 20, 2026</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

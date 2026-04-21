@@ -60,12 +60,12 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 .gtok-name{font-size:8.5px;color:var(--onyx);font-weight:600;text-align:center;max-width:50px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
 /* ── Split tile (in-cell token, E-style) ── */
-.gtile{display:flex;align-items:stretch;border-radius:6px;overflow:hidden;box-shadow:0 2px 5px rgba(0,0,0,.16);cursor:grab;transition:transform .12s,box-shadow .12s;height:26px;user-select:none;position:relative;flex-shrink:0;width:calc(50% - 2px);min-width:0;}
+.gtile{display:flex;align-items:stretch;border-radius:6px;overflow:hidden;box-shadow:0 2px 5px rgba(0,0,0,.16);cursor:pointer;transition:transform .12s,box-shadow .12s;height:26px;user-select:none;position:relative;flex-shrink:0;width:calc(50% - 2px);min-width:0;}
 /* 1–2 tokens: span full width so name isn't truncated */
 .live-layer.few-toks .gtile{width:100%;}
-.gtile:active{cursor:grabbing;}
 .gtile:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,.22);}
-.gtile-init{width:26px;min-width:26px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:white;flex-shrink:0;}
+.gtile-init{width:26px;min-width:26px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:white;flex-shrink:0;cursor:grab;}
+.gtile-init:active{cursor:grabbing;}
 .gtile-name{background:var(--white);padding:0 8px;display:flex;align-items:center;font-size:9.5px;font-weight:700;color:var(--onyx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-top:1px solid var(--sandstone);border-bottom:1px solid var(--sandstone);border-right:1px solid var(--sandstone);flex:1;}
 .gtile.live .gtile-init{animation:sqring 1.9s ease-out infinite;}
 .gtile.drag-src{opacity:.3;}
@@ -143,6 +143,9 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 .iv-date-val{font-size:11px;font-weight:700;color:var(--onyx);}
 .iv-date-val.empty{color:var(--taupe);}
 .iv-date-inp{font-family:'Jost',sans-serif;font-size:11px;font-weight:600;color:var(--onyx);background:var(--alabaster);border:1px solid var(--sandstone);border-radius:5px;padding:2px 5px;cursor:pointer;max-width:110px;}
+/* IV expiry alert — glowing ⚠️ (Option D) */
+.iv-alert{font-size:13px;display:inline-block;animation:iv-warn-glow 1.1s ease-in-out infinite;line-height:1;}
+@keyframes iv-warn-glow{0%,100%{opacity:1;filter:drop-shadow(0 0 0px rgba(239,68,68,0));}50%{opacity:.45;filter:drop-shadow(0 0 5px rgba(239,68,68,.95));}}
 .iv-date-inp:focus{outline:none;border-color:var(--earth);}
 
 /* ── Away Zone ────────────────────────────── */
@@ -2228,15 +2231,16 @@ function makeTok(staffId, opts) {
   const s = getStaff(staffId);
 
   // ── Split tile (E-style) ──
+  // wrap is NOT draggable — only the init block is, matching old .token.sm pattern
   const wrap = document.createElement('div');
   wrap.className = 'gtile' + (isLive ? ' live' : '');
   wrap.title = s.name + (s.role ? ' · ' + s.role : '') + (s.phone ? ' · ' + s.phone : '');
-  wrap.draggable = true;
 
   const init = document.createElement('div');
   init.className = 'gtile-init';
   init.style.background = s.color;
   init.textContent = s.initials;
+  init.draggable = true;  // drag handle is the color block only
 
   const name = document.createElement('div');
   name.className = 'gtile-name';
@@ -2245,11 +2249,14 @@ function makeTok(staffId, opts) {
   wrap.appendChild(init);
   wrap.appendChild(name);
 
-  wrap.addEventListener('dragstart', e => {
+  // Drag events on init block only — avoids blocking drops onto parent td
+  init.addEventListener('dragstart', e => {
     setDrag({ staffId, srcBoard, srcZone }, e);
     setTimeout(() => wrap.classList.add('drag-src'), 0);
   });
-  wrap.addEventListener('dragend', () => { clearDrag(); wrap.classList.remove('drag-src'); });
+  init.addEventListener('dragend', () => { clearDrag(); wrap.classList.remove('drag-src'); });
+
+  // Interaction events on whole tile
   wrap.addEventListener('contextmenu', e => {
     e.preventDefault();
     e.stopPropagation();
@@ -2280,11 +2287,10 @@ function makeHelpTokEl(helpId, srcBoard, srcZone) {
   const inst = S.helpInstances[helpId];
   const isHelped = inst && inst.status === 'helped';
 
-  // ── Split tile for HELP ──
+  // ── Split tile for HELP — init block is drag handle ──
   const wrap = document.createElement('div');
   wrap.className = 'gtile';
   wrap.title = 'NEED HELP — click to open';
-  wrap.draggable = true;
 
   const init = document.createElement('div');
   init.className = 'gtile-init';
@@ -2292,6 +2298,7 @@ function makeHelpTokEl(helpId, srcBoard, srcZone) {
   init.style.fontSize = '14px';
   init.style.fontWeight = '900';
   init.textContent = '!';
+  init.draggable = true;
   if (!isHelped) init.style.animation = 'helpring 1.2s ease-out infinite';
 
   const lbl = document.createElement('div');
@@ -2304,11 +2311,11 @@ function makeHelpTokEl(helpId, srcBoard, srcZone) {
   wrap.appendChild(init);
   wrap.appendChild(lbl);
 
-  wrap.addEventListener('dragstart', e => {
+  init.addEventListener('dragstart', e => {
     setDrag({ staffId:helpId, srcBoard, srcZone }, e);
     setTimeout(() => wrap.classList.add('drag-src'), 0);
   });
-  wrap.addEventListener('dragend', () => { clearDrag(); wrap.classList.remove('drag-src'); });
+  init.addEventListener('dragend', () => { clearDrag(); wrap.classList.remove('drag-src'); });
   wrap.addEventListener('click', e => {
     e.stopPropagation();
     if (!__isDragging) openHelpModal(helpId);
@@ -2616,12 +2623,23 @@ function buildGrid(tableEl, boardId) {
         const dateBar = document.createElement('div');
         dateBar.className = 'iv-date-bar';
 
+        const ivDate = (S.ivDates && S.ivDates[office.code]) || '';
+
+        // Alert if date is unset or not at least tomorrow
+        const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD local
+        const needsAlert = !ivDate || ivDate <= todayStr;
+        if (needsAlert) {
+          const alert = document.createElement('span');
+          alert.className = 'iv-alert';
+          alert.title = ivDate ? 'Verification expired or due today' : 'No verification date set';
+          alert.textContent = '⚠️';
+          dateBar.appendChild(alert);
+        }
+
         const lbl = document.createElement('span');
         lbl.className = 'iv-date-lbl';
         lbl.textContent = 'Verified to:';
         dateBar.appendChild(lbl);
-
-        const ivDate = (S.ivDates && S.ivDates[office.code]) || '';
 
         if (isLive || __rosterUnlocked) {
           // Always editable on live board (no PIN); editable on assign board when unlocked
