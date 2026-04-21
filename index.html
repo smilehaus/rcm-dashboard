@@ -2508,16 +2508,24 @@ function buildGrid(tableEl, boardId) {
 
         const ivDate = (S.ivDates && S.ivDates[office.code]) || '';
 
-        if (__rosterUnlocked) {
-          // Editable date input when roster is unlocked
+        if (isLive || __rosterUnlocked) {
+          // Always editable on live board; editable on assign board when unlocked
           const inp = document.createElement('input');
           inp.type = 'date';
           inp.className = 'iv-date-inp';
           inp.value = ivDate;
-          inp.onchange = e => setIvDate(office.code, e.target.value || null);
+          inp.onchange = e => {
+            const newDate = e.target.value || null;
+            if (__rosterUnlocked) {
+              setIvDate(office.code, newDate);
+            } else {
+              // PIN-gate on live board
+              rosterGated(() => setIvDate(office.code, newDate));
+            }
+          };
           dateBar.appendChild(inp);
         } else {
-          // Read-only label
+          // Read-only label on assign board when locked
           const val = document.createElement('span');
           val.className = 'iv-date-val' + (ivDate ? '' : ' empty');
           val.textContent = fmtIvDateRcm(ivDate);
