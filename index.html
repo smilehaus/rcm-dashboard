@@ -1349,10 +1349,32 @@ function fmtIvDateRcm(iso) {
 }
 function setIvDate(code, date) {
   if (!S.ivDates) S.ivDates = {};
+  const oldDate = S.ivDates[code] || null;
   if (date) S.ivDates[code] = date;
   else delete S.ivDates[code];
+
+  // Log the change to Help Records
+  if (!S.helpLog) S.helpLog = [];
+  const office = S.offices.find(o => o.code === code);
+  const officeName = office ? office.name || office.lbl : code;
+  S.helpLog.unshift({
+    type: 'iv_date',
+    resolvedAt: new Date().toLocaleString('en-US', {month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit'}),
+    office: code,
+    officeName,
+    location: `${code} — Ins Verification`,
+    oldDate: oldDate || null,
+    newDate: date || null,
+    comments: `IV verified date set to: ${fmtIvDateRcm(date)}${oldDate ? ` (was: ${fmtIvDateRcm(oldDate)})` : ''}`,
+    helpers: '—',
+    status: 'IV Date Updated',
+    checklist: [],
+  });
+
   save();
   renderAll();
+  renderHelpLog();
+  renderHelpLogTab();
 }
 
 async function publishState() {
@@ -2509,20 +2531,12 @@ function buildGrid(tableEl, boardId) {
         const ivDate = (S.ivDates && S.ivDates[office.code]) || '';
 
         if (isLive || __rosterUnlocked) {
-          // Always editable on live board; editable on assign board when unlocked
+          // Always editable on live board (no PIN); editable on assign board when unlocked
           const inp = document.createElement('input');
           inp.type = 'date';
           inp.className = 'iv-date-inp';
           inp.value = ivDate;
-          inp.onchange = e => {
-            const newDate = e.target.value || null;
-            if (__rosterUnlocked) {
-              setIvDate(office.code, newDate);
-            } else {
-              // PIN-gate on live board
-              rosterGated(() => setIvDate(office.code, newDate));
-            }
-          };
+          inp.onchange = e => setIvDate(office.code, e.target.value || null);
           dateBar.appendChild(inp);
         } else {
           // Read-only label on assign board when locked
@@ -3000,10 +3014,22 @@ function renderHelpLog() {
   if (countEl) countEl.textContent = log.length + ' entr' + (log.length === 1 ? 'y' : 'ies');
 
   tbody.innerHTML = log.map((entry, i) => {
+    const rowBg = i % 2 === 0 ? '' : 'background:rgba(242,239,232,.5)';
+    if (entry.type === 'iv_date') {
+      const change = entry.oldDate
+        ? `${fmtIvDateRcm(entry.oldDate)} → ${fmtIvDateRcm(entry.newDate)}`
+        : `Set to ${fmtIvDateRcm(entry.newDate)}`;
+      return `<tr style="${rowBg}">
+        <td style="padding:9px 14px;color:var(--earth);font-weight:600;white-space:nowrap">${escHtml(entry.resolvedAt)}</td>
+        <td style="padding:9px 14px;white-space:nowrap">🗓 ${escHtml(entry.location)}</td>
+        <td style="padding:9px 14px;color:#1d4ed8;font-weight:700">IV Date</td>
+        <td style="padding:9px 14px;color:var(--onyx);max-width:260px">${escHtml(change)}</td>
+        <td style="padding:9px 14px;color:var(--taupe)">—</td>
+      </tr>`;
+    }
     const checks = (entry.checklist||[]);
     const done = checks.filter(c=>c.done).length;
     const checkSummary = checks.length ? `${done}/${checks.length} done` : '—';
-    const rowBg = i % 2 === 0 ? '' : 'background:rgba(242,239,232,.5)';
     return `<tr style="${rowBg}">
       <td style="padding:9px 14px;color:var(--earth);font-weight:600;white-space:nowrap">${escHtml(entry.resolvedAt)}</td>
       <td style="padding:9px 14px;white-space:nowrap">${escHtml(entry.location)}</td>
@@ -3057,15 +3083,40 @@ function renderHelpLogTab() {
   empty.style.display = 'none';
 
   log.forEach((entry, i) => {
+    const card = document.createElement('div');
+    card.style.cssText = 'background:var(--white);border:1px solid var(--sandstone);border-radius:10px;padding:14px 18px;display:flex;flex-direction:column;gap:8px;position:relative';
+
+    // ── IV Date change entries ────────────────────────────────
+    if (entry.type === 'iv_date') {
+      const delBtn = `<button onclick="deleteHelpEntry(${i})" title="Delete record"
+        style="background:none;border:none;color:var(--sandstone);cursor:pointer;font-size:14px;line-height:1;padding:0 2px;margin-left:auto"
+        onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='var(--sandstone)'">×</button>`;
+      card.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span style="font-size:15px">🗓</span>
+          <span style="font-size:11px;font-weight:700;color:var(--earth);text-transform:uppercase;letter-spacing:.7px">${escHtml(entry.office)} — Ins Verification</span>
+          <span style="font-size:10px;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:100px;padding:2px 10px">IV Date Updated</span>
+          <span style="font-size:10px;color:var(--taupe)">${escHtml(entry.resolvedAt)}</span>
+          ${delBtn}
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:8px 12px;background:var(--alabaster);border-radius:7px;border:1px solid var(--sandstone)">
+          ${entry.oldDate
+            ? `<div><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe);margin-bottom:2px">Previously</div><div style="font-size:13px;font-weight:600;color:var(--earth);text-decoration:line-through">${fmtIvDateRcm(entry.oldDate)}</div></div>
+               <span style="font-size:16px;color:var(--taupe)">→</span>`
+            : ''}
+          <div><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--taupe);margin-bottom:2px">Set to</div><div style="font-size:13px;font-weight:700;color:var(--onyx)">${fmtIvDateRcm(entry.newDate)}</div></div>
+        </div>`;
+      body.appendChild(card);
+      return;
+    }
+
+    // ── Standard help request entries ─────────────────────────
     const checks   = entry.checklist || [];
     const done     = checks.filter(c => c.done).length;
     const allDone  = checks.length > 0 && done === checks.length;
     const helpers  = entry.helpers || '—';
     const notes    = entry.comments || '';
     const requestedBy = entry.requestedBy || '';
-
-    const card = document.createElement('div');
-    card.style.cssText = 'background:var(--white);border:1px solid var(--sandstone);border-radius:10px;padding:14px 18px;display:flex;flex-direction:column;gap:8px;position:relative';
 
     // Status badge
     const statusVal = entry.status || 'Resolved';
