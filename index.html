@@ -3177,16 +3177,6 @@ function makeRosterTok(staffId) {
 
   wrap.appendChild(tok);
   wrap.appendChild(lbl);
-
-  // PIN chip — only visible to admin (roster unlocked)
-  if (__rosterUnlocked && s.pin) {
-    const pinChip = document.createElement('div');
-    pinChip.className = 'rtok-pin';
-    pinChip.textContent = s.pin;
-    pinChip.title = 'Check-In PIN for ' + s.name;
-    wrap.appendChild(pinChip);
-  }
-
   return wrap;
 }
 
