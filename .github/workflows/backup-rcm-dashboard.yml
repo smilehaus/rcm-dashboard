@@ -1,0 +1,55 @@
+name: RCM Dashboard — Auto Backup
+
+on:
+  schedule:
+    # Every 3 hours on the hour (UTC). Runs even if no one has the tab open.
+    - cron: '0 */3 * * *'
+  workflow_dispatch:  # also triggerable manually from GitHub Actions tab
+
+permissions:
+  contents: write   # needed to commit backup files back to the repo
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Fetch Firebase state
+        run: |
+          TIMESTAMP=$(date -u +%Y-%m-%d_%H-%M)
+          mkdir -p backups
+          HTTP_STATUS=$(curl -s -o "backups/${TIMESTAMP}.json" \
+            -w "%{http_code}" \
+            "https://smilehaus-rcm-default-rtdb.firebaseio.com/state.json")
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "❌ Firebase fetch failed with HTTP $HTTP_STATUS"
+            exit 1
+          fi
+          FILE_SIZE=$(wc -c < "backups/${TIMESTAMP}.json")
+          if [ "$FILE_SIZE" -lt 10 ]; then
+            echo "❌ Backup appears empty (${FILE_SIZE} bytes) — aborting"
+            exit 1
+          fi
+          echo "✅ Backup saved: ${TIMESTAMP}.json (${FILE_SIZE} bytes)"
+
+      - name: Prune backups older than 30 days
+        run: |
+          find backups -name "*.json" -mtime +30 -delete
+          echo "🗑️  Pruned files older than 30 days"
+
+      - name: Commit backup
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add backups/
+          if git diff --staged --quiet; then
+            echo "⚪ No changes — data unchanged since last backup, skipping commit"
+          else
+            TIMESTAMP=$(date -u "+%Y-%m-%d %H:%M UTC")
+            git commit -m "backup: RCM snapshot ${TIMESTAMP}"
+            git push
+            echo "✅ Committed and pushed"
+          fi

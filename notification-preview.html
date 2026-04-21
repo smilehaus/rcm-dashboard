@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notification Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Jost',sans-serif;background:#F2EFE8;padding:32px;color:#2A2E31;min-height:100vh}
+
+h1{font-size:11px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:#877765;margin-bottom:6px}
+.sub{font-size:12px;color:#877765;margin-bottom:32px}
+
+/* ─── Section headers ─── */
+.section{margin-bottom:36px}
+.section-title{font-size:13px;font-weight:800;color:#2A2E31;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #D6CDBD}
+
+/* ─── Banner styles ─── */
+.banner-demo{position:relative;overflow:hidden;border-radius:14px;margin-bottom:10px;cursor:pointer}
+
+/* Banner A — Slide down from top, full-width bar */
+.banner-a{
+  background:white;border:1.5px solid #D6CDBD;
+  border-radius:14px;padding:14px 18px;
+  display:flex;align-items:center;gap:12px;
+  box-shadow:0 8px 32px rgba(42,46,49,.14);
+  transform:translateY(-120%);opacity:0;
+  transition:transform .4s cubic-bezier(.34,1.2,.64,1), opacity .3s ease;
+}
+.banner-a.show{transform:translateY(0);opacity:1}
+.banner-a-accent{width:4px;align-self:stretch;border-radius:4px;flex-shrink:0}
+.banner-a-icon{font-size:20px;flex-shrink:0}
+.banner-a-body{flex:1;min-width:0}
+.banner-a-title{font-size:12px;font-weight:800;color:#2A2E31;margin-bottom:2px}
+.banner-a-sub{font-size:11px;color:#877765;font-weight:600}
+.banner-a-dismiss{background:none;border:none;color:#C2B09E;font-size:18px;cursor:pointer;padding:0 4px;line-height:1;flex-shrink:0}
+.banner-a-dismiss:hover{color:#2A2E31}
+
+/* Banner B — Pill / toast style, right-aligned */
+.banner-b-wrap{display:flex;justify-content:flex-end}
+.banner-b{
+  background:#2A2E31;color:white;
+  border-radius:100px;padding:10px 18px 10px 12px;
+  display:inline-flex;align-items:center;gap:10px;
+  box-shadow:0 8px 28px rgba(42,46,49,.25);
+  transform:translateX(120%);opacity:0;
+  transition:transform .38s cubic-bezier(.34,1.2,.64,1), opacity .25s ease;
+  max-width:340px;
+}
+.banner-b.show{transform:translateX(0);opacity:1}
+.banner-b-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.banner-b-text{font-size:11.5px;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.banner-b-x{background:rgba(255,255,255,.15);border:none;color:white;width:20px;height:20px;border-radius:50%;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.banner-b-x:hover{background:rgba(255,255,255,.3)}
+
+/* Banner C — Card with gradient accent bar */
+.banner-c{
+  background:white;
+  border-radius:14px;overflow:hidden;
+  box-shadow:0 12px 40px rgba(42,46,49,.16);
+  transform:translateY(-130%) scale(.94);opacity:0;
+  transition:transform .42s cubic-bezier(.34,1.25,.64,1), opacity .28s ease;
+}
+.banner-c.show{transform:translateY(0) scale(1);opacity:1}
+.banner-c-bar{height:4px;background:linear-gradient(90deg,#ef4444,#f97316,#eab308)}
+.banner-c-inner{padding:14px 18px;display:flex;align-items:flex-start;gap:12px}
+.banner-c-avatar{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:white;flex-shrink:0}
+.banner-c-body{flex:1;min-width:0}
+.banner-c-label{font-size:9px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:#877765;margin-bottom:3px}
+.banner-c-task{font-size:13px;font-weight:700;color:#2A2E31;margin-bottom:3px}
+.banner-c-meta{font-size:10.5px;color:#877765;font-weight:600}
+.banner-c-dismiss{background:none;border:none;color:#C2B09E;font-size:18px;cursor:pointer;padding:0;line-height:1;flex-shrink:0}
+.banner-c-dismiss:hover{color:#2A2E31}
+
+/* ─── Sound buttons ─── */
+.sound-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.sound-btn{
+  background:white;border:2px solid #D6CDBD;border-radius:14px;
+  padding:20px 14px;cursor:pointer;text-align:center;
+  transition:border-color .15s, transform .1s, box-shadow .15s;
+  font-family:'Jost',sans-serif;
+}
+.sound-btn:hover{border-color:#877765;transform:translateY(-2px);box-shadow:0 6px 20px rgba(42,46,49,.1)}
+.sound-btn:active{transform:translateY(0)}
+.sound-btn.playing{border-color:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.2)}
+.sound-icon{font-size:28px;margin-bottom:8px}
+.sound-name{font-size:12px;font-weight:800;color:#2A2E31;margin-bottom:4px}
+.sound-desc{font-size:10.5px;color:#877765;line-height:1.4}
+
+/* ─── Try buttons ─── */
+.try-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.try-btn{
+  background:#2A2E31;color:white;border:none;border-radius:9px;
+  padding:9px 18px;font-family:'Jost',sans-serif;font-size:12px;font-weight:700;
+  cursor:pointer;transition:background .15s,transform .1s;
+}
+.try-btn:hover{background:#1a1e21;transform:translateY(-1px)}
+.try-btn:active{transform:translateY(0)}
+.try-btn.ghost{background:white;color:#2A2E31;border:1.5px solid #D6CDBD}
+.try-btn.ghost:hover{background:#F2EFE8}
+
+/* ─── Live demo area ─── */
+.live-demo{background:white;border:1.5px solid #D6CDBD;border-radius:14px;padding:20px;margin-bottom:24px;overflow:hidden}
+.live-demo-label{font-size:10px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:#C2B09E;margin-bottom:14px}
+#live-banner-a, #live-banner-b-wrap, #live-banner-c{margin-bottom:0}
+
+.note{font-size:11px;color:#877765;margin-top:8px;font-style:italic}
+</style>
+</head>
+<body>
+
+<h1>Notification Preview — Sound + Banner Options</h1>
+<p class="sub">Click any "Try it" button to see the banner animate + hear the sound together.</p>
+
+<!-- ══ BANNER OPTIONS ══════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Banner Styles — pick your favorite</div>
+
+  <!-- BANNER A -->
+  <div style="margin-bottom:24px">
+    <div style="font-size:12px;font-weight:800;color:#2A2E31;margin-bottom:10px">A — Slide-down card (full width)</div>
+    <div class="live-demo">
+      <div class="live-demo-label">Preview area</div>
+      <div class="banner-a" id="live-banner-a">
+        <div class="banner-a-accent" id="banner-a-accent" style="background:#ef4444"></div>
+        <div class="banner-a-icon" id="banner-a-icon">📌</div>
+        <div class="banner-a-body">
+          <div class="banner-a-title" id="banner-a-title">New Assignment — START ASAP NOW</div>
+          <div class="banner-a-sub" id="banner-a-sub">GT IV (same day/ASAPs 04/21 schedule) · Assigned by: Becky · Due: 04/22/2026</div>
+        </div>
+        <button class="banner-a-dismiss" onclick="hideA()">×</button>
+      </div>
+    </div>
+    <div class="try-row">
+      <button class="try-btn" onclick="tryA('asap','GT IV (same day/ASAPs schedule)','Becky','04/22/2026')">🔴 Try ASAP</button>
+      <button class="try-btn ghost" onclick="tryA('next','Collections follow-up — NB','Valerie','04/25/2026')">🟡 Try NEXT</button>
+    </div>
+  </div>
+
+  <!-- BANNER B -->
+  <div style="margin-bottom:24px">
+    <div style="font-size:12px;font-weight:800;color:#2A2E31;margin-bottom:10px">B — Toast pill (slides in from right)</div>
+    <div class="live-demo">
+      <div class="live-demo-label">Preview area</div>
+      <div class="banner-b-wrap" id="live-banner-b-wrap">
+        <div class="banner-b" id="live-banner-b">
+          <div class="banner-b-dot" id="banner-b-dot" style="background:#ef4444"></div>
+          <div class="banner-b-text" id="banner-b-text">📌 New task assigned to you</div>
+          <button class="banner-b-x" onclick="hideB()">×</button>
+        </div>
+      </div>
+    </div>
+    <div class="try-row">
+      <button class="try-btn" onclick="tryB('asap','GT IV (same day/ASAPs schedule)')">🔴 Try ASAP</button>
+      <button class="try-btn ghost" onclick="tryB('next','Collections follow-up — NB')">🟡 Try NEXT</button>
+    </div>
+  </div>
+
+  <!-- BANNER C -->
+  <div style="margin-bottom:24px">
+    <div style="font-size:12px;font-weight:800;color:#2A2E31;margin-bottom:10px">C — Full card with gradient bar (drops down with bounce)</div>
+    <div class="live-demo">
+      <div class="live-demo-label">Preview area</div>
+      <div class="banner-c" id="live-banner-c">
+        <div class="banner-c-bar" id="banner-c-bar"></div>
+        <div class="banner-c-inner">
+          <div class="banner-c-avatar" id="banner-c-avatar" style="background:#C47898">RR</div>
+          <div class="banner-c-body">
+            <div class="banner-c-label" id="banner-c-label">🔴 New Assignment — Start Immediately</div>
+            <div class="banner-c-task" id="banner-c-task">GT IV (same day/ASAPs 04/21 schedule)</div>
+            <div class="banner-c-meta" id="banner-c-meta">Assigned by Becky · Due 04/22/2026</div>
+          </div>
+          <button class="banner-c-dismiss" onclick="hideC()">×</button>
+        </div>
+      </div>
+    </div>
+    <div class="try-row">
+      <button class="try-btn" onclick="tryC('asap','GT IV (same day/ASAPs 04/21 schedule)','Becky','04/22/2026','RR','#C47898')">🔴 Try ASAP</button>
+      <button class="try-btn ghost" onclick="tryC('next','Collections follow-up — NB','Valerie','04/25/2026','VL','#7BA8C4')">🟡 Try NEXT</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SOUND OPTIONS ══════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Sound Options — click to hear each one</div>
+  <div class="sound-grid">
+    <button class="sound-btn" onclick="playSound('chime',this)">
+      <div class="sound-icon">🔔</div>
+      <div class="sound-name">Soft Chime</div>
+      <div class="sound-desc">Gentle bell tone. Pleasant, not jarring. Works in quiet offices.</div>
+    </button>
+    <button class="sound-btn" onclick="playSound('ping',this)">
+      <div class="sound-icon">🎵</div>
+      <div class="sound-name">Two-tone Ping</div>
+      <div class="sound-desc">Short ascending two-note tone. Clear and distinctive.</div>
+    </button>
+    <button class="sound-btn" onclick="playSound('pop',this)">
+      <div class="sound-icon">💬</div>
+      <div class="sound-name">Soft Pop</div>
+      <div class="sound-desc">Subtle bubble pop. Minimal, like a chat message sound.</div>
+    </button>
+    <button class="sound-btn" onclick="playSound('ding',this)">
+      <div class="sound-icon">✨</div>
+      <div class="sound-name">Bright Ding</div>
+      <div class="sound-desc">Crisp high note with quick fade. Hard to miss across a room.</div>
+    </button>
+    <button class="sound-btn" onclick="playSound('marimba',this)">
+      <div class="sound-icon">🎶</div>
+      <div class="sound-name">Marimba Drop</div>
+      <div class="sound-desc">Three descending marimba notes. Warm and friendly.</div>
+    </button>
+    <button class="sound-btn" onclick="playSound('alert',this)">
+      <div class="sound-icon">🚨</div>
+      <div class="sound-name">Urgent Alert</div>
+      <div class="sound-desc">Two quick pulses. For ASAP tasks — gets attention fast.</div>
+    </button>
+  </div>
+  <p class="note">* All sounds are generated in-browser — no audio files needed.</p>
+</div>
+
+<!-- ══ COMBINED DEMO ══════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Combined Demo — Banner + Sound together</div>
+  <p style="font-size:12px;color:#877765;margin-bottom:14px">Pick a banner style + sound combo below and fire them together to see the full experience.</p>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+    <select id="combo-banner" style="border:1px solid #D6CDBD;border-radius:8px;padding:7px 10px;font-family:'Jost',sans-serif;font-size:12px;color:#2A2E31;background:white;outline:none">
+      <option value="a">Banner A — Slide-down card</option>
+      <option value="b">Banner B — Toast pill</option>
+      <option value="c" selected>Banner C — Full card + gradient</option>
+    </select>
+    <select id="combo-sound" style="border:1px solid #D6CDBD;border-radius:8px;padding:7px 10px;font-family:'Jost',sans-serif;font-size:12px;color:#2A2E31;background:white;outline:none">
+      <option value="chime" selected>Soft Chime</option>
+      <option value="ping">Two-tone Ping</option>
+      <option value="pop">Soft Pop</option>
+      <option value="ding">Bright Ding</option>
+      <option value="marimba">Marimba Drop</option>
+      <option value="alert">Urgent Alert</option>
+    </select>
+    <select id="combo-priority" style="border:1px solid #D6CDBD;border-radius:8px;padding:7px 10px;font-family:'Jost',sans-serif;font-size:12px;font-weight:700;color:#2A2E31;background:white;outline:none">
+      <option value="asap">🔴 ASAP</option>
+      <option value="next">🟡 NEXT</option>
+    </select>
+    <button class="try-btn" onclick="fireCombo()" style="padding:9px 24px;font-size:13px">▶ Fire It</button>
+  </div>
+</div>
+
+<script>
+// ── Banner A ─────────────────────────────────────
+let timerA = null;
+function tryA(pri, task, by, due) {
+  const isAsap = pri === 'asap';
+  document.getElementById('banner-a-accent').style.background = isAsap ? '#ef4444' : '#eab308';
+  document.getElementById('banner-a-icon').textContent = '📌';
+  document.getElementById('banner-a-title').textContent = `New Assignment — ${isAsap ? 'START ASAP NOW' : 'START NEXT'}`;
+  document.getElementById('banner-a-sub').textContent = `${task} · Assigned by: ${by} · Due: ${due}`;
+  showA();
+}
+function showA() {
+  clearTimeout(timerA);
+  const el = document.getElementById('live-banner-a');
+  el.classList.remove('show');
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    el.classList.add('show');
+    timerA = setTimeout(hideA, 6000);
+  }));
+}
+function hideA() {
+  document.getElementById('live-banner-a').classList.remove('show');
+}
+
+// ── Banner B ─────────────────────────────────────
+let timerB = null;
+function tryB(pri, task) {
+  const isAsap = pri === 'asap';
+  document.getElementById('banner-b-dot').style.background = isAsap ? '#ef4444' : '#eab308';
+  document.getElementById('banner-b-text').textContent = `📌 ${isAsap ? '🔴' : '🟡'} ${task}`;
+  showB();
+}
+function showB() {
+  clearTimeout(timerB);
+  const el = document.getElementById('live-banner-b');
+  el.classList.remove('show');
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    el.classList.add('show');
+    timerB = setTimeout(hideB, 5000);
+  }));
+}
+function hideB() {
+  document.getElementById('live-banner-b').classList.remove('show');
+}
+
+// ── Banner C ─────────────────────────────────────
+let timerC = null;
+function tryC(pri, task, by, due, initials, color) {
+  const isAsap = pri === 'asap';
+  document.getElementById('banner-c-bar').style.background = isAsap
+    ? 'linear-gradient(90deg,#ef4444,#f97316,#eab308)'
+    : 'linear-gradient(90deg,#eab308,#84cc16,#22c55e)';
+  document.getElementById('banner-c-avatar').textContent = initials;
+  document.getElementById('banner-c-avatar').style.background = color;
+  document.getElementById('banner-c-label').textContent = isAsap ? '🔴 New Assignment — Start Immediately' : '🟡 New Assignment — Start Next';
+  document.getElementById('banner-c-task').textContent = task;
+  document.getElementById('banner-c-meta').textContent = `Assigned by ${by} · Due ${due}`;
+  showC();
+}
+function showC() {
+  clearTimeout(timerC);
+  const el = document.getElementById('live-banner-c');
+  el.classList.remove('show');
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    el.classList.add('show');
+    timerC = setTimeout(hideC, 6000);
+  }));
+}
+function hideC() {
+  document.getElementById('live-banner-c').classList.remove('show');
+}
+
+// ── Sounds ─────────────────────────────────────
+const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playSound(type, btn) {
+  // Visual feedback
+  document.querySelectorAll('.sound-btn').forEach(b => b.classList.remove('playing'));
+  if (btn) { btn.classList.add('playing'); setTimeout(() => btn.classList.remove('playing'), 1200); }
+
+  switch(type) {
+    case 'chime':   soundChime();   break;
+    case 'ping':    soundPing();    break;
+    case 'pop':     soundPop();     break;
+    case 'ding':    soundDing();    break;
+    case 'marimba': soundMarimba(); break;
+    case 'alert':   soundAlert();   break;
+  }
+}
+
+function note(freq, start, dur, vol=0.35, type='sine', decay=0.8) {
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.connect(g); g.connect(ctx.destination);
+  o.type = type;
+  o.frequency.setValueAtTime(freq, ctx.currentTime + start);
+  g.gain.setValueAtTime(0, ctx.currentTime + start);
+  g.gain.linearRampToValueAtTime(vol, ctx.currentTime + start + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur);
+  o.start(ctx.currentTime + start);
+  o.stop(ctx.currentTime + start + dur + 0.05);
+}
+
+function soundChime() {
+  // Soft bell — sine with harmonics
+  note(880, 0,    0.9, 0.3, 'sine');
+  note(1320, 0,   0.7, 0.15, 'sine');
+  note(1760, 0.04,0.6, 0.08, 'sine');
+}
+
+function soundPing() {
+  // Two ascending tones
+  note(660,  0,   0.5, 0.3, 'sine');
+  note(880,  0.2, 0.6, 0.3, 'sine');
+}
+
+function soundPop() {
+  // Bubble pop — short sine burst
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.connect(g); g.connect(ctx.destination);
+  o.type = 'sine';
+  o.frequency.setValueAtTime(400, ctx.currentTime);
+  o.frequency.exponentialRampToValueAtTime(120, ctx.currentTime + 0.12);
+  g.gain.setValueAtTime(0.35, ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+  o.start(ctx.currentTime);
+  o.stop(ctx.currentTime + 0.22);
+}
+
+function soundDing() {
+  // Bright high ding
+  note(1174, 0,    0.7, 0.35, 'sine');
+  note(2349, 0,    0.4, 0.1,  'sine');
+}
+
+function soundMarimba() {
+  // Three descending notes
+  note(784, 0,    0.45, 0.32, 'sine');
+  note(659, 0.18, 0.45, 0.28, 'sine');
+  note(523, 0.36, 0.55, 0.3,  'sine');
+}
+
+function soundAlert() {
+  // Two quick urgent pulses
+  note(880, 0,    0.15, 0.4, 'square');
+  note(880, 0.22, 0.15, 0.4, 'square');
+}
+
+// ── Combined demo ──────────────────────────────
+function fireCombo() {
+  const banner   = document.getElementById('combo-banner').value;
+  const sound    = document.getElementById('combo-sound').value;
+  const priority = document.getElementById('combo-priority').value;
+
+  playSound(sound, null);
+
+  if (banner === 'a') tryA(priority, 'GT IV (same day/ASAPs schedule)', 'Becky', '04/22/2026');
+  if (banner === 'b') tryB(priority, 'GT IV (same day/ASAPs schedule)');
+  if (banner === 'c') tryC(priority, 'GT IV (same day/ASAPs schedule)', 'Becky', '04/22/2026', 'RR', '#C47898');
+}
+</script>
+</body>
+</html>
