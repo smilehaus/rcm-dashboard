@@ -467,10 +467,10 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
       <div style="display:flex;align-items:center;gap:10px">
         <span id="help-log-count" style="font-size:11px;color:var(--taupe)"></span>
         <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();clearHelpLog()" style="font-size:10px">Clear Log</button>
-        <span id="help-log-chevron" style="color:var(--taupe);font-size:14px">▲</span>
+        <span id="help-log-chevron" style="color:var(--taupe);font-size:14px">▼</span>
       </div>
     </div>
-    <div id="help-log-body" class="panel-body" style="padding:0;overflow-x:auto">
+    <div id="help-log-body" class="panel-body" style="padding:0;overflow-x:auto;display:none">
       <table style="width:100%;border-collapse:collapse;min-width:700px;font-size:12px">
         <thead>
           <tr style="background:#5C4F44;color:white;text-align:left">
@@ -4000,7 +4000,7 @@ function setDate() {
 // HELP LOG
 // ════════════════════════════════════════════════
 
-let __helpLogOpen = true;
+let __helpLogOpen = false;
 
 function renderHelpLog() {
   const log = S.helpLog || [];
