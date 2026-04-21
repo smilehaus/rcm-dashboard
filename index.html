@@ -527,7 +527,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
           <span class="lock-icon" id="roster-lock-icon">🔒</span>
           <span id="roster-lock-label">Locked</span>
         </div>
-        <button class="btn btn-ghost btn-sm" id="roster-lock-btn" onclick="rosterLockToggle()" style="display:none">Unlock to Edit</button>
+        <button class="btn btn-ghost btn-sm" id="roster-lock-btn" onclick="rosterLockToggle()">Unlock to Edit</button>
         <button class="btn btn-ghost btn-sm" id="roster-add-dept-btn" onclick="rosterGated(openAddDept)" style="display:none">+ Add Department</button>
         <button class="btn btn-primary btn-sm" id="roster-add-btn" onclick="rosterGated(openAddStaff)" style="display:none">+ Add Staff</button>
       </div>
@@ -567,7 +567,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
           <span id="assign-lock-icon">🔒</span>
           <span id="assign-lock-label">Locked</span>
         </div>
-        <button class="btn btn-ghost btn-sm" id="assign-lock-btn" onclick="assignLockToggle()" style="display:none">Unlock to Edit</button>
+        <button class="btn btn-ghost btn-sm" id="assign-lock-btn" onclick="assignLockToggle()">Unlock to Edit</button>
         <button class="btn btn-ghost btn-sm" id="assign-reset-btn" onclick="resetAssign()" style="display:none">↺ Reset Defaults</button>
       </div>
     </div>
@@ -4250,28 +4250,30 @@ function updateRosterLockUI() {
   if (__rosterUnlocked) {
     if (icon)  icon.textContent  = '🔓';
     if (label) label.textContent = 'Unlocked';
-    if (btn)   btn.textContent   = 'Lock';
+    // Hide the lock button when management is checked in (access via check-in, no manual toggle needed)
+    // Show it as "Lock" only when unlocked via the manual PIN gate (not admin check-in)
+    if (btn)   { btn.textContent = 'Lock'; btn.style.display = _adminCheckedIn ? 'none' : ''; }
     if (addBtn)     addBtn.style.display     = '';
     if (addDeptBtn) addDeptBtn.style.display = '';
     if (actTh)      actTh.style.display      = '';
     if (pinTh)      pinTh.style.display      = '';
     if (aIcon)  aIcon.textContent  = '🔓';
     if (aLabel) aLabel.textContent = 'Unlocked';
-    if (aBtn)   aBtn.textContent   = 'Lock';
+    if (aBtn)   { aBtn.textContent = 'Lock'; aBtn.style.display = _adminCheckedIn ? 'none' : ''; }
     if (aReset) aReset.style.display = '';
     // Refresh PIN view if profile is open
     _refreshProfilePinView();
   } else {
     if (icon)  icon.textContent  = '🔒';
     if (label) label.textContent = 'Locked';
-    if (btn)   btn.textContent   = 'Unlock to Edit';
+    if (btn)   { btn.textContent = 'Unlock to Edit'; btn.style.display = ''; }
     if (addBtn)     addBtn.style.display     = 'none';
     if (addDeptBtn) addDeptBtn.style.display = 'none';
     if (actTh)      actTh.style.display      = 'none';
     if (pinTh)      pinTh.style.display      = 'none';
     if (aIcon)  aIcon.textContent  = '🔒';
     if (aLabel) aLabel.textContent = 'Locked';
-    if (aBtn)   aBtn.textContent   = 'Unlock to Edit';
+    if (aBtn)   { aBtn.textContent = 'Unlock to Edit'; aBtn.style.display = ''; }
     if (aReset) aReset.style.display = 'none';
     // Refresh PIN view (shows locked button)
     _refreshProfilePinView();
