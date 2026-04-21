@@ -2597,7 +2597,6 @@ function buildGrid(tableEl, boardId) {
       const ownTokens  = tokens.filter(sid => sid === 'own_team');
       // Merge all tokens, cap at 4 for the 2×2 layout
       const allDisplay = [...mainTokens, ...ownTokens].slice(0, 4);
-      const overflow   = [...mainTokens, ...ownTokens].length - 4;
 
       // Full-width tiles when only 1 or 2 tokens
       if (allDisplay.length <= 2) layer.classList.add('few-toks');
@@ -2607,13 +2606,7 @@ function buildGrid(tableEl, boardId) {
         layer.appendChild(makeTok(sid, { isLive, srcBoard: boardId, srcZone: zoneKey, showRemove: canEditAssign }));
       });
 
-      // "+N more" badge if overflow
-      if (overflow > 0) {
-        const more = document.createElement('div');
-        more.style.cssText = 'width:calc(50% - 2px);height:26px;border-radius:6px;background:var(--sandstone);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:var(--earth);';
-        more.textContent = '+' + overflow;
-        layer.appendChild(more);
-      }
+      // Hard cap at 4 — no overflow badge
 
       inner.appendChild(layer);
 
