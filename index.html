@@ -72,19 +72,27 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 /* 1–2 tokens: span full width so name isn't truncated */
 .live-layer.few-toks .gtile-wrap{width:100%;}
 .gtile:hover{transform:translateY(-1px);}
-.gtile-tip{position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);background:#fff;border:1px solid var(--sandstone);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.14);padding:10px 12px;min-width:190px;max-width:260px;z-index:500;display:none;pointer-events:none;}
-.gtile-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--sandstone);}
-.gtile-tip::before{content:'';position:absolute;top:calc(100% - 1px);left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#fff;z-index:1;}
-.gtile-wrap:hover .gtile-tip{display:block;}
-.gtile-tip-name{font-size:11px;font-weight:800;color:var(--onyx);margin-bottom:7px;padding-bottom:5px;border-bottom:1px solid var(--sandstone);}
-.gtile-tip-row{display:flex;align-items:flex-start;gap:6px;margin-bottom:5px;}
+/* ── Global token tooltip (fixed, escapes all overflow constraints) ── */
+#token-tip{position:fixed;z-index:9999;background:white;border:1px solid #E0D9CF;border-radius:13px;
+  box-shadow:0 20px 60px rgba(42,46,49,.18),0 4px 16px rgba(42,46,49,.1);
+  padding:0;min-width:220px;max-width:290px;pointer-events:none;display:none;
+  overflow:hidden;
+  opacity:0;transform:translateX(-8px) scale(.96);
+  transition:opacity .18s ease,transform .22s cubic-bezier(.34,1.3,.64,1);}
+#token-tip.tip-visible{opacity:1;transform:translateX(0) scale(1);}
+#token-tip.tip-from-below{transform:translateY(-8px) scale(.96);}
+#token-tip.tip-from-below.tip-visible{transform:translateY(0) scale(1);}
+#token-tip-accent{height:3px;background:linear-gradient(90deg,#C47898,#7BA8C4);}
+#token-tip-inner{padding:11px 14px;}
+.gtile-tip-name{font-size:11px;font-weight:800;color:var(--onyx);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--sandstone);}
+.gtile-tip-row{display:flex;align-items:flex-start;gap:7px;margin-bottom:6px;}
 .gtile-tip-row:last-child{margin-bottom:0;}
-.gtile-tip-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:3px;}
-.gtile-tip-dot.green{background:#22c55e;}
-.gtile-tip-dot.red{background:#ef4444;}
-.gtile-tip-dot.yellow{background:#eab308;}
-.gtile-tip-text{font-size:11px;font-weight:600;color:var(--onyx);line-height:1.4;}
-.gtile-tip-due{font-size:9.5px;color:var(--taupe);margin-top:1px;}
+.gtile-tip-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.gtile-tip-dot.green{background:#22c55e;box-shadow:0 0 0 2px rgba(34,197,94,.2);}
+.gtile-tip-dot.red{background:#ef4444;box-shadow:0 0 0 2px rgba(239,68,68,.2);}
+.gtile-tip-dot.yellow{background:#eab308;box-shadow:0 0 0 2px rgba(234,179,8,.2);}
+.gtile-tip-text{font-size:11.5px;font-weight:600;color:var(--onyx);line-height:1.4;}
+.gtile-tip-due{font-size:9.5px;color:var(--taupe);margin-top:2px;line-height:1.3;}
 .gtile-tip-empty{font-size:11px;color:var(--taupe);font-style:italic;}
 .gtile-init{width:26px;min-width:26px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:white;flex-shrink:0;}
 .gtile-name{background:var(--white);padding:0 8px;display:flex;align-items:center;font-size:9.5px;font-weight:700;color:var(--onyx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-top:1px solid var(--sandstone);border-bottom:1px solid var(--sandstone);border-right:1px solid var(--sandstone);flex:1;}
@@ -826,6 +834,15 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
   <div class="ctx-item" id="ctx-off" onclick="ctxMoveTo('off')">🏠 &nbsp;Send Away / Off</div>
   <div class="ctx-sep"></div>
   <div class="ctx-item danger" id="ctx-remove" onclick="ctxRemove()">✕ &nbsp;Remove from here</div>
+</div>
+
+<!-- ── GLOBAL TOKEN TOOLTIP ──────────────────── -->
+<div id="token-tip">
+  <div id="token-tip-accent"></div>
+  <div id="token-tip-inner">
+    <div id="token-tip-name" class="gtile-tip-name"></div>
+    <div id="token-tip-body"></div>
+  </div>
 </div>
 
 <!-- ── PIN MODAL ──────────────────────────────── -->
@@ -2471,6 +2488,88 @@ function removeOffice(code) {
 }
 
 // ════════════════════════════════════════════════
+// TOKEN HOVER TOOLTIP
+// ════════════════════════════════════════════════
+let _tipHideTimer = null;
+
+function showTokenTip(staffId, anchorEl) {
+  clearTimeout(_tipHideTimer);
+  const tip     = document.getElementById('token-tip');
+  const nameEl  = document.getElementById('token-tip-name');
+  const bodyEl  = document.getElementById('token-tip-body');
+  const s = getStaff(staffId);
+
+  // Populate content
+  nameEl.textContent = s.name + (s.role ? ' · ' + s.role : '');
+  bodyEl.innerHTML   = '';
+
+  const workActive = (s.workItems     || []).filter(w => w.checked && !w.completed);
+  const naAll      = (s.newlyAssigned || []).filter(n => !n.resolved);
+
+  if (workActive.length === 0 && naAll.length === 0) {
+    bodyEl.innerHTML = '<div class="gtile-tip-empty">Nothing assigned yet</div>';
+  } else {
+    workActive.forEach(w => {
+      const row = document.createElement('div');
+      row.className = 'gtile-tip-row';
+      row.innerHTML = `<span class="gtile-tip-dot green"></span>
+        <div><div class="gtile-tip-text">${escHtml(w.text)}</div></div>`;
+      bodyEl.appendChild(row);
+    });
+    naAll.forEach(n => {
+      const isAsap = n.priority === 'asap';
+      const meta = [isAsap ? '🔴 ASAP' : '🟡 Next',
+        n.assignedBy ? 'By: ' + n.assignedBy : '',
+        n.dueDate    ? 'Due: ' + n.dueDate    : ''].filter(Boolean).join(' · ');
+      const row = document.createElement('div');
+      row.className = 'gtile-tip-row';
+      row.innerHTML = `<span class="gtile-tip-dot ${isAsap ? 'red' : 'yellow'}"></span>
+        <div>
+          <div class="gtile-tip-text">${escHtml(n.text)}</div>
+          <div class="gtile-tip-due">${meta}</div>
+        </div>`;
+      bodyEl.appendChild(row);
+    });
+  }
+
+  // Position: try right first, fall back to below
+  const GAP  = 10;
+  const TW   = 250; // estimated tip width
+  const TH   = tip.offsetHeight || 120;
+  const vw   = window.innerWidth;
+  const vh   = window.innerHeight;
+  const rect = anchorEl.getBoundingClientRect();
+
+  tip.classList.remove('tip-from-below', 'tip-visible');
+  tip.style.display = 'block';
+
+  let left, top;
+  if (rect.right + GAP + TW <= vw - 8) {
+    // Right side
+    left = rect.right + GAP;
+    top  = Math.min(rect.top, vh - tip.offsetHeight - 8);
+    tip.style.transform = 'translateX(-8px) scale(.96)';
+  } else {
+    // Below
+    left = Math.min(rect.left, vw - TW - 8);
+    top  = rect.bottom + GAP;
+    tip.classList.add('tip-from-below');
+  }
+
+  tip.style.left = Math.max(8, left) + 'px';
+  tip.style.top  = Math.max(8, top)  + 'px';
+
+  // Trigger animation next frame
+  requestAnimationFrame(() => requestAnimationFrame(() => tip.classList.add('tip-visible')));
+}
+
+function hideTokenTip() {
+  const tip = document.getElementById('token-tip');
+  tip.classList.remove('tip-visible');
+  _tipHideTimer = setTimeout(() => { tip.style.display = 'none'; tip.classList.remove('tip-from-below'); }, 200);
+}
+
+// ════════════════════════════════════════════════
 // BOARD OPS
 // ════════════════════════════════════════════════
 
@@ -2522,52 +2621,13 @@ function makeTok(staffId, opts) {
   wrap.appendChild(init);
   wrap.appendChild(nameLbl);
 
-  // ── Hover tooltip: checked work items + all newly assigned ──
+  // ── Wrapper (carries layout width, hosts hover events) ──
   const outer = document.createElement('div');
   outer.className = 'gtile-wrap';
-
-  const tip = document.createElement('div');
-  tip.className = 'gtile-tip';
-
-  const nameRow = document.createElement('div');
-  nameRow.className = 'gtile-tip-name';
-  nameRow.textContent = s.name + (s.role ? ' · ' + s.role : '');
-  tip.appendChild(nameRow);
-
-  const workActive = (s.workItems     || []).filter(w => w.checked && !w.completed);
-  const naAll      = (s.newlyAssigned || []).filter(n => !n.resolved);
-
-  if (workActive.length === 0 && naAll.length === 0) {
-    const empty = document.createElement('div');
-    empty.className = 'gtile-tip-empty';
-    empty.textContent = 'Nothing assigned yet';
-    tip.appendChild(empty);
-  } else {
-    workActive.forEach(w => {
-      const row = document.createElement('div');
-      row.className = 'gtile-tip-row';
-      row.innerHTML = `<span class="gtile-tip-dot green"></span>
-        <div><div class="gtile-tip-text">${escHtml(w.text)}</div></div>`;
-      tip.appendChild(row);
-    });
-    naAll.forEach(n => {
-      const isAsap = n.priority === 'asap';
-      const dotColor = isAsap ? 'red' : 'yellow';
-      const label = isAsap ? '🔴 ASAP' : '🟡 Next';
-      const row = document.createElement('div');
-      row.className = 'gtile-tip-row';
-      const tipMeta = [label, n.assignedBy ? 'By: ' + n.assignedBy : '', n.dueDate ? 'Due: ' + n.dueDate : ''].filter(Boolean).join(' · ');
-      row.innerHTML = `<span class="gtile-tip-dot ${dotColor}"></span>
-        <div>
-          <div class="gtile-tip-text">${escHtml(n.text)}</div>
-          <div class="gtile-tip-due">${tipMeta}</div>
-        </div>`;
-      tip.appendChild(row);
-    });
-  }
-
   outer.appendChild(wrap);
-  outer.appendChild(tip);
+
+  outer.addEventListener('mouseenter', () => showTokenTip(staffId, outer));
+  outer.addEventListener('mouseleave', hideTokenTip);
 
   // ── Guard: block this tile's dragstart during an external drag ──
   wrap.addEventListener('dragstart', e => {
