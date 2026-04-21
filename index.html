@@ -1766,10 +1766,26 @@ function revealProfilePin() {
 }
 
 // ── Sounds ────────────────────────────────────────────────────────────────
+// Single shared AudioContext — unlocked on first user gesture so background
+// poll-triggered sounds aren't blocked by the browser autoplay policy.
+let _audioCtx = null;
+function _getAudioCtx() {
+  if (!_audioCtx) {
+    try { _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+  }
+  if (_audioCtx && _audioCtx.state === 'suspended') {
+    _audioCtx.resume().catch(() => {});
+  }
+  return _audioCtx;
+}
+// Unlock on any click so the context is warm before a notification fires
+document.addEventListener('click', () => _getAudioCtx(), { once: false, passive: true });
+
 function playMarimba() {
   // ASAP sound: three descending marimba notes G5→E5→C5
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = _getAudioCtx();
+    if (!ctx) return;
     [784, 659, 523].forEach((freq, i) => {
       const osc  = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -1788,7 +1804,8 @@ function playMarimba() {
 function playBrightDing() {
   // NEXT sound: crisp high ping (D6 + D7)
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = _getAudioCtx();
+    if (!ctx) return;
     [[1174, 0.3],[2349, 0.16]].forEach(([freq, vol]) => {
       const osc  = ctx.createOscillator();
       const gain = ctx.createGain();
