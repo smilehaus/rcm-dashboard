@@ -825,6 +825,36 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 
       <div style="height:1px;background:var(--sandstone)"></div>
 
+      <!-- Claims (Sending) -->
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <span style="font-size:20px">📤</span>
+          <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Claims (Sending) — Resubmit Alerts</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Both Claims (Sending) columns (<strong>Old PMS</strong> and <strong>Oryx</strong>) show a <em>Resubmit:</em> row for claims flagged <strong>Must Resubmit</strong> in the INS AR list that are approaching or past the 1-year timely filing deadline.</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;padding-left:22px;margin-top:2px">
+            <div style="display:flex;gap:10px;align-items:center;font-size:12px;color:var(--onyx)">
+              <span class="aging-badge priority" style="font-size:8px;padding:1px 6px;line-height:14px">⚠️ PRIORITY</span>
+              <span><strong>Approaching deadline</strong> — DOS is 358–365 days old. 7 or fewer days left to resubmit.</span>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;font-size:12px;color:var(--onyx)">
+              <span class="aging-badge overdue" style="font-size:8px;padding:1px 6px;line-height:14px">⛔ OVERDUE</span>
+              <span><strong>Past deadline</strong> — DOS is 365+ days old (from 1/1/2025 onward). Timely filing window has closed.</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Updated daily at <strong>5:20 AM CT</strong> automatically. Dashboard refreshes every 15 minutes.</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:1px;background:var(--sandstone)"></div>
+
       <!-- Aging Alerts -->
       <div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
@@ -894,20 +924,6 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
             <div style="display:flex;gap:10px;align-items:center;font-size:12px;color:var(--onyx)">
               <span style="font-size:10px;color:var(--taupe);font-weight:600">75–89%</span>
               <span>No marker — acceptable range, keep going.</span>
-            </div>
-          </div>
-          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx);margin-top:8px">
-            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
-            <span>Both Posting columns also show a <em>Resubmit:</em> row for claims flagged <strong>Must Resubmit</strong> in the INS AR list — same timely filing thresholds as Aging:</span>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:6px;padding-left:22px;margin-top:2px">
-            <div style="display:flex;gap:10px;align-items:center;font-size:12px;color:var(--onyx)">
-              <span class="aging-badge priority" style="font-size:8px;padding:1px 6px;line-height:14px">⚠️ PRIORITY</span>
-              <span><strong>Approaching deadline</strong> — DOS is 358–365 days old. 7 or fewer days left to resubmit.</span>
-            </div>
-            <div style="display:flex;gap:10px;align-items:center;font-size:12px;color:var(--onyx)">
-              <span class="aging-badge overdue" style="font-size:8px;padding:1px 6px;line-height:14px">⛔ OVERDUE</span>
-              <span><strong>Past deadline</strong> — DOS is 365+ days old (from 1/1/2025 onward). Timely filing window has closed.</span>
             </div>
           </div>
         </div>
@@ -3837,15 +3853,15 @@ function buildGrid(tableEl, boardId) {
       }
 
       // Resubmit alerts — "Must Resubmit" claims approaching/past 1yr timely filing
-      // Legacy PMS on posting_old, Oryx on posting_oryx
-      if (col.id === 'posting_old' || col.id === 'posting_oryx') {
+      // Legacy PMS on claims_old, Oryx on claims_oryx
+      if (col.id === 'claims_old' || col.id === 'claims_oryx') {
         const resubBar = document.createElement('div');
         resubBar.className = 'resubmit-alert-bar';
         resubBar.dataset.office = office.code;
-        resubBar.dataset.resubmitType = col.id === 'posting_old' ? 'legacy' : 'oryx';
+        resubBar.dataset.resubmitType = col.id === 'claims_old' ? 'legacy' : 'oryx';
         const rData = _resubmitAlerts[office.code];
-        const rBucket = col.id === 'posting_old' ? rData?.legacy : rData?.oryx;
-        const rPmsLabel = col.id === 'posting_old' ? 'Legacy PMS' : 'Oryx';
+        const rBucket = col.id === 'claims_old' ? rData?.legacy : rData?.oryx;
+        const rPmsLabel = col.id === 'claims_old' ? 'Legacy PMS' : 'Oryx';
         let rBadges = '';
         if (rBucket) {
           if (rBucket.priority > 0) rBadges += `<span class="aging-badge priority" title="${rBucket.priority} Must Resubmit — approaching 1yr — ${rPmsLabel}">⚠️ PRIORITY ${rBucket.priority}</span> `;
