@@ -1,0 +1,46 @@
+{
+  "generated": "2026-04-22T00:27:50.952Z",
+  "payPeriod": "Pay Period #9",
+  "offices": {
+    "SQ": {
+      "pct": 38.3,
+      "label": "38.3%"
+    },
+    "GT": {
+      "pct": 85,
+      "label": "85%"
+    },
+    "ATX": {
+      "pct": 23.3,
+      "label": "23.3%"
+    },
+    "MP": {
+      "pct": 31.3,
+      "label": "31.3%"
+    },
+    "NBDA": {
+      "pct": 176.7,
+      "label": "176.7%"
+    },
+    "IC": {
+      "pct": 0,
+      "label": "0%"
+    },
+    "AR": {
+      "pct": 0,
+      "label": "0%"
+    },
+    "PF": {
+      "pct": 65.9,
+      "label": "65.9%"
+    },
+    "SATX": {
+      "pct": 108.9,
+      "label": "108.9%"
+    },
+    "AM": {
+      "pct": 0,
+      "label": "0%"
+    }
+  }
+}
