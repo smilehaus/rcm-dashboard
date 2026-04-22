@@ -228,8 +228,9 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 .iv-date-inp:focus{outline:none;border-color:var(--earth);}
 
 /* ── Aging Alerts ────────────────────────── */
-.aging-alert-bar{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px;justify-content:center;}
-.aging-badge{font-size:8px;font-weight:800;letter-spacing:.4px;padding:1px 6px;border-radius:100px;line-height:14px;cursor:default;}
+.aging-alert-bar{display:flex;align-items:center;gap:5px;margin-top:auto;padding-top:6px;border-top:1px solid var(--sandstone);min-height:18px;flex-wrap:wrap;}
+.aging-alert-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--earth);white-space:nowrap;}
+.aging-badge{font-size:8px;font-weight:800;letter-spacing:.4px;padding:1px 6px;border-radius:100px;line-height:14px;cursor:default;white-space:nowrap;}
 .aging-badge.overdue{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;}
 .aging-badge.priority{background:#fefce8;color:#a16207;border:1px solid #fde68a;}
 @keyframes aging-flash{0%,100%{opacity:1;}50%{opacity:.5;}}
@@ -3698,13 +3699,13 @@ function buildGrid(tableEl, boardId) {
         alertBar.dataset.agingType = col.id === 'aging_old' ? 'legacy' : 'oryx';
         const data = _agingAlerts[office.code];
         const bucket = col.id === 'aging_old' ? data?.legacy : data?.oryx;
+        const pmsLabel = col.id === 'aging_old' ? 'Legacy PMS' : 'Oryx';
+        let badges = '';
         if (bucket) {
-          const pmsLabel = col.id === 'aging_old' ? 'Legacy PMS' : 'Oryx';
-          let html = '';
-          if (bucket.priority > 0) html += `<span class="aging-badge priority" title="${bucket.priority} approaching 1yr deadline — ${pmsLabel}">⚠️ PRIORITY ${bucket.priority}</span> `;
-          if (bucket.overdue > 0) html += `<span class="aging-badge overdue has-count" title="${bucket.overdue} OVERDUE (past 1yr) — ${pmsLabel}">⛔ OVERDUE ${bucket.overdue}</span>`;
-          alertBar.innerHTML = html;
+          if (bucket.priority > 0) badges += `<span class="aging-badge priority" title="${bucket.priority} approaching 1yr deadline — ${pmsLabel}">⚠️ PRIORITY ${bucket.priority}</span> `;
+          if (bucket.overdue > 0) badges += `<span class="aging-badge overdue has-count" title="${bucket.overdue} OVERDUE (past 1yr) — ${pmsLabel}">⛔ OVERDUE ${bucket.overdue}</span>`;
         }
+        alertBar.innerHTML = `<span class="aging-alert-lbl">Alerts:</span>${badges}`;
         inner.appendChild(alertBar);
       }
 
@@ -4945,10 +4946,10 @@ function renderAgingBadges() {
     if (!bucket) { el.innerHTML = ''; return; }
 
     const pmsLabel = type === 'legacy' ? 'Legacy PMS' : 'Oryx';
-    let html = '';
-    if (bucket.priority > 0) html += `<span class="aging-badge priority" title="${bucket.priority} approaching 1yr deadline — ${pmsLabel}">⚠️ PRIORITY ${bucket.priority}</span> `;
-    if (bucket.overdue > 0) html += `<span class="aging-badge overdue has-count" title="${bucket.overdue} OVERDUE (past 1yr) — ${pmsLabel}">⛔ OVERDUE ${bucket.overdue}</span>`;
-    el.innerHTML = html;
+    let badges = '';
+    if (bucket.priority > 0) badges += `<span class="aging-badge priority" title="${bucket.priority} approaching 1yr deadline — ${pmsLabel}">⚠️ PRIORITY ${bucket.priority}</span> `;
+    if (bucket.overdue > 0) badges += `<span class="aging-badge overdue has-count" title="${bucket.overdue} OVERDUE (past 1yr) — ${pmsLabel}">⛔ OVERDUE ${bucket.overdue}</span>`;
+    el.innerHTML = `<span class="aging-alert-lbl">Alerts:</span>${badges}`;
   });
 }
 
