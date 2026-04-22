@@ -3690,26 +3690,19 @@ function buildGrid(tableEl, boardId) {
         inner.appendChild(dateBar);
       }
 
-      // Aging alert badges — OVERDUE on aging_old, PRIORITY on aging_oryx
-      if (col.id === 'aging_old') {
+      // Aging alert badges — split by PMS: legacy on aging_old, oryx on aging_oryx
+      if (col.id === 'aging_old' || col.id === 'aging_oryx') {
         const alertBar = document.createElement('div');
         alertBar.className = 'aging-alert-bar';
         alertBar.dataset.office = office.code;
-        alertBar.dataset.agingType = 'old';
+        alertBar.dataset.agingType = col.id === 'aging_old' ? 'legacy' : 'oryx';
         const data = _agingAlerts[office.code];
-        if (data && data.overdue > 0) {
-          alertBar.innerHTML = `<span class="aging-badge overdue has-count" title="${data.overdue} overdue claims (past 1yr timely filing) — unworked">⛔ ${data.overdue}</span>`;
-        }
-        inner.appendChild(alertBar);
-      }
-      if (col.id === 'aging_oryx') {
-        const alertBar = document.createElement('div');
-        alertBar.className = 'aging-alert-bar';
-        alertBar.dataset.office = office.code;
-        alertBar.dataset.agingType = 'oryx';
-        const data = _agingAlerts[office.code];
-        if (data && data.priority > 0) {
-          alertBar.innerHTML = `<span class="aging-badge priority" title="${data.priority} claims approaching 1yr timely filing — unworked">⚠️ ${data.priority}</span>`;
+        const bucket = col.id === 'aging_old' ? data?.legacy : data?.oryx;
+        if (bucket) {
+          let html = '';
+          if (bucket.overdue > 0) html += `<span class="aging-badge overdue has-count" title="${bucket.overdue} OVERDUE (past 1yr) — ${col.id === 'aging_old' ? 'Legacy PMS' : 'Oryx'}">⛔ ${bucket.overdue}</span> `;
+          if (bucket.priority > 0) html += `<span class="aging-badge priority" title="${bucket.priority} approaching 1yr deadline — ${col.id === 'aging_old' ? 'Legacy PMS' : 'Oryx'}">⚠️ ${bucket.priority}</span>`;
+          alertBar.innerHTML = html;
         }
         inner.appendChild(alertBar);
       }
@@ -4932,7 +4925,8 @@ async function fetchAgingAlerts() {
     if (!data) { console.warn('aging-alerts.json not found — run flag-recent-dos.ts to generate'); return; }
     _agingAlerts = data.offices || {};
     renderAgingBadges();
-    console.log('Aging alerts loaded:', data.generated, '—', Object.values(_agingAlerts).reduce((s,o) => s + o.overdue, 0), 'overdue,', Object.values(_agingAlerts).reduce((s,o) => s + o.priority, 0), 'priority');
+    const totals = Object.values(_agingAlerts).reduce((s,o) => ({ ov: s.ov + (o.oryx?.overdue||0) + (o.legacy?.overdue||0), pr: s.pr + (o.oryx?.priority||0) + (o.legacy?.priority||0) }), {ov:0,pr:0});
+    console.log('Aging alerts loaded:', data.generated, '—', totals.ov, 'overdue,', totals.pr, 'priority');
   } catch (e) {
     console.warn('Failed to load aging alerts:', e);
   }
@@ -4941,20 +4935,18 @@ async function fetchAgingAlerts() {
 function renderAgingBadges() {
   document.querySelectorAll('.aging-alert-bar').forEach(el => {
     const office = el.dataset.office;
-    const type   = el.dataset.agingType; // 'old' or 'oryx'
+    const type   = el.dataset.agingType; // 'legacy' or 'oryx'
     if (!office) return;
     const data = _agingAlerts[office];
     if (!data) { el.innerHTML = ''; return; }
 
-    if (type === 'old') {
-      el.innerHTML = data.overdue > 0
-        ? `<span class="aging-badge overdue has-count" title="${data.overdue} overdue claims (past 1yr timely filing) — unworked">⛔ ${data.overdue}</span>`
-        : '';
-    } else if (type === 'oryx') {
-      el.innerHTML = data.priority > 0
-        ? `<span class="aging-badge priority" title="${data.priority} claims approaching 1yr timely filing — unworked">⚠️ ${data.priority}</span>`
-        : '';
-    }
+    const bucket = type === 'legacy' ? data.legacy : data.oryx;
+    if (!bucket) { el.innerHTML = ''; return; }
+
+    let html = '';
+    if (bucket.overdue > 0) html += `<span class="aging-badge overdue has-count" title="${bucket.overdue} OVERDUE (past 1yr) — ${type === 'legacy' ? 'Legacy PMS' : 'Oryx'}">⛔ ${bucket.overdue}</span> `;
+    if (bucket.priority > 0) html += `<span class="aging-badge priority" title="${bucket.priority} approaching 1yr deadline — ${type === 'legacy' ? 'Legacy PMS' : 'Oryx'}">⚠️ ${bucket.priority}</span>`;
+    el.innerHTML = html;
   });
 }
 
