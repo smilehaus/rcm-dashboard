@@ -1,45 +1,105 @@
 {
-  "generated": "2026-04-21T23:58:58.608Z",
+  "generated": "2026-04-22T00:09:52.179Z",
   "offices": {
     "SQ": {
-      "overdue": 0,
-      "priority": 0
+      "oryx": {
+        "overdue": 0,
+        "priority": 0
+      },
+      "legacy": {
+        "overdue": 0,
+        "priority": 0
+      }
     },
     "GT": {
-      "overdue": 24,
-      "priority": 6
+      "oryx": {
+        "overdue": 17,
+        "priority": 6
+      },
+      "legacy": {
+        "overdue": 7,
+        "priority": 0
+      }
     },
     "ATX": {
-      "overdue": 3,
-      "priority": 2
+      "oryx": {
+        "overdue": 3,
+        "priority": 2
+      },
+      "legacy": {
+        "overdue": 0,
+        "priority": 0
+      }
     },
     "MP": {
-      "overdue": 11,
-      "priority": 14
+      "oryx": {
+        "overdue": 2,
+        "priority": 0
+      },
+      "legacy": {
+        "overdue": 9,
+        "priority": 14
+      }
     },
     "NBDA": {
-      "overdue": 24,
-      "priority": 4
+      "oryx": {
+        "overdue": 12,
+        "priority": 1
+      },
+      "legacy": {
+        "overdue": 12,
+        "priority": 3
+      }
     },
     "IC": {
-      "overdue": 0,
-      "priority": 0
+      "oryx": {
+        "overdue": 0,
+        "priority": 0
+      },
+      "legacy": {
+        "overdue": 0,
+        "priority": 1
+      }
     },
     "AR": {
-      "overdue": 13,
-      "priority": 2
+      "oryx": {
+        "overdue": 13,
+        "priority": 2
+      },
+      "legacy": {
+        "overdue": 0,
+        "priority": 0
+      }
     },
     "PF": {
-      "overdue": 0,
-      "priority": 0
+      "oryx": {
+        "overdue": 0,
+        "priority": 0
+      },
+      "legacy": {
+        "overdue": 0,
+        "priority": 0
+      }
     },
     "SATX": {
-      "overdue": 0,
-      "priority": 0
+      "oryx": {
+        "overdue": 0,
+        "priority": 0
+      },
+      "legacy": {
+        "overdue": 0,
+        "priority": 0
+      }
     },
     "AM": {
-      "overdue": 0,
-      "priority": 0
+      "oryx": {
+        "overdue": 0,
+        "priority": 0
+      },
+      "legacy": {
+        "overdue": 0,
+        "priority": 0
+      }
     }
   }
 }
