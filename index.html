@@ -236,6 +236,10 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 @keyframes aging-flash{0%,100%{opacity:1;}50%{opacity:.5;}}
 .aging-badge.overdue.has-count{animation:aging-flash 1.6s ease-in-out infinite;}
 
+/* ── Resubmit Alerts ─────────────────────── */
+.resubmit-alert-bar{display:flex;align-items:center;gap:5px;padding-top:6px;border-top:1px solid var(--sandstone);min-height:18px;flex-wrap:wrap;}
+.resubmit-alert-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--earth);white-space:nowrap;}
+
 /* ── Posting Completion Alerts ────────────── */
 .posting-alert-bar{display:flex;align-items:center;gap:5px;padding-top:6px;border-top:1px solid var(--sandstone);min-height:18px;flex-wrap:wrap;}
 .posting-alert-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--earth);white-space:nowrap;}
@@ -459,6 +463,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
     <div class="legend-item"><div class="ldot" style="background:#22c55e;animation:iv-green-pulse 2s ease-in-out infinite"></div>IV verified 4+ days out</div>
     <div class="legend-item"><span class="aging-badge priority" style="font-size:7px;padding:0 5px;line-height:13px">⚠️ PRIORITY</span>Approaching 1yr timely filing</div>
     <div class="legend-item"><span class="aging-badge overdue" style="font-size:7px;padding:0 5px;line-height:13px">⛔ OVERDUE</span>Past 1yr timely filing</div>
+    <div class="legend-item" style="font-size:9px;color:var(--taupe);padding-left:2px">↑ Aging &amp; Resubmit columns</div>
     <div class="legend-item"><span class="posting-pct red" style="font-size:7px;padding:0 5px;line-height:13px">0%</span>Posting &lt;50%</div>
     <div class="legend-item"><span class="posting-pct yellow" style="font-size:7px;padding:0 5px;line-height:13px">65%</span>Posting 50–74%</div>
     <div class="legend-item"><span class="posting-pct green" style="font-size:7px;padding:0 5px;line-height:13px">95%</span>Posting 90%+</div>
@@ -889,6 +894,20 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
             <div style="display:flex;gap:10px;align-items:center;font-size:12px;color:var(--onyx)">
               <span style="font-size:10px;color:var(--taupe);font-weight:600">75–89%</span>
               <span>No marker — acceptable range, keep going.</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx);margin-top:8px">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Both Posting columns also show a <em>Resubmit:</em> row for claims flagged <strong>Must Resubmit</strong> in the INS AR list — same timely filing thresholds as Aging:</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;padding-left:22px;margin-top:2px">
+            <div style="display:flex;gap:10px;align-items:center;font-size:12px;color:var(--onyx)">
+              <span class="aging-badge priority" style="font-size:8px;padding:1px 6px;line-height:14px">⚠️ PRIORITY</span>
+              <span><strong>Approaching deadline</strong> — DOS is 358–365 days old. 7 or fewer days left to resubmit.</span>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;font-size:12px;color:var(--onyx)">
+              <span class="aging-badge overdue" style="font-size:8px;padding:1px 6px;line-height:14px">⛔ OVERDUE</span>
+              <span><strong>Past deadline</strong> — DOS is 365+ days old (from 1/1/2025 onward). Timely filing window has closed.</span>
             </div>
           </div>
         </div>
@@ -3817,6 +3836,25 @@ function buildGrid(tableEl, boardId) {
         inner.appendChild(postBar);
       }
 
+      // Resubmit alerts — "Must Resubmit" claims approaching/past 1yr timely filing
+      // Legacy PMS on posting_old, Oryx on posting_oryx
+      if (col.id === 'posting_old' || col.id === 'posting_oryx') {
+        const resubBar = document.createElement('div');
+        resubBar.className = 'resubmit-alert-bar';
+        resubBar.dataset.office = office.code;
+        resubBar.dataset.resubmitType = col.id === 'posting_old' ? 'legacy' : 'oryx';
+        const rData = _resubmitAlerts[office.code];
+        const rBucket = col.id === 'posting_old' ? rData?.legacy : rData?.oryx;
+        const rPmsLabel = col.id === 'posting_old' ? 'Legacy PMS' : 'Oryx';
+        let rBadges = '';
+        if (rBucket) {
+          if (rBucket.priority > 0) rBadges += `<span class="aging-badge priority" title="${rBucket.priority} Must Resubmit — approaching 1yr — ${rPmsLabel}">⚠️ PRIORITY ${rBucket.priority}</span> `;
+          if (rBucket.overdue > 0) rBadges += `<span class="aging-badge overdue has-count" title="${rBucket.overdue} Must Resubmit — OVERDUE (past 1yr) — ${rPmsLabel}">⛔ OVERDUE ${rBucket.overdue}</span>`;
+        }
+        resubBar.innerHTML = `<span class="resubmit-alert-lbl">Resubmit:</span>${rBadges}`;
+        inner.appendChild(resubBar);
+      }
+
       td.appendChild(inner);
       tr.appendChild(td);
     });
@@ -5062,6 +5100,54 @@ function renderAgingBadges() {
 }
 
 // ════════════════════════════════════════════════
+// RESUBMIT ALERTS — "Must Resubmit" claims nearing/past 1yr timely filing
+// Generated daily by scripts/flag-resubmit-claims.ts → resubmit-alerts.json
+// ════════════════════════════════════════════════
+let _resubmitAlerts = {};
+
+async function fetchResubmitAlerts() {
+  try {
+    const urls = ['./resubmit-alerts.json', 'resubmit-alerts.json'];
+    let data = null;
+    for (const url of urls) {
+      try {
+        const r = await fetch(url, { cache: 'no-cache' });
+        if (r.ok) { data = await r.json(); break; }
+      } catch (_) {}
+    }
+    if (!data) { console.warn('resubmit-alerts.json not found — run flag-resubmit-claims.ts to generate'); return; }
+    _resubmitAlerts = data.offices || {};
+    renderResubmitBadges();
+    const totals = Object.values(_resubmitAlerts).reduce((s,o) => ({
+      ov: s.ov + (o.oryx?.overdue||0) + (o.legacy?.overdue||0),
+      pr: s.pr + (o.oryx?.priority||0) + (o.legacy?.priority||0)
+    }), {ov:0, pr:0});
+    console.log('Resubmit alerts loaded:', data.generated, '—', totals.ov, 'overdue,', totals.pr, 'priority');
+  } catch (e) {
+    console.warn('Failed to load resubmit alerts:', e);
+  }
+}
+
+function renderResubmitBadges() {
+  document.querySelectorAll('.resubmit-alert-bar').forEach(el => {
+    const office = el.dataset.office;
+    const type   = el.dataset.resubmitType; // 'legacy' or 'oryx'
+    if (!office) return;
+    const data = _resubmitAlerts[office];
+    if (!data) { el.innerHTML = `<span class="resubmit-alert-lbl">Resubmit:</span>`; return; }
+
+    const bucket = type === 'legacy' ? data.legacy : data.oryx;
+    if (!bucket) { el.innerHTML = `<span class="resubmit-alert-lbl">Resubmit:</span>`; return; }
+
+    const pmsLabel = type === 'legacy' ? 'Legacy PMS' : 'Oryx';
+    let badges = '';
+    if (bucket.priority > 0) badges += `<span class="aging-badge priority" title="${bucket.priority} Must Resubmit — approaching 1yr deadline — ${pmsLabel}">⚠️ PRIORITY ${bucket.priority}</span> `;
+    if (bucket.overdue > 0) badges += `<span class="aging-badge overdue has-count" title="${bucket.overdue} Must Resubmit — OVERDUE (past 1yr) — ${pmsLabel}">⛔ OVERDUE ${bucket.overdue}</span>`;
+    el.innerHTML = `<span class="resubmit-alert-lbl">Resubmit:</span>${badges}`;
+  });
+}
+
+// ════════════════════════════════════════════════
 // POSTING ALERTS — ClickUp Integration
 // ════════════════════════════════════════════════
 let _postingAlerts = {};
@@ -5114,9 +5200,11 @@ function renderPostingBadges() {
   // Fetch alerts from ClickUp (async, non-blocking — badges appear when data arrives)
   fetchAgingAlerts();
   fetchPostingAlerts();
+  fetchResubmitAlerts();
   // Refresh every 15 minutes
   setInterval(fetchAgingAlerts, 15 * 60 * 1000);
   setInterval(fetchPostingAlerts, 15 * 60 * 1000);
+  setInterval(fetchResubmitAlerts, 15 * 60 * 1000);
 })();
 </script>
 

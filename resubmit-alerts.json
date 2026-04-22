@@ -1,0 +1,15 @@
+{
+  "generated": "2026-04-22T00:00:00.000Z",
+  "offices": {
+    "SQ":   { "oryx": { "overdue": 0, "priority": 0 }, "legacy": { "overdue": 0, "priority": 0 } },
+    "GT":   { "oryx": { "overdue": 0, "priority": 0 }, "legacy": { "overdue": 0, "priority": 0 } },
+    "ATX":  { "oryx": { "overdue": 0, "priority": 0 }, "legacy": { "overdue": 0, "priority": 0 } },
+    "MP":   { "oryx": { "overdue": 0, "priority": 0 }, "legacy": { "overdue": 0, "priority": 0 } },
+    "NBDA": { "oryx": { "overdue": 0, "priority": 0 }, "legacy": { "overdue": 0, "priority": 0 } },
+    "IC":   { "oryx": { "overdue": 0, "priority": 0 }, "legacy": { "overdue": 0, "priority": 0 } },
+    "AR":   { "oryx": { "overdue": 0, "priority": 0 }, "legacy": { "overdue": 0, "priority": 0 } },
+    "PF":   { "oryx": { "overdue": 0, "priority": 0 }, "legacy": { "overdue": 0, "priority": 0 } },
+    "SATX": { "oryx": { "overdue": 0, "priority": 0 }, "legacy": { "overdue": 0, "priority": 0 } },
+    "AM":   { "oryx": { "overdue": 0, "priority": 0 }, "legacy": { "overdue": 0, "priority": 0 } }
+  }
+}
