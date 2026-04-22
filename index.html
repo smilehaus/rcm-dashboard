@@ -196,14 +196,14 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 
 /* Drop cells */
 .drop-cell{padding:0;vertical-align:top;}
-.cell-inner{min-height:80px;min-width:82px;padding:5px;position:relative;display:flex;flex-direction:column;gap:3px;}
+.cell-inner{min-height:80px;min-width:82px;padding:5px;position:relative;display:flex;flex-direction:column;gap:3px;height:100%;}
 
 /* Ghost assignments (in-flow, always at top of cell) */
 .ghost-layer{display:flex;flex-wrap:wrap;gap:3px;width:100%;pointer-events:none;padding-bottom:3px;border-bottom:1px solid var(--sandstone);}
 .ghost-name{font-size:11px;color:#2A2E31;font-weight:600;white-space:nowrap;letter-spacing:.2px;}
 
 /* Live tokens layer — 2-column wrap, max 4 tiles (2×2) */
-.live-layer{display:flex;flex-wrap:wrap;gap:3px;width:100%;align-items:flex-start;min-height:50px;}
+.live-layer{display:flex;flex-wrap:wrap;gap:3px;width:100%;align-items:flex-start;min-height:50px;flex:1;}
 
 /* Remove button on assignment tokens */
 .tok-remove{position:absolute;top:-5px;right:-5px;width:16px;height:16px;border-radius:50%;background:var(--taupe);color:white;border:none;font-size:10px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:10;font-weight:700;}
@@ -228,7 +228,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 .iv-date-inp:focus{outline:none;border-color:var(--earth);}
 
 /* ── Aging Alerts ────────────────────────── */
-.aging-alert-bar{display:flex;align-items:center;gap:5px;padding-top:6px;border-top:1px solid var(--sandstone);min-height:18px;flex-wrap:wrap;}
+.aging-alert-bar{display:flex;align-items:center;gap:5px;padding-top:6px;border-top:1px solid var(--sandstone);min-height:18px;flex-wrap:nowrap;overflow:hidden;}
 .aging-alert-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--earth);white-space:nowrap;}
 .aging-badge{font-size:8px;font-weight:800;letter-spacing:.4px;padding:1px 6px;border-radius:100px;line-height:14px;cursor:default;white-space:nowrap;}
 .aging-badge.overdue{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;}
