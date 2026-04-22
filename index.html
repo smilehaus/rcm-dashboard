@@ -3699,9 +3699,10 @@ function buildGrid(tableEl, boardId) {
         const data = _agingAlerts[office.code];
         const bucket = col.id === 'aging_old' ? data?.legacy : data?.oryx;
         if (bucket) {
+          const pmsLabel = col.id === 'aging_old' ? 'Legacy PMS' : 'Oryx';
           let html = '';
-          if (bucket.overdue > 0) html += `<span class="aging-badge overdue has-count" title="${bucket.overdue} OVERDUE (past 1yr) — ${col.id === 'aging_old' ? 'Legacy PMS' : 'Oryx'}">⛔ ${bucket.overdue}</span> `;
-          if (bucket.priority > 0) html += `<span class="aging-badge priority" title="${bucket.priority} approaching 1yr deadline — ${col.id === 'aging_old' ? 'Legacy PMS' : 'Oryx'}">⚠️ ${bucket.priority}</span>`;
+          if (bucket.priority > 0) html += `<span class="aging-badge priority" title="${bucket.priority} approaching 1yr deadline — ${pmsLabel}">⚠️ PRIORITY ${bucket.priority}</span> `;
+          if (bucket.overdue > 0) html += `<span class="aging-badge overdue has-count" title="${bucket.overdue} OVERDUE (past 1yr) — ${pmsLabel}">⛔ OVERDUE ${bucket.overdue}</span>`;
           alertBar.innerHTML = html;
         }
         inner.appendChild(alertBar);
@@ -4943,9 +4944,10 @@ function renderAgingBadges() {
     const bucket = type === 'legacy' ? data.legacy : data.oryx;
     if (!bucket) { el.innerHTML = ''; return; }
 
+    const pmsLabel = type === 'legacy' ? 'Legacy PMS' : 'Oryx';
     let html = '';
-    if (bucket.overdue > 0) html += `<span class="aging-badge overdue has-count" title="${bucket.overdue} OVERDUE (past 1yr) — ${type === 'legacy' ? 'Legacy PMS' : 'Oryx'}">⛔ ${bucket.overdue}</span> `;
-    if (bucket.priority > 0) html += `<span class="aging-badge priority" title="${bucket.priority} approaching 1yr deadline — ${type === 'legacy' ? 'Legacy PMS' : 'Oryx'}">⚠️ ${bucket.priority}</span>`;
+    if (bucket.priority > 0) html += `<span class="aging-badge priority" title="${bucket.priority} approaching 1yr deadline — ${pmsLabel}">⚠️ PRIORITY ${bucket.priority}</span> `;
+    if (bucket.overdue > 0) html += `<span class="aging-badge overdue has-count" title="${bucket.overdue} OVERDUE (past 1yr) — ${pmsLabel}">⛔ OVERDUE ${bucket.overdue}</span>`;
     el.innerHTML = html;
   });
 }
