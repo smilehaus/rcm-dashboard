@@ -236,6 +236,15 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 @keyframes aging-flash{0%,100%{opacity:1;}50%{opacity:.5;}}
 .aging-badge.overdue.has-count{animation:aging-flash 1.6s ease-in-out infinite;}
 
+/* ── Posting Completion Alerts ────────────── */
+.posting-alert-bar{display:flex;align-items:center;gap:5px;padding-top:6px;border-top:1px solid var(--sandstone);min-height:18px;flex-wrap:wrap;}
+.posting-alert-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--earth);white-space:nowrap;}
+.posting-pct{font-size:9px;font-weight:800;padding:1px 7px;border-radius:100px;line-height:14px;cursor:default;white-space:nowrap;}
+.posting-pct.green{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;}
+.posting-pct.yellow{background:#fefce8;color:#a16207;border:1px solid #fde68a;animation:posting-flash 1.4s ease-in-out infinite;}
+.posting-pct.red{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;animation:posting-flash 1.2s ease-in-out infinite;}
+@keyframes posting-flash{0%,100%{opacity:1;}50%{opacity:.45;}}
+
 /* ── Away Zone ────────────────────────────── */
 .away-panel{border-radius:var(--radius);border:2px dashed var(--taupe);background:rgba(214,205,189,.18);padding:16px 20px;}
 .away-hdr{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
@@ -450,6 +459,9 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
     <div class="legend-item"><div class="ldot" style="background:#22c55e;animation:iv-green-pulse 2s ease-in-out infinite"></div>IV verified 4+ days out</div>
     <div class="legend-item"><span class="aging-badge priority" style="font-size:7px;padding:0 5px;line-height:13px">⚠️ PRIORITY</span>Approaching 1yr timely filing</div>
     <div class="legend-item"><span class="aging-badge overdue" style="font-size:7px;padding:0 5px;line-height:13px">⛔ OVERDUE</span>Past 1yr timely filing</div>
+    <div class="legend-item"><span class="posting-pct red" style="font-size:7px;padding:0 5px;line-height:13px">0%</span>Posting &lt;50%</div>
+    <div class="legend-item"><span class="posting-pct yellow" style="font-size:7px;padding:0 5px;line-height:13px">65%</span>Posting 50–74%</div>
+    <div class="legend-item"><span class="posting-pct green" style="font-size:7px;padding:0 5px;line-height:13px">95%</span>Posting 90%+</div>
   </div>
 </div>
 
@@ -840,6 +852,44 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx);background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 12px">
             <span style="font-size:15px;flex-shrink:0">🚨</span>
             <span><strong>Action required:</strong> If you see OVERDUE or PRIORITY badges for your office, check the Master Aging INS AR list in ClickUp immediately. These claims need urgent attention — either file, appeal, or update the aging status to clear them from the count.</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:1px;background:var(--sandstone)"></div>
+
+      <!-- Posting Completion -->
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <span style="font-size:20px">📬</span>
+          <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Posting Completion %</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>The <strong>Oryx Posting</strong> column shows a <em>Posted:</em> completion percentage for each office, pulled from the EOB/ERA Posting Goals list in ClickUp.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>This tracks how much of the office's production has been posted (Collection / Production). Updated daily.</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;padding-left:22px;margin-top:2px">
+            <div style="display:flex;gap:10px;align-items:center;font-size:12px;color:var(--onyx)">
+              <span class="posting-pct red" style="font-size:8px;padding:1px 6px;line-height:14px">23%</span>
+              <span><strong>Red flashing</strong> — Under 50%. Critical — posting is significantly behind.</span>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;font-size:12px;color:var(--onyx)">
+              <span class="posting-pct yellow" style="font-size:8px;padding:1px 6px;line-height:14px">65%</span>
+              <span><strong>Yellow flashing</strong> — 50–74%. Warning — posting needs attention.</span>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;font-size:12px;color:var(--onyx)">
+              <span class="posting-pct green" style="font-size:8px;padding:1px 6px;line-height:14px">95%</span>
+              <span><strong>Green</strong> — 90%+. On track or complete.</span>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;font-size:12px;color:var(--onyx)">
+              <span style="font-size:10px;color:var(--taupe);font-weight:600">75–89%</span>
+              <span>No marker — acceptable range, keep going.</span>
+            </div>
           </div>
         </div>
       </div>
@@ -3749,6 +3799,24 @@ function buildGrid(tableEl, boardId) {
         inner.appendChild(alertBar);
       }
 
+      // Posting completion % — only on posting_oryx column
+      if (col.id === 'posting_oryx') {
+        const postBar = document.createElement('div');
+        postBar.className = 'posting-alert-bar';
+        postBar.dataset.office = office.code;
+        const pd = _postingAlerts[office.code];
+        let badge = '';
+        if (pd) {
+          let cls = '';
+          if (pd.pct >= 90) cls = 'green';
+          else if (pd.pct >= 50) cls = 'yellow';
+          else cls = 'red';
+          badge = `<span class="posting-pct ${cls}" title="Posting completion: ${pd.label} (${_postingPayPeriod})">${pd.label}</span>`;
+        }
+        postBar.innerHTML = `<span class="posting-alert-lbl">Posted:</span>${badge}`;
+        inner.appendChild(postBar);
+      }
+
       td.appendChild(inner);
       tr.appendChild(td);
     });
@@ -4993,6 +5061,49 @@ function renderAgingBadges() {
   });
 }
 
+// ════════════════════════════════════════════════
+// POSTING ALERTS — ClickUp Integration
+// ════════════════════════════════════════════════
+let _postingAlerts = {};
+let _postingPayPeriod = '';
+
+async function fetchPostingAlerts() {
+  try {
+    const urls = ['./posting-alerts.json', 'posting-alerts.json'];
+    let data = null;
+    for (const url of urls) {
+      try {
+        const r = await fetch(url, { cache: 'no-cache' });
+        if (r.ok) { data = await r.json(); break; }
+      } catch (_) {}
+    }
+    if (!data) { console.warn('posting-alerts.json not found — run fetch-posting-goals.ts to generate'); return; }
+    _postingAlerts = data.offices || {};
+    _postingPayPeriod = data.payPeriod || '';
+    renderPostingBadges();
+    console.log('Posting alerts loaded:', data.generated, '—', _postingPayPeriod);
+  } catch (e) {
+    console.warn('Failed to load posting alerts:', e);
+  }
+}
+
+function renderPostingBadges() {
+  document.querySelectorAll('.posting-alert-bar').forEach(el => {
+    const office = el.dataset.office;
+    if (!office) return;
+    const pd = _postingAlerts[office];
+    let badge = '';
+    if (pd) {
+      let cls = '';
+      if (pd.pct >= 90) cls = 'green';
+      else if (pd.pct >= 50) cls = 'yellow';
+      else cls = 'red';
+      badge = `<span class="posting-pct ${cls}" title="Posting completion: ${pd.label} (${_postingPayPeriod})">${pd.label}</span>`;
+    }
+    el.innerHTML = `<span class="posting-alert-lbl">Posted:</span>${badge}`;
+  });
+}
+
 (async () => {
   await load();
   setDate();
@@ -5000,10 +5111,12 @@ function renderAgingBadges() {
   scheduleMidnightCheck(); // then fire exactly at midnight CT each day
   requestNotifPermission(); // ask for desktop notification permission
   renderAll();
-  // Fetch aging alerts from ClickUp (async, non-blocking — badges appear when data arrives)
+  // Fetch alerts from ClickUp (async, non-blocking — badges appear when data arrives)
   fetchAgingAlerts();
-  // Refresh aging alerts every 15 minutes
+  fetchPostingAlerts();
+  // Refresh every 15 minutes
   setInterval(fetchAgingAlerts, 15 * 60 * 1000);
+  setInterval(fetchPostingAlerts, 15 * 60 * 1000);
 })();
 </script>
 
