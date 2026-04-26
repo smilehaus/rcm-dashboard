@@ -305,18 +305,18 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 @keyframes posting-flash{0%,100%{opacity:1;}50%{opacity:.45;}}
 
 /* ── Away Zone ────────────────────────────── */
-.away-panel{border-radius:6px;border:1px solid var(--border);background:var(--surface);padding:16px 20px;}
+.away-panel{border-radius:6px;border:1px solid var(--border);background:var(--surface);padding:18px 22px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
 .away-hdr{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
-.away-hdr h2{font-family:var(--font-display);font-size:18px;font-weight:400;color:var(--fg);letter-spacing:.01em;}
-.away-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.away-area{border-radius:6px;padding:12px 14px;min-height:80px;border:1.5px dashed transparent;}
-.away-area.lunch{background:var(--warn-bg);border-color:var(--warn-border);}
-.away-area.off{background:var(--critical-bg);border-color:var(--critical-border);}
-.away-area-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px;color:var(--fg2);font-family:var(--font-body);}
+.away-hdr h2{font-family:var(--font-display);font-size:20px;font-weight:400;color:var(--fg);letter-spacing:.01em;}
+.away-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.away-area{border-radius:6px;padding:14px 16px;min-height:90px;border:2px dashed transparent;transition:all .15s;}
+.away-area.lunch{background:var(--warn-bg);border-color:var(--warn);}
+.away-area.off{background:var(--critical-bg);border-color:var(--critical);}
+.away-area-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;margin-bottom:12px;color:var(--fg2);font-family:var(--font-body);}
 .away-area.lunch .away-area-title{color:var(--warn);}
 .away-area.off   .away-area-title{color:var(--critical);}
-.away-tokens{display:flex;flex-wrap:wrap;gap:6px;min-height:44px;border-radius:5px;padding:4px;}
-.away-tokens.over{background:var(--gold-faint);outline:2px dashed var(--gold-dim);border-radius:5px;}
+.away-tokens{display:flex;flex-wrap:wrap;gap:6px;min-height:48px;border-radius:5px;padding:4px;}
+.away-tokens.over{background:var(--gold-faint);outline:2px dashed var(--gold);border-radius:5px;}
 
 /* ── Buttons ──────────────────────────────── */
 .btn{font-family:var(--font-body);padding:6px 14px;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;border:1px solid var(--border);letter-spacing:.04em;}
