@@ -5,24 +5,79 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Smile Haus — RCM Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* ── Brand Tokens ─────────────────────────── */
+/* ── IvyMode display font (local) ────────────── */
+@font-face { font-family:'IvyMode'; src:url('assets/fonts/IvyMode-Light.ttf')      format('truetype'); font-weight:300; font-style:normal; font-display:swap; }
+@font-face { font-family:'IvyMode'; src:url('assets/fonts/IvyMode-LightItalic.ttf')format('truetype'); font-weight:300; font-style:italic; font-display:swap; }
+@font-face { font-family:'IvyMode'; src:url('assets/fonts/IvyMode-Regular.ttf')    format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
+@font-face { font-family:'IvyMode'; src:url('assets/fonts/IvyMode-Italic.ttf')     format('truetype'); font-weight:400; font-style:italic; font-display:swap; }
+@font-face { font-family:'IvyMode'; src:url('assets/fonts/IvyMode-SemiBold.ttf')   format('truetype'); font-weight:600; font-style:normal; font-display:swap; }
+@font-face { font-family:'IvyMode'; src:url('assets/fonts/IvyMode-Bold.ttf')       format('truetype'); font-weight:700; font-style:normal; font-display:swap; }
+
+/* ── Brand Tokens (Smile Haus Pulse Design System) ───── */
 :root {
-  --alabaster:#F2EFE8; --sandstone:#D6CDBD; --taupe:#C2B09E;
-  --earth:#877765; --onyx:#2A2E31; --white:#FFFFFF;
-  --live:#4ade80; --help-red:#ef4444; --help-green:#22c55e;
-  --radius:12px;
+  /* Surfaces */
+  --bg:           #f5efe4;
+  --surface:      #ffffff;
+  --elevated:     #f0e8db;
+  --header-row:   #ede4d5;
+  --border:       rgba(0,0,0,.10);
+  --border-subtle:rgba(0,0,0,.06);
+
+  /* Text */
+  --fg:  #111111;
+  --fg2: #444444;
+  --fg3: #999999;
+  --fg4: #cccccc;
+
+  /* Accent — gold */
+  --gold:        #b8891e;
+  --gold-dim:    rgba(184,137,30,.35);
+  --gold-faint:  rgba(184,137,30,.08);
+
+  /* Status */
+  --critical:        #c93333;
+  --critical-bg:     #fff0f0;
+  --critical-border: rgba(201,51,51,.18);
+  --warn:            #b8841a;
+  --warn-bg:         #fff8ec;
+  --warn-border:     rgba(184,132,26,.20);
+  --teal:            #2aa898;
+  --teal-bg:         #edfaf8;
+  --teal-border:     rgba(42,168,152,.22);
+
+  /* Fonts */
+  --font-display: 'IvyMode','Cormorant Garamond',Georgia,serif;
+  --font-body:    'Jost','Inter',system-ui,sans-serif;
+  --font-chip:    'Inter','Jost',system-ui,sans-serif;
+
+  /* Legacy aliases (used by JS-emitted HTML — keep mapped to new palette) */
+  --alabaster:    #f5efe4;
+  --sandstone:    rgba(0,0,0,.10);
+  --taupe:        #999999;
+  --earth:        #b8891e;
+  --onyx:         #2a2a2a;
+  --white:        #ffffff;
+  --live:         #2aa898;
+  --help-red:     #c93333;
+  --help-green:   #2aa898;
+  --radius:       6px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--alabaster);color:var(--onyx);min-height:100vh;-webkit-font-smoothing:antialiased;}
+body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-height:100vh;-webkit-font-smoothing:antialiased;}
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:var(--header-row);}
+::-webkit-scrollbar-thumb{background:#c8b89a;border-radius:3px;}
 
-/* ── Header ───────────────────────────────── */
-.header{background:var(--onyx);padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300;box-shadow:0 2px 14px rgba(42,46,49,.35);}
+/* ── Header (charcoal top bar) ────────────── */
+.header{background:#2a2a2a;padding:0 28px;height:50px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300;box-shadow:0 2px 14px rgba(0,0,0,.18);}
 .header svg { flex-shrink: 0; }
-.live-pill{display:flex;align-items:center;gap:7px;border:1px solid rgba(74,222,128,.4);background:rgba(74,222,128,.1);color:#86efac;font-size:10px;font-weight:700;letter-spacing:1.4px;padding:5px 15px;border-radius:100px;}
-.live-dot{width:7px;height:7px;border-radius:50%;background:var(--live);animation:pulsedot 1.6s infinite;}
+.live-pill{display:flex;align-items:center;gap:7px;border:1px solid var(--teal-border);background:var(--teal-bg);color:var(--teal);font-size:11px;font-weight:700;letter-spacing:.12em;padding:5px 12px;border-radius:4px;font-family:var(--font-body);}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:livePulse 1.5s infinite;}
 @keyframes pulsedot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.65);}}
+@keyframes livePulse{0%,100%{opacity:1;box-shadow:0 0 4px var(--gold);}50%{opacity:.55;box-shadow:0 0 10px var(--gold);}}
 .work-live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0;animation:workpulse 1.4s ease-in-out infinite;}
 @keyframes workpulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(34,197,94,.6);}50%{opacity:.7;box-shadow:0 0 0 5px rgba(34,197,94,0);}}
 /* Newly Assigned priority dots */
@@ -35,17 +90,17 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 .main{padding:20px 28px;display:flex;flex-direction:column;gap:16px;max-width:1900px;margin:0 auto;}
 
 /* ── Panels ───────────────────────────────── */
-.panel{background:var(--white);border-radius:var(--radius);border:1px solid var(--sandstone);box-shadow:0 1px 8px rgba(42,46,49,.06);}
-.panel-hdr{padding:12px 20px;border-bottom:1px solid var(--sandstone);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
-.panel-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--earth);}
+.panel{background:var(--surface);border-radius:6px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.panel-hdr{padding:12px 20px;border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.panel-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--gold);font-family:var(--font-body);}
 .panel-body{padding:14px 20px;}
 
 /* ── Tokens ───────────────────────────────── */
-/* Roster token (square badge) */
-.token{border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;color:white;letter-spacing:.3px;border:2.5px solid rgba(255,255,255,.35);box-shadow:0 3px 10px rgba(0,0,0,.2);transition:transform .14s,box-shadow .14s;user-select:none;flex-shrink:0;cursor:grab;position:relative;width:46px;height:46px;font-size:11px;}
+/* Roster token (square badge) — design-system V1 style */
+.token{border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;letter-spacing:.04em;border:1px solid rgba(255,255,255,.18);box-shadow:0 1px 2px rgba(0,0,0,.10);transition:transform .14s,box-shadow .14s;user-select:none;flex-shrink:0;cursor:grab;position:relative;width:32px;height:32px;font-size:10px;font-family:var(--font-chip);}
 .token:active{cursor:grabbing;}
-.token:hover{transform:scale(1.08);box-shadow:0 5px 16px rgba(0,0,0,.28);}
-.token.sm{width:38px;height:38px;font-size:10px;}
+.token:hover{transform:translateY(-1px);box-shadow:0 3px 8px rgba(0,0,0,.18);}
+.token.sm{width:28px;height:28px;font-size:10px;}
 .token.drag-src{opacity:.3;}
 
 /* Live blink */
@@ -64,14 +119,14 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 .gtok:active{cursor:grabbing;}
 .gtok-name{font-size:8.5px;color:var(--onyx);font-weight:600;text-align:center;max-width:50px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
-/* ── Split tile (in-cell token, E-style) ── */
-.gtile{display:flex;align-items:stretch;border-radius:6px;overflow:hidden;box-shadow:0 2px 5px rgba(0,0,0,.16);cursor:grab;transition:transform .12s;height:26px;user-select:none;position:relative;flex-shrink:0;width:100%;min-width:0;}
+/* ── Token tile (V1 — solid square 28×28) ───────────── */
+.gtile{display:flex;align-items:center;justify-content:center;border-radius:4px;overflow:hidden;cursor:grab;transition:transform .12s,box-shadow .12s;height:28px;user-select:none;position:relative;flex-shrink:0;width:28px;}
 .gtile:active{cursor:grabbing;}
-/* Token hover tooltip wrapper — carries 50% width so layout unchanged */
-.gtile-wrap{position:relative;width:calc(50% - 2px);flex-shrink:0;}
-/* 1–2 tokens: span full width so name isn't truncated */
-.live-layer.few-toks .gtile-wrap{width:100%;}
-.gtile:hover{transform:translateY(-1px);}
+/* Wrap holds a 28x28 token (auto width) */
+.gtile-wrap{position:relative;width:28px;flex-shrink:0;}
+/* Legacy few-toks override — no longer needed but kept harmless */
+.live-layer.few-toks .gtile-wrap{width:28px;}
+.gtile:hover{transform:translateY(-1px);box-shadow:0 2px 6px rgba(0,0,0,.18);}
 /* ── Global token tooltip (fixed, escapes all overflow constraints) ── */
 #token-tip{position:fixed;z-index:9999;background:white;border:1px solid #E0D9CF;border-radius:13px;
   box-shadow:0 20px 60px rgba(42,46,49,.18),0 4px 16px rgba(42,46,49,.1);
@@ -85,15 +140,15 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 #token-tip-accent{height:3px;background:linear-gradient(90deg,#C47898,#7BA8C4);}
 
 /* ── Check-In pill (header) ──────────────────────────────────────────────── */
-.checkin-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:100px;padding:5px 10px 5px 14px;cursor:pointer;transition:background .15s;}
-.checkin-pill:hover{background:rgba(255,255,255,.18);}
-.checkin-lbl{font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.45);white-space:nowrap;}
-.checkin-pill select{background:transparent;border:none;color:rgba(255,255,255,.9);font-family:'Jost',sans-serif;font-size:10px;font-weight:700;letter-spacing:.5px;cursor:pointer;outline:none;max-width:90px;}
-.checkin-pill select option{background:#2A2E31;color:white;}
-.admin-lock-badge{display:flex;align-items:center;gap:5px;font-size:9px;font-weight:800;letter-spacing:.8px;padding:4px 11px;border-radius:100px;white-space:nowrap;transition:all .2s;}
-.admin-lock-badge.unlocked{background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.4);color:#86efac;}
-.admin-lock-badge.locked{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);color:rgba(255,255,255,.45);cursor:pointer;}
-.admin-lock-badge.locked:hover{background:rgba(255,255,255,.13);color:rgba(255,255,255,.7);}
+.checkin-pill{display:flex;align-items:center;gap:6px;background:#f0e8db;border:1px solid rgba(0,0,0,.10);border-radius:4px;padding:4px 10px 4px 12px;cursor:pointer;transition:background .15s;}
+.checkin-pill:hover{background:#e6dcc8;}
+.checkin-lbl{font-size:11px;font-weight:600;letter-spacing:.10em;color:#666;white-space:nowrap;text-transform:uppercase;font-family:var(--font-body);}
+.checkin-pill select{background:transparent;border:none;color:#222;font-family:var(--font-body);font-size:12px;font-weight:600;letter-spacing:.04em;cursor:pointer;outline:none;max-width:120px;}
+.checkin-pill select option{background:#fff;color:#222;}
+.admin-lock-badge{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:600;letter-spacing:.10em;padding:5px 11px;border-radius:4px;white-space:nowrap;transition:all .2s;text-transform:uppercase;font-family:var(--font-body);}
+.admin-lock-badge.unlocked{background:var(--teal-bg);border:1px solid var(--teal-border);color:var(--teal);}
+.admin-lock-badge.locked{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.55);cursor:pointer;}
+.admin-lock-badge.locked:hover{background:rgba(255,255,255,.13);color:rgba(255,255,255,.85);}
 
 /* ── Notification Alert (centered modal-style, requires OK) ──────────────── */
 #notif-overlay{position:fixed;inset:0;z-index:99990;background:rgba(42,46,49,.38);
@@ -137,12 +192,12 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 .gtile-tip-text{font-size:11.5px;font-weight:600;color:var(--onyx);line-height:1.4;}
 .gtile-tip-due{font-size:9.5px;color:var(--earth);font-weight:600;margin-top:2px;line-height:1.3;}
 .gtile-tip-empty{font-size:11px;color:var(--taupe);font-style:italic;}
-.gtile-init{width:26px;min-width:26px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:white;flex-shrink:0;}
-.gtile-name{background:var(--white);padding:0 8px;display:flex;align-items:center;font-size:9.5px;font-weight:700;color:var(--onyx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-top:1px solid var(--sandstone);border-bottom:1px solid var(--sandstone);border-right:1px solid var(--sandstone);flex:1;}
+.gtile-init{width:28px;min-width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;font-family:var(--font-chip);letter-spacing:.04em;border-radius:4px;}
+.gtile-name{display:none;}
 /* Live blink on whole tile — box-shadow is not clipped by overflow:hidden */
 .gtile.live{animation:sqring 1.9s ease-out infinite;}
 .gtile.drag-src{opacity:.3;}
-.gtile-help{background:#fef2f2;border-top:1px solid #fca5a5;border-bottom:1px solid #fca5a5;border-right:1px solid #fca5a5;padding:0 8px;display:flex;align-items:center;font-size:9px;font-weight:800;color:#ef4444;white-space:nowrap;flex:1;}
+.gtile-help{display:none;}
 
 /* Roster token wrap */
 .rtok{display:flex;flex-direction:column;align-items:center;gap:4px;position:relative;}
@@ -151,36 +206,36 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 .rtok-del{display:none !important;}
 .rtok:hover .rtok-del{display:none !important;}
 
-/* ── Tabs ─────────────────────────────────── */
+/* ── Tabs (white bar, gold active underline) ─────────── */
 .tab-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
-.tab-bar{display:flex;background:var(--white);border:1px solid var(--sandstone);border-radius:var(--radius);overflow:hidden;width:fit-content;}
-.tab-btn{padding:9px 22px;border:none;background:transparent;cursor:pointer;font-family:'Jost',sans-serif;font-size:13px;font-weight:600;color:var(--taupe);transition:all .18s;border-right:1px solid var(--sandstone);}
+.tab-bar{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;width:fit-content;box-shadow:0 1px 0 var(--border-subtle);}
+.tab-btn{padding:11px 22px;border:none;background:transparent;cursor:pointer;font-family:var(--font-body);font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#333;transition:color .15s,border-color .15s;border-right:1px solid var(--border-subtle);border-bottom:2px solid transparent;}
 .tab-btn:last-child{border-right:none;}
-.tab-btn.active{background:var(--onyx);color:white;}
-.tab-btn:hover:not(.active){background:var(--alabaster);color:var(--onyx);}
+.tab-btn.active{background:transparent;color:var(--gold);border-bottom-color:var(--gold);}
+.tab-btn:hover:not(.active){color:var(--gold);}
 .tab-content{display:none;flex-direction:column;gap:16px;}
 .tab-content.active{display:flex;}
 
 /* ── Board Panel ──────────────────────────── */
-.board-panel{background:var(--white);border-radius:var(--radius);border:1px solid var(--sandstone);box-shadow:0 1px 8px rgba(42,46,49,.06);overflow:hidden;}
-.board-panel.live-board{border-color:rgba(74,222,128,.45);background:#f6fef9;}
-.bph{padding:12px 20px;border-bottom:1px solid var(--sandstone);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
-.live-board .bph{border-color:rgba(74,222,128,.3);}
-.bph-title{font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:16px;font-weight:400;color:var(--onyx);}
-.bph-date{font-size:11px;color:var(--taupe);font-weight:500;margin-top:3px;letter-spacing:.3px;}
+.board-panel{background:var(--surface);border-radius:6px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.04);overflow:hidden;}
+.board-panel.live-board{border-color:var(--teal-border);background:var(--surface);}
+.bph{padding:14px 20px;border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.live-board .bph{border-color:var(--border-subtle);}
+.bph-title{font-family:var(--font-display);font-size:22px;font-weight:400;color:var(--fg);letter-spacing:.01em;}
+.bph-date{font-size:11px;color:var(--fg3);font-weight:500;margin-top:3px;letter-spacing:.04em;}
 
 /* ── Grid ─────────────────────────────────── */
 .grid-scroll{overflow-x:auto;}
-.rcm-grid{width:100%;border-collapse:collapse;min-width:1050px;}
-.rcm-grid th,.rcm-grid td{border:1px solid var(--sandstone);}
-.th-office{background:#5C4F44;color:white;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:12px 8px;text-align:center;width:78px;}
-.th-cat{background:#5C4F44;color:white;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:10px 4px;text-align:center;position:relative;}
+.rcm-grid{width:100%;border-collapse:collapse;min-width:1050px;background:var(--surface);}
+.rcm-grid th,.rcm-grid td{border:1px solid var(--border-subtle);}
+.th-office{background:var(--header-row);color:var(--gold);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;padding:12px 8px;text-align:center;width:90px;font-family:var(--font-body);}
+.th-cat{background:var(--header-row);color:var(--gold);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;padding:10px 6px;text-align:center;position:relative;font-family:var(--font-body);}
 .th-cat-inner{display:flex;align-items:center;justify-content:center;gap:6px;}
-.th-sub{background:#7A6A5C;color:rgba(255,255,255,.9);font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;padding:6px 4px;text-align:center;position:relative;}
-.th-sub.oryx{background:var(--earth);color:white;font-weight:700;}
-.td-office{background:var(--alabaster);font-weight:800;color:var(--onyx);padding:0 10px;text-align:center;border-right:2px solid var(--sandstone);vertical-align:middle;white-space:nowrap;}
-.off-code{font-size:13px;font-weight:800;}
-.off-name{font-size:8.5px;color:#2A2E31;font-weight:400;margin-top:2px;}
+.th-sub{background:var(--elevated);color:#555;font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.10em;padding:6px 4px;text-align:center;position:relative;font-family:var(--font-body);}
+.th-sub.oryx{background:var(--elevated);color:var(--gold);font-weight:600;}
+.td-office{background:var(--bg);font-weight:700;color:var(--fg);padding:0 10px;text-align:center;border-right:1px solid var(--border);vertical-align:middle;white-space:nowrap;}
+.off-code{font-size:13px;font-weight:700;color:var(--gold);font-family:var(--font-body);letter-spacing:.08em;}
+.off-name{font-size:11px;color:#333;font-weight:400;margin-top:2px;text-transform:uppercase;letter-spacing:.04em;}
 
 /* Column edit btn */
 .col-edit-btn{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.2);color:white;border:none;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;flex-shrink:0;}
@@ -199,24 +254,24 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 .cell-inner{min-height:80px;min-width:82px;padding:5px;position:relative;display:flex;flex-direction:column;gap:3px;height:100%;}
 
 /* Ghost assignments (in-flow, always at top of cell) */
-.ghost-layer{display:flex;flex-wrap:wrap;gap:3px;width:100%;pointer-events:none;padding-bottom:3px;border-bottom:1px solid var(--sandstone);}
-.ghost-name{font-size:11px;color:#2A2E31;font-weight:600;white-space:nowrap;letter-spacing:.2px;}
+.ghost-layer{display:flex;flex-wrap:wrap;gap:5px;width:100%;pointer-events:none;padding-bottom:4px;border-bottom:1px solid var(--border-subtle);}
+.ghost-name{font-size:11px;color:var(--fg2);font-weight:500;white-space:nowrap;letter-spacing:.04em;font-family:var(--font-chip);}
 
-/* Live tokens layer — 2-column wrap, max 4 tiles (2×2) */
-.live-layer{display:flex;flex-wrap:wrap;gap:3px;width:100%;align-items:flex-start;min-height:50px;flex:1;}
+/* Live tokens layer — flow 28x28 tokens with gap, wrap as needed */
+.live-layer{display:flex;flex-wrap:wrap;gap:5px;width:100%;align-items:flex-start;min-height:50px;flex:1;}
 
 /* Remove button on assignment tokens */
 .tok-remove{position:absolute;top:-5px;right:-5px;width:16px;height:16px;border-radius:50%;background:var(--taupe);color:white;border:none;font-size:10px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:10;font-weight:700;}
 .gtok:hover .tok-remove{display:flex;}
 .gtile:hover .tok-remove{display:flex;}
-.drop-cell.over{background:rgba(135,119,101,.1);outline:2px dashed var(--taupe);outline-offset:-1px;}
+.drop-cell.over{background:var(--gold-faint);outline:2px dashed var(--gold-dim);outline-offset:-1px;}
 
-/* IV Verified-to date strip (ins_verif column, bottom of each cell) */
-.iv-date-bar{display:flex;align-items:center;justify-content:flex-end;gap:5px;margin-top:auto;padding-top:6px;border-top:1px solid var(--sandstone);}
-.iv-date-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--earth);white-space:nowrap;}
-.iv-date-val{font-size:11px;font-weight:700;color:var(--onyx);}
-.iv-date-val.empty{color:var(--taupe);}
-.iv-date-inp{font-family:'Jost',sans-serif;font-size:11px;font-weight:600;color:var(--onyx);background:var(--alabaster);border:1px solid var(--sandstone);border-radius:5px;padding:2px 5px;cursor:pointer;max-width:110px;}
+/* IV Verified-to date strip — teal verified chip style */
+.iv-date-bar{display:flex;align-items:center;justify-content:flex-end;gap:5px;margin-top:auto;padding-top:6px;border-top:1px solid var(--border-subtle);}
+.iv-date-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.10em;color:var(--teal);white-space:nowrap;font-family:var(--font-body);}
+.iv-date-val{font-size:11px;font-weight:600;color:var(--teal);font-family:var(--font-body);}
+.iv-date-val.empty{color:var(--fg3);}
+.iv-date-inp{font-family:var(--font-body);font-size:11px;font-weight:500;color:var(--teal);background:var(--teal-bg);border:1px solid var(--teal-border);border-radius:4px;padding:2px 6px;cursor:pointer;max-width:110px;}
 /* IV date status indicators */
 .iv-alert{width:9px;height:9px;border-radius:50%;background:#ef4444;display:inline-block;flex-shrink:0;animation:iv-red-flash 1s ease-out infinite;}
 @keyframes iv-red-flash{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.85);}60%{box-shadow:0 0 0 6px rgba(239,68,68,0);}}
@@ -228,47 +283,49 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 .iv-date-inp:focus{outline:none;border-color:var(--earth);}
 
 /* ── Aging Alerts ────────────────────────── */
-.aging-alert-bar{display:flex;align-items:center;gap:5px;padding-top:6px;border-top:1px solid var(--sandstone);min-height:18px;flex-wrap:nowrap;overflow:hidden;}
-.aging-alert-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--earth);white-space:nowrap;}
-.aging-badge{font-size:8px;font-weight:800;letter-spacing:.4px;padding:1px 6px;border-radius:100px;line-height:14px;cursor:default;white-space:nowrap;}
-.aging-badge.overdue{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;}
-.aging-badge.priority{background:#fefce8;color:#a16207;border:1px solid #fde68a;}
+.aging-alert-bar{display:flex;align-items:center;gap:5px;padding-top:6px;border-top:1px solid var(--border-subtle);min-height:18px;flex-wrap:nowrap;overflow:hidden;}
+.aging-alert-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.10em;color:var(--fg2);white-space:nowrap;font-family:var(--font-body);}
+.aging-badge{font-size:10px;font-weight:600;letter-spacing:.06em;padding:1px 6px;border-radius:100px;line-height:14px;cursor:default;white-space:nowrap;text-transform:uppercase;font-family:var(--font-body);}
+.aging-badge.overdue{background:var(--critical-bg);color:var(--critical);border:1px solid var(--critical-border);}
+.aging-badge.priority{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-border);}
 @keyframes aging-flash{0%,100%{opacity:1;}50%{opacity:.5;}}
 .aging-badge.overdue.has-count{animation:aging-flash 1.6s ease-in-out infinite;}
 
 /* ── Resubmit Alerts ─────────────────────── */
-.resubmit-alert-bar{display:flex;align-items:center;gap:5px;padding-top:6px;border-top:1px solid var(--sandstone);min-height:18px;flex-wrap:nowrap;overflow:hidden;}
-.resubmit-alert-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--earth);white-space:nowrap;}
+.resubmit-alert-bar{display:flex;align-items:center;gap:5px;padding-top:6px;border-top:1px solid var(--border-subtle);min-height:18px;flex-wrap:nowrap;overflow:hidden;}
+.resubmit-alert-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.10em;color:var(--fg2);white-space:nowrap;font-family:var(--font-body);}
 
 /* ── Posting Completion Alerts ────────────── */
-.posting-alert-bar{display:flex;align-items:center;gap:5px;padding-top:6px;border-top:1px solid var(--sandstone);min-height:18px;flex-wrap:wrap;}
-.posting-alert-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--earth);white-space:nowrap;}
-.posting-pct{font-size:9px;font-weight:800;padding:1px 7px;border-radius:100px;line-height:14px;cursor:default;white-space:nowrap;}
-.posting-pct.green{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;}
-.posting-pct.yellow{background:#fefce8;color:#a16207;border:1px solid #fde68a;animation:posting-flash 1.4s ease-in-out infinite;}
-.posting-pct.red{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;animation:posting-flash 1.2s ease-in-out infinite;}
+.posting-alert-bar{display:flex;align-items:center;gap:5px;padding-top:6px;border-top:1px solid var(--border-subtle);min-height:18px;flex-wrap:wrap;}
+.posting-alert-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.10em;color:var(--fg2);white-space:nowrap;font-family:var(--font-body);}
+.posting-pct{font-size:10px;font-weight:600;padding:1px 7px;border-radius:100px;line-height:14px;cursor:default;white-space:nowrap;font-family:var(--font-body);}
+.posting-pct.green{background:var(--teal-bg);color:var(--teal);border:1px solid var(--teal-border);}
+.posting-pct.yellow{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-border);animation:posting-flash 1.4s ease-in-out infinite;}
+.posting-pct.red{background:var(--critical-bg);color:var(--critical);border:1px solid var(--critical-border);animation:posting-flash 1.2s ease-in-out infinite;}
 @keyframes posting-flash{0%,100%{opacity:1;}50%{opacity:.45;}}
 
 /* ── Away Zone ────────────────────────────── */
-.away-panel{border-radius:var(--radius);border:2px dashed var(--taupe);background:rgba(214,205,189,.18);padding:16px 20px;}
+.away-panel{border-radius:6px;border:1px solid var(--border);background:var(--surface);padding:16px 20px;}
 .away-hdr{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
-.away-hdr h2{font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:15px;font-weight:400;color:var(--earth);}
+.away-hdr h2{font-family:var(--font-display);font-size:18px;font-weight:400;color:var(--fg);letter-spacing:.01em;}
 .away-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.away-area{border-radius:10px;padding:12px 14px;min-height:80px;}
-.away-area.lunch{background:rgba(242,239,232,.9);border:1.5px solid var(--sandstone);}
-.away-area.off{background:rgba(194,176,158,.2);border:1.5px solid var(--taupe);}
-.away-area-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;color:var(--earth);}
-.away-tokens{display:flex;flex-wrap:wrap;gap:8px;min-height:44px;border-radius:7px;padding:4px;}
-.away-tokens.over{background:rgba(135,119,101,.12);outline:2px dashed var(--taupe);border-radius:7px;}
+.away-area{border-radius:6px;padding:12px 14px;min-height:80px;border:1.5px dashed transparent;}
+.away-area.lunch{background:var(--warn-bg);border-color:var(--warn-border);}
+.away-area.off{background:var(--critical-bg);border-color:var(--critical-border);}
+.away-area-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px;color:var(--fg2);font-family:var(--font-body);}
+.away-area.lunch .away-area-title{color:var(--warn);}
+.away-area.off   .away-area-title{color:var(--critical);}
+.away-tokens{display:flex;flex-wrap:wrap;gap:6px;min-height:44px;border-radius:5px;padding:4px;}
+.away-tokens.over{background:var(--gold-faint);outline:2px dashed var(--gold-dim);border-radius:5px;}
 
 /* ── Buttons ──────────────────────────────── */
-.btn{font-family:'Jost',sans-serif;padding:6px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;transition:all .18s;border:none;}
-.btn-ghost{background:var(--alabaster);color:var(--earth);border:1px solid var(--sandstone);}
-.btn-ghost:hover{background:var(--sandstone);color:var(--onyx);}
-.btn-clear{background:rgba(194,176,158,.25);color:var(--earth);border:1px solid var(--taupe);}
-.btn-clear:hover{background:rgba(194,176,158,.5);}
-.btn-help{background:#ef4444;color:white;font-weight:700;letter-spacing:.5px;border:none;}
-.btn-help:hover{background:#dc2626;}
+.btn{font-family:var(--font-body);padding:6px 14px;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;border:1px solid var(--border);letter-spacing:.04em;}
+.btn-ghost{background:var(--elevated);color:var(--fg2);border:1px solid var(--border);}
+.btn-ghost:hover{background:var(--header-row);color:var(--gold);}
+.btn-clear{background:var(--surface);color:var(--fg2);border:1px solid var(--border);}
+.btn-clear:hover{background:var(--elevated);color:var(--fg);}
+.btn-help{background:var(--critical);color:#fff;font-weight:700;letter-spacing:.06em;border:none;}
+.btn-help:hover{background:#a82626;}
 .btn-primary{background:var(--onyx);color:white;}
 .btn-primary:hover{background:#3f4448;}
 .btn-green{background:#16a34a;color:white;}
@@ -297,7 +354,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 .modal.md{max-width:580px;}
 .modal.lg{max-width:720px;max-height:90vh;}
 .modal-hdr{padding:18px 22px;border-bottom:1px solid var(--sandstone);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
-.modal-hdr h3{font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:18px;font-weight:400;color:var(--onyx);}
+.modal-hdr h3{font-family:var(--font-display);font-size:18px;font-weight:400;color:var(--onyx);}
 .modal-close{background:none;border:none;font-size:20px;color:var(--taupe);cursor:pointer;line-height:1;padding:0 4px;}
 .modal-body{padding:20px 22px;overflow-y:auto;flex:1;}
 .modal-footer{padding:14px 22px;border-top:1px solid var(--sandstone);display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-shrink:0;}
@@ -389,17 +446,17 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
 <!-- ── HEADER ─────────────────────────────────── -->
 <header class="header">
   <!-- Logo -->
-  <img src="./assets/logo.png?v=2" alt="Smile Haus" height="36"
-       style="object-fit:contain;display:block;filter:brightness(0) invert(1);">
+  <img src="./assets/sh-logo-white.png?v=1" alt="Smile Haus" height="30"
+       style="object-fit:contain;display:block;">
   <div style="display:flex;align-items:center;gap:10px">
     <button onclick="exportBackup()" title="Download a full backup of all dashboard data"
-      style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);font-family:'Jost',sans-serif;font-size:10px;font-weight:700;letter-spacing:.8px;padding:5px 13px;border-radius:100px;cursor:pointer;transition:background .15s"
-      onmouseover="this.style.background='rgba(255,255,255,.16)'" onmouseout="this.style.background='rgba(255,255,255,.08)'">
+      style="background:#f0e8db;border:1px solid rgba(0,0,0,.10);color:#444;font-family:'Jost',sans-serif;font-size:12px;font-weight:600;letter-spacing:.04em;padding:5px 12px;border-radius:4px;cursor:pointer;transition:background .15s"
+      onmouseover="this.style.background='#e6dcc8'" onmouseout="this.style.background='#f0e8db'">
       ↓ BACKUP
     </button>
     <button onclick="rosterGated(publishState)" title="Publish roster &amp; offices for the whole team"
-      style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);font-family:'Jost',sans-serif;font-size:10px;font-weight:700;letter-spacing:.8px;padding:5px 13px;border-radius:100px;cursor:pointer;transition:background .15s"
-      onmouseover="this.style.background='rgba(255,255,255,.2)'" onmouseout="this.style.background='rgba(255,255,255,.1)'">
+      style="background:#f0e8db;border:1px solid rgba(0,0,0,.10);color:#444;font-family:'Jost',sans-serif;font-size:12px;font-weight:600;letter-spacing:.04em;padding:5px 12px;border-radius:4px;cursor:pointer;transition:background .15s"
+      onmouseover="this.style.background='#e6dcc8'" onmouseout="this.style.background='#f0e8db'">
       ↑ PUBLISH
     </button>
     <div class="checkin-pill" title="Check in as yourself to receive assignment notifications">
@@ -696,7 +753,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
       <div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
           <span style="font-size:20px">🔐</span>
-          <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Check In As — Daily Start of Shift</span>
+          <span style="font-family:var(--font-display);font-size:17px;color:var(--onyx)">Check In As — Daily Start of Shift</span>
         </div>
         <div style="display:flex;flex-direction:column;gap:10px;padding-left:30px">
 
@@ -751,7 +808,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
       <div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
           <span style="font-size:20px">⚡</span>
-          <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Live Status Board</span>
+          <span style="font-family:var(--font-display);font-size:17px;color:var(--onyx)">Live Status Board</span>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
@@ -791,7 +848,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
       <div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
           <span style="font-size:20px">📅</span>
-          <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Insurance Verification Date</span>
+          <span style="font-family:var(--font-display);font-size:17px;color:var(--onyx)">Insurance Verification Date</span>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
@@ -829,7 +886,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
       <div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
           <span style="font-size:20px">📤</span>
-          <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Claims (Sending) — Resubmit Alerts</span>
+          <span style="font-family:var(--font-display);font-size:17px;color:var(--onyx)">Claims (Sending) — Resubmit Alerts</span>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
@@ -859,7 +916,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
       <div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
           <span style="font-size:20px">⏰</span>
-          <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Aging Alerts (Timely Filing)</span>
+          <span style="font-family:var(--font-display);font-size:17px;color:var(--onyx)">Aging Alerts (Timely Filing)</span>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
@@ -897,7 +954,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
       <div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
           <span style="font-size:20px">📬</span>
-          <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Posting Completion %</span>
+          <span style="font-family:var(--font-display);font-size:17px;color:var(--onyx)">Posting Completion %</span>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
@@ -935,7 +992,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
       <div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
           <span style="font-size:20px">👤</span>
-          <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Staff Profile</span>
+          <span style="font-family:var(--font-display);font-size:17px;color:var(--onyx)">Staff Profile</span>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
@@ -963,7 +1020,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
       <div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
           <span style="font-size:20px">📋</span>
-          <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Currently Working On</span>
+          <span style="font-family:var(--font-display);font-size:17px;color:var(--onyx)">Currently Working On</span>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
@@ -997,7 +1054,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
       <div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
           <span style="font-size:20px">📌</span>
-          <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Newly Assigned</span>
+          <span style="font-family:var(--font-display);font-size:17px;color:var(--onyx)">Newly Assigned</span>
           <span style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:100px;padding:2px 10px;font-size:10px;font-weight:700">🔒 Add / Delete — Admin Only</span>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
@@ -1040,7 +1097,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
       <div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
           <span style="font-size:20px">🗂</span>
-          <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Assignment Board</span>
+          <span style="font-family:var(--font-display);font-size:17px;color:var(--onyx)">Assignment Board</span>
           <span style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:100px;padding:2px 10px;font-size:10px;font-weight:700">🔒 Admin Only</span>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
@@ -1065,7 +1122,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
       <div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
           <span style="font-size:20px">👥</span>
-          <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Staff Roster</span>
+          <span style="font-family:var(--font-display);font-size:17px;color:var(--onyx)">Staff Roster</span>
           <span style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:100px;padding:2px 10px;font-size:10px;font-weight:700">🔒 Admin Only</span>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
@@ -1094,7 +1151,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
       <div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
           <span style="font-size:20px">🚨</span>
-          <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Help Requests &amp; Help Records</span>
+          <span style="font-family:var(--font-display);font-size:17px;color:var(--onyx)">Help Requests &amp; Help Records</span>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
@@ -1118,7 +1175,7 @@ body{font-family:'Jost',-apple-system,BlinkMacSystemFont,sans-serif;background:v
       <div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
           <span style="font-size:20px">☁</span>
-          <span style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:17px;color:var(--onyx)">Saving, Syncing &amp; Backup</span>
+          <span style="font-family:var(--font-display);font-size:17px;color:var(--onyx)">Saving, Syncing &amp; Backup</span>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
           <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
@@ -4143,7 +4200,7 @@ function renderKpiDetail(body, period, offCode) {
   let html = `
     <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--sandstone)">
       <div>
-        <div style="font-family:'Palatino Linotype',Palatino,Georgia,serif;font-size:19px;color:var(--onyx)">${escHtml(off.code)} — ${escHtml(off.name||'')}</div>
+        <div style="font-family:var(--font-display);font-size:19px;color:var(--onyx)">${escHtml(off.code)} — ${escHtml(off.name||'')}</div>
         <div style="font-size:11px;color:var(--taupe);margin-top:3px">${totalWithData} of ${KPI_DEFS.length} metrics entered for this period</div>
         ${__rosterUnlocked ? '<div style="font-size:10px;font-weight:700;color:#15803d;margin-top:6px">🔓 Edit mode — enter values below</div>' : '<div style="font-size:10px;color:var(--taupe);margin-top:4px">Unlock to enter or edit values</div>'}
       </div>
