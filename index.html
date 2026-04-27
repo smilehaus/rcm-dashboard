@@ -242,6 +242,9 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 .grid-scroll{overflow-x:auto;}
 .rcm-grid{width:100%;border-collapse:collapse;min-width:1050px;background:#F2EFE8;}
 .rcm-grid th,.rcm-grid td{border:1px solid rgba(135,119,101,.28);}
+/* Strong vertical dividers between column groups (Office | Ins | Claims | Posting | Aging | …) */
+.rcm-grid .th-cat + .th-cat{border-left:2px solid #877765;}
+.rcm-grid .group-start{border-left:2px solid #877765;}
 /* Office header: matches group header (sandstone + earth text) */
 .th-office{background:#D6CDBD;color:#5C4F44;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;padding:14px 8px;text-align:center;width:90px;font-family:var(--font-body);}
 /* Group header: warm sandstone with earth text */
@@ -3693,9 +3696,9 @@ function buildGrid(tableEl, boardId) {
   const tr2 = document.createElement('tr');
   cats.forEach(group => {
     if (!group.label) return; // rowSpan=2 cols already added
-    group.cols.forEach(col => {
+    group.cols.forEach((col, idx) => {
       const th = document.createElement('th');
-      th.className = 'th-sub' + (col.oryx ? ' oryx' : '');
+      th.className = 'th-sub' + (col.oryx ? ' oryx' : '') + (idx === 0 ? ' group-start' : '');
       th.textContent = col.lbl;
       tr2.appendChild(th);
     });
@@ -3718,9 +3721,12 @@ function buildGrid(tableEl, boardId) {
     tdOff.appendChild(delOff);
     tr.appendChild(tdOff);
 
-    S.columns.forEach(col => {
+    S.columns.forEach((col, colIdx) => {
       const td = document.createElement('td');
-      td.className = 'drop-cell';
+      // Mark group boundaries: first col of any new category gets a strong left divider
+      const prevCol = colIdx > 0 ? S.columns[colIdx - 1] : null;
+      const isGroupStart = !prevCol || (col.cat || '') !== (prevCol.cat || '');
+      td.className = 'drop-cell' + (isGroupStart ? ' group-start' : '');
 
       const zoneKey = office.code + '|' + col.id;
       const tokens  = (board[office.code] && board[office.code][col.id]) || [];
