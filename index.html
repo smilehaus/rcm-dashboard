@@ -242,9 +242,6 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 .grid-scroll{overflow-x:auto;}
 .rcm-grid{width:100%;border-collapse:collapse;min-width:1050px;background:#F2EFE8;}
 .rcm-grid th,.rcm-grid td{border:1px solid rgba(135,119,101,.28);}
-/* Strong vertical dividers between column groups (Office | Ins | Claims | Posting | Aging | …) */
-.rcm-grid .th-cat + .th-cat{border-left:2px solid #877765;}
-.rcm-grid .group-start{border-left:2px solid #877765;}
 /* Office header: matches group header (sandstone + earth text) */
 .th-office{background:#D6CDBD;color:#5C4F44;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;padding:14px 8px;text-align:center;width:90px;font-family:var(--font-body);}
 /* Group header: warm sandstone with earth text */
@@ -255,7 +252,7 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 .th-sub.oryx{background:#ede4d5;color:#5C4F44;font-weight:700;}
 
 /* Office column body cells: sandstone (matches group header) */
-.td-office{background:#D6CDBD;font-weight:700;color:var(--fg);padding:10px 10px;text-align:center;border-right:2px solid #C2B09E;vertical-align:middle;white-space:nowrap;}
+.td-office{background:#D6CDBD;font-weight:700;color:var(--fg);padding:10px 10px;text-align:center;vertical-align:middle;white-space:nowrap;}
 .off-code{font-size:15px;font-weight:700;color:#2A2E31;font-family:var(--font-body);letter-spacing:.08em;display:block;}
 .off-name{font-size:10px;color:#5C4F44;font-weight:500;margin-top:4px;text-transform:uppercase;letter-spacing:.06em;}
 
