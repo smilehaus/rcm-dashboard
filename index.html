@@ -199,13 +199,18 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 .gtile.drag-src{opacity:.3;}
 .gtile-help{display:none;}
 
-/* ── Live Board: split-tile (init + name) ─── */
-.live-board .gtile{width:100%;display:flex;align-items:stretch;border-radius:4px;overflow:hidden;height:28px;background:var(--surface);border:1px solid var(--border);box-shadow:0 1px 2px rgba(0,0,0,.05);}
+/* ── Live Board + Away Zones: split-tile (init + name) ─── */
+.live-board .gtile,
+.away-tokens .gtile{width:auto;min-width:140px;display:flex;align-items:stretch;border-radius:4px;overflow:hidden;height:28px;background:var(--surface);border:1px solid var(--border);box-shadow:0 1px 2px rgba(0,0,0,.05);}
 .live-board .gtile-wrap{width:calc(50% - 3px);}
+.away-tokens .gtile-wrap{width:auto;}
 .live-board .live-layer.few-toks .gtile-wrap{width:100%;}
-.live-board .gtile-init{border-radius:0;}
-.live-board .gtile-name{display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:500;color:var(--fg);background:var(--surface);font-family:var(--font-chip);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.01em;}
-.live-board .gtile-help{display:flex;align-items:center;justify-content:center;padding:0 6px;font-size:10px;font-weight:700;color:var(--critical);background:var(--critical-bg);border-left:1px solid var(--critical-border);flex:1;white-space:nowrap;font-family:var(--font-body);letter-spacing:.06em;}
+.live-board .gtile-init,
+.away-tokens .gtile-init{border-radius:0;}
+.live-board .gtile-name,
+.away-tokens .gtile-name{display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:500;color:var(--fg);background:var(--surface);font-family:var(--font-chip);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.01em;}
+.live-board .gtile-help,
+.away-tokens .gtile-help{display:flex;align-items:center;justify-content:center;padding:0 6px;font-size:10px;font-weight:700;color:var(--critical);background:var(--critical-bg);border-left:1px solid var(--critical-border);flex:1;white-space:nowrap;font-family:var(--font-body);letter-spacing:.06em;}
 .live-board .live-layer{gap:4px;}
 
 /* Roster token wrap */
@@ -236,7 +241,7 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 /* ── Grid (Smile Haus brand: earth tones + cream) ───── */
 .grid-scroll{overflow-x:auto;}
 .rcm-grid{width:100%;border-collapse:collapse;min-width:1050px;background:#F2EFE8;}
-.rcm-grid th,.rcm-grid td{border:1px solid var(--border-subtle);}
+.rcm-grid th,.rcm-grid td{border:1px solid rgba(135,119,101,.28);}
 /* Office header: matches group header (sandstone + earth text) */
 .th-office{background:#D6CDBD;color:#5C4F44;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;padding:14px 8px;text-align:center;width:90px;font-family:var(--font-body);}
 /* Group header: warm sandstone with earth text */
