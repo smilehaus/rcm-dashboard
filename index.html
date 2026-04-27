@@ -228,23 +228,26 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 /* ── Board Panel ──────────────────────────── */
 .board-panel{background:var(--surface);border-radius:6px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.04);overflow:hidden;}
 .board-panel.live-board{border-color:var(--teal-border);background:var(--surface);}
-.bph{padding:14px 20px;border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.bph{padding:18px 22px 16px;border-bottom:1px solid var(--border-subtle);display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:10px;}
 .live-board .bph{border-color:var(--border-subtle);}
-.bph-title{font-family:var(--font-display);font-size:22px;font-weight:400;color:var(--fg);letter-spacing:.01em;}
-.bph-date{font-size:11px;color:var(--fg3);font-weight:500;margin-top:3px;letter-spacing:.04em;}
+.bph-title{font-family:var(--font-display);font-size:24px;font-weight:400;color:var(--fg);letter-spacing:.005em;line-height:1.25;display:block;}
+.bph-date{font-size:11px;color:var(--fg3);font-weight:500;margin-top:5px;letter-spacing:.06em;text-transform:uppercase;}
 
 /* ── Grid ─────────────────────────────────── */
 .grid-scroll{overflow-x:auto;}
 .rcm-grid{width:100%;border-collapse:collapse;min-width:1050px;background:var(--surface);}
 .rcm-grid th,.rcm-grid td{border:1px solid var(--border-subtle);}
-.th-office{background:var(--header-row);color:var(--gold);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;padding:12px 8px;text-align:center;width:90px;font-family:var(--font-body);}
-.th-cat{background:var(--header-row);color:var(--gold);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;padding:10px 6px;text-align:center;position:relative;font-family:var(--font-body);}
+/* Group header: rich gold bg, white text — primary hierarchy */
+.th-office{background:#3d3833;color:#fff;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;padding:14px 8px;text-align:center;width:90px;font-family:var(--font-body);}
+.th-cat{background:var(--gold);color:#fff;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;padding:13px 6px;text-align:center;position:relative;font-family:var(--font-body);text-shadow:0 1px 0 rgba(0,0,0,.06);}
 .th-cat-inner{display:flex;align-items:center;justify-content:center;gap:6px;}
-.th-sub{background:var(--elevated);color:#555;font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.10em;padding:6px 4px;text-align:center;position:relative;font-family:var(--font-body);}
-.th-sub.oryx{background:var(--elevated);color:var(--gold);font-weight:600;}
-.td-office{background:var(--bg);font-weight:700;color:var(--fg);padding:0 10px;text-align:center;border-right:1px solid var(--border);vertical-align:middle;white-space:nowrap;}
-.off-code{font-size:13px;font-weight:700;color:var(--gold);font-family:var(--font-body);letter-spacing:.08em;}
-.off-name{font-size:11px;color:#333;font-weight:400;margin-top:2px;text-transform:uppercase;letter-spacing:.04em;}
+/* Sub header: pale cream, dark gold text — secondary */
+.th-sub{background:var(--header-row);color:#7a5a14;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;padding:8px 4px;text-align:center;position:relative;font-family:var(--font-body);border-bottom:2px solid var(--gold-faint);}
+.th-sub.oryx{background:var(--header-row);color:var(--gold);font-weight:700;border-bottom-color:var(--gold-dim);}
+/* Office column body cells: white surface so codes pop */
+.td-office{background:var(--surface);font-weight:700;color:var(--fg);padding:8px 10px;text-align:center;border-right:2px solid var(--gold-faint);vertical-align:middle;white-space:nowrap;}
+.off-code{font-size:14px;font-weight:700;color:var(--gold);font-family:var(--font-body);letter-spacing:.10em;display:block;}
+.off-name{font-size:10px;color:#555;font-weight:500;margin-top:3px;text-transform:uppercase;letter-spacing:.06em;}
 
 /* Column edit btn */
 .col-edit-btn{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.2);color:white;border:none;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;flex-shrink:0;}
