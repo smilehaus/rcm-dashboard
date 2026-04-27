@@ -246,45 +246,6 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 .th-sub{background:#ede4d5;color:#877765;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;padding:8px 4px;text-align:center;position:relative;font-family:var(--font-body);}
 .th-sub.oryx{background:#ede4d5;color:#5C4F44;font-weight:700;}
 
-/* ── Animated dividers between column groups ───────────── */
-.th-cat + .th-cat,
-.th-sub + .th-sub:not(.oryx){
-  position:relative;
-}
-.th-cat + .th-cat::before,
-.th-sub + .th-sub:not(.oryx)::before{
-  content:'';position:absolute;left:0;top:8%;bottom:8%;width:2px;
-  background:linear-gradient(180deg,
-    transparent 0%,
-    rgba(184,137,30,.0) 10%,
-    rgba(184,137,30,.55) 50%,
-    rgba(184,137,30,.0) 90%,
-    transparent 100%);
-  animation:divider-shimmer 2.6s ease-in-out infinite;
-  pointer-events:none;
-}
-@keyframes divider-shimmer{
-  0%,100%{ opacity:.45; transform:translateY(0); }
-  50%    { opacity:1;    transform:translateY(2px); }
-}
-
-/* ── Horizontal animated divider (between panels) ──────── */
-.anim-divider{
-  height:2px;width:100%;
-  background:linear-gradient(90deg,
-    transparent 0%,
-    rgba(184,137,30,.25) 20%,
-    rgba(184,137,30,.55) 50%,
-    rgba(184,137,30,.25) 80%,
-    transparent 100%);
-  background-size:200% 100%;
-  animation:divider-sweep 4s linear infinite;
-  border-radius:1px;
-}
-@keyframes divider-sweep{
-  0%   { background-position:200% 0; }
-  100% { background-position:-200% 0; }
-}
 /* Office column body cells: sandstone (matches group header) */
 .td-office{background:#D6CDBD;font-weight:700;color:var(--fg);padding:10px 10px;text-align:center;border-right:2px solid #C2B09E;vertical-align:middle;white-space:nowrap;}
 .off-code{font-size:15px;font-weight:700;color:#2A2E31;font-family:var(--font-body);letter-spacing:.08em;display:block;}
@@ -555,8 +516,6 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
   </div>
 </div>
 
-<div class="anim-divider"></div>
-
 <!-- ── TAB BAR ────────────────────────────────── -->
 <div class="tab-row">
   <div class="tab-bar">
@@ -625,8 +584,6 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
       </table>
     </div>
   </div>
-
-  <div class="anim-divider"></div>
 
   <!-- AWAY ZONE -->
   <div class="away-panel">
