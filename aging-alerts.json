@@ -1,5 +1,5 @@
 {
-  "generated": "2026-04-27T10:08:56.330Z",
+  "generated": "2026-04-28T14:26:54.145Z",
   "offices": {
     "SQ": {
       "oryx": {
@@ -13,12 +13,12 @@
     },
     "GT": {
       "oryx": {
-        "overdue": 1,
+        "overdue": 0,
         "priority": 0
       },
       "legacy": {
-        "overdue": 2,
-        "priority": 0
+        "overdue": 0,
+        "priority": 1
       }
     },
     "ATX": {
@@ -57,14 +57,14 @@
         "priority": 0
       },
       "legacy": {
-        "overdue": 2,
-        "priority": 1
+        "overdue": 1,
+        "priority": 0
       }
     },
     "AR": {
       "oryx": {
-        "overdue": 9,
-        "priority": 4
+        "overdue": 8,
+        "priority": 5
       },
       "legacy": {
         "overdue": 0,
