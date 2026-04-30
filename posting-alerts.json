@@ -1,5 +1,5 @@
 {
-  "generated": "2026-04-30T14:42:32.597Z",
+  "generated": "2026-04-30T20:35:37.942Z",
   "payPeriod": "Pay Period #9",
   "offices": {
     "SQ": {
@@ -27,8 +27,8 @@
       "label": "55.1%"
     },
     "AR": {
-      "pct": 0,
-      "label": "0%"
+      "pct": 93.5,
+      "label": "93.5%"
     },
     "PF": {
       "pct": 87.4,
