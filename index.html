@@ -1883,6 +1883,7 @@ async function fbWrite(data) {
 function scheduleFbSave() {
   clearTimeout(_fbSaveTimer);
   _fbSaveTimer = setTimeout(async () => {
+    _fbSaveTimer = null; // mark save as no-longer-pending so polls can apply remote state
     S._savedAt = new Date().toISOString();
     _lastFbWrite = S._savedAt;
     const ok = await fbWrite({ ...S });
@@ -1892,7 +1893,7 @@ function scheduleFbSave() {
       el.style.color = ok ? '#4ade80' : '#f87171';
       setTimeout(() => { if (el) el.style.color = ''; }, 2000);
     }
-  }, 1200);
+  }, 350); // shorter debounce → smaller race window for multi-user simultaneous drags
 }
 
 // ── Desktop Notifications ─────────────────────────────────────────────────
@@ -2252,12 +2253,20 @@ function checkForNewAssignments(remoteStaff) {
 function startFbPolling() {
   clearInterval(_fbPollTimer);
   _fbPollTimer = setInterval(async () => {
+    // ── Defensive guards: never overwrite local state while ──
+    //    (a) a drag is in progress  →  would yank the dragged token mid-flight
+    //    (b) a save is pending      →  remote is stale, our local has newer un-pushed changes
+    if (__isDragging) return;
+    if (_fbSaveTimer)  return;
+
     const remote = await fbRead();
     if (!remote || !remote._savedAt) return;
     // Only apply if this is newer than what we last wrote (avoid echo)
     if (remote._savedAt > (_lastFbWrite || '') && remote._savedAt > (S._savedAt || '')) {
       const colsValid = Array.isArray(remote.columns) && remote.columns[0] && typeof remote.columns[0].id === 'string';
       if (remote._v === DATA_VERSION && colsValid) {
+        // Re-check guards after the async fbRead — state may have changed mid-fetch
+        if (__isDragging || _fbSaveTimer) return;
         // Check for new active help instances from remote before merging
         const existingIds = new Set(Object.keys(S.helpInstances || {}));
         const remoteHelp  = remote.helpInstances || {};
@@ -4315,7 +4324,14 @@ function renderKpiDetail(body, period, offCode) {
   body.innerHTML = html;
 }
 
+// Defer renders if a drag is in-flight, so the DOM doesn't get yanked out from under
+// the browser's drag operation (which would silently cancel the drop).
+let _pendingRender = false;
 function renderAll() {
+  if (__isDragging) {
+    _pendingRender = true;
+    return;
+  }
   renderRoster();
   renderOOO();
   buildGrid(document.getElementById('assign-table'), 'assign');
@@ -4325,6 +4341,13 @@ function renderAll() {
   populateCheckinSelect();
   updateAdminBadge();
 }
+// On dragend, flush any deferred render.
+document.addEventListener('dragend', () => {
+  if (_pendingRender) {
+    _pendingRender = false;
+    setTimeout(renderAll, 100); // small delay so browser finishes drag cleanup
+  }
+}, true);
 
 function renderOOO() {
   const container = document.getElementById('ooo-tokens');
