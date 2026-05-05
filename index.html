@@ -5213,7 +5213,8 @@ let _agingAlerts = {};
 async function fetchAgingAlerts() {
   try {
     // Try same-origin path first (GitHub Pages deployment), then localhost fallback
-    const urls = ['./aging-alerts.json', 'aging-alerts.json'];
+    const cb = '?t=' + Date.now(); // bust GitHub Pages CDN + browser cache
+    const urls = ['./aging-alerts.json' + cb, 'aging-alerts.json' + cb];
     let data = null;
     for (const url of urls) {
       try {
@@ -5258,7 +5259,8 @@ let _resubmitAlerts = {};
 
 async function fetchResubmitAlerts() {
   try {
-    const urls = ['./resubmit-alerts.json', 'resubmit-alerts.json'];
+    const cb = '?t=' + Date.now();
+    const urls = ['./resubmit-alerts.json' + cb, 'resubmit-alerts.json' + cb];
     let data = null;
     for (const url of urls) {
       try {
@@ -5306,7 +5308,8 @@ let _postingPayPeriod = '';
 
 async function fetchPostingAlerts() {
   try {
-    const urls = ['./posting-alerts.json', 'posting-alerts.json'];
+    const cb = '?t=' + Date.now();
+    const urls = ['./posting-alerts.json' + cb, 'posting-alerts.json' + cb];
     let data = null;
     for (const url of urls) {
       try {
