@@ -1,0 +1,22 @@
+{
+  "generated": "2026-05-06T07:00:00.000Z",
+  "asOf": "5/6/2026 7:00 AM CT",
+  "totals": {
+    "ar": null,
+    "unposted": null,
+    "unpostedDelta": null,
+    "avgDays": null
+  },
+  "offices": {
+    "SQ":   { "ar": null, "unposted": null, "avgDays": null },
+    "GT":   { "ar": null, "unposted": null, "avgDays": null },
+    "ATX":  { "ar": null, "unposted": null, "avgDays": null },
+    "MP":   { "ar": null, "unposted": null, "avgDays": null },
+    "NBDA": { "ar": null, "unposted": null, "avgDays": null },
+    "IC":   { "ar": null, "unposted": null, "avgDays": null },
+    "AR":   { "ar": null, "unposted": null, "avgDays": null },
+    "PF":   { "ar": null, "unposted": null, "avgDays": null },
+    "SATX": { "ar": null, "unposted": null, "avgDays": null },
+    "AM":   { "ar": null, "unposted": null, "avgDays": null }
+  }
+}

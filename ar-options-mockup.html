@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AR Display Options — Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+@font-face { font-family:'IvyMode'; src:url('assets/fonts/IvyMode-Light.ttf')   format('truetype'); font-weight:300; }
+@font-face { font-family:'IvyMode'; src:url('assets/fonts/IvyMode-Regular.ttf') format('truetype'); font-weight:400; }
+@font-face { font-family:'IvyMode'; src:url('assets/fonts/IvyMode-SemiBold.ttf')format('truetype'); font-weight:600; }
+
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Jost',sans-serif;background:#f5efe4;color:#111;padding:30px;}
+h1{font-family:'IvyMode',Georgia,serif;font-size:32px;font-weight:400;margin-bottom:8px;}
+.intro{font-size:13px;color:#666;margin-bottom:30px;max-width:820px;line-height:1.5;}
+.option-section{margin-bottom:50px;}
+.option-title{font-family:'IvyMode',Georgia,serif;font-size:22px;font-weight:400;margin-bottom:6px;display:flex;align-items:center;gap:10px;}
+.option-rec{display:inline-block;padding:3px 10px;background:#b8891e;color:#fff;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;border-radius:3px;font-family:'Jost';}
+.option-desc{font-size:12px;color:#666;margin-bottom:14px;font-style:italic;}
+
+/* Mock dashboard chrome (shared) */
+.mock-frame{background:#FBF8F0;border:1px solid rgba(0,0,0,.10);border-radius:6px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.mock-bph{padding:18px 22px 16px;border-bottom:1px solid rgba(0,0,0,.06);display:flex;align-items:flex-end;justify-content:space-between;}
+.mock-bph-title{font-family:'IvyMode',Georgia,serif;font-size:24px;line-height:1.25;}
+.mock-bph-date{font-size:11px;color:#999;margin-top:5px;letter-spacing:.06em;text-transform:uppercase;}
+.mock-clear{background:#f0e8db;border:1px solid rgba(0,0,0,.10);color:#444;font-size:12px;font-weight:600;padding:5px 12px;border-radius:4px;cursor:pointer;}
+
+/* Mock table */
+table{width:100%;border-collapse:collapse;background:#F2EFE8;}
+th,td{border:1px solid rgba(135,119,101,.28);padding:10px 8px;text-align:center;font-family:'Jost';}
+.th-office{background:#D6CDBD;color:#5C4F44;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;padding:14px 8px;width:120px;}
+.th-cat{background:#D6CDBD;color:#5C4F44;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;padding:12px 8px;}
+.th-sub{background:#ede4d5;color:#877765;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;padding:8px;}
+.td-office{background:#D6CDBD;text-align:center;vertical-align:middle;padding:12px 8px;}
+.off-code{font-size:15px;font-weight:700;color:#2A2E31;display:block;letter-spacing:.08em;}
+.off-name{font-size:10px;color:#5C4F44;font-weight:500;margin-top:4px;text-transform:uppercase;letter-spacing:.06em;}
+.off-fin{font-size:10px;color:#877765;margin-top:6px;font-weight:600;line-height:1.4;letter-spacing:.02em;text-transform:none;display:flex;flex-direction:column;gap:1px;}
+.off-fin .ar{color:#5C4F44;font-weight:700;}
+.off-fin .un{color:#a04545;}
+
+/* Option A — KPI strip */
+.kpi-strip{background:linear-gradient(to right, #ede4d5, #e8dfd0);padding:14px 22px;border-bottom:1px solid rgba(135,119,101,.20);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:18px;}
+.kpi-group{display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
+.kpi-item{display:flex;flex-direction:column;gap:2px;}
+.kpi-lbl{font-size:9px;font-weight:700;color:#877765;letter-spacing:.16em;text-transform:uppercase;font-family:'Jost';}
+.kpi-val{font-family:'IvyMode',Georgia,serif;font-size:22px;font-weight:400;color:#2A2E31;line-height:1;}
+.kpi-val.warn{color:#a04545;}
+.kpi-as-of{font-size:10px;color:#999;font-weight:500;letter-spacing:.06em;text-transform:uppercase;}
+
+/* Option B — new column */
+.fin-col{background:#ede4d5;color:#5C4F44;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;}
+.td-fin{background:#FBF8F0;padding:12px 10px;text-align:left;vertical-align:middle;font-family:'Jost';width:140px;}
+.td-fin .row{display:flex;justify-content:space-between;align-items:baseline;font-size:11px;}
+.td-fin .row + .row{margin-top:5px;padding-top:5px;border-top:1px dashed rgba(135,119,101,.30);}
+.td-fin .lbl{font-size:8.5px;color:#877765;letter-spacing:.10em;text-transform:uppercase;font-weight:600;}
+.td-fin .val{font-weight:700;color:#2A2E31;font-family:'Jost';font-size:13px;}
+.td-fin .val.warn{color:#a04545;}
+
+/* Option C — new tab */
+.mock-tabs{display:flex;background:#FBF8F0;border:1px solid rgba(0,0,0,.10);border-radius:6px;overflow:hidden;width:fit-content;margin-bottom:16px;box-shadow:0 1px 0 rgba(0,0,0,.06);}
+.mock-tab{padding:11px 22px;border-right:1px solid rgba(0,0,0,.06);font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#333;border-bottom:2px solid transparent;cursor:pointer;}
+.mock-tab.active{color:#b8891e;border-bottom-color:#b8891e;}
+.mock-tab.new{color:#b8891e;border-bottom-color:transparent;position:relative;}
+.mock-tab.new::after{content:'NEW';position:absolute;top:4px;right:6px;background:#b8891e;color:#fff;font-size:7px;padding:1px 4px;border-radius:2px;font-weight:700;letter-spacing:.04em;}
+
+.snapshot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding:24px;}
+.snap-card{background:#FBF8F0;border:1px solid rgba(135,119,101,.28);border-radius:6px;padding:18px 20px;}
+.snap-card-lbl{font-size:9px;font-weight:700;color:#877765;letter-spacing:.16em;text-transform:uppercase;}
+.snap-card-val{font-family:'IvyMode',Georgia,serif;font-size:32px;font-weight:400;color:#2A2E31;margin-top:6px;line-height:1;}
+.snap-card-val.warn{color:#a04545;}
+.snap-card-meta{font-size:11px;color:#999;margin-top:8px;}
+.office-table-mini{margin:0 24px 24px;border:1px solid rgba(135,119,101,.28);border-radius:6px;overflow:hidden;}
+
+.callout{background:rgba(184,137,30,.10);border-left:3px solid #b8891e;padding:10px 14px;font-size:12px;color:#5C4F44;margin-top:14px;border-radius:0 4px 4px 0;}
+</style>
+</head>
+<body>
+
+<h1>AR Display — 3 Options</h1>
+<p class="intro">All three use the existing brand palette (cream + sandstone + earth + gold) and the IvyMode display font. Each shows the same sample data: org-wide totals + per-office numbers. Pick one (or hybrid) and I'll wire it to a real daily-refresh JSON.</p>
+
+<!-- ─── Option A ─────────────────────────────────────────── -->
+<div class="option-section">
+  <div class="option-title">A — KPI strip + per-office subtitle <span class="option-rec">Recommended</span></div>
+  <div class="option-desc">Org-wide totals at the top of the Live Board. Each office cell gets a small subtitle showing its own numbers. No structural change, no new clicks.</div>
+
+  <div class="mock-frame">
+    <div class="mock-bph">
+      <div>
+        <div class="mock-bph-title">Live Status Board</div>
+        <div class="mock-bph-date">Tuesday, May 5, 2026</div>
+      </div>
+      <button class="mock-clear">✕ Clear Board</button>
+    </div>
+
+    <div class="kpi-strip">
+      <div class="kpi-group">
+        <div class="kpi-item">
+          <div class="kpi-lbl">Total AR</div>
+          <div class="kpi-val">$1.42M</div>
+        </div>
+        <div class="kpi-item">
+          <div class="kpi-lbl">EOB / EFT Unposted</div>
+          <div class="kpi-val warn">$87,400</div>
+        </div>
+        <div class="kpi-item">
+          <div class="kpi-lbl">Avg Days Outstanding</div>
+          <div class="kpi-val">42d</div>
+        </div>
+      </div>
+      <div class="kpi-as-of">As of: 5/5/2026 · 7:00 AM CT</div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th class="th-office" rowspan="2">Office</th>
+          <th class="th-cat" rowspan="2">Ins Verification</th>
+          <th class="th-cat" colspan="2">Claims (Sending)</th>
+          <th class="th-cat" colspan="2">Posting</th>
+          <th class="th-cat" colspan="2">Aging</th>
+        </tr>
+        <tr>
+          <th class="th-sub">Old PMS</th><th class="th-sub">Oryx</th>
+          <th class="th-sub">Old PMS</th><th class="th-sub">Oryx</th>
+          <th class="th-sub">Old PMS</th><th class="th-sub">Oryx</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-office">
+            <span class="off-code">SQ</span>
+            <div class="off-name">On the Square</div>
+            <div class="off-fin"><span class="ar">$142K AR</span><span class="un">$8.2K unposted</span></div>
+          </td>
+          <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td>
+        </tr>
+        <tr>
+          <td class="td-office">
+            <span class="off-code">GT</span>
+            <div class="off-name">Georgetown</div>
+            <div class="off-fin"><span class="ar">$211K AR</span><span class="un">$14.6K unposted</span></div>
+          </td>
+          <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td>
+        </tr>
+        <tr>
+          <td class="td-office">
+            <span class="off-code">ATX</span>
+            <div class="off-name">Austin</div>
+            <div class="off-fin"><span class="ar">$98K AR</span><span class="un">$5.4K unposted</span></div>
+          </td>
+          <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout"><strong>Pros:</strong> highest visibility · zero clicks · org snapshot + per-office detail in one view · matches design system. <strong>Cons:</strong> office cell gets slightly taller (~28px); KPI strip adds ~50px above the table.</div>
+</div>
+
+<!-- ─── Option B ─────────────────────────────────────────── -->
+<div class="option-section">
+  <div class="option-title">B — New "Financial" sticky column</div>
+  <div class="option-desc">A dedicated $AR / $Unposted column inserted between Office and Ins Verification. Per-office focus, no org-wide bar.</div>
+
+  <div class="mock-frame">
+    <div class="mock-bph">
+      <div>
+        <div class="mock-bph-title">Live Status Board</div>
+        <div class="mock-bph-date">Tuesday, May 5, 2026</div>
+      </div>
+      <button class="mock-clear">✕ Clear Board</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th class="th-office" rowspan="2">Office</th>
+          <th class="th-cat fin-col" rowspan="2">Financial</th>
+          <th class="th-cat" rowspan="2">Ins Verification</th>
+          <th class="th-cat" colspan="2">Claims (Sending)</th>
+          <th class="th-cat" colspan="2">Posting</th>
+        </tr>
+        <tr>
+          <th class="th-sub">Old PMS</th><th class="th-sub">Oryx</th>
+          <th class="th-sub">Old PMS</th><th class="th-sub">Oryx</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-office"><span class="off-code">SQ</span><div class="off-name">On the Square</div></td>
+          <td class="td-fin">
+            <div class="row"><span class="lbl">AR</span><span class="val">$142K</span></div>
+            <div class="row"><span class="lbl">Unposted</span><span class="val warn">$8.2K</span></div>
+          </td>
+          <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td>
+        </tr>
+        <tr>
+          <td class="td-office"><span class="off-code">GT</span><div class="off-name">Georgetown</div></td>
+          <td class="td-fin">
+            <div class="row"><span class="lbl">AR</span><span class="val">$211K</span></div>
+            <div class="row"><span class="lbl">Unposted</span><span class="val warn">$14.6K</span></div>
+          </td>
+          <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td>
+        </tr>
+        <tr>
+          <td class="td-office"><span class="off-code">ATX</span><div class="off-name">Austin</div></td>
+          <td class="td-fin">
+            <div class="row"><span class="lbl">AR</span><span class="val">$98K</span></div>
+            <div class="row"><span class="lbl">Unposted</span><span class="val warn">$5.4K</span></div>
+          </td>
+          <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout"><strong>Pros:</strong> per-office numbers cleanly displayed · no vertical real estate added above the table. <strong>Cons:</strong> table gets wider (~140px); no org-wide total at-a-glance; pushes everything else right.</div>
+</div>
+
+<!-- ─── Option C ─────────────────────────────────────────── -->
+<div class="option-section">
+  <div class="option-title">C — Dedicated "AR Snapshot" tab</div>
+  <div class="option-desc">A new top-level tab with full-page financial dashboard: KPI cards, per-office breakdown, optional charts.</div>
+
+  <div class="mock-tabs">
+    <div class="mock-tab">⚡ Live Status</div>
+    <div class="mock-tab">📋 Assignment Board</div>
+    <div class="mock-tab">👥 Staff Roster</div>
+    <div class="mock-tab active new">💰 AR Snapshot</div>
+    <div class="mock-tab">📋 Records</div>
+    <div class="mock-tab">📖 How To Use</div>
+  </div>
+
+  <div class="mock-frame">
+    <div class="mock-bph">
+      <div>
+        <div class="mock-bph-title">AR Snapshot</div>
+        <div class="mock-bph-date">As of Tuesday, May 5, 2026 · 7:00 AM CT</div>
+      </div>
+    </div>
+
+    <div class="snapshot-grid">
+      <div class="snap-card">
+        <div class="snap-card-lbl">Total AR</div>
+        <div class="snap-card-val">$1.42M</div>
+        <div class="snap-card-meta">Across all 10 offices</div>
+      </div>
+      <div class="snap-card">
+        <div class="snap-card-lbl">EOB / EFT Unposted</div>
+        <div class="snap-card-val warn">$87,400</div>
+        <div class="snap-card-meta">+$4.2K vs yesterday</div>
+      </div>
+      <div class="snap-card">
+        <div class="snap-card-lbl">Avg Days Outstanding</div>
+        <div class="snap-card-val">42d</div>
+        <div class="snap-card-meta">Goal: ≤ 30 days</div>
+      </div>
+    </div>
+
+    <div class="office-table-mini">
+      <table>
+        <thead>
+          <tr>
+            <th class="th-office">Office</th>
+            <th class="th-cat">Total AR</th>
+            <th class="th-cat">Unposted EOB/EFT</th>
+            <th class="th-cat">Avg Days</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="td-office"><span class="off-code">SQ</span><div class="off-name">On the Square</div></td><td>$142K</td><td>$8.2K</td><td>38d</td></tr>
+          <tr><td class="td-office"><span class="off-code">GT</span><div class="off-name">Georgetown</div></td><td>$211K</td><td>$14.6K</td><td>45d</td></tr>
+          <tr><td class="td-office"><span class="off-code">ATX</span><div class="off-name">Austin</div></td><td>$98K</td><td>$5.4K</td><td>40d</td></tr>
+          <tr><td class="td-office"><span class="off-code">MP</span><div class="off-name">Med Pkwy</div></td><td>$167K</td><td>$11.2K</td><td>43d</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="callout"><strong>Pros:</strong> room for charts / trends · richest data view · doesn't crowd the live board. <strong>Cons:</strong> requires a click to open · easy to forget to check daily.</div>
+</div>
+
+<p style="font-size:12px;color:#666;margin-top:30px;">Tell me <strong>A</strong>, <strong>B</strong>, or <strong>C</strong> (or "A + C" for both — fastest to glance, deepest to drill). I'll wire to <code>ar-snapshot.json</code> with a daily refresh script.</p>
+
+</body>
+</html>

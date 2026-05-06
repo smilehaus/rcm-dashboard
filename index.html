@@ -301,6 +301,30 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 @keyframes iv-yellow-pulse{0%,100%{box-shadow:0 0 0 0 rgba(234,179,8,.75);}60%{box-shadow:0 0 0 5px rgba(234,179,8,0);}}
 .iv-date-inp:focus{outline:none;border-color:var(--earth);}
 
+/* ── Financial column (synthetic, read-only) ────────── */
+.fin-cell{background:#FBF8F0;padding:0;vertical-align:middle;width:140px;min-width:130px;}
+.fin-cell-inner{padding:10px 12px;display:flex;flex-direction:column;gap:6px;}
+.fin-row{display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
+.fin-row + .fin-row{padding-top:6px;border-top:1px dashed rgba(135,119,101,.25);}
+.fin-lbl{font-size:9px;font-weight:600;color:#877765;letter-spacing:.10em;text-transform:uppercase;font-family:var(--font-body);}
+.fin-val{font-size:13px;font-weight:700;color:#2A2E31;font-family:var(--font-body);letter-spacing:.01em;}
+.fin-val.warn{color:#a04545;}
+
+/* ── AR Snapshot tab ───────────────────────────────── */
+.ar-snap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding:24px;}
+.ar-snap-card{background:#FBF8F0;border:1px solid rgba(135,119,101,.28);border-radius:6px;padding:20px 22px;}
+.ar-snap-card-lbl{font-size:9px;font-weight:700;color:#877765;letter-spacing:.16em;text-transform:uppercase;font-family:var(--font-body);}
+.ar-snap-card-val{font-family:var(--font-display);font-size:34px;font-weight:400;color:#2A2E31;margin-top:8px;line-height:1;letter-spacing:.005em;}
+.ar-snap-card-val.warn{color:#a04545;}
+.ar-snap-card-meta{font-size:11px;color:#999;margin-top:10px;font-family:var(--font-body);}
+.ar-snap-table-wrap{margin:0 24px 24px;border:1px solid rgba(135,119,101,.28);border-radius:6px;overflow:hidden;background:#F2EFE8;}
+.ar-snap-table{width:100%;border-collapse:collapse;}
+.ar-snap-table th,.ar-snap-table td{border:1px solid rgba(135,119,101,.28);padding:10px 14px;text-align:right;font-family:var(--font-body);font-size:13px;}
+.ar-snap-table th{background:#D6CDBD;color:#5C4F44;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;padding:12px 14px;}
+.ar-snap-table th.first,.ar-snap-table td.first{text-align:left;}
+.ar-snap-table td.warn{color:#a04545;font-weight:700;}
+.ar-snap-table td.first{font-weight:700;color:#2A2E31;letter-spacing:.04em;}
+
 /* ── Aging Alerts ────────────────────────── */
 .aging-alert-bar{display:flex;align-items:center;gap:5px;padding-top:6px;border-top:1px solid var(--border-subtle);min-height:18px;flex-wrap:nowrap;overflow:hidden;}
 .aging-alert-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.10em;color:var(--fg2);white-space:nowrap;font-family:var(--font-body);}
@@ -525,6 +549,7 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 <div class="tab-row">
   <div class="tab-bar">
     <button class="tab-btn active" id="tab-btn-live" onclick="switchTab('live')">⚡ &nbsp;Live Status</button>
+    <button class="tab-btn" id="tab-btn-arsnap" onclick="switchTab('arsnap')">💰 &nbsp;AR Snapshot</button>
     <button class="tab-btn" id="tab-btn-assign" onclick="switchTab('assign')">📋 &nbsp;Assignment Board</button>
     <button class="tab-btn" id="tab-btn-roster" onclick="switchTab('roster')">👥 &nbsp;Staff Roster</button>
     <button class="tab-btn" id="tab-btn-helplog" onclick="switchTab('helplog')">📋 &nbsp;Records</button>
@@ -659,6 +684,34 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
           </tr>
         </thead>
         <tbody id="roster-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── AR SNAPSHOT TAB ────────────────────────── -->
+<div id="content-arsnap" class="tab-content">
+  <div class="board-panel">
+    <div class="bph">
+      <div>
+        <div class="bph-title">AR Snapshot</div>
+        <div class="bph-date" id="arsnap-asof">Loading…</div>
+      </div>
+    </div>
+    <div class="ar-snap-grid" id="arsnap-cards">
+      <!-- KPI cards rendered by renderArSnapshot() -->
+    </div>
+    <div class="ar-snap-table-wrap">
+      <table class="ar-snap-table">
+        <thead>
+          <tr>
+            <th class="first">Office</th>
+            <th>Total AR</th>
+            <th>EOB / EFT Unposted</th>
+            <th>Avg Days Outstanding</th>
+          </tr>
+        </thead>
+        <tbody id="arsnap-tbody"></tbody>
       </table>
     </div>
   </div>
@@ -3706,16 +3759,19 @@ function buildGrid(tableEl, boardId) {
       inner.appendChild(eb);
       th.appendChild(inner);
     } else {
-      // single col (ins_verif)
+      // single col (ins_verif or synthetic financial)
       th.rowSpan = 2;
       const inner = document.createElement('div');
       inner.className = 'th-cat-inner';
       inner.textContent = group.cols[0].lbl;
-      const eb = document.createElement('button');
-      eb.className = 'col-edit-btn';
-      eb.textContent = '✎';
-      eb.onclick = () => openAddCol(group.cols[0].id);
-      inner.appendChild(eb);
+      // Synthetic columns (financial) are read-only — no edit button
+      if (!group.cols[0]._synthetic) {
+        const eb = document.createElement('button');
+        eb.className = 'col-edit-btn';
+        eb.textContent = '✎';
+        eb.onclick = () => openAddCol(group.cols[0].id);
+        inner.appendChild(eb);
+      }
       th.appendChild(inner);
     }
     tr1.appendChild(th);
@@ -3994,6 +4050,23 @@ function buildGrid(tableEl, boardId) {
 
       td.appendChild(inner);
       tr.appendChild(td);
+
+      // Inject synthetic "Financial" cell directly after Posting (Oryx).
+      // Same render position as the synthetic col header inserted by buildCatGroups.
+      if (col.id === 'posting_oryx') {
+        const finTd = document.createElement('td');
+        finTd.className = 'fin-cell group-start';
+        const finData = (_arSnapshot.offices && _arSnapshot.offices[office.code]) || null;
+        const fmtMoney = v => v == null ? '—' : (v >= 1000 ? '$' + Math.round(v/100)/10 + 'K' : '$' + Math.round(v));
+        const ar  = finData ? fmtMoney(finData.ar) : '—';
+        const un  = finData ? fmtMoney(finData.unposted) : '—';
+        finTd.innerHTML = `
+          <div class="fin-cell-inner">
+            <div class="fin-row"><span class="fin-lbl">AR</span><span class="fin-val">${ar}</span></div>
+            <div class="fin-row"><span class="fin-lbl">Unposted</span><span class="fin-val warn">${un}</span></div>
+          </div>`;
+        tr.appendChild(finTd);
+      }
     });
 
     // Add column placeholder td
@@ -4008,7 +4081,7 @@ function buildGrid(tableEl, boardId) {
   const addTr = document.createElement('tr');
   const addTd = document.createElement('td');
   addTd.className = 'td-office add-row';
-  addTd.colSpan = S.columns.length + 2;
+  addTd.colSpan = S.columns.length + 3; // +1 office, +1 synthetic financial, +1 plus
   addTd.textContent = '+ Add Office';
   addTd.onclick = openAddOffice;
   addTr.appendChild(addTd);
@@ -4034,6 +4107,16 @@ function buildCatGroups(columns) {
       catMap[cat].cols.push(col);
     }
   });
+
+  // Inject synthetic "Financial" column between Posting and Aging (after the Posting group).
+  // The synthetic col is a read-only data display — no drag/drop, no token assignments.
+  // The state model (S.columns) is left untouched.
+  const postIdx = groups.findIndex(g => g.label === 'Posting');
+  if (postIdx !== -1) {
+    const finCol = { id:'financial', lbl:'Financial', cat:'Financial', oryx:false, _synthetic:true };
+    groups.splice(postIdx + 1, 0, { label:'', cols:[finCol] });
+  }
+
   return groups;
 }
 
@@ -4404,13 +4487,16 @@ function dropBreak(e, area) {
 // ════════════════════════════════════════════════
 
 function switchTab(tab) {
-  ['assign','live','roster','helplog','guide','kpi'].forEach(t => {
-    document.getElementById('content-' + t).classList.toggle('active', t === tab);
-    document.getElementById('tab-btn-' + t).classList.toggle('active', t === tab);
+  ['assign','live','arsnap','roster','helplog','guide','kpi'].forEach(t => {
+    const c = document.getElementById('content-' + t);
+    const b = document.getElementById('tab-btn-' + t);
+    if (c) c.classList.toggle('active', t === tab);
+    if (b) b.classList.toggle('active', t === tab);
   });
   if (tab === 'roster') renderRosterTab();
   if (tab === 'helplog') renderHelpLogTab();
   if (tab === 'kpi') renderKpiTab();
+  if (tab === 'arsnap') renderArSnapshot();
 }
 
 function resetAssign() {
@@ -5206,6 +5292,85 @@ function scheduleMidnightCheck() {
 // ════════════════════════════════════════════════
 // AGING ALERTS — ClickUp Integration
 // ════════════════════════════════════════════════
+// AR SNAPSHOT — daily Total AR + EOB/EFT Unposted per office
+// Generated daily by scripts/fetch-ar-snapshot.ts → ar-snapshot.json
+// ════════════════════════════════════════════════
+let _arSnapshot = { generated: null, asOf: null, totals: null, offices: {} };
+
+async function fetchArSnapshot() {
+  try {
+    const cb = '?t=' + Date.now();
+    const urls = ['./ar-snapshot.json' + cb, 'ar-snapshot.json' + cb];
+    let data = null;
+    for (const url of urls) {
+      try {
+        const r = await fetch(url, { cache: 'no-cache' });
+        if (r.ok) { data = await r.json(); break; }
+      } catch (_) {}
+    }
+    if (!data) { console.warn('ar-snapshot.json not found — run fetch-ar-snapshot.ts to generate'); return; }
+    _arSnapshot = data;
+    // Re-render the live board (financial column) and AR Snapshot tab if visible
+    if (typeof renderAll === 'function') renderAll();
+    renderArSnapshot();
+    console.log('AR snapshot loaded:', data.generated, '— Total AR:', data.totals?.ar, 'Unposted:', data.totals?.unposted);
+  } catch (e) {
+    console.warn('Failed to load AR snapshot:', e);
+  }
+}
+
+function fmtMoney(v) {
+  if (v == null) return '—';
+  if (v >= 1000000) return '$' + (Math.round(v / 100000) / 10) + 'M';
+  if (v >= 1000)    return '$' + (Math.round(v / 100) / 10) + 'K';
+  return '$' + Math.round(v);
+}
+
+function renderArSnapshot() {
+  const cardsEl = document.getElementById('arsnap-cards');
+  const bodyEl  = document.getElementById('arsnap-tbody');
+  const asOfEl  = document.getElementById('arsnap-asof');
+  if (!cardsEl || !bodyEl) return;
+
+  const totals  = _arSnapshot.totals  || {};
+  const offices = _arSnapshot.offices || {};
+  const asOf    = _arSnapshot.asOf || _arSnapshot.generated || '';
+
+  if (asOfEl) asOfEl.textContent = asOf ? ('As of: ' + asOf) : 'No data yet';
+
+  cardsEl.innerHTML = `
+    <div class="ar-snap-card">
+      <div class="ar-snap-card-lbl">Total AR</div>
+      <div class="ar-snap-card-val">${fmtMoney(totals.ar)}</div>
+      <div class="ar-snap-card-meta">Across all offices</div>
+    </div>
+    <div class="ar-snap-card">
+      <div class="ar-snap-card-lbl">EOB / EFT Unposted</div>
+      <div class="ar-snap-card-val warn">${fmtMoney(totals.unposted)}</div>
+      <div class="ar-snap-card-meta">${totals.unpostedDelta != null ? (totals.unpostedDelta >= 0 ? '+' : '') + fmtMoney(totals.unpostedDelta) + ' vs yesterday' : 'Daily refresh'}</div>
+    </div>
+    <div class="ar-snap-card">
+      <div class="ar-snap-card-lbl">Avg Days Outstanding</div>
+      <div class="ar-snap-card-val">${totals.avgDays != null ? totals.avgDays + 'd' : '—'}</div>
+      <div class="ar-snap-card-meta">Goal: ≤ 30 days</div>
+    </div>`;
+
+  // Per-office rows
+  const rows = (S.offices || OFFICE_DEF).map(o => {
+    const d = offices[o.code] || {};
+    const unCls = d.unposted > 0 ? 'warn' : '';
+    return `
+      <tr>
+        <td class="first">${o.lbl || o.code} — ${o.name || ''}</td>
+        <td>${fmtMoney(d.ar)}</td>
+        <td class="${unCls}">${fmtMoney(d.unposted)}</td>
+        <td>${d.avgDays != null ? d.avgDays + 'd' : '—'}</td>
+      </tr>`;
+  }).join('');
+  bodyEl.innerHTML = rows;
+}
+
+// ════════════════════════════════════════════════
 // Aging alert counts per office: { SQ: { overdue: N, priority: N }, ... }
 // Generated daily by scripts/flag-recent-dos.ts → aging-alerts.json
 let _agingAlerts = {};
@@ -5355,10 +5520,12 @@ function renderPostingBadges() {
   fetchAgingAlerts();
   fetchPostingAlerts();
   fetchResubmitAlerts();
+  fetchArSnapshot();
   // Refresh every 15 minutes
   setInterval(fetchAgingAlerts, 15 * 60 * 1000);
   setInterval(fetchPostingAlerts, 15 * 60 * 1000);
   setInterval(fetchResubmitAlerts, 15 * 60 * 1000);
+  setInterval(fetchArSnapshot, 15 * 60 * 1000);
 })();
 </script>
 
