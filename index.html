@@ -4360,6 +4360,29 @@ function fmtPct(v) {
   return (Math.round(v * 10) / 10) + '%';
 }
 
+// Map KPI_DEFS ids → kpi-snapshot.json keys (only auto-pulled fields)
+const KPI_TO_SNAP = {
+  monthlyProduction: 'monthlyProduction',
+  collectionRate:    'collectionRate',
+  hygieneReappt:     'hygReappt',
+  cancellationRate:  'cancellationRate',
+  caseAcceptance:    'caseAcceptance',
+  arDays:            'arDays',
+  arOver30:          'arOver30',
+};
+
+// Returns the value for a (kpiId, office) — prefers latest week from ClickUp
+// snapshot for auto-pulled metrics; falls back to whatever is in S.kpi[period][off].
+function kpiResolveValue(kpiId, offCode, offData) {
+  const snapKey = KPI_TO_SNAP[kpiId];
+  if (snapKey && _kpiSnapshot.weeks && _kpiSnapshot.weeks.length) {
+    const latest = _kpiSnapshot.weeks[_kpiSnapshot.weeks.length - 1];
+    const v = latest && latest.offices && latest.offices[offCode] && latest.offices[offCode][snapKey];
+    if (v != null) return v;
+  }
+  return offData ? offData[kpiId] : undefined;
+}
+
 // ════════════════════════════════════════════════
 // KPI WEEK-OVER-WEEK TRENDS — 5 mini line charts
 // Uses _kpiSnapshot.weeks (array, oldest → newest, last 12).
@@ -4543,7 +4566,7 @@ function renderKpiOverview(body, period) {
     let greenCount = 0, totalWithData = 0;
 
     const cells = defs.map(d => {
-      const actual = offData[d.id];
+      const actual = kpiResolveValue(d.id, off.code, offData);
       const status = kpiStatus(d, actual, off.code);
       if (status !== 'empty') { totalWithData++; if (status==='green') greenCount++; }
       const s = KPI_STATUS_STYLE[status];
@@ -4589,7 +4612,7 @@ function renderKpiDetail(body, period, offCode) {
 
   let greenCount = 0, yellowCount = 0, redCount = 0, emptyCount = 0;
   KPI_DEFS.forEach(d => {
-    const s = kpiStatus(d, offData[d.id], offCode);
+    const s = kpiStatus(d, kpiResolveValue(d.id, offCode, offData), offCode);
     if (s==='green') greenCount++;
     else if (s==='yellow') yellowCount++;
     else if (s==='red') redCount++;
@@ -4621,7 +4644,7 @@ function renderKpiDetail(body, period, offCode) {
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px">`;
 
   KPI_DEFS.forEach(d => {
-    const actual = offData[d.id];
+    const actual = kpiResolveValue(d.id, offCode, offData);
     const status = kpiStatus(d, actual, offCode);
     const s = KPI_STATUS_STYLE[status];
     const pct = kpiProgressPct(d, actual, offCode);
