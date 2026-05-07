@@ -1,23 +1,271 @@
 {
-  "generated": "2026-05-06T00:45:00.000Z",
+  "generated": "2026-05-07T01:57:30.295Z",
   "asOf": "5/5/2026 7:45 PM CT",
   "totals": {
-    "outstanding": { "d0_30": null, "d31_60": null, "d61_90": null, "d90plus": null, "total": null },
-    "patients":    { "d0_30": null, "d31_60": null, "d61_90": null, "d90plus": null, "total": null },
-    "insurance":   { "d0_30": null, "d31_60": null, "d61_90": null, "d90plus": null, "total": null },
+    "outstanding": {
+      "d0_30": null,
+      "d31_60": null,
+      "d61_90": null,
+      "d90plus": null,
+      "total": null
+    },
+    "patients": {
+      "d0_30": null,
+      "d31_60": null,
+      "d61_90": null,
+      "d90plus": null,
+      "total": null
+    },
+    "insurance": {
+      "d0_30": null,
+      "d31_60": null,
+      "d61_90": null,
+      "d90plus": null,
+      "total": null
+    },
     "unposted": null,
     "unpostedDelta": null
   },
   "offices": {
-    "SQ":   { "outstanding": { "d0_30": 18576.00, "d31_60": 4956.80, "d61_90": 2122.95, "d90plus": 26479.36, "total": 52135.11 }, "patients": { "d0_30": 5469.40, "d31_60": 1663.00, "d61_90": 653.40, "d90plus": 22104.11, "total": 29889.91 }, "insurance": { "d0_30": 13106.60, "d31_60": 3293.80, "d61_90": 1469.55, "d90plus": 4375.25, "total": 22245.20 }, "unposted": null },
-    "GT":   { "outstanding": { "d0_30": 101952.22, "d31_60": 50869.00, "d61_90": 36235.00, "d90plus": 305931.24, "total": 494987.46 }, "patients": { "d0_30": 19638.32, "d31_60": 10130.90, "d61_90": 11518.15, "d90plus": 154602.70, "total": 195890.07 }, "insurance": { "d0_30": 82313.90, "d31_60": 40738.10, "d61_90": 24716.85, "d90plus": 151328.54, "total": 299097.39 }, "unposted": null },
-    "ATX":  { "outstanding": { "d0_30": 29939.46, "d31_60": 12364.05, "d61_90": 11718.37, "d90plus": 46683.66, "total": 100705.54 }, "patients": { "d0_30": 5272.36, "d31_60": 4570.65, "d61_90": 1338.32, "d90plus": 34519.29, "total": 45700.62 }, "insurance": { "d0_30": 24667.10, "d31_60": 7793.40, "d61_90": 10380.05, "d90plus": 12164.37, "total": 55004.92 }, "unposted": null },
-    "MP":   { "outstanding": { "d0_30": 80922.45, "d31_60": 37997.03, "d61_90": 26489.65, "d90plus": 119801.77, "total": 265210.90 }, "patients": { "d0_30": 7985.40, "d31_60": 14021.30, "d61_90": 10680.65, "d90plus": 73895.22, "total": 106582.57 }, "insurance": { "d0_30": 72937.05, "d31_60": 23975.73, "d61_90": 15809.00, "d90plus": 45906.55, "total": 158628.33 }, "unposted": null },
-    "NBDA": { "outstanding": { "d0_30": 43268.25, "d31_60": 15793.15, "d61_90": 11570.35, "d90plus": 126662.84, "total": 197294.59 }, "patients": { "d0_30": 4298.55, "d31_60": 6860.25, "d61_90": 7305.55, "d90plus": 95293.89, "total": 113758.24 }, "insurance": { "d0_30": 38969.70, "d31_60": 8932.90, "d61_90": 4264.80, "d90plus": 31368.95, "total": 83536.35 }, "unposted": null },
-    "IC":   { "outstanding": { "d0_30": 55265.00, "d31_60": 7161.53, "d61_90": 6710.30, "d90plus": 58289.79, "total": 127426.62 }, "patients": { "d0_30": 35862.50, "d31_60": 4621.33, "d61_90": 3215.20, "d90plus": 46730.81, "total": 90429.84 }, "insurance": { "d0_30": 19402.50, "d31_60": 2540.20, "d61_90": 3495.10, "d90plus": 11558.98, "total": 36996.78 }, "unposted": null },
-    "AR":   { "outstanding": { "d0_30": 84861.55, "d31_60": 30413.14, "d61_90": 28153.35, "d90plus": 147700.09, "total": 291128.13 }, "patients": { "d0_30": 62633.45, "d31_60": 19753.04, "d61_90": 14977.75, "d90plus": 81891.39, "total": 179255.63 }, "insurance": { "d0_30": 22228.10, "d31_60": 10660.10, "d61_90": 13175.60, "d90plus": 65808.70, "total": 111872.50 }, "unposted": null },
-    "PF":   { "outstanding": { "d0_30": null, "d31_60": null, "d61_90": null, "d90plus": null, "total": null }, "patients": { "d0_30": null, "d31_60": null, "d61_90": null, "d90plus": null, "total": null }, "insurance": { "d0_30": null, "d31_60": null, "d61_90": null, "d90plus": null, "total": null }, "unposted": null },
-    "SATX": { "outstanding": { "d0_30": null, "d31_60": null, "d61_90": null, "d90plus": null, "total": null }, "patients": { "d0_30": null, "d31_60": null, "d61_90": null, "d90plus": null, "total": null }, "insurance": { "d0_30": null, "d31_60": null, "d61_90": null, "d90plus": null, "total": null }, "unposted": null },
-    "AM":   { "outstanding": { "d0_30": null, "d31_60": null, "d61_90": null, "d90plus": null, "total": null }, "patients": { "d0_30": null, "d31_60": null, "d61_90": null, "d90plus": null, "total": null }, "insurance": { "d0_30": null, "d31_60": null, "d61_90": null, "d90plus": null, "total": null }, "unposted": null }
+    "SQ": {
+      "outstanding": {
+        "d0_30": 18576,
+        "d31_60": 4956.8,
+        "d61_90": 2122.95,
+        "d90plus": 26479.36,
+        "total": 52135.11
+      },
+      "patients": {
+        "d0_30": 5469.4,
+        "d31_60": 1663,
+        "d61_90": 653.4,
+        "d90plus": 22104.11,
+        "total": 29889.91
+      },
+      "insurance": {
+        "d0_30": 13106.6,
+        "d31_60": 3293.8,
+        "d61_90": 1469.55,
+        "d90plus": 4375.25,
+        "total": 22245.2
+      },
+      "unposted": 2521.36
+    },
+    "GT": {
+      "outstanding": {
+        "d0_30": 101952.22,
+        "d31_60": 50869,
+        "d61_90": 36235,
+        "d90plus": 305931.24,
+        "total": 494987.46
+      },
+      "patients": {
+        "d0_30": 19638.32,
+        "d31_60": 10130.9,
+        "d61_90": 11518.15,
+        "d90plus": 154602.7,
+        "total": 195890.07
+      },
+      "insurance": {
+        "d0_30": 82313.9,
+        "d31_60": 40738.1,
+        "d61_90": 24716.85,
+        "d90plus": 151328.54,
+        "total": 299097.39
+      },
+      "unposted": 650256.48
+    },
+    "ATX": {
+      "outstanding": {
+        "d0_30": 29939.46,
+        "d31_60": 12364.05,
+        "d61_90": 11718.37,
+        "d90plus": 46683.66,
+        "total": 100705.54
+      },
+      "patients": {
+        "d0_30": 5272.36,
+        "d31_60": 4570.65,
+        "d61_90": 1338.32,
+        "d90plus": 34519.29,
+        "total": 45700.62
+      },
+      "insurance": {
+        "d0_30": 24667.1,
+        "d31_60": 7793.4,
+        "d61_90": 10380.05,
+        "d90plus": 12164.37,
+        "total": 55004.92
+      },
+      "unposted": 76631.81
+    },
+    "MP": {
+      "outstanding": {
+        "d0_30": 80922.45,
+        "d31_60": 37997.03,
+        "d61_90": 26489.65,
+        "d90plus": 119801.77,
+        "total": 265210.9
+      },
+      "patients": {
+        "d0_30": 7985.4,
+        "d31_60": 14021.3,
+        "d61_90": 10680.65,
+        "d90plus": 73895.22,
+        "total": 106582.57
+      },
+      "insurance": {
+        "d0_30": 72937.05,
+        "d31_60": 23975.73,
+        "d61_90": 15809,
+        "d90plus": 45906.55,
+        "total": 158628.33
+      },
+      "unposted": 249301.71
+    },
+    "NBDA": {
+      "outstanding": {
+        "d0_30": 43268.25,
+        "d31_60": 15793.15,
+        "d61_90": 11570.35,
+        "d90plus": 126662.84,
+        "total": 197294.59
+      },
+      "patients": {
+        "d0_30": 4298.55,
+        "d31_60": 6860.25,
+        "d61_90": 7305.55,
+        "d90plus": 95293.89,
+        "total": 113758.24
+      },
+      "insurance": {
+        "d0_30": 38969.7,
+        "d31_60": 8932.9,
+        "d61_90": 4264.8,
+        "d90plus": 31368.95,
+        "total": 83536.35
+      },
+      "unposted": 134127.61
+    },
+    "IC": {
+      "outstanding": {
+        "d0_30": 55265,
+        "d31_60": 7161.53,
+        "d61_90": 6710.3,
+        "d90plus": 58289.79,
+        "total": 127426.62
+      },
+      "patients": {
+        "d0_30": 35862.5,
+        "d31_60": 4621.33,
+        "d61_90": 3215.2,
+        "d90plus": 46730.81,
+        "total": 90429.84
+      },
+      "insurance": {
+        "d0_30": 19402.5,
+        "d31_60": 2540.2,
+        "d61_90": 3495.1,
+        "d90plus": 11558.98,
+        "total": 36996.78
+      },
+      "unposted": 12629.94
+    },
+    "AR": {
+      "outstanding": {
+        "d0_30": 84861.55,
+        "d31_60": 30413.14,
+        "d61_90": 28153.35,
+        "d90plus": 147700.09,
+        "total": 291128.13
+      },
+      "patients": {
+        "d0_30": 62633.45,
+        "d31_60": 19753.04,
+        "d61_90": 14977.75,
+        "d90plus": 81891.39,
+        "total": 179255.63
+      },
+      "insurance": {
+        "d0_30": 22228.1,
+        "d31_60": 10660.1,
+        "d61_90": 13175.6,
+        "d90plus": 65808.7,
+        "total": 111872.5
+      },
+      "unposted": 263187.64
+    },
+    "PF": {
+      "outstanding": {
+        "d0_30": null,
+        "d31_60": null,
+        "d61_90": null,
+        "d90plus": null,
+        "total": null
+      },
+      "patients": {
+        "d0_30": null,
+        "d31_60": null,
+        "d61_90": null,
+        "d90plus": null,
+        "total": null
+      },
+      "insurance": {
+        "d0_30": null,
+        "d31_60": null,
+        "d61_90": null,
+        "d90plus": null,
+        "total": null
+      },
+      "unposted": 87601.09
+    },
+    "SATX": {
+      "outstanding": {
+        "d0_30": null,
+        "d31_60": null,
+        "d61_90": null,
+        "d90plus": null,
+        "total": null
+      },
+      "patients": {
+        "d0_30": null,
+        "d31_60": null,
+        "d61_90": null,
+        "d90plus": null,
+        "total": null
+      },
+      "insurance": {
+        "d0_30": null,
+        "d31_60": null,
+        "d61_90": null,
+        "d90plus": null,
+        "total": null
+      },
+      "unposted": 282424.51
+    },
+    "AM": {
+      "outstanding": {
+        "d0_30": null,
+        "d31_60": null,
+        "d61_90": null,
+        "d90plus": null,
+        "total": null
+      },
+      "patients": {
+        "d0_30": null,
+        "d31_60": null,
+        "d61_90": null,
+        "d90plus": null,
+        "total": null
+      },
+      "insurance": {
+        "d0_30": null,
+        "d31_60": null,
+        "d61_90": null,
+        "d90plus": null,
+        "total": null
+      },
+      "unposted": 15083.38
+    }
   }
 }
