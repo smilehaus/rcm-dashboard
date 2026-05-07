@@ -1,6 +1,6 @@
 {
-  "generated": "2026-05-06T07:00:00.000Z",
-  "asOf": "5/6/2026 7:00 AM CT",
+  "generated": "2026-05-06T00:00:00.000Z",
+  "asOf": "5/5/2026 7:00 PM CT",
   "totals": {
     "outstanding": { "d0_30": null, "d31_60": null, "d61_90": null, "d90plus": null, "total": null },
     "patients":    { "d0_30": null, "d31_60": null, "d61_90": null, "d90plus": null, "total": null },
@@ -9,7 +9,7 @@
     "unpostedDelta": null
   },
   "offices": {
-    "SQ":   { "outstanding": { "d0_30": null, "d31_60": null, "d61_90": null, "d90plus": null, "total": null }, "patients": { "d0_30": null, "d31_60": null, "d61_90": null, "d90plus": null, "total": null }, "insurance": { "d0_30": null, "d31_60": null, "d61_90": null, "d90plus": null, "total": null }, "unposted": null },
+    "SQ":   { "outstanding": { "d0_30": 18576.00, "d31_60": 4956.80, "d61_90": 2122.95, "d90plus": 26479.36, "total": 52135.11 }, "patients": { "d0_30": 5469.40, "d31_60": 1663.00, "d61_90": 653.40, "d90plus": 22104.11, "total": 29889.91 }, "insurance": { "d0_30": 13106.60, "d31_60": 3293.80, "d61_90": 1469.55, "d90plus": 4375.25, "total": 22245.20 }, "unposted": null },
     "GT":   { "outstanding": { "d0_30": null, "d31_60": null, "d61_90": null, "d90plus": null, "total": null }, "patients": { "d0_30": null, "d31_60": null, "d61_90": null, "d90plus": null, "total": null }, "insurance": { "d0_30": null, "d31_60": null, "d61_90": null, "d90plus": null, "total": null }, "unposted": null },
     "ATX":  { "outstanding": { "d0_30": null, "d31_60": null, "d61_90": null, "d90plus": null, "total": null }, "patients": { "d0_30": null, "d31_60": null, "d61_90": null, "d90plus": null, "total": null }, "insurance": { "d0_30": null, "d31_60": null, "d61_90": null, "d90plus": null, "total": null }, "unposted": null },
     "MP":   { "outstanding": { "d0_30": null, "d31_60": null, "d61_90": null, "d90plus": null, "total": null }, "patients": { "d0_30": null, "d31_60": null, "d61_90": null, "d90plus": null, "total": null }, "insurance": { "d0_30": null, "d31_60": null, "d61_90": null, "d90plus": null, "total": null }, "unposted": null },
