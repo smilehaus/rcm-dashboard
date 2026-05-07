@@ -4104,12 +4104,13 @@ function buildGrid(tableEl, boardId) {
         const finTd = document.createElement('td');
         finTd.className = 'fin-cell group-start';
         const finData = (_arSnapshot.offices && _arSnapshot.offices[office.code]) || null;
-        // Pull "Total Outstanding" — supports both new {outstanding:{total}} schema and legacy {ar} fallback
+        // Total AR = the "Total Outstanding" → "Total" cell from AR Snapshot per-office breakdown
+        // (sum of 0-30 + 31-60 + 61-90 + >90 outstanding)
         const arVal = finData ? (finData.outstanding?.total ?? finData.ar) : null;
         const unVal = finData ? finData.unposted : null;
         finTd.innerHTML = `
           <div class="fin-cell-inner">
-            <div class="fin-row"><span class="fin-lbl">AR</span><span class="fin-val">${fmtMoney(arVal)}</span></div>
+            <div class="fin-row"><span class="fin-lbl">Total AR</span><span class="fin-val">${fmtMoney(arVal)}</span></div>
             <div class="fin-row"><span class="fin-lbl">Unposted</span><span class="fin-val warn">${fmtMoney(unVal)}</span></div>
           </div>`;
         tr.appendChild(finTd);
