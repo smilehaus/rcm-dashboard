@@ -4371,16 +4371,18 @@ const KPI_TO_SNAP = {
   arOver30:          'arOver30',
 };
 
-// Returns the value for a (kpiId, office) — prefers latest week from ClickUp
-// snapshot for auto-pulled metrics; falls back to whatever is in S.kpi[period][off].
+// Returns the value for a (kpiId, office). Manual entry (S.kpi[period][off][id])
+// always wins so OM edits stick; ClickUp snapshot fills only when no manual value.
 function kpiResolveValue(kpiId, offCode, offData) {
+  const manual = offData ? offData[kpiId] : undefined;
+  if (manual !== undefined && manual !== null && manual !== '') return manual;
   const snapKey = KPI_TO_SNAP[kpiId];
   if (snapKey && _kpiSnapshot.weeks && _kpiSnapshot.weeks.length) {
     const latest = _kpiSnapshot.weeks[_kpiSnapshot.weeks.length - 1];
     const v = latest && latest.offices && latest.offices[offCode] && latest.offices[offCode][snapKey];
     if (v != null) return v;
   }
-  return offData ? offData[kpiId] : undefined;
+  return manual;
 }
 
 // ════════════════════════════════════════════════
