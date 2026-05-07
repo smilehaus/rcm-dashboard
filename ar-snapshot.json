@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-07T02:02:27.057Z",
+  "generated": "2026-05-07T02:10:04.519Z",
   "asOf": "5/5/2026 7:45 PM CT",
   "totals": {
     "outstanding": {
@@ -49,7 +49,11 @@
         "d90plus": 4375.25,
         "total": 22245.2
       },
-      "unposted": 2521.36
+      "unposted": {
+        "y2025": 149.57,
+        "y2026": 2371.79,
+        "total": 2521.36
+      }
     },
     "GT": {
       "outstanding": {
@@ -73,7 +77,11 @@
         "d90plus": 151328.54,
         "total": 299097.39
       },
-      "unposted": 326315.54
+      "unposted": {
+        "y2025": 183570.81,
+        "y2026": 142744.73,
+        "total": 326315.54
+      }
     },
     "ATX": {
       "outstanding": {
@@ -97,7 +105,11 @@
         "d90plus": 12164.37,
         "total": 55004.92
       },
-      "unposted": 49004.32
+      "unposted": {
+        "y2025": 19060.52,
+        "y2026": 29943.8,
+        "total": 49004.32
+      }
     },
     "MP": {
       "outstanding": {
@@ -121,7 +133,11 @@
         "d90plus": 45906.55,
         "total": 158628.33
       },
-      "unposted": 84730.58
+      "unposted": {
+        "y2025": 26256.01,
+        "y2026": 58474.57,
+        "total": 84730.58
+      }
     },
     "NBDA": {
       "outstanding": {
@@ -145,7 +161,11 @@
         "d90plus": 31368.95,
         "total": 83536.35
       },
-      "unposted": 66641.62
+      "unposted": {
+        "y2025": 28297.88,
+        "y2026": 38343.74,
+        "total": 66641.62
+      }
     },
     "IC": {
       "outstanding": {
@@ -169,7 +189,11 @@
         "d90plus": 11558.98,
         "total": 36996.78
       },
-      "unposted": 12629.94
+      "unposted": {
+        "y2025": 10380.84,
+        "y2026": 2249.1,
+        "total": 12629.94
+      }
     },
     "AR": {
       "outstanding": {
@@ -193,7 +217,11 @@
         "d90plus": 65808.7,
         "total": 111872.5
       },
-      "unposted": 75025.17
+      "unposted": {
+        "y2025": 53629.26,
+        "y2026": 21395.91,
+        "total": 75025.17
+      }
     },
     "PF": {
       "outstanding": {
@@ -217,7 +245,11 @@
         "d90plus": null,
         "total": null
       },
-      "unposted": 29427.41
+      "unposted": {
+        "y2025": 15822.2,
+        "y2026": 13605.21,
+        "total": 29427.41
+      }
     },
     "SATX": {
       "outstanding": {
@@ -241,7 +273,11 @@
         "d90plus": null,
         "total": null
       },
-      "unposted": 144386.14
+      "unposted": {
+        "y2025": 51633.85,
+        "y2026": 92752.29,
+        "total": 144386.14
+      }
     },
     "AM": {
       "outstanding": {
@@ -265,7 +301,11 @@
         "d90plus": null,
         "total": null
       },
-      "unposted": 15083.38
+      "unposted": {
+        "y2025": 0,
+        "y2026": 15083.38,
+        "total": 15083.38
+      }
     }
   }
 }
