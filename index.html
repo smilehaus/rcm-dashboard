@@ -3771,10 +3771,16 @@ function renderRoster() {
 // RENDER GRID
 // ════════════════════════════════════════════════
 
+// Columns hidden from the LIVE Status board only (Assignment board still shows them).
+// To unhide, remove the id from this set — state is never modified.
+const LIVE_HIDDEN_COL_IDS = new Set(['collect_old','collect_oryx']);
+
 function buildGrid(tableEl, boardId) {
   const isLive   = boardId === 'live';
   const board    = isLive ? S.live : S.assign;
   const assignBd = S.assign; // for ghost overlay
+  // Per-board column list — live skips hidden cols; assign always shows everything.
+  const cols     = isLive ? S.columns.filter(c => !LIVE_HIDDEN_COL_IDS.has(c.id)) : S.columns;
   tableEl.innerHTML = '';
 
   // ── thead ─────────────────────────────────────
@@ -3788,7 +3794,7 @@ function buildGrid(tableEl, boardId) {
   tr1.appendChild(thOff);
 
   // Build category groups from columns
-  const cats = buildCatGroups(S.columns);
+  const cats = buildCatGroups(cols);
 
   cats.forEach(group => {
     const th = document.createElement('th');
@@ -3862,10 +3868,10 @@ function buildGrid(tableEl, boardId) {
     tdOff.appendChild(delOff);
     tr.appendChild(tdOff);
 
-    S.columns.forEach((col, colIdx) => {
+    cols.forEach((col, colIdx) => {
       const td = document.createElement('td');
       // Mark group boundaries: first col of any new category gets a strong left divider
-      const prevCol = colIdx > 0 ? S.columns[colIdx - 1] : null;
+      const prevCol = colIdx > 0 ? cols[colIdx - 1] : null;
       const isGroupStart = !prevCol || (col.cat || '') !== (prevCol.cat || '');
       td.className = 'drop-cell' + (isGroupStart ? ' group-start' : '');
 
@@ -4129,7 +4135,7 @@ function buildGrid(tableEl, boardId) {
   const addTr = document.createElement('tr');
   const addTd = document.createElement('td');
   addTd.className = 'td-office add-row';
-  addTd.colSpan = S.columns.length + 3; // +1 office, +1 synthetic financial, +1 plus
+  addTd.colSpan = cols.length + 3; // +1 office, +1 synthetic financial, +1 plus
   addTd.textContent = '+ Add Office';
   addTd.onclick = openAddOffice;
   addTr.appendChild(addTd);
