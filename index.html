@@ -798,7 +798,9 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
             <th>61 – 90</th>
             <th>&gt; 90</th>
             <th>Total</th>
-            <th>EOB / EFT Unposted</th>
+            <th>Unposted 2025</th>
+            <th>Unposted 2026</th>
+            <th>Unposted Total</th>
           </tr>
         </thead>
         <tbody id="arsnap-tbody"></tbody>
@@ -4156,7 +4158,7 @@ function buildGrid(tableEl, boardId) {
         // Total AR = the "Total Outstanding" → "Total" cell from AR Snapshot per-office breakdown
         // (sum of 0-30 + 31-60 + 61-90 + >90 outstanding)
         const arVal = finData ? (finData.outstanding?.total ?? finData.ar) : null;
-        const unVal = finData ? finData.unposted : null;
+        const unVal = finData ? unpostedTotal(finData.unposted) : null;
         finTd.innerHTML = `
           <div class="fin-cell-inner">
             <div class="fin-row"><span class="fin-lbl">Total AR</span><span class="fin-val">${fmtMoney(arVal)}</span></div>
@@ -5423,6 +5425,19 @@ function fmtMoney(v) {
   return '$' + Math.round(v);
 }
 
+// Unposted can be either a number (legacy) or { y2025, y2026, total } (new schema).
+// Returns the total in either case; null if missing.
+function unpostedTotal(u) {
+  if (u == null) return null;
+  if (typeof u === 'number') return u;
+  if (typeof u === 'object') return u.total ?? null;
+  return null;
+}
+function unpostedYear(u, year) {
+  if (u == null || typeof u !== 'object') return null;
+  return year === 2025 ? (u.y2025 ?? null) : (u.y2026 ?? null);
+}
+
 function renderArSnapshot() {
   const cardsEl    = document.getElementById('arsnap-cards');
   const breakdownEl= document.getElementById('arsnap-breakdown-tbody');
@@ -5466,11 +5481,22 @@ function renderArSnapshot() {
     return any ? out : buckets(totalsRaw[key] || (key === 'outstanding' ? totalsRaw : null));
   }
   function sumUnposted() {
-    let s = 0, had = false;
+    let s2025 = 0, s2026 = 0, sTotal = 0, had = false;
     Object.values(offices).forEach(off => {
-      if (off && off.unposted != null) { s += Number(off.unposted) || 0; had = true; }
+      const u = off?.unposted;
+      if (u == null) return;
+      const y25 = unpostedYear(u, 2025);
+      const y26 = unpostedYear(u, 2026);
+      const t   = unpostedTotal(u);
+      if (y25 != null) s2025 += Number(y25) || 0;
+      if (y26 != null) s2026 += Number(y26) || 0;
+      if (t   != null) { sTotal += Number(t) || 0; had = true; }
     });
-    return had ? s : (totalsRaw.unposted ?? null);
+    if (!had) {
+      const fallback = unpostedTotal(totalsRaw.unposted);
+      return { y2025: null, y2026: null, total: fallback };
+    }
+    return { y2025: s2025, y2026: s2026, total: sTotal };
   }
 
   const outstandingT = sumBuckets('outstanding');
@@ -5524,13 +5550,17 @@ function renderArSnapshot() {
       breakdownRow('Total Insurance Balances',   insuranceT, false);
   }
 
-  // ── EOB/EFT Unposted summary card ──
+  // ── EOB/EFT Unposted summary card (shows total + 2025/2026 split) ──
   if (summaryEl) {
+    const totalVal = unpostedT?.total ?? null;
+    const breakdown = (unpostedT?.y2025 != null || unpostedT?.y2026 != null)
+      ? `<span style="margin-right:14px">2025: <strong style="color:#5C4F44">${fmtMoney(unpostedT?.y2025)}</strong></span>2026: <strong style="color:#5C4F44">${fmtMoney(unpostedT?.y2026)}</strong>`
+      : (unpostedDelta != null ? (unpostedDelta >= 0 ? '+' : '') + fmtMoney(unpostedDelta) + ' vs yesterday' : 'Sum of all offices · daily refresh');
     summaryEl.innerHTML = `
       <div class="ar-snap-card">
         <div class="ar-snap-card-lbl">EOB / EFT Unposted</div>
-        <div class="ar-snap-card-val warn">${fmtMoney(unpostedT)}</div>
-        <div class="ar-snap-card-meta">${unpostedDelta != null ? (unpostedDelta >= 0 ? '+' : '') + fmtMoney(unpostedDelta) + ' vs yesterday' : 'Sum of all offices · daily refresh'}</div>
+        <div class="ar-snap-card-val warn">${fmtMoney(totalVal)}</div>
+        <div class="ar-snap-card-meta">${breakdown}</div>
       </div>`;
   }
 
@@ -5541,8 +5571,13 @@ function renderArSnapshot() {
     const out = buckets(d.outstanding || d);
     const pat = buckets(d.patients);
     const ins = buckets(d.insurance);
-    const unposted = d.unposted ?? null;
-    const unCls    = unposted > 0 ? 'warn' : '';
+    const u       = d.unposted;
+    const u2025   = unpostedYear(u, 2025);
+    const u2026   = unpostedYear(u, 2026);
+    const uTotal  = unpostedTotal(u);
+    const un25Cls = u2025  > 0 ? 'warn' : '';
+    const un26Cls = u2026  > 0 ? 'warn' : '';
+    const unTCls  = uTotal > 0 ? 'warn' : '';
 
     const row = (b, lbl, isTotal) => {
       const c61Cls = b.d61_90  > 0 ? 'warn' : '';
@@ -5563,7 +5598,9 @@ function renderArSnapshot() {
           <div class="off-name">${o.name || ''}</div>
         </td>
         ${row(out, 'Total Outstanding', true)}
-        <td class="unposted-cell ${unCls}" rowspan="3">${fmtMoney(unposted)}</td>
+        <td class="unposted-cell ${un25Cls}" rowspan="3">${fmtMoney(u2025)}</td>
+        <td class="unposted-cell ${un26Cls}" rowspan="3">${fmtMoney(u2026)}</td>
+        <td class="unposted-cell ${unTCls}" rowspan="3">${fmtMoney(uTotal)}</td>
       </tr>
       <tr>
         ${row(pat, 'Patient Balances', false)}
