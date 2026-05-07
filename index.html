@@ -311,7 +311,8 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 .fin-val.warn{color:#a04545;}
 
 /* ── AR Snapshot tab ───────────────────────────────── */
-.ar-snap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding:24px;}
+.ar-snap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:24px;}
+.ar-snap-summary{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding:0 24px 18px;}
 .ar-snap-card{background:#FBF8F0;border:1px solid rgba(135,119,101,.28);border-radius:6px;padding:20px 22px;}
 .ar-snap-card-lbl{font-size:9px;font-weight:700;color:#877765;letter-spacing:.16em;text-transform:uppercase;font-family:var(--font-body);}
 .ar-snap-card-val{font-family:var(--font-display);font-size:34px;font-weight:400;color:#2A2E31;margin-top:8px;line-height:1;letter-spacing:.005em;}
@@ -698,17 +699,22 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
         <div class="bph-date" id="arsnap-asof">Loading…</div>
       </div>
     </div>
-    <div class="ar-snap-grid" id="arsnap-cards">
-      <!-- KPI cards rendered by renderArSnapshot() -->
-    </div>
+    <!-- Aging bucket KPI cards (0-30, 31-60, 61-90, 90+) -->
+    <div class="ar-snap-grid" id="arsnap-cards"></div>
+    <!-- Total AR + EOB/EFT Unposted (secondary KPIs) -->
+    <div class="ar-snap-summary" id="arsnap-summary"></div>
+    <!-- Per-office breakdown -->
     <div class="ar-snap-table-wrap">
       <table class="ar-snap-table">
         <thead>
           <tr>
             <th class="first">Office</th>
+            <th>0–30 d</th>
+            <th>31–60 d</th>
+            <th>61–90 d</th>
+            <th>90+ d</th>
             <th>Total AR</th>
             <th>EOB / EFT Unposted</th>
-            <th>Avg Days Outstanding</th>
           </tr>
         </thead>
         <tbody id="arsnap-tbody"></tbody>
@@ -5327,9 +5333,10 @@ function fmtMoney(v) {
 }
 
 function renderArSnapshot() {
-  const cardsEl = document.getElementById('arsnap-cards');
-  const bodyEl  = document.getElementById('arsnap-tbody');
-  const asOfEl  = document.getElementById('arsnap-asof');
+  const cardsEl   = document.getElementById('arsnap-cards');
+  const summaryEl = document.getElementById('arsnap-summary');
+  const bodyEl    = document.getElementById('arsnap-tbody');
+  const asOfEl    = document.getElementById('arsnap-asof');
   if (!cardsEl || !bodyEl) return;
 
   const totals  = _arSnapshot.totals  || {};
@@ -5338,33 +5345,59 @@ function renderArSnapshot() {
 
   if (asOfEl) asOfEl.textContent = asOf ? ('As of: ' + asOf) : 'No data yet';
 
+  // ── Aging bucket KPI cards (0-30, 31-60, 61-90, 90+) ──
   cardsEl.innerHTML = `
     <div class="ar-snap-card">
-      <div class="ar-snap-card-lbl">Total AR</div>
-      <div class="ar-snap-card-val">${fmtMoney(totals.ar)}</div>
-      <div class="ar-snap-card-meta">Across all offices</div>
+      <div class="ar-snap-card-lbl">0 – 30 Days</div>
+      <div class="ar-snap-card-val">${fmtMoney(totals.ar0_30)}</div>
+      <div class="ar-snap-card-meta">Current</div>
     </div>
     <div class="ar-snap-card">
-      <div class="ar-snap-card-lbl">EOB / EFT Unposted</div>
-      <div class="ar-snap-card-val warn">${fmtMoney(totals.unposted)}</div>
-      <div class="ar-snap-card-meta">${totals.unpostedDelta != null ? (totals.unpostedDelta >= 0 ? '+' : '') + fmtMoney(totals.unpostedDelta) + ' vs yesterday' : 'Daily refresh'}</div>
+      <div class="ar-snap-card-lbl">31 – 60 Days</div>
+      <div class="ar-snap-card-val">${fmtMoney(totals.ar31_60)}</div>
+      <div class="ar-snap-card-meta">Watch</div>
     </div>
     <div class="ar-snap-card">
-      <div class="ar-snap-card-lbl">Avg Days Outstanding</div>
-      <div class="ar-snap-card-val">${totals.avgDays != null ? totals.avgDays + 'd' : '—'}</div>
-      <div class="ar-snap-card-meta">Goal: ≤ 30 days</div>
+      <div class="ar-snap-card-lbl">61 – 90 Days</div>
+      <div class="ar-snap-card-val warn">${fmtMoney(totals.ar61_90)}</div>
+      <div class="ar-snap-card-meta">Action needed</div>
+    </div>
+    <div class="ar-snap-card">
+      <div class="ar-snap-card-lbl">90+ Days</div>
+      <div class="ar-snap-card-val warn">${fmtMoney(totals.ar90plus)}</div>
+      <div class="ar-snap-card-meta">Critical</div>
     </div>`;
 
-  // Per-office rows
+  // ── Secondary KPIs: Total AR + Unposted ──
+  if (summaryEl) {
+    summaryEl.innerHTML = `
+      <div class="ar-snap-card">
+        <div class="ar-snap-card-lbl">Total AR</div>
+        <div class="ar-snap-card-val">${fmtMoney(totals.ar)}</div>
+        <div class="ar-snap-card-meta">Sum across all buckets · all offices</div>
+      </div>
+      <div class="ar-snap-card">
+        <div class="ar-snap-card-lbl">EOB / EFT Unposted</div>
+        <div class="ar-snap-card-val warn">${fmtMoney(totals.unposted)}</div>
+        <div class="ar-snap-card-meta">${totals.unpostedDelta != null ? (totals.unpostedDelta >= 0 ? '+' : '') + fmtMoney(totals.unpostedDelta) + ' vs yesterday' : 'Daily refresh'}</div>
+      </div>`;
+  }
+
+  // ── Per-office rows: bucket breakdown ──
   const rows = (S.offices || OFFICE_DEF).map(o => {
     const d = offices[o.code] || {};
-    const unCls = d.unposted > 0 ? 'warn' : '';
+    const unCls    = d.unposted  > 0 ? 'warn' : '';
+    const c61Cls   = d.ar61_90   > 0 ? 'warn' : '';
+    const c90Cls   = d.ar90plus  > 0 ? 'warn' : '';
     return `
       <tr>
         <td class="first">${o.lbl || o.code} — ${o.name || ''}</td>
+        <td>${fmtMoney(d.ar0_30)}</td>
+        <td>${fmtMoney(d.ar31_60)}</td>
+        <td class="${c61Cls}">${fmtMoney(d.ar61_90)}</td>
+        <td class="${c90Cls}">${fmtMoney(d.ar90plus)}</td>
         <td>${fmtMoney(d.ar)}</td>
         <td class="${unCls}">${fmtMoney(d.unposted)}</td>
-        <td>${d.avgDays != null ? d.avgDays + 'd' : '—'}</td>
       </tr>`;
   }).join('');
   bodyEl.innerHTML = rows;

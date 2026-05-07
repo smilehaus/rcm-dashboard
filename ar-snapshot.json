@@ -2,21 +2,24 @@
   "generated": "2026-05-06T07:00:00.000Z",
   "asOf": "5/6/2026 7:00 AM CT",
   "totals": {
+    "ar0_30": null,
+    "ar31_60": null,
+    "ar61_90": null,
+    "ar90plus": null,
     "ar": null,
     "unposted": null,
-    "unpostedDelta": null,
-    "avgDays": null
+    "unpostedDelta": null
   },
   "offices": {
-    "SQ":   { "ar": null, "unposted": null, "avgDays": null },
-    "GT":   { "ar": null, "unposted": null, "avgDays": null },
-    "ATX":  { "ar": null, "unposted": null, "avgDays": null },
-    "MP":   { "ar": null, "unposted": null, "avgDays": null },
-    "NBDA": { "ar": null, "unposted": null, "avgDays": null },
-    "IC":   { "ar": null, "unposted": null, "avgDays": null },
-    "AR":   { "ar": null, "unposted": null, "avgDays": null },
-    "PF":   { "ar": null, "unposted": null, "avgDays": null },
-    "SATX": { "ar": null, "unposted": null, "avgDays": null },
-    "AM":   { "ar": null, "unposted": null, "avgDays": null }
+    "SQ":   { "ar0_30": null, "ar31_60": null, "ar61_90": null, "ar90plus": null, "ar": null, "unposted": null },
+    "GT":   { "ar0_30": null, "ar31_60": null, "ar61_90": null, "ar90plus": null, "ar": null, "unposted": null },
+    "ATX":  { "ar0_30": null, "ar31_60": null, "ar61_90": null, "ar90plus": null, "ar": null, "unposted": null },
+    "MP":   { "ar0_30": null, "ar31_60": null, "ar61_90": null, "ar90plus": null, "ar": null, "unposted": null },
+    "NBDA": { "ar0_30": null, "ar31_60": null, "ar61_90": null, "ar90plus": null, "ar": null, "unposted": null },
+    "IC":   { "ar0_30": null, "ar31_60": null, "ar61_90": null, "ar90plus": null, "ar": null, "unposted": null },
+    "AR":   { "ar0_30": null, "ar31_60": null, "ar61_90": null, "ar90plus": null, "ar": null, "unposted": null },
+    "PF":   { "ar0_30": null, "ar31_60": null, "ar61_90": null, "ar90plus": null, "ar": null, "unposted": null },
+    "SATX": { "ar0_30": null, "ar31_60": null, "ar61_90": null, "ar90plus": null, "ar": null, "unposted": null },
+    "AM":   { "ar0_30": null, "ar31_60": null, "ar61_90": null, "ar90plus": null, "ar": null, "unposted": null }
   }
 }
