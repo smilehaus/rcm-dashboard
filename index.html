@@ -319,6 +319,18 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 .ar-snap-section-lbl{font-family:var(--font-body);font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#877765;padding:6px 24px 10px;}
 .ar-snap-breakdown td.first{color:#5C4F44;font-weight:700;}
 .ar-snap-breakdown tr.total-row td{background:#ede4d5;font-weight:700;}
+
+/* Per-office snapshot table — first column mirrors Live Status office cell */
+.ar-snap-office td.office-cell{background:#D6CDBD;text-align:center;vertical-align:middle;padding:14px 10px;border-right:1px solid rgba(92,79,68,.20);width:130px;}
+.ar-snap-office td.office-cell .off-code{font-size:15px;font-weight:700;color:#2A2E31;display:block;letter-spacing:.10em;font-family:var(--font-body);}
+.ar-snap-office td.office-cell .off-name{font-size:10px;color:#5C4F44;font-weight:500;margin-top:4px;text-transform:uppercase;letter-spacing:.06em;font-family:var(--font-body);}
+.ar-snap-office td.balance-type{text-align:left;color:#5C4F44;font-weight:600;font-size:12px;letter-spacing:.02em;}
+.ar-snap-office td.balance-type.total{font-weight:700;color:#2A2E31;}
+.ar-snap-office tbody tr.total-row td:not(.office-cell):not(.unposted-cell){background:rgba(214,205,189,.30);}
+.ar-snap-office td.unposted-cell{background:#FBF8F0;text-align:center;vertical-align:middle;border-left:1px solid rgba(92,79,68,.20);font-weight:700;}
+.ar-snap-office td.unposted-cell.warn{color:#a04545;}
+/* Stronger horizontal divider between offices */
+.ar-snap-office tbody tr.office-end td{border-bottom:2px solid rgba(92,79,68,.30);}
 .ar-snap-card{background:#FBF8F0;border:1px solid rgba(135,119,101,.28);border-radius:6px;padding:20px 22px;}
 .ar-snap-card-lbl{font-size:9px;font-weight:700;color:#877765;letter-spacing:.16em;text-transform:uppercase;font-family:var(--font-body);}
 .ar-snap-card-val{font-family:var(--font-display);font-size:34px;font-weight:400;color:#2A2E31;margin-top:8px;line-height:1;letter-spacing:.005em;}
@@ -730,13 +742,14 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
     <!-- EOB/EFT Unposted summary -->
     <div class="ar-snap-summary" id="arsnap-summary"></div>
 
-    <!-- Per-office Total Outstanding by bucket -->
-    <div class="ar-snap-section-lbl">Per-Office Outstanding</div>
+    <!-- Per-office: 3 rows per office (Total Outstanding / Patient / Insurance) -->
+    <div class="ar-snap-section-lbl">Per-Office Breakdown</div>
     <div class="ar-snap-table-wrap">
-      <table class="ar-snap-table">
+      <table class="ar-snap-table ar-snap-office">
         <thead>
           <tr>
             <th class="first">Office</th>
+            <th class="first">Balance Type</th>
             <th>0 – 30</th>
             <th>31 – 60</th>
             <th>61 – 90</th>
@@ -5441,23 +5454,42 @@ function renderArSnapshot() {
       </div>`;
   }
 
-  // ── Per-office rows: outstanding by bucket + unposted ──
+  // ── Per-office: 3 rows per office (Outstanding / Patient / Insurance) ──
+  // Office cell + Unposted cell rowspan=3 so they align like a single block per office.
   const rows = (S.offices || OFFICE_DEF).map(o => {
     const d  = offices[o.code] || {};
-    const ob = buckets(d.outstanding || d);
+    const out = buckets(d.outstanding || d);
+    const pat = buckets(d.patients);
+    const ins = buckets(d.insurance);
     const unposted = d.unposted ?? null;
-    const unCls   = unposted   > 0 ? 'warn' : '';
-    const c61Cls  = ob.d61_90  > 0 ? 'warn' : '';
-    const c90Cls  = ob.d90plus > 0 ? 'warn' : '';
+    const unCls    = unposted > 0 ? 'warn' : '';
+
+    const row = (b, lbl, isTotal) => {
+      const c61Cls = b.d61_90  > 0 ? 'warn' : '';
+      const c90Cls = b.d90plus > 0 ? 'warn' : '';
+      return `
+        <td class="balance-type${isTotal ? ' total' : ''}">${lbl}</td>
+        <td>${fmtMoney(b.d0_30)}</td>
+        <td>${fmtMoney(b.d31_60)}</td>
+        <td class="${c61Cls}">${fmtMoney(b.d61_90)}</td>
+        <td class="${c90Cls}">${fmtMoney(b.d90plus)}</td>
+        <td>${fmtMoney(b.total)}</td>`;
+    };
+
     return `
+      <tr class="total-row">
+        <td class="office-cell" rowspan="3">
+          <span class="off-code">${o.lbl || o.code}</span>
+          <div class="off-name">${o.name || ''}</div>
+        </td>
+        ${row(out, 'Total Outstanding', true)}
+        <td class="unposted-cell ${unCls}" rowspan="3">${fmtMoney(unposted)}</td>
+      </tr>
       <tr>
-        <td class="first">${o.lbl || o.code} — ${o.name || ''}</td>
-        <td>${fmtMoney(ob.d0_30)}</td>
-        <td>${fmtMoney(ob.d31_60)}</td>
-        <td class="${c61Cls}">${fmtMoney(ob.d61_90)}</td>
-        <td class="${c90Cls}">${fmtMoney(ob.d90plus)}</td>
-        <td>${fmtMoney(ob.total)}</td>
-        <td class="${unCls}">${fmtMoney(unposted)}</td>
+        ${row(pat, 'Patient Balances', false)}
+      </tr>
+      <tr class="office-end">
+        ${row(ins, 'Insurance Balances', false)}
       </tr>`;
   }).join('');
   bodyEl.innerHTML = rows;
