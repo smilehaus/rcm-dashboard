@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-07T01:57:30.295Z",
+  "generated": "2026-05-07T02:02:27.057Z",
   "asOf": "5/5/2026 7:45 PM CT",
   "totals": {
     "outstanding": {
@@ -73,7 +73,7 @@
         "d90plus": 151328.54,
         "total": 299097.39
       },
-      "unposted": 650256.48
+      "unposted": 326315.54
     },
     "ATX": {
       "outstanding": {
@@ -97,7 +97,7 @@
         "d90plus": 12164.37,
         "total": 55004.92
       },
-      "unposted": 76631.81
+      "unposted": 49004.32
     },
     "MP": {
       "outstanding": {
@@ -121,7 +121,7 @@
         "d90plus": 45906.55,
         "total": 158628.33
       },
-      "unposted": 249301.71
+      "unposted": 84730.58
     },
     "NBDA": {
       "outstanding": {
@@ -145,7 +145,7 @@
         "d90plus": 31368.95,
         "total": 83536.35
       },
-      "unposted": 134127.61
+      "unposted": 66641.62
     },
     "IC": {
       "outstanding": {
@@ -193,7 +193,7 @@
         "d90plus": 65808.7,
         "total": 111872.5
       },
-      "unposted": 263187.64
+      "unposted": 75025.17
     },
     "PF": {
       "outstanding": {
@@ -217,7 +217,7 @@
         "d90plus": null,
         "total": null
       },
-      "unposted": 87601.09
+      "unposted": 29427.41
     },
     "SATX": {
       "outstanding": {
@@ -241,7 +241,7 @@
         "d90plus": null,
         "total": null
       },
-      "unposted": 282424.51
+      "unposted": 144386.14
     },
     "AM": {
       "outstanding": {
