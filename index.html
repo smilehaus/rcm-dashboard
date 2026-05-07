@@ -312,7 +312,10 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 
 /* ── AR Snapshot tab ───────────────────────────────── */
 .ar-snap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:24px;}
-.ar-snap-summary{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding:0 24px 18px;}
+.ar-snap-summary{display:grid;grid-template-columns:1fr;gap:14px;padding:0 24px 18px;}
+.ar-snap-section-lbl{font-family:var(--font-body);font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#877765;padding:6px 24px 10px;}
+.ar-snap-breakdown td.first{color:#5C4F44;font-weight:700;}
+.ar-snap-breakdown tr.total-row td{background:#ede4d5;font-weight:700;}
 .ar-snap-card{background:#FBF8F0;border:1px solid rgba(135,119,101,.28);border-radius:6px;padding:20px 22px;}
 .ar-snap-card-lbl{font-size:9px;font-weight:700;color:#877765;letter-spacing:.16em;text-transform:uppercase;font-family:var(--font-body);}
 .ar-snap-card-val{font-family:var(--font-display);font-size:34px;font-weight:400;color:#2A2E31;margin-top:8px;line-height:1;letter-spacing:.005em;}
@@ -699,21 +702,43 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
         <div class="bph-date" id="arsnap-asof">Loading…</div>
       </div>
     </div>
-    <!-- Aging bucket KPI cards (0-30, 31-60, 61-90, 90+) -->
+
+    <!-- Aging bucket KPI cards (Total Outstanding by bucket — org-wide) -->
     <div class="ar-snap-grid" id="arsnap-cards"></div>
-    <!-- Total AR + EOB/EFT Unposted (secondary KPIs) -->
+
+    <!-- Org-wide breakdown: Outstanding / Patients / Insurance × 4 buckets + Total -->
+    <div class="ar-snap-section-lbl">Org-Wide Breakdown</div>
+    <div class="ar-snap-table-wrap">
+      <table class="ar-snap-table ar-snap-breakdown">
+        <thead>
+          <tr>
+            <th class="first">Balance Type</th>
+            <th>0 – 30 days</th>
+            <th>31 – 60 days</th>
+            <th>61 – 90 days</th>
+            <th>&gt; 90 days</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody id="arsnap-breakdown-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- EOB/EFT Unposted summary -->
     <div class="ar-snap-summary" id="arsnap-summary"></div>
-    <!-- Per-office breakdown -->
+
+    <!-- Per-office Total Outstanding by bucket -->
+    <div class="ar-snap-section-lbl">Per-Office Outstanding</div>
     <div class="ar-snap-table-wrap">
       <table class="ar-snap-table">
         <thead>
           <tr>
             <th class="first">Office</th>
-            <th>0–30 d</th>
-            <th>31–60 d</th>
-            <th>61–90 d</th>
-            <th>90+ d</th>
-            <th>Total AR</th>
+            <th>0 – 30</th>
+            <th>31 – 60</th>
+            <th>61 – 90</th>
+            <th>&gt; 90</th>
+            <th>Total</th>
             <th>EOB / EFT Unposted</th>
           </tr>
         </thead>
@@ -4063,13 +4088,13 @@ function buildGrid(tableEl, boardId) {
         const finTd = document.createElement('td');
         finTd.className = 'fin-cell group-start';
         const finData = (_arSnapshot.offices && _arSnapshot.offices[office.code]) || null;
-        const fmtMoney = v => v == null ? '—' : (v >= 1000 ? '$' + Math.round(v/100)/10 + 'K' : '$' + Math.round(v));
-        const ar  = finData ? fmtMoney(finData.ar) : '—';
-        const un  = finData ? fmtMoney(finData.unposted) : '—';
+        // Pull "Total Outstanding" — supports both new {outstanding:{total}} schema and legacy {ar} fallback
+        const arVal = finData ? (finData.outstanding?.total ?? finData.ar) : null;
+        const unVal = finData ? finData.unposted : null;
         finTd.innerHTML = `
           <div class="fin-cell-inner">
-            <div class="fin-row"><span class="fin-lbl">AR</span><span class="fin-val">${ar}</span></div>
-            <div class="fin-row"><span class="fin-lbl">Unposted</span><span class="fin-val warn">${un}</span></div>
+            <div class="fin-row"><span class="fin-lbl">AR</span><span class="fin-val">${fmtMoney(arVal)}</span></div>
+            <div class="fin-row"><span class="fin-lbl">Unposted</span><span class="fin-val warn">${fmtMoney(unVal)}</span></div>
           </div>`;
         tr.appendChild(finTd);
       }
@@ -5333,49 +5358,79 @@ function fmtMoney(v) {
 }
 
 function renderArSnapshot() {
-  const cardsEl   = document.getElementById('arsnap-cards');
-  const summaryEl = document.getElementById('arsnap-summary');
-  const bodyEl    = document.getElementById('arsnap-tbody');
-  const asOfEl    = document.getElementById('arsnap-asof');
+  const cardsEl    = document.getElementById('arsnap-cards');
+  const breakdownEl= document.getElementById('arsnap-breakdown-tbody');
+  const summaryEl  = document.getElementById('arsnap-summary');
+  const bodyEl     = document.getElementById('arsnap-tbody');
+  const asOfEl     = document.getElementById('arsnap-asof');
   if (!cardsEl || !bodyEl) return;
 
   const totals  = _arSnapshot.totals  || {};
   const offices = _arSnapshot.offices || {};
   const asOf    = _arSnapshot.asOf || _arSnapshot.generated || '';
 
+  // Helper: pull bucket values from a {d0_30,d31_60,d61_90,d90plus,total} object,
+  // or fall back to legacy flat fields {ar0_30,...} on totals.
+  function buckets(obj) {
+    if (!obj) return {};
+    return {
+      d0_30:    obj.d0_30    ?? obj.ar0_30    ?? null,
+      d31_60:   obj.d31_60   ?? obj.ar31_60   ?? null,
+      d61_90:   obj.d61_90   ?? obj.ar61_90   ?? null,
+      d90plus:  obj.d90plus  ?? obj.ar90plus  ?? null,
+      total:    obj.total    ?? obj.ar        ?? null,
+    };
+  }
+
+  const outstandingT = buckets(totals.outstanding || totals);
+  const patientsT    = buckets(totals.patients);
+  const insuranceT   = buckets(totals.insurance);
+
   if (asOfEl) asOfEl.textContent = asOf ? ('As of: ' + asOf) : 'No data yet';
 
-  // ── Aging bucket KPI cards (0-30, 31-60, 61-90, 90+) ──
+  // ── Aging bucket KPI cards — Total Outstanding org-wide ──
   cardsEl.innerHTML = `
     <div class="ar-snap-card">
       <div class="ar-snap-card-lbl">0 – 30 Days</div>
-      <div class="ar-snap-card-val">${fmtMoney(totals.ar0_30)}</div>
+      <div class="ar-snap-card-val">${fmtMoney(outstandingT.d0_30)}</div>
       <div class="ar-snap-card-meta">Current</div>
     </div>
     <div class="ar-snap-card">
       <div class="ar-snap-card-lbl">31 – 60 Days</div>
-      <div class="ar-snap-card-val">${fmtMoney(totals.ar31_60)}</div>
+      <div class="ar-snap-card-val">${fmtMoney(outstandingT.d31_60)}</div>
       <div class="ar-snap-card-meta">Watch</div>
     </div>
     <div class="ar-snap-card">
       <div class="ar-snap-card-lbl">61 – 90 Days</div>
-      <div class="ar-snap-card-val warn">${fmtMoney(totals.ar61_90)}</div>
+      <div class="ar-snap-card-val warn">${fmtMoney(outstandingT.d61_90)}</div>
       <div class="ar-snap-card-meta">Action needed</div>
     </div>
     <div class="ar-snap-card">
-      <div class="ar-snap-card-lbl">90+ Days</div>
-      <div class="ar-snap-card-val warn">${fmtMoney(totals.ar90plus)}</div>
+      <div class="ar-snap-card-lbl">&gt; 90 Days</div>
+      <div class="ar-snap-card-val warn">${fmtMoney(outstandingT.d90plus)}</div>
       <div class="ar-snap-card-meta">Critical</div>
     </div>`;
 
-  // ── Secondary KPIs: Total AR + Unposted ──
+  // ── Org-wide breakdown table: Outstanding / Patients / Insurance × buckets ──
+  if (breakdownEl) {
+    const breakdownRow = (lbl, b, isTotal) => `
+      <tr${isTotal ? ' class="total-row"' : ''}>
+        <td class="first">${lbl}</td>
+        <td>${fmtMoney(b.d0_30)}</td>
+        <td>${fmtMoney(b.d31_60)}</td>
+        <td>${fmtMoney(b.d61_90)}</td>
+        <td>${fmtMoney(b.d90plus)}</td>
+        <td>${fmtMoney(b.total)}</td>
+      </tr>`;
+    breakdownEl.innerHTML =
+      breakdownRow('Total Outstanding Balances', outstandingT, true) +
+      breakdownRow('Total Patient Balances',     patientsT, false) +
+      breakdownRow('Total Insurance Balances',   insuranceT, false);
+  }
+
+  // ── EOB/EFT Unposted summary card ──
   if (summaryEl) {
     summaryEl.innerHTML = `
-      <div class="ar-snap-card">
-        <div class="ar-snap-card-lbl">Total AR</div>
-        <div class="ar-snap-card-val">${fmtMoney(totals.ar)}</div>
-        <div class="ar-snap-card-meta">Sum across all buckets · all offices</div>
-      </div>
       <div class="ar-snap-card">
         <div class="ar-snap-card-lbl">EOB / EFT Unposted</div>
         <div class="ar-snap-card-val warn">${fmtMoney(totals.unposted)}</div>
@@ -5383,21 +5438,23 @@ function renderArSnapshot() {
       </div>`;
   }
 
-  // ── Per-office rows: bucket breakdown ──
+  // ── Per-office rows: outstanding by bucket + unposted ──
   const rows = (S.offices || OFFICE_DEF).map(o => {
-    const d = offices[o.code] || {};
-    const unCls    = d.unposted  > 0 ? 'warn' : '';
-    const c61Cls   = d.ar61_90   > 0 ? 'warn' : '';
-    const c90Cls   = d.ar90plus  > 0 ? 'warn' : '';
+    const d  = offices[o.code] || {};
+    const ob = buckets(d.outstanding || d);
+    const unposted = d.unposted ?? null;
+    const unCls   = unposted   > 0 ? 'warn' : '';
+    const c61Cls  = ob.d61_90  > 0 ? 'warn' : '';
+    const c90Cls  = ob.d90plus > 0 ? 'warn' : '';
     return `
       <tr>
         <td class="first">${o.lbl || o.code} — ${o.name || ''}</td>
-        <td>${fmtMoney(d.ar0_30)}</td>
-        <td>${fmtMoney(d.ar31_60)}</td>
-        <td class="${c61Cls}">${fmtMoney(d.ar61_90)}</td>
-        <td class="${c90Cls}">${fmtMoney(d.ar90plus)}</td>
-        <td>${fmtMoney(d.ar)}</td>
-        <td class="${unCls}">${fmtMoney(d.unposted)}</td>
+        <td>${fmtMoney(ob.d0_30)}</td>
+        <td>${fmtMoney(ob.d31_60)}</td>
+        <td class="${c61Cls}">${fmtMoney(ob.d61_90)}</td>
+        <td class="${c90Cls}">${fmtMoney(ob.d90plus)}</td>
+        <td>${fmtMoney(ob.total)}</td>
+        <td class="${unCls}">${fmtMoney(unposted)}</td>
       </tr>`;
   }).join('');
   bodyEl.innerHTML = rows;
