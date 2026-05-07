@@ -5381,12 +5381,12 @@ function renderArSnapshot() {
   const asOfEl     = document.getElementById('arsnap-asof');
   if (!cardsEl || !bodyEl) return;
 
-  const totals  = _arSnapshot.totals  || {};
-  const offices = _arSnapshot.offices || {};
-  const asOf    = _arSnapshot.asOf || _arSnapshot.generated || '';
+  const totalsRaw = _arSnapshot.totals  || {};
+  const offices   = _arSnapshot.offices || {};
+  const asOf      = _arSnapshot.asOf || _arSnapshot.generated || '';
 
   // Helper: pull bucket values from a {d0_30,d31_60,d61_90,d90plus,total} object,
-  // or fall back to legacy flat fields {ar0_30,...} on totals.
+  // or fall back to legacy flat fields {ar0_30,...}.
   function buckets(obj) {
     if (!obj) return {};
     return {
@@ -5398,9 +5398,36 @@ function renderArSnapshot() {
     };
   }
 
-  const outstandingT = buckets(totals.outstanding || totals);
-  const patientsT    = buckets(totals.patients);
-  const insuranceT   = buckets(totals.insurance);
+  // Org-wide totals are DERIVED from per-office data, so the dashboard is the
+  // single source of truth and org/per-office can never drift apart. Ava only
+  // has to scrape and write per-office; the dashboard sums it up here.
+  function sumBuckets(key) {
+    const fields = ['d0_30','d31_60','d61_90','d90plus','total'];
+    const out = {};
+    let any = false;
+    fields.forEach(f => {
+      let s = 0, hadValue = false;
+      Object.values(offices).forEach(off => {
+        const b = buckets((off || {})[key]);
+        if (b[f] != null) { s += Number(b[f]) || 0; hadValue = true; any = true; }
+      });
+      out[f] = hadValue ? s : null;
+    });
+    return any ? out : buckets(totalsRaw[key] || (key === 'outstanding' ? totalsRaw : null));
+  }
+  function sumUnposted() {
+    let s = 0, had = false;
+    Object.values(offices).forEach(off => {
+      if (off && off.unposted != null) { s += Number(off.unposted) || 0; had = true; }
+    });
+    return had ? s : (totalsRaw.unposted ?? null);
+  }
+
+  const outstandingT = sumBuckets('outstanding');
+  const patientsT    = sumBuckets('patients');
+  const insuranceT   = sumBuckets('insurance');
+  const unpostedT    = sumUnposted();
+  const unpostedDelta= totalsRaw.unpostedDelta ?? null;
 
   if (asOfEl) asOfEl.textContent = asOf ? ('As of: ' + asOf) : 'No data yet';
 
@@ -5449,8 +5476,8 @@ function renderArSnapshot() {
     summaryEl.innerHTML = `
       <div class="ar-snap-card">
         <div class="ar-snap-card-lbl">EOB / EFT Unposted</div>
-        <div class="ar-snap-card-val warn">${fmtMoney(totals.unposted)}</div>
-        <div class="ar-snap-card-meta">${totals.unpostedDelta != null ? (totals.unpostedDelta >= 0 ? '+' : '') + fmtMoney(totals.unpostedDelta) + ' vs yesterday' : 'Daily refresh'}</div>
+        <div class="ar-snap-card-val warn">${fmtMoney(unpostedT)}</div>
+        <div class="ar-snap-card-meta">${unpostedDelta != null ? (unpostedDelta >= 0 ? '+' : '') + fmtMoney(unpostedDelta) + ' vs yesterday' : 'Sum of all offices · daily refresh'}</div>
       </div>`;
   }
 
