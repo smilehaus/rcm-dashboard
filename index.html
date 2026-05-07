@@ -4158,11 +4158,12 @@ function buildGrid(tableEl, boardId) {
         // Total AR = the "Total Outstanding" → "Total" cell from AR Snapshot per-office breakdown
         // (sum of 0-30 + 31-60 + 61-90 + >90 outstanding)
         const arVal = finData ? (finData.outstanding?.total ?? finData.ar) : null;
-        const unVal = finData ? unpostedTotal(finData.unposted) : null;
+        // Unposted on the Live board = 2026-only value (not the total)
+        const unVal = finData ? unpostedYear(finData.unposted, 2026) : null;
         finTd.innerHTML = `
           <div class="fin-cell-inner">
             <div class="fin-row"><span class="fin-lbl">Total AR</span><span class="fin-val">${fmtMoney(arVal)}</span></div>
-            <div class="fin-row"><span class="fin-lbl">Unposted</span><span class="fin-val warn">${fmtMoney(unVal)}</span></div>
+            <div class="fin-row" title="2026 unposted only — see AR Snapshot tab for 2025/2026/Total breakdown"><span class="fin-lbl">Unposted '26</span><span class="fin-val warn">${fmtMoney(unVal)}</span></div>
           </div>`;
         tr.appendChild(finTd);
       }
