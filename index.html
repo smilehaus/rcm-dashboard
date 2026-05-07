@@ -320,6 +320,34 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 .ar-snap-breakdown td.first{color:#5C4F44;font-weight:700;}
 .ar-snap-breakdown tr.total-row td{background:#ede4d5;font-weight:700;}
 
+/* ── 7-day history line chart ──────────────────────── */
+.ar-history{margin:0 24px 24px;border:1px solid rgba(135,119,101,.28);border-radius:6px;background:#FBF8F0;padding:18px 20px 14px;}
+.ar-history-hdr{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;}
+.ar-history-title{font-family:var(--font-display);font-size:18px;font-weight:400;color:#2A2E31;letter-spacing:.005em;}
+.ar-history-legend{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.ar-history-legend-item{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:500;color:#5C4F44;font-family:var(--font-body);letter-spacing:.04em;}
+.ar-history-legend-swatch{width:14px;height:3px;border-radius:2px;}
+.ar-history-empty{padding:32px 20px;text-align:center;font-size:13px;color:#877765;font-family:var(--font-body);font-style:italic;}
+.ar-history-svg{width:100%;height:220px;display:block;font-family:var(--font-body);}
+.ar-history-svg .grid-line{stroke:rgba(135,119,101,.18);stroke-width:1;stroke-dasharray:3 4;}
+.ar-history-svg .axis-line{stroke:rgba(92,79,68,.40);stroke-width:1;}
+.ar-history-svg .axis-label{font-size:10px;fill:#877765;font-weight:500;letter-spacing:.02em;}
+.ar-history-svg .x-label{font-size:10px;fill:#5C4F44;font-weight:600;letter-spacing:.04em;text-transform:uppercase;}
+.ar-history-svg .data-line{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.ar-history-svg .data-line.outstanding{stroke:#5C4F44;}
+.ar-history-svg .data-line.patients{stroke:#2aa898;}
+.ar-history-svg .data-line.insurance{stroke:#b8841a;}
+.ar-history-svg .data-dot{stroke-width:2;stroke:#FBF8F0;cursor:pointer;}
+.ar-history-svg .data-dot.outstanding{fill:#5C4F44;}
+.ar-history-svg .data-dot.patients{fill:#2aa898;}
+.ar-history-svg .data-dot.insurance{fill:#b8841a;}
+.ar-history-svg .data-dot:hover{r:6;}
+#ar-history-tooltip{position:absolute;background:#2A2E31;color:#fff;font-size:11px;font-family:var(--font-body);padding:6px 10px;border-radius:4px;pointer-events:none;display:none;z-index:50;white-space:nowrap;line-height:1.5;box-shadow:0 4px 12px rgba(0,0,0,.18);}
+#ar-history-tooltip .tip-date{font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:9px;color:#D6CDBD;margin-bottom:3px;}
+#ar-history-tooltip .tip-row{display:flex;justify-content:space-between;gap:14px;}
+#ar-history-tooltip .tip-row .lbl{color:#D6CDBD;}
+#ar-history-tooltip .tip-row .val{font-weight:700;}
+
 /* Per-office snapshot table — first column mirrors Live Status office cell */
 .ar-snap-office td.office-cell{background:#D6CDBD;text-align:center;vertical-align:middle;padding:14px 10px;border-right:1px solid rgba(92,79,68,.20);width:130px;}
 .ar-snap-office td.office-cell .off-code{font-size:15px;font-weight:700;color:#2A2E31;display:block;letter-spacing:.10em;font-family:var(--font-body);}
@@ -720,6 +748,21 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 
     <!-- Aging bucket KPI cards (Total Outstanding by bucket — org-wide) -->
     <div class="ar-snap-grid" id="arsnap-cards"></div>
+
+    <!-- 7-day history line chart -->
+    <div class="ar-snap-section-lbl">7-Day Trend</div>
+    <div class="ar-history" id="ar-history-container">
+      <div class="ar-history-hdr">
+        <div class="ar-history-title" id="ar-history-title">Outstanding · Patients · Insurance</div>
+        <div class="ar-history-legend">
+          <div class="ar-history-legend-item"><span class="ar-history-legend-swatch" style="background:#5C4F44"></span>Total Outstanding</div>
+          <div class="ar-history-legend-item"><span class="ar-history-legend-swatch" style="background:#2aa898"></span>Patient Balances</div>
+          <div class="ar-history-legend-item"><span class="ar-history-legend-swatch" style="background:#b8841a"></span>Insurance Balances</div>
+        </div>
+      </div>
+      <div id="ar-history-body"></div>
+      <div id="ar-history-tooltip"></div>
+    </div>
 
     <!-- Org-wide breakdown: Outstanding / Patients / Insurance × 4 buckets + Total -->
     <div class="ar-snap-section-lbl">Org-Wide Breakdown</div>
@@ -5438,6 +5481,9 @@ function renderArSnapshot() {
 
   if (asOfEl) asOfEl.textContent = asOf ? ('As of: ' + asOf) : 'No data yet';
 
+  // ── 7-day history line chart ──
+  renderArHistoryChart(outstandingT, patientsT, insuranceT, asOf);
+
   // ── Aging bucket KPI cards — Total Outstanding org-wide ──
   cardsEl.innerHTML = `
     <div class="ar-snap-card">
@@ -5527,6 +5573,143 @@ function renderArSnapshot() {
       </tr>`;
   }).join('');
   bodyEl.innerHTML = rows;
+}
+
+// ════════════════════════════════════════════════
+// AR HISTORY — 7-day trend line chart
+// Reads _arSnapshot.history (array of daily totals snapshots).
+// Each entry: { date: 'YYYY-MM-DD', outstanding: <num>, patients: <num>, insurance: <num> }
+// If today's totals aren't already in history, today's derived values are appended
+// as the rightmost data point so the chart always shows the latest.
+// ════════════════════════════════════════════════
+function renderArHistoryChart(outstandingT, patientsT, insuranceT, asOfStr) {
+  const bodyEl = document.getElementById('ar-history-body');
+  if (!bodyEl) return;
+
+  // Pull history (last up to 7 entries)
+  let hist = Array.isArray(_arSnapshot.history) ? _arSnapshot.history.slice(-7) : [];
+
+  // Append today's derived totals if not already represented (date matches today's local date)
+  const todayLocal = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+  const lastEntry = hist[hist.length - 1];
+  const todaysTotals = {
+    date: todayLocal,
+    outstanding: outstandingT.total,
+    patients:    patientsT.total,
+    insurance:   insuranceT.total,
+  };
+  if (todaysTotals.outstanding != null && (!lastEntry || lastEntry.date !== todayLocal)) {
+    hist = [...hist, todaysTotals].slice(-7);
+  }
+
+  // Need at least 2 points to draw a line
+  if (hist.length < 2) {
+    bodyEl.innerHTML = `
+      <div class="ar-history-empty">
+        Collecting daily snapshots — chart will populate as data accumulates.<br>
+        ${hist.length === 1 ? '1 day captured · 6 more to go.' : 'Waiting for first capture.'}
+      </div>`;
+    return;
+  }
+
+  // Chart dimensions — fixed viewBox, scales to container width
+  const W = 900, H = 220;
+  const padL = 60, padR = 20, padT = 12, padB = 36;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+
+  // Y-axis range — find max across all 3 series, round up to nearest nice number
+  let maxVal = 0;
+  hist.forEach(d => {
+    maxVal = Math.max(maxVal, d.outstanding || 0, d.patients || 0, d.insurance || 0);
+  });
+  if (maxVal <= 0) maxVal = 1;
+  // Round max up to the next "nice" value (5%, then floor to a round step)
+  maxVal *= 1.08;
+  const niceStep = Math.pow(10, Math.floor(Math.log10(maxVal)));
+  maxVal = Math.ceil(maxVal / niceStep) * niceStep;
+
+  // X positions — evenly spaced
+  const xAt = i => padL + (chartW * (hist.length === 1 ? 0.5 : i / (hist.length - 1)));
+  const yAt = v => padT + chartH - (chartH * ((v || 0) / maxVal));
+
+  // Y-axis grid lines (4 horizontal lines)
+  const yTicks = [0, 0.25, 0.5, 0.75, 1.0];
+  const gridLines = yTicks.map(t => {
+    const y = padT + chartH - (chartH * t);
+    const v = maxVal * t;
+    return `
+      <line class="grid-line" x1="${padL}" x2="${W - padR}" y1="${y}" y2="${y}"/>
+      <text class="axis-label" x="${padL - 8}" y="${y + 3}" text-anchor="end">${fmtMoney(v)}</text>`;
+  }).join('');
+
+  // X-axis labels (date)
+  const fmtDateShort = iso => {
+    const d = new Date(iso + 'T12:00:00');
+    return d.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+  };
+  const xLabels = hist.map((d, i) =>
+    `<text class="x-label" x="${xAt(i)}" y="${H - padB + 18}" text-anchor="middle">${fmtDateShort(d.date)}</text>`
+  ).join('');
+
+  // Lines for each series
+  function pathFor(key) {
+    return hist.map((d, i) => `${i === 0 ? 'M' : 'L'} ${xAt(i)} ${yAt(d[key])}`).join(' ');
+  }
+  const lineOutstanding = `<path class="data-line outstanding" d="${pathFor('outstanding')}"/>`;
+  const linePatients    = `<path class="data-line patients"    d="${pathFor('patients')}"/>`;
+  const lineInsurance   = `<path class="data-line insurance"   d="${pathFor('insurance')}"/>`;
+
+  // Dots — invisible-ish until hovered (use class for tooltip)
+  function dotsFor(key, cls) {
+    return hist.map((d, i) => {
+      const v = d[key]; if (v == null) return '';
+      return `<circle class="data-dot ${cls}" cx="${xAt(i)}" cy="${yAt(v)}" r="4"
+                data-date="${d.date}"
+                data-outstanding="${d.outstanding ?? ''}"
+                data-patients="${d.patients ?? ''}"
+                data-insurance="${d.insurance ?? ''}"/>`;
+    }).join('');
+  }
+  const dotsOutstanding = dotsFor('outstanding', 'outstanding');
+  const dotsPatients    = dotsFor('patients',    'patients');
+  const dotsInsurance   = dotsFor('insurance',   'insurance');
+
+  bodyEl.innerHTML = `
+    <svg class="ar-history-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      ${gridLines}
+      <line class="axis-line" x1="${padL}" x2="${padL}" y1="${padT}" y2="${padT + chartH}"/>
+      <line class="axis-line" x1="${padL}" x2="${W - padR}" y1="${padT + chartH}" y2="${padT + chartH}"/>
+      ${lineOutstanding}
+      ${linePatients}
+      ${lineInsurance}
+      ${dotsOutstanding}
+      ${dotsPatients}
+      ${dotsInsurance}
+      ${xLabels}
+    </svg>`;
+
+  // Tooltip wiring
+  const tip = document.getElementById('ar-history-tooltip');
+  bodyEl.querySelectorAll('.data-dot').forEach(dot => {
+    dot.addEventListener('mouseenter', e => {
+      const r = dot.getBoundingClientRect();
+      const containerR = document.getElementById('ar-history-container').getBoundingClientRect();
+      const date = dot.getAttribute('data-date');
+      const o = parseFloat(dot.getAttribute('data-outstanding'));
+      const p = parseFloat(dot.getAttribute('data-patients'));
+      const i = parseFloat(dot.getAttribute('data-insurance'));
+      tip.innerHTML = `
+        <div class="tip-date">${new Date(date + 'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
+        <div class="tip-row"><span class="lbl">Outstanding</span><span class="val">${fmtMoney(o)}</span></div>
+        <div class="tip-row"><span class="lbl">Patient</span><span class="val">${fmtMoney(p)}</span></div>
+        <div class="tip-row"><span class="lbl">Insurance</span><span class="val">${fmtMoney(i)}</span></div>`;
+      tip.style.display = 'block';
+      tip.style.left = (r.left - containerR.left + 10) + 'px';
+      tip.style.top  = (r.top  - containerR.top  - 70) + 'px';
+    });
+    dot.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+  });
 }
 
 // ════════════════════════════════════════════════
