@@ -1,13 +1,15 @@
 {
-  "generated": "2026-05-07T17:35:18.536Z",
-  "asOf": "5/7/26, 12:35 PM CT",
+  "generated": "2026-05-07T17:45:18.531Z",
+  "asOf": "5/7/26, 12:45 PM CT",
   "listId": "901415926262",
   "metrics": [
     "monthlyProduction",
     "collectionRate",
     "hygReappt",
     "cancellationRate",
-    "caseAcceptance"
+    "caseAcceptance",
+    "arDays",
+    "arOver30"
   ],
   "weeks": [
     {
@@ -19,35 +21,45 @@
           "collectionRate": 97.06,
           "hygReappt": 75,
           "cancellationRate": 3.44,
-          "caseAcceptance": 72.83
+          "caseAcceptance": 72.83,
+          "arDays": 24,
+          "arOver30": 70940.28
         },
         "GT": {
           "monthlyProduction": 231984.7,
           "collectionRate": 87.68,
           "hygReappt": 52,
           "cancellationRate": 14.9,
-          "caseAcceptance": 42.85
+          "caseAcceptance": 42.85,
+          "arDays": 49.899,
+          "arOver30": 87110.67
         },
         "IC": {
           "monthlyProduction": null,
           "collectionRate": 79,
           "hygReappt": 74,
           "cancellationRate": 10.5,
-          "caseAcceptance": 36
+          "caseAcceptance": 36,
+          "arDays": 34.9,
+          "arOver30": 44489.5
         },
         "AM": {
           "monthlyProduction": null,
           "collectionRate": 56.61,
           "hygReappt": 89,
           "cancellationRate": 40.49,
-          "caseAcceptance": 29
+          "caseAcceptance": 29,
+          "arDays": 207.11,
+          "arOver30": 41160.28
         },
         "SQ": {
           "monthlyProduction": null,
           "collectionRate": 108.8,
           "hygReappt": 100,
           "cancellationRate": 9.7,
-          "caseAcceptance": 18.59
+          "caseAcceptance": 18.59,
+          "arDays": 17.053,
+          "arOver30": 15614.3
         }
       },
       "totals": {
@@ -55,7 +67,9 @@
         "collectionRate": 85.83000000000001,
         "hygReappt": 78,
         "cancellationRate": 15.806000000000001,
-        "caseAcceptance": 39.854
+        "caseAcceptance": 39.854,
+        "arDays": 66.5924,
+        "arOver30": 259315.03
       }
     }
   ]
