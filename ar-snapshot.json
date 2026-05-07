@@ -1,29 +1,33 @@
 {
-  "generated": "2026-05-07T02:10:04.519Z",
-  "asOf": "5/5/2026 7:45 PM CT",
+  "generated": "2026-05-07T02:33:26.716Z",
+  "asOf": "5/6/2026 9:55 PM CT",
   "totals": {
     "outstanding": {
-      "d0_30": null,
-      "d31_60": null,
-      "d61_90": null,
-      "d90plus": null,
-      "total": null
+      "d0_30": 524014.94,
+      "d31_60": 220130.44,
+      "d61_90": 156917.92,
+      "d90plus": 945748.44,
+      "total": 1846811.74
     },
     "patients": {
-      "d0_30": null,
-      "d31_60": null,
-      "d61_90": null,
-      "d90plus": null,
-      "total": null
+      "d0_30": 164498.31,
+      "d31_60": 79747.73,
+      "d61_90": 69596.97,
+      "d90plus": 583446.9,
+      "total": 897289.91
     },
     "insurance": {
-      "d0_30": null,
-      "d31_60": null,
-      "d61_90": null,
-      "d90plus": null,
-      "total": null
+      "d0_30": 359516.63,
+      "d31_60": 140382.71,
+      "d61_90": 87320.95,
+      "d90plus": 362301.54,
+      "total": 949521.83
     },
-    "unposted": null,
+    "unposted": {
+      "y2025": 388800.94,
+      "y2026": 416964.52,
+      "total": 805765.46
+    },
     "unpostedDelta": null
   },
   "offices": {
@@ -225,25 +229,25 @@
     },
     "PF": {
       "outstanding": {
-        "d0_30": null,
-        "d31_60": null,
-        "d61_90": null,
-        "d90plus": null,
-        "total": null
+        "d0_30": 31442.66,
+        "d31_60": 19785.58,
+        "d61_90": 17153.65,
+        "d90plus": 54548.05,
+        "total": 122929.94
       },
       "patients": {
-        "d0_30": null,
-        "d31_60": null,
-        "d61_90": null,
-        "d90plus": null,
-        "total": null
+        "d0_30": 13813.46,
+        "d31_60": 12730.44,
+        "d61_90": 13533.65,
+        "d90plus": 45094.82,
+        "total": 85172.37
       },
       "insurance": {
-        "d0_30": null,
-        "d31_60": null,
-        "d61_90": null,
-        "d90plus": null,
-        "total": null
+        "d0_30": 17629.2,
+        "d31_60": 7055.14,
+        "d61_90": 3620,
+        "d90plus": 9453.23,
+        "total": 37757.57
       },
       "unposted": {
         "y2025": 15822.2,
@@ -253,25 +257,25 @@
     },
     "SATX": {
       "outstanding": {
-        "d0_30": null,
-        "d31_60": null,
-        "d61_90": null,
-        "d90plus": null,
-        "total": null
+        "d0_30": 29905.07,
+        "d31_60": 13916.46,
+        "d61_90": 9451.6,
+        "d90plus": 59651.64,
+        "total": 112924.77
       },
       "patients": {
-        "d0_30": null,
-        "d31_60": null,
-        "d61_90": null,
-        "d90plus": null,
-        "total": null
+        "d0_30": 5349.57,
+        "d31_60": 4703.76,
+        "d61_90": 6027.9,
+        "d90plus": 29314.67,
+        "total": 45395.9
       },
       "insurance": {
-        "d0_30": null,
-        "d31_60": null,
-        "d61_90": null,
-        "d90plus": null,
-        "total": null
+        "d0_30": 24555.5,
+        "d31_60": 9212.7,
+        "d61_90": 3423.7,
+        "d90plus": 30336.97,
+        "total": 67528.87
       },
       "unposted": {
         "y2025": 51633.85,
@@ -281,25 +285,25 @@
     },
     "AM": {
       "outstanding": {
-        "d0_30": null,
-        "d31_60": null,
-        "d61_90": null,
-        "d90plus": null,
-        "total": null
+        "d0_30": 47882.28,
+        "d31_60": 26873.7,
+        "d61_90": 7312.7,
+        "d90plus": 0,
+        "total": 82068.68
       },
       "patients": {
-        "d0_30": null,
-        "d31_60": null,
-        "d61_90": null,
-        "d90plus": null,
-        "total": null
+        "d0_30": 4175.3,
+        "d31_60": 693.06,
+        "d61_90": 346.4,
+        "d90plus": 0,
+        "total": 5214.76
       },
       "insurance": {
-        "d0_30": null,
-        "d31_60": null,
-        "d61_90": null,
-        "d90plus": null,
-        "total": null
+        "d0_30": 43706.98,
+        "d31_60": 26180.64,
+        "d61_90": 6966.3,
+        "d90plus": 0,
+        "total": 76853.92
       },
       "unposted": {
         "y2025": 0,
@@ -307,5 +311,14 @@
         "total": 15083.38
       }
     }
-  }
+  },
+  "history": [
+    {
+      "date": "2026-05-06",
+      "outstanding": 1846811.74,
+      "patients": 897289.91,
+      "insurance": 949521.83,
+      "unposted": 805765.46
+    }
+  ]
 }
