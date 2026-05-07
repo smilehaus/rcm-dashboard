@@ -1390,6 +1390,7 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
         <button class="btn btn-ghost btn-sm" id="kpi-lock-btn" onclick="kpiLockToggle()">Unlock to Edit</button>
       </div>
     </div>
+    <div id="kpi-trends" style="padding:18px 24px 4px;border-bottom:1px solid var(--sandstone);position:relative"></div>
     <div id="kpi-office-pills" style="padding:10px 20px;border-bottom:1px solid var(--sandstone);display:flex;gap:6px;flex-wrap:wrap"></div>
     <div id="kpi-body" style="padding:20px 24px"></div>
   </div>
@@ -4345,10 +4346,158 @@ function renderKpiTab() {
     }).join('');
   }
 
+  // Week-over-week trend charts (5 metrics) — pulls from _kpiSnapshot, scoped to current pill
+  renderKpiTrends(_kpiOffice);
+
   const body = document.getElementById('kpi-body');
   if (!body) return;
   if (_kpiOffice === 'ALL') renderKpiOverview(body, period);
   else renderKpiDetail(body, period, _kpiOffice);
+}
+
+// ════════════════════════════════════════════════
+// KPI WEEK-OVER-WEEK TRENDS — 5 mini line charts
+// Uses _kpiSnapshot.weeks (array, oldest → newest, last 12).
+// Scoped: 'ALL' shows org-wide totals/avg; office code shows that office only.
+// ════════════════════════════════════════════════
+function renderKpiTrends(scope) {
+  const el = document.getElementById('kpi-trends');
+  if (!el) return;
+  const weeks = Array.isArray(_kpiSnapshot.weeks) ? _kpiSnapshot.weeks : [];
+  const asOf  = _kpiSnapshot.asOf || _kpiSnapshot.generated || '';
+
+  const metrics = [
+    { key:'monthlyProduction', label:'Monthly Production', fmt:fmtMoney,    color:'#5C4F44', kind:'currency' },
+    { key:'collectionRate',    label:'Collection Rate',    fmt:fmtPct,      color:'#2aa898', kind:'pct' },
+    { key:'hygReappt',         label:'Hyg Reappt Rate',    fmt:fmtPct,      color:'#b8841a', kind:'pct' },
+    { key:'cancellationRate',  label:'Cancellation Rate',  fmt:fmtPct,      color:'#c93333', kind:'pct' },
+    { key:'caseAcceptance',    label:'Case Acceptance',    fmt:fmtPct,      color:'#7C4DFF', kind:'pct' },
+  ];
+
+  // Build per-week scoped value series
+  const series = weeks.map(w => {
+    const out = { weekEnding:w.weekEnding, weekLabel:w.weekLabel };
+    for (const m of metrics) {
+      let v = null;
+      if (scope === 'ALL') {
+        v = w.totals?.[m.key] ?? null;
+      } else if (w.offices && w.offices[scope]) {
+        v = w.offices[scope][m.key] ?? null;
+      }
+      out[m.key] = v;
+    }
+    return out;
+  });
+
+  const scopeLabel = scope === 'ALL' ? 'All Offices (org-wide)' : scope;
+  const headerHtml = `
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px">
+      <div>
+        <div style="font-family:var(--font-display);font-size:18px;color:var(--onyx);letter-spacing:.005em">Week-over-Week Trends</div>
+        <div style="font-size:11px;color:var(--taupe);margin-top:2px">${escHtml(scopeLabel)} · ${weeks.length} week${weeks.length===1?'':'s'} captured${asOf?` · as of ${escHtml(asOf)}`:''}</div>
+      </div>
+      <div style="font-size:10px;color:var(--taupe);font-style:italic">Source: ClickUp · Weekly Office KPIs</div>
+    </div>`;
+
+  if (series.length < 2) {
+    el.innerHTML = headerHtml + `
+      <div style="padding:30px 20px;text-align:center;font-size:12px;color:var(--taupe);font-family:var(--font-body);font-style:italic;background:#FBF8F0;border:1px solid rgba(135,119,101,.28);border-radius:6px;margin-bottom:14px">
+        Collecting weekly snapshots — line charts will populate once at least 2 weeks of data are present.${series.length===1?' (1 week captured · 1 more to go)':''}
+      </div>`;
+    return;
+  }
+
+  // Render 5 charts in a responsive grid
+  const chartsHtml = metrics.map(m => kpiMiniChart(series, m)).join('');
+  el.innerHTML = headerHtml + `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:14px">${chartsHtml}</div>`;
+}
+
+function kpiMiniChart(series, m) {
+  const W = 360, H = 130;
+  const padL = 44, padR = 10, padT = 10, padB = 24;
+  const chartW = W - padL - padR, chartH = H - padT - padB;
+
+  const pts = series.map(s => s[m.key]);
+  const present = pts.filter(v => v != null);
+  if (!present.length) {
+    return `
+      <div style="background:#FBF8F0;border:1px solid rgba(135,119,101,.28);border-radius:6px;padding:10px 12px">
+        <div style="font-size:10px;font-weight:700;color:#877765;letter-spacing:.14em;text-transform:uppercase;font-family:var(--font-body)">${escHtml(m.label)}</div>
+        <div style="padding:24px 0;text-align:center;color:var(--taupe);font-style:italic;font-size:11px">no data yet</div>
+      </div>`;
+  }
+
+  let maxV = Math.max(...present), minV = Math.min(...present);
+  if (m.kind === 'pct') { minV = Math.max(0, Math.floor(minV - 5)); maxV = Math.ceil(maxV + 5); }
+  else { minV = 0; maxV = maxV * 1.08; const step = Math.pow(10, Math.floor(Math.log10(maxV||1))); maxV = Math.ceil(maxV/step)*step; }
+  if (maxV === minV) maxV = minV + 1;
+
+  const xAt = i => padL + (chartW * (series.length === 1 ? 0.5 : i / (series.length - 1)));
+  const yAt = v => padT + chartH - (chartH * ((v - minV) / (maxV - minV)));
+
+  // Grid + axis
+  const yTicks = [0, 0.5, 1.0];
+  const grid = yTicks.map(t => {
+    const y = padT + chartH - (chartH * t);
+    const v = minV + (maxV - minV) * t;
+    return `<line x1="${padL}" x2="${W-padR}" y1="${y}" y2="${y}" stroke="rgba(135,119,101,.18)" stroke-width="1" stroke-dasharray="3 4"/>
+            <text x="${padL-6}" y="${y+3}" text-anchor="end" font-size="9" fill="#877765" font-family="Jost,sans-serif">${escHtml(m.fmt(v))}</text>`;
+  }).join('');
+
+  // Path (skip nulls by closing/restarting)
+  let d = '', drawing = false;
+  series.forEach((s, i) => {
+    const v = s[m.key];
+    if (v == null) { drawing = false; return; }
+    d += `${drawing ? 'L' : 'M'} ${xAt(i)} ${yAt(v)} `;
+    drawing = true;
+  });
+
+  const dots = series.map((s, i) => {
+    const v = s[m.key];
+    if (v == null) return '';
+    return `<circle cx="${xAt(i)}" cy="${yAt(v)}" r="3" fill="${m.color}" stroke="#FBF8F0" stroke-width="1.5">
+      <title>${escHtml(s.weekLabel)} — ${escHtml(m.fmt(v))}</title>
+    </circle>`;
+  }).join('');
+
+  // X labels — show first, middle, last
+  const idxs = series.length <= 4
+    ? series.map((_, i) => i)
+    : [0, Math.floor((series.length-1)/2), series.length-1];
+  const xLabels = idxs.map(i =>
+    `<text x="${xAt(i)}" y="${H-padB+14}" text-anchor="middle" font-size="9" fill="#5C4F44" font-family="Jost,sans-serif" font-weight="600">${escHtml(series[i].weekLabel)}</text>`
+  ).join('');
+
+  // Latest value badge + delta vs previous
+  const latest = present[present.length-1];
+  const prev   = present.length >= 2 ? present[present.length-2] : null;
+  const delta  = prev != null ? latest - prev : null;
+  const deltaClr = delta == null ? '#877765' : (delta > 0 ? '#15803d' : delta < 0 ? '#c93333' : '#877765');
+  const deltaArrow = delta == null ? '·' : delta > 0 ? '▲' : delta < 0 ? '▼' : '→';
+  const deltaText = delta == null ? '—' : (m.kind === 'pct' ? (delta>=0?'+':'') + delta.toFixed(1) + 'pp' : (delta>=0?'+':'') + m.fmt(delta));
+
+  return `
+    <div style="background:#FBF8F0;border:1px solid rgba(135,119,101,.28);border-radius:6px;padding:10px 12px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:4px">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#877765;letter-spacing:.14em;text-transform:uppercase;font-family:var(--font-body)">${escHtml(m.label)}</div>
+          <div style="font-family:var(--font-display);font-size:22px;color:#2A2E31;line-height:1.1;margin-top:3px">${escHtml(m.fmt(latest))}</div>
+        </div>
+        <div style="font-size:10px;font-weight:700;color:${deltaClr};white-space:nowrap;text-align:right;line-height:1.3">
+          ${deltaArrow} ${escHtml(deltaText)}
+          <div style="font-size:8px;font-weight:500;color:#877765;text-transform:uppercase;letter-spacing:.06em">vs prior wk</div>
+        </div>
+      </div>
+      <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:115px;display:block" xmlns="http://www.w3.org/2000/svg">
+        ${grid}
+        <line x1="${padL}" x2="${padL}" y1="${padT}" y2="${padT+chartH}" stroke="rgba(92,79,68,.40)" stroke-width="1"/>
+        <line x1="${padL}" x2="${W-padR}" y1="${padT+chartH}" y2="${padT+chartH}" stroke="rgba(92,79,68,.40)" stroke-width="1"/>
+        <path d="${d}" fill="none" stroke="${m.color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        ${dots}
+        ${xLabels}
+      </svg>
+    </div>`;
 }
 
 function renderKpiOverview(body, period) {
@@ -5419,6 +5568,33 @@ async function fetchArSnapshot() {
   }
 }
 
+// ════════════════════════════════════════════════
+// KPI SNAPSHOT — weekly office KPIs from ClickUp list 901415926262
+// Generated weekly by scripts/fetch-kpi-snapshot.ts → kpi-snapshot.json
+// ════════════════════════════════════════════════
+let _kpiSnapshot = { generated: null, asOf: null, weeks: [] };
+async function fetchKpiSnapshot() {
+  try {
+    const cb = '?t=' + Date.now();
+    const urls = ['./kpi-snapshot.json' + cb, 'kpi-snapshot.json' + cb];
+    let data = null;
+    for (const url of urls) {
+      try {
+        const r = await fetch(url, { cache: 'no-cache' });
+        if (r.ok) { data = await r.json(); break; }
+      } catch (_) {}
+    }
+    if (!data) { console.warn('kpi-snapshot.json not found — run fetch-kpi-snapshot.ts to generate'); return; }
+    _kpiSnapshot = data;
+    if (typeof renderKpiTab === 'function' && document.getElementById('content-kpi')?.classList.contains('active')) {
+      renderKpiTab();
+    }
+    console.log('KPI snapshot loaded:', data.generated, '— weeks:', data.weeks?.length);
+  } catch (e) {
+    console.warn('Failed to load KPI snapshot:', e);
+  }
+}
+
 function fmtMoney(v) {
   if (v == null) return '—';
   if (v >= 1000000) return '$' + (Math.round(v / 100000) / 10) + 'M';
@@ -5901,11 +6077,13 @@ function renderPostingBadges() {
   fetchPostingAlerts();
   fetchResubmitAlerts();
   fetchArSnapshot();
+  fetchKpiSnapshot();
   // Refresh every 15 minutes
   setInterval(fetchAgingAlerts, 15 * 60 * 1000);
   setInterval(fetchPostingAlerts, 15 * 60 * 1000);
   setInterval(fetchResubmitAlerts, 15 * 60 * 1000);
   setInterval(fetchArSnapshot, 15 * 60 * 1000);
+  setInterval(fetchKpiSnapshot, 15 * 60 * 1000);
 })();
 </script>
 
