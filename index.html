@@ -4375,7 +4375,10 @@ const KPI_TO_SNAP = {
 // always wins so OM edits stick; ClickUp snapshot fills only when no manual value.
 function kpiResolveValue(kpiId, offCode, offData) {
   const manual = offData ? offData[kpiId] : undefined;
-  if (manual !== undefined && manual !== null && manual !== '') return manual;
+  // Manual wins for any non-empty, non-NaN number/string.
+  const isNum = typeof manual === 'number';
+  const hasManual = manual !== undefined && manual !== null && manual !== '' && !(isNum && Number.isNaN(manual));
+  if (hasManual) return manual;
   const snapKey = KPI_TO_SNAP[kpiId];
   if (snapKey && _kpiSnapshot.weeks && _kpiSnapshot.weeks.length) {
     const latest = _kpiSnapshot.weeks[_kpiSnapshot.weeks.length - 1];
