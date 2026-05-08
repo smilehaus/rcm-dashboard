@@ -5974,8 +5974,15 @@ function renderArHistoryChart(outstandingT, patientsT, insuranceT, asOfStr, unpo
         <div class="tip-row"><span class="lbl">Insurance</span><span class="val">${fmtMoney(i)}</span></div>
         ${Number.isFinite(u) ? `<div class="tip-row"><span class="lbl">Unposted '26</span><span class="val">${fmtMoney(u)}</span></div>` : ''}`;
       tip.style.display = 'block';
-      tip.style.left = (r.left - containerR.left + 10) + 'px';
-      tip.style.top  = (r.top  - containerR.top  - 70) + 'px';
+      // Position to the right of the dot, vertically centered. If it would
+      // overflow the container's right edge, flip to the left.
+      const tipW = tip.offsetWidth || 180;
+      const tipH = tip.offsetHeight || 90;
+      const dotCenterX = r.left + r.width / 2 - containerR.left;
+      const dotCenterY = r.top  + r.height / 2 - containerR.top;
+      const wouldOverflowRight = (dotCenterX + 12 + tipW) > containerR.width;
+      tip.style.left = (wouldOverflowRight ? dotCenterX - 12 - tipW : dotCenterX + 12) + 'px';
+      tip.style.top  = (dotCenterY - tipH / 2) + 'px';
     });
     dot.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
   });
