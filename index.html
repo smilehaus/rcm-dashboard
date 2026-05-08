@@ -337,8 +337,10 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 .ar-history-svg .data-line.outstanding{stroke:#5C4F44;}
 .ar-history-svg .data-line.patients{stroke:#2aa898;}
 .ar-history-svg .data-line.insurance{stroke:#b8841a;}
+.ar-history-svg .data-line.unposted2026{stroke:#a04545;stroke-dasharray:5 4;}
 .ar-history-svg .data-dot{stroke-width:2;stroke:#FBF8F0;cursor:pointer;}
 .ar-history-svg .data-dot.outstanding{fill:#5C4F44;}
+.ar-history-svg .data-dot.unposted2026{fill:#a04545;}
 .ar-history-svg .data-dot.patients{fill:#2aa898;}
 .ar-history-svg .data-dot.insurance{fill:#b8841a;}
 .ar-history-svg .data-dot:hover{r:6;}
@@ -753,11 +755,12 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
     <div class="ar-snap-section-lbl">7-Day Trend</div>
     <div class="ar-history" id="ar-history-container">
       <div class="ar-history-hdr">
-        <div class="ar-history-title" id="ar-history-title">Outstanding · Patients · Insurance</div>
+        <div class="ar-history-title" id="ar-history-title">Outstanding · Patients · Insurance · Unposted '26</div>
         <div class="ar-history-legend">
           <div class="ar-history-legend-item"><span class="ar-history-legend-swatch" style="background:#5C4F44"></span>Total Outstanding</div>
           <div class="ar-history-legend-item"><span class="ar-history-legend-swatch" style="background:#2aa898"></span>Patient Balances</div>
           <div class="ar-history-legend-item"><span class="ar-history-legend-swatch" style="background:#b8841a"></span>Insurance Balances</div>
+          <div class="ar-history-legend-item"><span class="ar-history-legend-swatch" style="background:#a04545;background-image:repeating-linear-gradient(90deg,#a04545 0 5px,transparent 5px 9px)"></span>Unposted '26</div>
         </div>
       </div>
       <div id="ar-history-body"></div>
@@ -5718,7 +5721,7 @@ function renderArSnapshot() {
   if (asOfEl) asOfEl.textContent = asOf ? ('As of: ' + asOf) : 'No data yet';
 
   // ── 7-day history line chart ──
-  renderArHistoryChart(outstandingT, patientsT, insuranceT, asOf);
+  renderArHistoryChart(outstandingT, patientsT, insuranceT, asOf, unpostedT);
 
   // ── Aging bucket KPI cards — Total Outstanding org-wide ──
   cardsEl.innerHTML = `
@@ -5829,7 +5832,7 @@ function renderArSnapshot() {
 // If today's totals aren't already in history, today's derived values are appended
 // as the rightmost data point so the chart always shows the latest.
 // ════════════════════════════════════════════════
-function renderArHistoryChart(outstandingT, patientsT, insuranceT, asOfStr) {
+function renderArHistoryChart(outstandingT, patientsT, insuranceT, asOfStr, unpostedT) {
   const bodyEl = document.getElementById('ar-history-body');
   if (!bodyEl) return;
 
@@ -5838,14 +5841,19 @@ function renderArHistoryChart(outstandingT, patientsT, insuranceT, asOfStr) {
 
   // Append today's derived totals if not already represented (date matches today's local date)
   const todayLocal = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
-  const lastEntry = hist[hist.length - 1];
+  const todayUnposted2026 = (unpostedT && unpostedT.y2026 != null) ? unpostedT.y2026 : null;
   const todaysTotals = {
     date: todayLocal,
-    outstanding: outstandingT.total,
-    patients:    patientsT.total,
-    insurance:   insuranceT.total,
+    outstanding:   outstandingT.total,
+    patients:      patientsT.total,
+    insurance:     insuranceT.total,
+    unposted2026:  todayUnposted2026,
   };
-  if (todaysTotals.outstanding != null && (!lastEntry || lastEntry.date !== todayLocal)) {
+  // Merge today's values into existing entry, or append new
+  const existingIdx = hist.findIndex(h => h.date === todayLocal);
+  if (existingIdx >= 0) {
+    hist[existingIdx] = { ...hist[existingIdx], ...Object.fromEntries(Object.entries(todaysTotals).filter(([_, v]) => v != null)) };
+  } else if (todaysTotals.outstanding != null || todaysTotals.unposted2026 != null) {
     hist = [...hist, todaysTotals].slice(-7);
   }
 
@@ -5865,10 +5873,10 @@ function renderArHistoryChart(outstandingT, patientsT, insuranceT, asOfStr) {
   const chartW = W - padL - padR;
   const chartH = H - padT - padB;
 
-  // Y-axis range — find max across all 3 series, round up to nearest nice number
+  // Y-axis range — find max across all 4 series, round up to nearest nice number
   let maxVal = 0;
   hist.forEach(d => {
-    maxVal = Math.max(maxVal, d.outstanding || 0, d.patients || 0, d.insurance || 0);
+    maxVal = Math.max(maxVal, d.outstanding || 0, d.patients || 0, d.insurance || 0, d.unposted2026 || 0);
   });
   if (maxVal <= 0) maxVal = 1;
   // Round max up to the next "nice" value (5%, then floor to a round step)
@@ -5899,13 +5907,21 @@ function renderArHistoryChart(outstandingT, patientsT, insuranceT, asOfStr) {
     `<text class="x-label" x="${xAt(i)}" y="${H - padB + 18}" text-anchor="middle">${fmtDateShort(d.date)}</text>`
   ).join('');
 
-  // Lines for each series
+  // Lines for each series — skip points where the value is null (broken segments)
   function pathFor(key) {
-    return hist.map((d, i) => `${i === 0 ? 'M' : 'L'} ${xAt(i)} ${yAt(d[key])}`).join(' ');
+    let path = '', drawing = false;
+    hist.forEach((d, i) => {
+      const v = d[key];
+      if (v == null) { drawing = false; return; }
+      path += `${drawing ? 'L' : 'M'} ${xAt(i)} ${yAt(v)} `;
+      drawing = true;
+    });
+    return path;
   }
-  const lineOutstanding = `<path class="data-line outstanding" d="${pathFor('outstanding')}"/>`;
-  const linePatients    = `<path class="data-line patients"    d="${pathFor('patients')}"/>`;
-  const lineInsurance   = `<path class="data-line insurance"   d="${pathFor('insurance')}"/>`;
+  const lineOutstanding   = `<path class="data-line outstanding"   d="${pathFor('outstanding')}"/>`;
+  const linePatients      = `<path class="data-line patients"      d="${pathFor('patients')}"/>`;
+  const lineInsurance     = `<path class="data-line insurance"     d="${pathFor('insurance')}"/>`;
+  const lineUnposted2026  = `<path class="data-line unposted2026"  d="${pathFor('unposted2026')}"/>`;
 
   // Dots — invisible-ish until hovered (use class for tooltip)
   function dotsFor(key, cls) {
@@ -5915,12 +5931,14 @@ function renderArHistoryChart(outstandingT, patientsT, insuranceT, asOfStr) {
                 data-date="${d.date}"
                 data-outstanding="${d.outstanding ?? ''}"
                 data-patients="${d.patients ?? ''}"
-                data-insurance="${d.insurance ?? ''}"/>`;
+                data-insurance="${d.insurance ?? ''}"
+                data-unposted2026="${d.unposted2026 ?? ''}"/>`;
     }).join('');
   }
-  const dotsOutstanding = dotsFor('outstanding', 'outstanding');
-  const dotsPatients    = dotsFor('patients',    'patients');
-  const dotsInsurance   = dotsFor('insurance',   'insurance');
+  const dotsOutstanding  = dotsFor('outstanding',  'outstanding');
+  const dotsPatients     = dotsFor('patients',     'patients');
+  const dotsInsurance    = dotsFor('insurance',    'insurance');
+  const dotsUnposted2026 = dotsFor('unposted2026', 'unposted2026');
 
   bodyEl.innerHTML = `
     <svg class="ar-history-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -5930,9 +5948,11 @@ function renderArHistoryChart(outstandingT, patientsT, insuranceT, asOfStr) {
       ${lineOutstanding}
       ${linePatients}
       ${lineInsurance}
+      ${lineUnposted2026}
       ${dotsOutstanding}
       ${dotsPatients}
       ${dotsInsurance}
+      ${dotsUnposted2026}
       ${xLabels}
     </svg>`;
 
@@ -5943,14 +5963,16 @@ function renderArHistoryChart(outstandingT, patientsT, insuranceT, asOfStr) {
       const r = dot.getBoundingClientRect();
       const containerR = document.getElementById('ar-history-container').getBoundingClientRect();
       const date = dot.getAttribute('data-date');
-      const o = parseFloat(dot.getAttribute('data-outstanding'));
-      const p = parseFloat(dot.getAttribute('data-patients'));
-      const i = parseFloat(dot.getAttribute('data-insurance'));
+      const o  = parseFloat(dot.getAttribute('data-outstanding'));
+      const p  = parseFloat(dot.getAttribute('data-patients'));
+      const i  = parseFloat(dot.getAttribute('data-insurance'));
+      const u  = parseFloat(dot.getAttribute('data-unposted2026'));
       tip.innerHTML = `
         <div class="tip-date">${new Date(date + 'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
         <div class="tip-row"><span class="lbl">Outstanding</span><span class="val">${fmtMoney(o)}</span></div>
         <div class="tip-row"><span class="lbl">Patient</span><span class="val">${fmtMoney(p)}</span></div>
-        <div class="tip-row"><span class="lbl">Insurance</span><span class="val">${fmtMoney(i)}</span></div>`;
+        <div class="tip-row"><span class="lbl">Insurance</span><span class="val">${fmtMoney(i)}</span></div>
+        ${Number.isFinite(u) ? `<div class="tip-row"><span class="lbl">Unposted '26</span><span class="val">${fmtMoney(u)}</span></div>` : ''}`;
       tip.style.display = 'block';
       tip.style.left = (r.left - containerR.left + 10) + 'px';
       tip.style.top  = (r.top  - containerR.top  - 70) + 'px';
