@@ -789,7 +789,10 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
     <div class="ar-snap-summary" id="arsnap-summary"></div>
 
     <!-- Per-office: 3 rows per office (Total Outstanding / Patient / Insurance) -->
-    <div class="ar-snap-section-lbl">Per-Office Breakdown</div>
+    <div class="ar-snap-section-lbl" style="display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;padding-right:24px">
+      <span>Per-Office Breakdown</span>
+      <span id="arsnap-last-updated" style="font-weight:500;letter-spacing:.06em;text-transform:none;color:#877765;font-size:10.5px;font-style:italic">—</span>
+    </div>
     <div class="ar-snap-table-wrap">
       <table class="ar-snap-table ar-snap-office">
         <thead>
@@ -5719,6 +5722,24 @@ function renderArSnapshot() {
   const unpostedDelta= totalsRaw.unpostedDelta ?? null;
 
   if (asOfEl) asOfEl.textContent = asOf ? ('As of: ' + asOf) : 'No data yet';
+
+  // "Last updated" pill on the Per-Office Breakdown header — uses the snapshot's
+  // generated ISO timestamp (set every time fetch-unposted or Ava writes the file).
+  const lastUpEl = document.getElementById('arsnap-last-updated');
+  if (lastUpEl) {
+    const gen = _arSnapshot.generated;
+    if (gen) {
+      const d = new Date(gen);
+      const friendly = d.toLocaleString('en-US', {
+        timeZone: 'America/Chicago',
+        month: 'short', day: 'numeric', year: 'numeric',
+        hour: 'numeric', minute: '2-digit'
+      }) + ' CT';
+      lastUpEl.textContent = 'Last updated: ' + friendly;
+    } else {
+      lastUpEl.textContent = '';
+    }
+  }
 
   // ── 7-day history line chart ──
   renderArHistoryChart(outstandingT, patientsT, insuranceT, asOf, unpostedT);
