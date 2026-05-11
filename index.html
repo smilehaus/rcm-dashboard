@@ -5857,11 +5857,22 @@ function renderArHistoryChart(outstandingT, patientsT, insuranceT, asOfStr, unpo
   const bodyEl = document.getElementById('ar-history-body');
   if (!bodyEl) return;
 
-  // Pull history (last up to 7 entries)
-  let hist = Array.isArray(_arSnapshot.history) ? _arSnapshot.history.slice(-7) : [];
+  // Weekend filter — offices are closed Sat/Sun, so those days are not
+  // meaningful business-day data points. Drop them from the trend.
+  function isWeekday(iso) {
+    const d = new Date(iso + 'T12:00:00');
+    const dow = d.getDay(); // 0=Sun, 6=Sat
+    return dow !== 0 && dow !== 6;
+  }
+
+  // Pull history → keep weekdays only → last 7
+  let hist = Array.isArray(_arSnapshot.history)
+    ? _arSnapshot.history.filter(h => h && h.date && isWeekday(h.date)).slice(-7)
+    : [];
 
   // Append today's derived totals if not already represented (date matches today's local date)
   const todayLocal = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+  const todayIsWeekday = isWeekday(todayLocal);
   const todayUnposted2026 = (unpostedT && unpostedT.y2026 != null) ? unpostedT.y2026 : null;
   const todaysTotals = {
     date: todayLocal,
@@ -5874,8 +5885,20 @@ function renderArHistoryChart(outstandingT, patientsT, insuranceT, asOfStr, unpo
   const existingIdx = hist.findIndex(h => h.date === todayLocal);
   if (existingIdx >= 0) {
     hist[existingIdx] = { ...hist[existingIdx], ...Object.fromEntries(Object.entries(todaysTotals).filter(([_, v]) => v != null)) };
-  } else if (todaysTotals.outstanding != null || todaysTotals.unposted2026 != null) {
+  } else if (todayIsWeekday && (todaysTotals.outstanding != null || todaysTotals.unposted2026 != null)) {
     hist = [...hist, todaysTotals].slice(-7);
+  }
+
+  // Continuous-line: forward-fill missing values for each series so a daily
+  // capture gap (e.g. aging didn't run on a holiday) doesn't break the trend.
+  // Unposted2026 stays as captured — its own dashed line.
+  const SERIES = ['outstanding','patients','insurance','unposted2026'];
+  for (const key of SERIES) {
+    let last = null;
+    hist.forEach(d => {
+      if (d[key] != null) last = d[key];
+      else if (last != null) d[key] = last;
+    });
   }
 
   // Need at least 2 points to draw a line
