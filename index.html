@@ -4170,10 +4170,10 @@ function buildGrid(tableEl, boardId) {
         const arVal = finData ? (finData.outstanding?.total ?? finData.ar) : null;
         // Unposted on the Live board = 2026-only value (not the total)
         const unVal = finData ? unpostedYear(finData.unposted, 2026) : null;
-        // Weekly reduction target: $28k/wk. If unposted < target → reduce by the
-        // full unposted amount (must hit zero by end of Sunday). Flash red when
-        // it's Wed morning (in CT) and the remaining amount still > $14k.
-        const reduceTarget = computeReduceTarget(unVal);
+        // Weekly reduction target: $28k/wk. Resets Monday 12:00 AM CT.
+        // Tracks progress against the Monday baseline (captured by fetch-unposted).
+        // Flashes red Wed–Fri CT if the remaining target is still > $14k.
+        const reduceTarget = computeReduceTarget(finData ? finData.unposted : null);
         const reduceCls    = shouldFlashReduce(reduceTarget) ? 'critical flash' : (reduceTarget > 0 ? 'warn' : '');
         const reduceVal    = reduceTarget != null ? fmtMoney(reduceTarget) : '—';
         finTd.innerHTML = `
@@ -5664,14 +5664,24 @@ function unpostedYear(u, year) {
   return year === 2025 ? (u.y2025 ?? null) : (u.y2026 ?? null);
 }
 
-// Weekly Unposted '26 reduction target: $28k/wk per office. Capped at the
-// office's actual unposted amount (can't reduce more than what's there).
+// Weekly Unposted '26 reduction target: $28k/wk per office.
+// Baseline resets every Monday 12:00 AM CT (captured by fetch-unposted.ts).
+// remaining = max(0, min($28k, baseline) - (baseline - current))
+// If no baseline yet, falls back to min($28k, current).
 const WEEKLY_REDUCE_TARGET = 28000;
 const WED_FLASH_THRESHOLD  = 14000;
-function computeReduceTarget(unposted2026) {
-  if (unposted2026 == null) return null;
-  if (unposted2026 <= 0) return 0;
-  return Math.min(WEEKLY_REDUCE_TARGET, unposted2026);
+function computeReduceTarget(unpostedObj) {
+  // Accept either the full unposted block (preferred) or a bare y2026 number (legacy)
+  const current = (unpostedObj && typeof unpostedObj === 'object')
+    ? (unpostedObj.y2026 ?? null)
+    : unpostedObj;
+  if (current == null) return null;
+  if (current <= 0) return 0;
+  const baseline = (unpostedObj && typeof unpostedObj === 'object') ? unpostedObj.mondayBaseline2026 : null;
+  if (baseline == null || baseline <= 0) return Math.min(WEEKLY_REDUCE_TARGET, current);
+  const weeklyGoal   = Math.min(WEEKLY_REDUCE_TARGET, baseline);
+  const reducedSoFar = baseline - current;
+  return Math.max(0, weeklyGoal - reducedSoFar);
 }
 // Flash red when: it's Wed/Thu/Fri (CT) AND the remaining target is still > $14k.
 // Wed = day 3, Thu = 4, Fri = 5. Mon/Tue = "fresh week", weekend = past deadline.
