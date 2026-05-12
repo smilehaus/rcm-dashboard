@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-12T03:16:52.252Z",
+  "generated": "2026-05-12T17:26:38.130Z",
   "asOf": "5/7/2026 8:00 PM CT",
   "totals": {
     "outstanding": {
@@ -60,7 +60,7 @@
         "mondayBaseline2026": 1664.8,
         "mondayBaselineDate": "2026-05-11",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-11"
+        "completedTodayDate": "2026-05-12"
       }
     },
     "GT": {
@@ -87,12 +87,12 @@
       },
       "unposted": {
         "y2025": 458746.23,
-        "y2026": 172337.67,
-        "total": 631083.9,
+        "y2026": 167472.12,
+        "total": 626218.35,
         "mondayBaseline2026": 172337.67,
         "mondayBaselineDate": "2026-05-11",
-        "completedToday2026": 4123.41,
-        "completedTodayDate": "2026-05-11"
+        "completedToday2026": 4865.55,
+        "completedTodayDate": "2026-05-12"
       }
     },
     "ATX": {
@@ -119,12 +119,12 @@
       },
       "unposted": {
         "y2025": 31941.61,
-        "y2026": 45431.83,
-        "total": 77373.44,
+        "y2026": 45758.83,
+        "total": 77700.44,
         "mondayBaseline2026": 45431.83,
         "mondayBaselineDate": "2026-05-11",
-        "completedToday2026": 830,
-        "completedTodayDate": "2026-05-11"
+        "completedToday2026": 0,
+        "completedTodayDate": "2026-05-12"
       }
     },
     "MP": {
@@ -151,12 +151,12 @@
       },
       "unposted": {
         "y2025": 153610.03,
-        "y2026": 116889.33,
-        "total": 270499.36,
+        "y2026": 115421.63,
+        "total": 269031.66,
         "mondayBaseline2026": 116889.33,
         "mondayBaselineDate": "2026-05-11",
-        "completedToday2026": 4353.16,
-        "completedTodayDate": "2026-05-11"
+        "completedToday2026": 0,
+        "completedTodayDate": "2026-05-12"
       }
     },
     "NBDA": {
@@ -183,12 +183,12 @@
       },
       "unposted": {
         "y2025": 66827.63,
-        "y2026": 65697.45,
-        "total": 132525.08,
+        "y2026": 65965.85,
+        "total": 132793.48,
         "mondayBaseline2026": 65697.45,
         "mondayBaselineDate": "2026-05-11",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-11"
+        "completedTodayDate": "2026-05-12"
       }
     },
     "IC": {
@@ -220,7 +220,7 @@
         "mondayBaseline2026": 20701.66,
         "mondayBaselineDate": "2026-05-11",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-11"
+        "completedTodayDate": "2026-05-12"
       }
     },
     "AR": {
@@ -252,7 +252,7 @@
         "mondayBaseline2026": 63045.34,
         "mondayBaselineDate": "2026-05-11",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-11"
+        "completedTodayDate": "2026-05-12"
       }
     },
     "PF": {
@@ -283,8 +283,8 @@
         "total": 89695.49,
         "mondayBaseline2026": 33734.91,
         "mondayBaselineDate": "2026-05-11",
-        "completedToday2026": 0,
-        "completedTodayDate": "2026-05-11"
+        "completedToday2026": 2060,
+        "completedTodayDate": "2026-05-12"
       }
     },
     "SATX": {
@@ -316,7 +316,7 @@
         "mondayBaseline2026": 134743.96,
         "mondayBaselineDate": "2026-05-11",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-11"
+        "completedTodayDate": "2026-05-12"
       }
     },
     "AM": {
@@ -348,7 +348,7 @@
         "mondayBaseline2026": 18676.41,
         "mondayBaselineDate": "2026-05-11",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-11"
+        "completedTodayDate": "2026-05-12"
       }
     }
   },
@@ -385,6 +385,12 @@
       "date": "2026-05-11",
       "unposted": 1811314.1499999997,
       "unposted2026": 672923.36,
+      "unposted2025": 1138390.7899999998
+    },
+    {
+      "date": "2026-05-12",
+      "unposted": 1805576.2999999996,
+      "unposted2026": 667185.51,
       "unposted2025": 1138390.7899999998
     }
   ],
