@@ -5800,11 +5800,22 @@ function renderPerOfficeHistory() {
     const cur = Number(curVal) || 0;
     let deltaHtml = '';
     if (cmp && prevVal != null) {
-      const delta = cur - Number(prevVal);
+      const prev  = Number(prevVal) || 0;
+      const delta = cur - prev;
       if (Math.abs(delta) >= 1) {
-        const cls = delta > 0 ? 'up' : (delta < 0 ? 'down' : 'flat');
+        const cls  = delta > 0 ? 'up' : (delta < 0 ? 'down' : 'flat');
         const sign = delta > 0 ? '▲' : (delta < 0 ? '▼' : '·');
-        deltaHtml = `<div class="arsnap-history-delta ${cls}">${sign} ${fmtMoney(Math.abs(delta))}</div>`;
+        // Percentage change vs prior value. If prior was 0 (and now non-zero),
+        // show "new" instead of a meaningless ∞%.
+        let pctTxt = '';
+        if (prev !== 0) {
+          const pct = (delta / Math.abs(prev)) * 100;
+          const pctStr = (pct > 0 ? '+' : '') + (Math.abs(pct) >= 100 ? pct.toFixed(0) : pct.toFixed(1)) + '%';
+          pctTxt = ` (${pctStr})`;
+        } else if (cur !== 0) {
+          pctTxt = ' (new)';
+        }
+        deltaHtml = `<div class="arsnap-history-delta ${cls}">${sign} ${fmtMoney(Math.abs(delta))}${pctTxt}</div>`;
       }
     }
     return `${fmtMoney(cur)}${deltaHtml}`;
