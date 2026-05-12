@@ -5860,29 +5860,30 @@ function renderPerOfficeHistory() {
     } : {};
   }
 
-  // Build the office list: existing offices + HZ as 11th if either the current
-  // or comparison snapshot has HZ data.
-  const baseOffices = (S.offices || OFFICE_DEF);
-  const officesList = [...baseOffices];
-  const hasHZ = (entry.offices && entry.offices.HZ) || (cmp?.offices && cmp.offices.HZ);
-  if (hasHZ && !officesList.find(o => o.code === 'HZ')) {
-    const gtIdx = officesList.findIndex(o => o.code === 'GT');
-    const hzEntry = { code: 'HZ', name: 'Horizon' };
-    if (gtIdx >= 0) officesList.splice(gtIdx + 1, 0, hzEntry);
-    else officesList.push(hzEntry);
-  }
+  // Normalize legacy to array form for either snapshot shape (single obj or array)
+  function toLegArr(x) { return !x ? [] : (Array.isArray(x) ? x : [x]); }
 
+  const officesList = (S.offices || OFFICE_DEF);
   const rows = officesList.map(o => {
     const d  = entry.offices?.[o.code] || {};
     const p  = cmp?.offices?.[o.code] || {};
     const cOut = buckets(d.outstanding), cPat = buckets(d.patients), cIns = buckets(d.insurance);
     const pOut = buckets(p.outstanding), pPat = buckets(p.patients), pIns = buckets(p.insurance);
     const cU = d.unposted || {}, pU = p.unposted || {};
-    const cLeg = d.legacy ? buckets(d.legacy) : null;
-    const pLeg = p.legacy ? buckets(p.legacy) : null;
-    // Show legacy row if EITHER snapshot has legacy data for this office.
-    const hasLegacy = !!(cLeg || pLeg);
-    const rowCount = 3 + (hasLegacy ? 1 : 0);
+
+    // Union of legacy entries (by label) across both snapshots so comparison shows up
+    // even when one side added/removed a legacy bucket.
+    const curLegArr = toLegArr(d.legacy);
+    const prvLegArr = toLegArr(p.legacy);
+    const legacyByLabel = new Map();
+    for (const l of curLegArr) legacyByLabel.set(l.label || l.source || '?', { cur: l, prev: null });
+    for (const l of prvLegArr) {
+      const key = l.label || l.source || '?';
+      if (legacyByLabel.has(key)) legacyByLabel.get(key).prev = l;
+      else                        legacyByLabel.set(key, { cur: null, prev: l });
+    }
+    const legPairs = Array.from(legacyByLabel.entries()); // [[label, {cur, prev}], ...]
+    const rowCount = 3 + legPairs.length;
 
     const row = (cur, prev, label, isTotal, extraCls) => `
       <td class="balance-type${isTotal ? ' total' : ''}${extraCls ? ' ' + extraCls : ''}">${label}</td>
@@ -5893,7 +5894,6 @@ function renderPerOfficeHistory() {
       <td><strong>${bucketCell(cur.total, prev.total)}</strong></td>
     `;
 
-    const sourceLbl = (d.legacy?.source || p.legacy?.source) ? ` (${d.legacy?.source || p.legacy?.source})` : '';
     let html = `
       <tr class="office-row">
         <td class="office-cell" rowspan="${rowCount}">
@@ -5907,8 +5907,10 @@ function renderPerOfficeHistory() {
       </tr>
       <tr>${row(cPat, pPat, 'Patient Balances', false)}</tr>
       <tr>${row(cIns, pIns, 'Insurance Balances', false)}</tr>`;
-    if (hasLegacy) {
-      html += `<tr class="legacy-row">${row(cLeg || {}, pLeg || {}, `Legacy${sourceLbl}`, false, 'legacy')}</tr>`;
+    for (const [label, pair] of legPairs) {
+      const curB = pair.cur ? buckets(pair.cur) : {};
+      const prvB = pair.prev ? buckets(pair.prev) : {};
+      html += `<tr class="legacy-row">${row(curB, prvB, `Legacy (${label})`, false, 'legacy')}</tr>`;
     }
     return html;
   }).join('');
@@ -6088,16 +6090,16 @@ function renderArSnapshot() {
 
   // ── Per-office: 3 rows per office (Outstanding / Patient / Insurance) ──
   // Office cell + Unposted cell rowspan=3 so they align like a single block per office.
-  // Build the office list: existing offices + HZ as a virtual 11th if it has
-  // legacy data (HZ shares GT's Oryx but has its own Dentrix legacy balances).
-  const standardOffices = S.offices || OFFICE_DEF;
-  const officesToRender = [...standardOffices];
-  if (offices.HZ && !standardOffices.find(o => o.code === 'HZ')) {
-    // Insert HZ right after GT for visual grouping
-    const gtIdx = officesToRender.findIndex(o => o.code === 'GT');
-    const hzEntry = { code: 'HZ', lbl: 'HZ', name: 'Horizon' };
-    if (gtIdx >= 0) officesToRender.splice(gtIdx + 1, 0, hzEntry);
-    else officesToRender.push(hzEntry);
+  // Render rows for the standard 10 offices. Legacy is now an array (one entry
+  // per legacy source — e.g. GT has GT Open Dental + HZ Dentrix; MP has MP
+  // Dentrix + FS Dentrix). Each legacy entry gets its own row beneath the
+  // three Oryx-derived rows.
+  const officesToRender = S.offices || OFFICE_DEF;
+
+  // Helper: normalize legacy to array form (backward compat with old single-obj shape)
+  function toLegacyArray(legacy) {
+    if (!legacy) return [];
+    return Array.isArray(legacy) ? legacy : [legacy];
   }
 
   const rows = officesToRender.map(o => {
@@ -6105,9 +6107,8 @@ function renderArSnapshot() {
     const out = buckets(d.outstanding || d);
     const pat = buckets(d.patients);
     const ins = buckets(d.insurance);
-    const leg = d.legacy || null;
-    const hasLegacy = !!(leg && (leg.total > 0 || leg.d0_30 > 0 || leg.d31_60 > 0 || leg.d61_90 > 0 || leg.d90plus > 0));
-    const rowCount = 3 + (hasLegacy ? 1 : 0);
+    const legArr  = toLegacyArray(d.legacy).filter(l => l && (l.total > 0 || l.d0_30 > 0 || l.d31_60 > 0 || l.d61_90 > 0 || l.d90plus > 0));
+    const rowCount = 3 + legArr.length;
 
     const u       = d.unposted;
     const u2025   = unpostedYear(u, 2025);
@@ -6144,17 +6145,19 @@ function renderArSnapshot() {
       <tr>
         ${row(pat, 'Patient Balances', false)}
       </tr>
-      <tr${hasLegacy ? '' : ' class="office-end"'}>
+      <tr${legArr.length ? '' : ' class="office-end"'}>
         ${row(ins, 'Insurance Balances', false)}
       </tr>`;
-    if (hasLegacy) {
+    legArr.forEach((leg, idx) => {
+      const isLast = idx === legArr.length - 1;
       const legBuckets = { d0_30: leg.d0_30, d31_60: leg.d31_60, d61_90: leg.d61_90, d90plus: leg.d90plus, total: leg.total };
-      const legLabel = `Legacy${leg.source ? ` (${leg.source})` : ''}`;
+      const labelText = `Legacy (${leg.label || leg.source})`;
+      const titleAttr = `${leg.source || ''} · DOS ≥ ${leg.closingDate || '—'}${leg.taskCount ? ` · ${leg.taskCount} claims` : ''}`;
       html += `
-      <tr class="office-end legacy-row" title="${leg.source || ''} legacy balance · DOS ≥ ${leg.closingDate || '—'}${leg.taskCount ? ` · ${leg.taskCount} claims` : ''}">
-        ${row(legBuckets, legLabel, false, 'legacy')}
+      <tr${isLast ? ' class="office-end legacy-row"' : ' class="legacy-row"'} title="${titleAttr}">
+        ${row(legBuckets, labelText, false, 'legacy')}
       </tr>`;
-    }
+    });
     return html;
   }).join('');
   bodyEl.innerHTML = rows;
