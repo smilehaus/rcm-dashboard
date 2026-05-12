@@ -506,8 +506,8 @@
     {
       "date": "2026-05-12",
       "slot": "PM",
-      "asOf": "5/12/2026, 4:38 PM CT",
-      "generated": "2026-05-12T21:38:37.098Z",
+      "asOf": "5/12/2026, 5:41 PM CT",
+      "generated": "2026-05-12T22:41:48.126Z",
       "offices": {
         "SQ": {
           "outstanding": {
@@ -535,7 +535,8 @@
             "y2025": 149.57,
             "y2026": 1664.8,
             "total": 1814.37
-          }
+          },
+          "legacy": null
         },
         "GT": {
           "outstanding": {
@@ -561,8 +562,20 @@
           },
           "unposted": {
             "y2025": 458746.23,
-            "y2026": 167472.12,
-            "total": 626218.35
+            "y2026": 168452.62,
+            "total": 627198.85
+          },
+          "legacy": {
+            "source": "Open Dental",
+            "closingDate": "2019-09-05",
+            "d0_30": 0,
+            "d31_60": 0,
+            "d61_90": 0,
+            "d90plus": 18192,
+            "total": 18192,
+            "taskCount": 29,
+            "excludedCount": 3,
+            "asOf": "2026-05-12T22:33:43.794Z"
           }
         },
         "ATX": {
@@ -591,7 +604,8 @@
             "y2025": 31941.61,
             "y2026": 45758.83,
             "total": 77700.44
-          }
+          },
+          "legacy": null
         },
         "MP": {
           "outstanding": {
@@ -619,6 +633,18 @@
             "y2025": 153610.03,
             "y2026": 115421.63,
             "total": 269031.66
+          },
+          "legacy": {
+            "source": "Dentrix",
+            "closingDate": "2020-12-07",
+            "d0_30": 0,
+            "d31_60": 0,
+            "d61_90": 0,
+            "d90plus": 40136.77,
+            "total": 40136.77,
+            "taskCount": 128,
+            "excludedCount": 0,
+            "asOf": "2026-05-12T22:33:43.795Z"
           }
         },
         "NBDA": {
@@ -647,6 +673,18 @@
             "y2025": 66827.63,
             "y2026": 65965.85,
             "total": 132793.48
+          },
+          "legacy": {
+            "source": "Dentrix",
+            "closingDate": "2021-12-22",
+            "d0_30": 4677,
+            "d31_60": 19806,
+            "d61_90": 15198,
+            "d90plus": 79472,
+            "total": 119153,
+            "taskCount": 227,
+            "excludedCount": 0,
+            "asOf": "2026-05-12T22:33:43.795Z"
           }
         },
         "IC": {
@@ -675,6 +713,18 @@
             "y2025": 10380.84,
             "y2026": 20701.66,
             "total": 31082.5
+          },
+          "legacy": {
+            "source": "Open Dental",
+            "closingDate": "2023-05-03",
+            "d0_30": 0,
+            "d31_60": 0,
+            "d61_90": 0,
+            "d90plus": 14863.25,
+            "total": 14863.25,
+            "taskCount": 6,
+            "excludedCount": 0,
+            "asOf": "2026-05-12T22:33:43.795Z"
           }
         },
         "AR": {
@@ -703,6 +753,18 @@
             "y2025": 206317.9,
             "y2026": 63045.34,
             "total": 269363.24
+          },
+          "legacy": {
+            "source": "Dentrix",
+            "closingDate": "2022-08-01",
+            "d0_30": 0,
+            "d31_60": 0,
+            "d61_90": 0,
+            "d90plus": 1561,
+            "total": 1561,
+            "taskCount": 6,
+            "excludedCount": 0,
+            "asOf": "2026-05-12T22:33:43.795Z"
           }
         },
         "PF": {
@@ -729,9 +791,10 @@
           },
           "unposted": {
             "y2025": 55960.58,
-            "y2026": 33734.91,
-            "total": 89695.49
-          }
+            "y2026": 33334.41,
+            "total": 89294.99
+          },
+          "legacy": null
         },
         "SATX": {
           "outstanding": {
@@ -759,6 +822,18 @@
             "y2025": 154456.4,
             "y2026": 134743.96,
             "total": 289200.36
+          },
+          "legacy": {
+            "source": "Open Dental",
+            "closingDate": "2025-04-30",
+            "d0_30": 0,
+            "d31_60": 0,
+            "d61_90": 0,
+            "d90plus": 0,
+            "total": 0,
+            "taskCount": 0,
+            "excludedCount": 0,
+            "asOf": "2026-05-12T22:33:43.795Z"
           }
         },
         "AM": {
@@ -785,8 +860,45 @@
           },
           "unposted": {
             "y2025": 0,
-            "y2026": 18676.41,
-            "total": 18676.41
+            "y2026": 15648.61,
+            "total": 15648.61
+          },
+          "legacy": null
+        },
+        "HZ": {
+          "outstanding": {
+            "d0_30": null,
+            "d31_60": null,
+            "d61_90": null,
+            "d90plus": null,
+            "total": null
+          },
+          "patients": {
+            "d0_30": null,
+            "d31_60": null,
+            "d61_90": null,
+            "d90plus": null,
+            "total": null
+          },
+          "insurance": {
+            "d0_30": null,
+            "d31_60": null,
+            "d61_90": null,
+            "d90plus": null,
+            "total": null
+          },
+          "unposted": null,
+          "legacy": {
+            "source": "Dentrix",
+            "closingDate": "2024-12-20",
+            "d0_30": 0,
+            "d31_60": 0,
+            "d61_90": 0,
+            "d90plus": 127981.69,
+            "total": 127981.69,
+            "taskCount": 215,
+            "excludedCount": 0,
+            "asOf": "2026-05-12T22:33:43.795Z"
           }
         }
       }
