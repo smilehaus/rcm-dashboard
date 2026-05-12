@@ -5860,16 +5860,32 @@ function renderPerOfficeHistory() {
     } : {};
   }
 
-  const offices = (S.offices || OFFICE_DEF);
-  const rows = offices.map(o => {
+  // Build the office list: existing offices + HZ as 11th if either the current
+  // or comparison snapshot has HZ data.
+  const baseOffices = (S.offices || OFFICE_DEF);
+  const officesList = [...baseOffices];
+  const hasHZ = (entry.offices && entry.offices.HZ) || (cmp?.offices && cmp.offices.HZ);
+  if (hasHZ && !officesList.find(o => o.code === 'HZ')) {
+    const gtIdx = officesList.findIndex(o => o.code === 'GT');
+    const hzEntry = { code: 'HZ', name: 'Horizon' };
+    if (gtIdx >= 0) officesList.splice(gtIdx + 1, 0, hzEntry);
+    else officesList.push(hzEntry);
+  }
+
+  const rows = officesList.map(o => {
     const d  = entry.offices?.[o.code] || {};
     const p  = cmp?.offices?.[o.code] || {};
     const cOut = buckets(d.outstanding), cPat = buckets(d.patients), cIns = buckets(d.insurance);
     const pOut = buckets(p.outstanding), pPat = buckets(p.patients), pIns = buckets(p.insurance);
     const cU = d.unposted || {}, pU = p.unposted || {};
+    const cLeg = d.legacy ? buckets(d.legacy) : null;
+    const pLeg = p.legacy ? buckets(p.legacy) : null;
+    // Show legacy row if EITHER snapshot has legacy data for this office.
+    const hasLegacy = !!(cLeg || pLeg);
+    const rowCount = 3 + (hasLegacy ? 1 : 0);
 
-    const row = (cur, prev, label, isTotal) => `
-      <td class="balance-type${isTotal ? ' total' : ''}">${label}</td>
+    const row = (cur, prev, label, isTotal, extraCls) => `
+      <td class="balance-type${isTotal ? ' total' : ''}${extraCls ? ' ' + extraCls : ''}">${label}</td>
       <td>${bucketCell(cur.d0_30,  prev.d0_30)}</td>
       <td>${bucketCell(cur.d31_60, prev.d31_60)}</td>
       <td>${bucketCell(cur.d61_90, prev.d61_90)}</td>
@@ -5877,20 +5893,24 @@ function renderPerOfficeHistory() {
       <td><strong>${bucketCell(cur.total, prev.total)}</strong></td>
     `;
 
-    return `
+    const sourceLbl = (d.legacy?.source || p.legacy?.source) ? ` (${d.legacy?.source || p.legacy?.source})` : '';
+    let html = `
       <tr class="office-row">
-        <td class="office-cell" rowspan="3">
+        <td class="office-cell" rowspan="${rowCount}">
           <div class="office-cell-code">${escHtml(o.code)}</div>
           <div class="office-cell-name">${escHtml(o.name || '')}</div>
         </td>
         ${row(cOut, pOut, 'Total Outstanding', true)}
-        <td rowspan="3">${bucketCell(cU.y2025, pU.y2025)}</td>
-        <td rowspan="3">${bucketCell(cU.y2026, pU.y2026)}</td>
-        <td rowspan="3"><strong>${bucketCell(cU.total, pU.total)}</strong></td>
+        <td rowspan="${rowCount}">${bucketCell(cU.y2025, pU.y2025)}</td>
+        <td rowspan="${rowCount}">${bucketCell(cU.y2026, pU.y2026)}</td>
+        <td rowspan="${rowCount}"><strong>${bucketCell(cU.total, pU.total)}</strong></td>
       </tr>
       <tr>${row(cPat, pPat, 'Patient Balances', false)}</tr>
-      <tr>${row(cIns, pIns, 'Insurance Balances', false)}</tr>
-    `;
+      <tr>${row(cIns, pIns, 'Insurance Balances', false)}</tr>`;
+    if (hasLegacy) {
+      html += `<tr class="legacy-row">${row(cLeg || {}, pLeg || {}, `Legacy${sourceLbl}`, false, 'legacy')}</tr>`;
+    }
+    return html;
   }).join('');
 
   function metaLabel(h) {
