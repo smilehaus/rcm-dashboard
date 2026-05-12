@@ -385,6 +385,8 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 .ar-snap-office td.unposted-cell.warn{color:#a04545;}
 /* Stronger horizontal divider between offices */
 .ar-snap-office tbody tr.office-end td{border-bottom:2px solid rgba(92,79,68,.30);}
+.ar-snap-office tbody tr.legacy-row td{background:rgba(135,119,101,.06);}
+.ar-snap-office tbody tr.legacy-row td.balance-type.legacy{font-style:italic;color:#5C4F44;letter-spacing:.02em;}
 .ar-snap-card{background:#FBF8F0;border:1px solid rgba(135,119,101,.28);border-radius:6px;padding:20px 22px;}
 .ar-snap-card-lbl{font-size:9px;font-weight:700;color:#877765;letter-spacing:.16em;text-transform:uppercase;font-family:var(--font-body);}
 .ar-snap-card-val{font-family:var(--font-display);font-size:34px;font-weight:400;color:#2A2E31;margin-top:8px;line-height:1;letter-spacing:.005em;}
@@ -6066,11 +6068,27 @@ function renderArSnapshot() {
 
   // ── Per-office: 3 rows per office (Outstanding / Patient / Insurance) ──
   // Office cell + Unposted cell rowspan=3 so they align like a single block per office.
-  const rows = (S.offices || OFFICE_DEF).map(o => {
+  // Build the office list: existing offices + HZ as a virtual 11th if it has
+  // legacy data (HZ shares GT's Oryx but has its own Dentrix legacy balances).
+  const standardOffices = S.offices || OFFICE_DEF;
+  const officesToRender = [...standardOffices];
+  if (offices.HZ && !standardOffices.find(o => o.code === 'HZ')) {
+    // Insert HZ right after GT for visual grouping
+    const gtIdx = officesToRender.findIndex(o => o.code === 'GT');
+    const hzEntry = { code: 'HZ', lbl: 'HZ', name: 'Horizon' };
+    if (gtIdx >= 0) officesToRender.splice(gtIdx + 1, 0, hzEntry);
+    else officesToRender.push(hzEntry);
+  }
+
+  const rows = officesToRender.map(o => {
     const d  = offices[o.code] || {};
     const out = buckets(d.outstanding || d);
     const pat = buckets(d.patients);
     const ins = buckets(d.insurance);
+    const leg = d.legacy || null;
+    const hasLegacy = !!(leg && (leg.total > 0 || leg.d0_30 > 0 || leg.d31_60 > 0 || leg.d61_90 > 0 || leg.d90plus > 0));
+    const rowCount = 3 + (hasLegacy ? 1 : 0);
+
     const u       = d.unposted;
     const u2025   = unpostedYear(u, 2025);
     const u2026   = unpostedYear(u, 2026);
@@ -6079,11 +6097,12 @@ function renderArSnapshot() {
     const un26Cls = u2026  > 0 ? 'warn' : '';
     const unTCls  = uTotal > 0 ? 'warn' : '';
 
-    const row = (b, lbl, isTotal) => {
+    const row = (b, lbl, isTotal, extraCls) => {
       const c61Cls = b.d61_90  > 0 ? 'warn' : '';
       const c90Cls = b.d90plus > 0 ? 'warn' : '';
+      const labelCls = extraCls ? ` ${extraCls}` : '';
       return `
-        <td class="balance-type${isTotal ? ' total' : ''}">${lbl}</td>
+        <td class="balance-type${isTotal ? ' total' : ''}${labelCls}">${lbl}</td>
         <td>${fmtMoney(b.d0_30)}</td>
         <td>${fmtMoney(b.d31_60)}</td>
         <td class="${c61Cls}">${fmtMoney(b.d61_90)}</td>
@@ -6091,23 +6110,32 @@ function renderArSnapshot() {
         <td>${fmtMoney(b.total)}</td>`;
     };
 
-    return `
+    let html = `
       <tr class="total-row">
-        <td class="office-cell" rowspan="3">
+        <td class="office-cell" rowspan="${rowCount}">
           <span class="off-code">${o.lbl || o.code}</span>
           <div class="off-name">${o.name || ''}</div>
         </td>
         ${row(out, 'Total Outstanding', true)}
-        <td class="unposted-cell ${un25Cls}" rowspan="3">${fmtMoney(u2025)}</td>
-        <td class="unposted-cell ${un26Cls}" rowspan="3">${fmtMoney(u2026)}</td>
-        <td class="unposted-cell ${unTCls}" rowspan="3">${fmtMoney(uTotal)}</td>
+        <td class="unposted-cell ${un25Cls}" rowspan="${rowCount}">${fmtMoney(u2025)}</td>
+        <td class="unposted-cell ${un26Cls}" rowspan="${rowCount}">${fmtMoney(u2026)}</td>
+        <td class="unposted-cell ${unTCls}" rowspan="${rowCount}">${fmtMoney(uTotal)}</td>
       </tr>
       <tr>
         ${row(pat, 'Patient Balances', false)}
       </tr>
-      <tr class="office-end">
+      <tr${hasLegacy ? '' : ' class="office-end"'}>
         ${row(ins, 'Insurance Balances', false)}
       </tr>`;
+    if (hasLegacy) {
+      const legBuckets = { d0_30: leg.d0_30, d31_60: leg.d31_60, d61_90: leg.d61_90, d90plus: leg.d90plus, total: leg.total };
+      const legLabel = `Legacy${leg.source ? ` (${leg.source})` : ''}`;
+      html += `
+      <tr class="office-end legacy-row" title="${leg.source || ''} legacy balance · DOS ≥ ${leg.closingDate || '—'}${leg.taskCount ? ` · ${leg.taskCount} claims` : ''}">
+        ${row(legBuckets, legLabel, false, 'legacy')}
+      </tr>`;
+    }
+    return html;
   }).join('');
   bodyEl.innerHTML = rows;
 }
