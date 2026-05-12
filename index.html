@@ -5653,6 +5653,24 @@ async function fetchArSnapshot() {
       } catch (_) {}
     }
     if (!data) { console.warn('ar-snapshot.json not found — run fetch-ar-snapshot.ts to generate'); return; }
+    // Belt-and-suspenders: also try to load the standalone history backup and
+    // merge in any dates that aren't present in the main snapshot. This protects
+    // against a stale or partial ar-snapshot.json silently dropping history.
+    try {
+      const bkRes = await fetch('./ar-history-backup.json?t=' + Date.now(), { cache: 'no-cache' });
+      if (bkRes.ok) {
+        const bk = await bkRes.json();
+        if (Array.isArray(bk.perOfficeHistory) && bk.perOfficeHistory.length) {
+          const have = new Set((data.perOfficeHistory || []).map(h => h.date));
+          const extras = bk.perOfficeHistory.filter(h => h?.date && !have.has(h.date));
+          if (extras.length) {
+            data.perOfficeHistory = [...(data.perOfficeHistory || []), ...extras]
+              .sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+            console.log(`AR history backup merged ${extras.length} missing day(s)`);
+          }
+        }
+      }
+    } catch (_) {}
     _arSnapshot = data;
     // Re-render the live board (financial column) and AR Snapshot tab if visible
     if (typeof renderAll === 'function') renderAll();
