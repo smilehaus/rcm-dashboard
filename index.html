@@ -320,6 +320,25 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 .ar-snap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:24px;}
 .ar-snap-summary{display:grid;grid-template-columns:1fr;gap:14px;padding:0 24px 18px;}
 .ar-snap-section-lbl{font-family:var(--font-body);font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#877765;padding:6px 24px 10px;}
+.arsnap-history-btn{font-family:var(--font-body);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#5C4F44;background:#FBF8F0;border:1px solid rgba(135,119,101,.32);border-radius:100px;padding:4px 11px;cursor:pointer;transition:all .15s ease;}
+.arsnap-history-btn:hover{background:#ede4d5;border-color:#877765;color:#2A2E31;}
+#arsnap-history-modal{position:fixed;inset:0;background:rgba(42,46,49,.55);display:none;align-items:center;justify-content:center;z-index:200;padding:24px;}
+#arsnap-history-modal.open{display:flex;}
+.arsnap-history-card{background:#FBF8F0;border:1px solid rgba(135,119,101,.3);border-radius:10px;width:min(1100px,98vw);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.25);}
+.arsnap-history-head{padding:18px 24px;border-bottom:1px solid rgba(135,119,101,.22);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+.arsnap-history-head h3{margin:0;font-family:var(--font-display);font-size:20px;color:var(--onyx);letter-spacing:.005em;}
+.arsnap-history-head .sub{font-size:11px;color:#877765;margin-top:3px;}
+.arsnap-history-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.arsnap-history-controls select{font-family:var(--font-body);font-size:12px;font-weight:500;color:#5C4F44;background:#fff;border:1px solid rgba(135,119,101,.32);border-radius:6px;padding:5px 10px;cursor:pointer;}
+.arsnap-history-controls button{font-family:var(--font-body);font-size:11px;font-weight:600;color:#5C4F44;background:#fff;border:1px solid rgba(135,119,101,.32);border-radius:6px;padding:5px 12px;cursor:pointer;}
+.arsnap-history-controls button:hover{background:#ede4d5;}
+.arsnap-history-controls button.close{background:transparent;border:none;font-size:18px;color:#877765;padding:0 6px;}
+.arsnap-history-body{overflow:auto;padding:14px 24px 24px;}
+.arsnap-history-meta{font-size:11px;color:#877765;margin-bottom:10px;font-style:italic;}
+.arsnap-history-delta{font-size:10px;font-weight:600;letter-spacing:.04em;}
+.arsnap-history-delta.up{color:#c93333;}
+.arsnap-history-delta.down{color:#2aa898;}
+.arsnap-history-delta.flat{color:#877765;}
 .ar-snap-breakdown td.first{color:#5C4F44;font-weight:700;}
 .ar-snap-breakdown tr.total-row td{background:#ede4d5;font-weight:700;}
 
@@ -793,7 +812,10 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 
     <!-- Per-office: 3 rows per office (Total Outstanding / Patient / Insurance) -->
     <div class="ar-snap-section-lbl" style="display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;padding-right:24px">
-      <span>Per-Office Breakdown</span>
+      <span style="display:flex;align-items:center;gap:10px">
+        Per-Office Breakdown
+        <button id="arsnap-history-btn" type="button" onclick="openPerOfficeHistory()" class="arsnap-history-btn">📚 History</button>
+      </span>
       <span id="arsnap-last-updated" style="font-weight:500;letter-spacing:.06em;text-transform:none;color:#877765;font-size:10.5px;font-style:italic">—</span>
     </div>
     <div class="ar-snap-table-wrap">
@@ -815,6 +837,28 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
         <tbody id="arsnap-tbody"></tbody>
       </table>
     </div>
+  </div>
+</div>
+
+<!-- ── PER-OFFICE HISTORY MODAL ───────────────── -->
+<div id="arsnap-history-modal" onclick="if(event.target.id==='arsnap-history-modal')closePerOfficeHistory()">
+  <div class="arsnap-history-card">
+    <div class="arsnap-history-head">
+      <div>
+        <h3>Per-Office History</h3>
+        <div class="sub">Daily snapshot of every office's outstanding/patient/insurance/unposted — captured 8:30 PM CT.</div>
+      </div>
+      <div class="arsnap-history-controls">
+        <label style="font-size:10px;color:#877765;letter-spacing:.06em;text-transform:uppercase;font-weight:600">Snapshot:</label>
+        <select id="arsnap-history-date" onchange="renderPerOfficeHistory()"></select>
+        <label style="font-size:10px;color:#877765;letter-spacing:.06em;text-transform:uppercase;font-weight:600;margin-left:10px">Compare to:</label>
+        <select id="arsnap-history-compare" onchange="renderPerOfficeHistory()">
+          <option value="">— None —</option>
+        </select>
+        <button class="close" onclick="closePerOfficeHistory()" title="Close">×</button>
+      </div>
+    </div>
+    <div class="arsnap-history-body" id="arsnap-history-body"></div>
   </div>
 </div>
 
@@ -5693,6 +5737,139 @@ function shouldFlashReduce(target) {
   const ct = new Date(ctNowStr);
   const dow = ct.getDay(); // 0=Sun 1=Mon ... 6=Sat
   return dow >= 3 && dow <= 5;
+}
+
+// ════════════════════════════════════════════════
+// Per-Office Breakdown History — modal viewer.
+// Reads _arSnapshot.perOfficeHistory (written nightly by scripts/archive-ar-snapshot.ts).
+// Lets the user pick any snapshot date (and optionally a comparison date) and
+// renders the same Per-Office Breakdown table with delta indicators.
+// ════════════════════════════════════════════════
+function openPerOfficeHistory() {
+  const modal  = document.getElementById('arsnap-history-modal');
+  const sel    = document.getElementById('arsnap-history-date');
+  const cmpSel = document.getElementById('arsnap-history-compare');
+  if (!modal || !sel || !cmpSel) return;
+  const history = Array.isArray(_arSnapshot.perOfficeHistory) ? _arSnapshot.perOfficeHistory : [];
+  if (history.length === 0) {
+    document.getElementById('arsnap-history-body').innerHTML = `
+      <div style="padding:40px 20px;text-align:center;color:#877765;font-style:italic">
+        No history yet. The first archive runs tonight at 8:30 PM CT.
+      </div>`;
+    sel.innerHTML = '<option>—</option>';
+    cmpSel.innerHTML = '<option value="">— None —</option>';
+    modal.classList.add('open');
+    return;
+  }
+  // Sort newest first for the dropdowns
+  const sorted = [...history].sort((a,b) => (b.date || '').localeCompare(a.date || ''));
+  sel.innerHTML    = sorted.map(h => `<option value="${escHtml(h.date)}">${formatHistoryDate(h.date)}${h === sorted[0] ? ' · Latest' : ''}</option>`).join('');
+  cmpSel.innerHTML = '<option value="">— None —</option>' +
+    sorted.map(h => `<option value="${escHtml(h.date)}">${formatHistoryDate(h.date)}</option>`).join('');
+  // Default compare = yesterday's entry if available
+  if (sorted.length >= 2) cmpSel.value = sorted[1].date;
+  modal.classList.add('open');
+  renderPerOfficeHistory();
+}
+
+function closePerOfficeHistory() {
+  document.getElementById('arsnap-history-modal')?.classList.remove('open');
+}
+
+function formatHistoryDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
+}
+
+function renderPerOfficeHistory() {
+  const body   = document.getElementById('arsnap-history-body');
+  const sel    = document.getElementById('arsnap-history-date');
+  const cmpSel = document.getElementById('arsnap-history-compare');
+  if (!body || !sel) return;
+  const history = Array.isArray(_arSnapshot.perOfficeHistory) ? _arSnapshot.perOfficeHistory : [];
+  const entry   = history.find(h => h.date === sel.value);
+  const cmp     = cmpSel?.value ? history.find(h => h.date === cmpSel.value) : null;
+  if (!entry) { body.innerHTML = '<div style="padding:40px 20px;text-align:center;color:#877765">Snapshot not found.</div>'; return; }
+
+  function bucketCell(curVal, prevVal) {
+    if (curVal == null && prevVal == null) return '—';
+    if (curVal == null) return '—';
+    const cur = Number(curVal) || 0;
+    let deltaHtml = '';
+    if (cmp && prevVal != null) {
+      const delta = cur - Number(prevVal);
+      if (Math.abs(delta) >= 1) {
+        const cls = delta > 0 ? 'up' : (delta < 0 ? 'down' : 'flat');
+        const sign = delta > 0 ? '▲' : (delta < 0 ? '▼' : '·');
+        deltaHtml = `<div class="arsnap-history-delta ${cls}">${sign} ${fmtMoney(Math.abs(delta))}</div>`;
+      }
+    }
+    return `${fmtMoney(cur)}${deltaHtml}`;
+  }
+  function buckets(o) {
+    return o ? {
+      d0_30: o.d0_30, d31_60: o.d31_60, d61_90: o.d61_90, d90plus: o.d90plus, total: o.total,
+    } : {};
+  }
+
+  const offices = (S.offices || OFFICE_DEF);
+  const rows = offices.map(o => {
+    const d  = entry.offices?.[o.code] || {};
+    const p  = cmp?.offices?.[o.code] || {};
+    const cOut = buckets(d.outstanding), cPat = buckets(d.patients), cIns = buckets(d.insurance);
+    const pOut = buckets(p.outstanding), pPat = buckets(p.patients), pIns = buckets(p.insurance);
+    const cU = d.unposted || {}, pU = p.unposted || {};
+
+    const row = (cur, prev, label, isTotal) => `
+      <td class="balance-type${isTotal ? ' total' : ''}">${label}</td>
+      <td>${bucketCell(cur.d0_30,  prev.d0_30)}</td>
+      <td>${bucketCell(cur.d31_60, prev.d31_60)}</td>
+      <td>${bucketCell(cur.d61_90, prev.d61_90)}</td>
+      <td>${bucketCell(cur.d90plus,prev.d90plus)}</td>
+      <td><strong>${bucketCell(cur.total, prev.total)}</strong></td>
+    `;
+
+    return `
+      <tr class="office-row">
+        <td class="office-cell" rowspan="3">
+          <div class="office-cell-code">${escHtml(o.code)}</div>
+          <div class="office-cell-name">${escHtml(o.name || '')}</div>
+        </td>
+        ${row(cOut, pOut, 'Total Outstanding', true)}
+        <td rowspan="3">${bucketCell(cU.y2025, pU.y2025)}</td>
+        <td rowspan="3">${bucketCell(cU.y2026, pU.y2026)}</td>
+        <td rowspan="3"><strong>${bucketCell(cU.total, pU.total)}</strong></td>
+      </tr>
+      <tr>${row(cPat, pPat, 'Patient Balances', false)}</tr>
+      <tr>${row(cIns, pIns, 'Insurance Balances', false)}</tr>
+    `;
+  }).join('');
+
+  body.innerHTML = `
+    <div class="arsnap-history-meta">
+      Showing: <strong>${formatHistoryDate(entry.date)}</strong> · As of: ${escHtml(entry.asOf || '—')}
+      ${cmp ? ` · Compared to: <strong>${formatHistoryDate(cmp.date)}</strong>` : ''}
+    </div>
+    <div class="ar-snap-table-wrap">
+      <table class="ar-snap-table ar-snap-office">
+        <thead>
+          <tr>
+            <th class="first">Office</th>
+            <th class="first">Balance Type</th>
+            <th>0 – 30</th>
+            <th>31 – 60</th>
+            <th>61 – 90</th>
+            <th>&gt; 90</th>
+            <th>Total</th>
+            <th>Unposted 2025</th>
+            <th>Unposted 2026</th>
+            <th>Unposted Total</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
 }
 
 function renderArSnapshot() {
