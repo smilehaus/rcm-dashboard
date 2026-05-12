@@ -5781,13 +5781,23 @@ function openPerOfficeHistory() {
     modal.classList.add('open');
     return;
   }
-  // Sort newest first for the dropdowns
-  const sorted = [...history].sort((a,b) => (b.date || '').localeCompare(a.date || ''));
-  sel.innerHTML    = sorted.map(h => `<option value="${escHtml(h.date)}">${formatHistoryDate(h.date)}${h === sorted[0] ? ' · Latest' : ''}</option>`).join('');
+  // Sort newest first for the dropdowns. Slot order PM > AM within the same date.
+  const slotRank = { PM: 0, AM: 1 };
+  const sorted = [...history].sort((a, b) => {
+    const d = (b.date || '').localeCompare(a.date || '');
+    if (d !== 0) return d;
+    return (slotRank[a.slot] ?? 2) - (slotRank[b.slot] ?? 2);
+  });
+  function entryKey(h) { return `${h.date}|${h.slot || ''}`; }
+  function entryLabel(h) {
+    const base = formatHistoryDate(h.date);
+    return h.slot ? `${base} · ${h.slot}` : base;
+  }
+  sel.innerHTML    = sorted.map((h, i) => `<option value="${escHtml(entryKey(h))}">${entryLabel(h)}${i === 0 ? ' · Latest' : ''}</option>`).join('');
   cmpSel.innerHTML = '<option value="">— None —</option>' +
-    sorted.map(h => `<option value="${escHtml(h.date)}">${formatHistoryDate(h.date)}</option>`).join('');
-  // Default compare = yesterday's entry if available
-  if (sorted.length >= 2) cmpSel.value = sorted[1].date;
+    sorted.map(h => `<option value="${escHtml(entryKey(h))}">${entryLabel(h)}</option>`).join('');
+  // Default compare = the entry directly before the latest one (if available)
+  if (sorted.length >= 2) cmpSel.value = entryKey(sorted[1]);
   modal.classList.add('open');
   renderPerOfficeHistory();
 }
@@ -5808,8 +5818,12 @@ function renderPerOfficeHistory() {
   const cmpSel = document.getElementById('arsnap-history-compare');
   if (!body || !sel) return;
   const history = Array.isArray(_arSnapshot.perOfficeHistory) ? _arSnapshot.perOfficeHistory : [];
-  const entry   = history.find(h => h.date === sel.value);
-  const cmp     = cmpSel?.value ? history.find(h => h.date === cmpSel.value) : null;
+  function matchKey(k) {
+    const [d, s] = (k || '').split('|');
+    return history.find(h => h.date === d && (h.slot || '') === s);
+  }
+  const entry = matchKey(sel.value);
+  const cmp   = cmpSel?.value ? matchKey(cmpSel.value) : null;
   if (!entry) { body.innerHTML = '<div style="padding:40px 20px;text-align:center;color:#877765">Snapshot not found.</div>'; return; }
 
   function bucketCell(curVal, prevVal) {
@@ -5877,10 +5891,13 @@ function renderPerOfficeHistory() {
     `;
   }).join('');
 
+  function metaLabel(h) {
+    return h.slot ? `${formatHistoryDate(h.date)} · ${h.slot}` : formatHistoryDate(h.date);
+  }
   body.innerHTML = `
     <div class="arsnap-history-meta">
-      Showing: <strong>${formatHistoryDate(entry.date)}</strong> · As of: ${escHtml(entry.asOf || '—')}
-      ${cmp ? ` · Compared to: <strong>${formatHistoryDate(cmp.date)}</strong>` : ''}
+      Showing: <strong>${metaLabel(entry)}</strong> · As of: ${escHtml(entry.asOf || '—')}
+      ${cmp ? ` · Compared to: <strong>${metaLabel(cmp)}</strong>` : ''}
     </div>
     <div class="ar-snap-table-wrap">
       <table class="ar-snap-table ar-snap-office">
