@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-12T02:16:47.510Z",
+  "generated": "2026-05-12T03:16:52.252Z",
   "asOf": "5/7/2026 8:00 PM CT",
   "totals": {
     "outstanding": {
@@ -58,7 +58,9 @@
         "y2026": 1664.8,
         "total": 1814.37,
         "mondayBaseline2026": 1664.8,
-        "mondayBaselineDate": "2026-05-11"
+        "mondayBaselineDate": "2026-05-11",
+        "completedToday2026": 0,
+        "completedTodayDate": "2026-05-11"
       }
     },
     "GT": {
@@ -88,7 +90,9 @@
         "y2026": 172337.67,
         "total": 631083.9,
         "mondayBaseline2026": 172337.67,
-        "mondayBaselineDate": "2026-05-11"
+        "mondayBaselineDate": "2026-05-11",
+        "completedToday2026": 4123.41,
+        "completedTodayDate": "2026-05-11"
       }
     },
     "ATX": {
@@ -118,7 +122,9 @@
         "y2026": 45431.83,
         "total": 77373.44,
         "mondayBaseline2026": 45431.83,
-        "mondayBaselineDate": "2026-05-11"
+        "mondayBaselineDate": "2026-05-11",
+        "completedToday2026": 830,
+        "completedTodayDate": "2026-05-11"
       }
     },
     "MP": {
@@ -148,7 +154,9 @@
         "y2026": 116889.33,
         "total": 270499.36,
         "mondayBaseline2026": 116889.33,
-        "mondayBaselineDate": "2026-05-11"
+        "mondayBaselineDate": "2026-05-11",
+        "completedToday2026": 4353.16,
+        "completedTodayDate": "2026-05-11"
       }
     },
     "NBDA": {
@@ -178,7 +186,9 @@
         "y2026": 65697.45,
         "total": 132525.08,
         "mondayBaseline2026": 65697.45,
-        "mondayBaselineDate": "2026-05-11"
+        "mondayBaselineDate": "2026-05-11",
+        "completedToday2026": 0,
+        "completedTodayDate": "2026-05-11"
       }
     },
     "IC": {
@@ -208,7 +218,9 @@
         "y2026": 20701.66,
         "total": 31082.5,
         "mondayBaseline2026": 20701.66,
-        "mondayBaselineDate": "2026-05-11"
+        "mondayBaselineDate": "2026-05-11",
+        "completedToday2026": 0,
+        "completedTodayDate": "2026-05-11"
       }
     },
     "AR": {
@@ -238,7 +250,9 @@
         "y2026": 63045.34,
         "total": 269363.24,
         "mondayBaseline2026": 63045.34,
-        "mondayBaselineDate": "2026-05-11"
+        "mondayBaselineDate": "2026-05-11",
+        "completedToday2026": 0,
+        "completedTodayDate": "2026-05-11"
       }
     },
     "PF": {
@@ -268,7 +282,9 @@
         "y2026": 33734.91,
         "total": 89695.49,
         "mondayBaseline2026": 33734.91,
-        "mondayBaselineDate": "2026-05-11"
+        "mondayBaselineDate": "2026-05-11",
+        "completedToday2026": 0,
+        "completedTodayDate": "2026-05-11"
       }
     },
     "SATX": {
@@ -298,7 +314,9 @@
         "y2026": 134743.96,
         "total": 289200.36,
         "mondayBaseline2026": 134743.96,
-        "mondayBaselineDate": "2026-05-11"
+        "mondayBaselineDate": "2026-05-11",
+        "completedToday2026": 0,
+        "completedTodayDate": "2026-05-11"
       }
     },
     "AM": {
@@ -328,7 +346,9 @@
         "y2026": 18676.41,
         "total": 18676.41,
         "mondayBaseline2026": 18676.41,
-        "mondayBaselineDate": "2026-05-11"
+        "mondayBaselineDate": "2026-05-11",
+        "completedToday2026": 0,
+        "completedTodayDate": "2026-05-11"
       }
     }
   },
