@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-12T17:26:38.130Z",
+  "generated": "2026-05-12T21:54:59.945Z",
   "asOf": "5/7/2026 8:00 PM CT",
   "totals": {
     "outstanding": {
@@ -87,8 +87,8 @@
       },
       "unposted": {
         "y2025": 458746.23,
-        "y2026": 167472.12,
-        "total": 626218.35,
+        "y2026": 168452.62,
+        "total": 627198.85,
         "mondayBaseline2026": 172337.67,
         "mondayBaselineDate": "2026-05-11",
         "completedToday2026": 4865.55,
@@ -279,11 +279,11 @@
       },
       "unposted": {
         "y2025": 55960.58,
-        "y2026": 33734.91,
-        "total": 89695.49,
+        "y2026": 33334.41,
+        "total": 89294.99,
         "mondayBaseline2026": 33734.91,
         "mondayBaselineDate": "2026-05-11",
-        "completedToday2026": 2060,
+        "completedToday2026": 2460.5,
         "completedTodayDate": "2026-05-12"
       }
     },
@@ -343,8 +343,8 @@
       },
       "unposted": {
         "y2025": 0,
-        "y2026": 18676.41,
-        "total": 18676.41,
+        "y2026": 15648.61,
+        "total": 15648.61,
         "mondayBaseline2026": 18676.41,
         "mondayBaselineDate": "2026-05-11",
         "completedToday2026": 0,
@@ -389,8 +389,8 @@
     },
     {
       "date": "2026-05-12",
-      "unposted": 1805576.2999999996,
-      "unposted2026": 667185.51,
+      "unposted": 1803128.4999999998,
+      "unposted2026": 664737.71,
       "unposted2025": 1138390.7899999998
     }
   ],
