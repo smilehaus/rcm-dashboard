@@ -568,6 +568,13 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 </head>
 <body>
 
+<!-- Scheduler-health banner — appears at top of page if any scheduled refresh
+     missed its expected window. Populated by checkSchedulerHealth() on load. -->
+<div id="scheduler-stale-banner" style="display:none;background:#c93333;color:#fff;font-family:var(--font-body);font-size:13px;font-weight:600;letter-spacing:.02em;padding:10px 18px;text-align:center;border-bottom:2px solid #a02828;line-height:1.45;cursor:pointer;" onclick="this.style.display='none'" title="Click to dismiss">
+  <span id="scheduler-stale-msg">⚠ Scheduled data refresh appears to have been skipped — see details below.</span>
+  <span style="font-size:11px;opacity:.85;margin-left:14px;font-weight:500;">(click to dismiss)</span>
+</div>
+
 <!-- ── HEADER ─────────────────────────────────── -->
 <header class="header">
   <!-- Logo -->
@@ -5656,6 +5663,52 @@ function scheduleMidnightCheck() {
 // ════════════════════════════════════════════════
 let _arSnapshot = { generated: null, asOf: null, totals: null, offices: {} };
 
+// ════════════════════════════════════════════════
+// SCHEDULER HEALTH CHECK
+// Examines the `generated` timestamps on each data file and shows a red banner
+// at top of the dashboard if any file is older than its expected refresh
+// interval. Catches missed cron runs (e.g., Claude Code wasn't running during
+// the firing window) so the user sees the staleness immediately.
+// ════════════════════════════════════════════════
+async function checkSchedulerHealth() {
+  const banner = document.getElementById('scheduler-stale-banner');
+  const msgEl  = document.getElementById('scheduler-stale-msg');
+  if (!banner || !msgEl) return;
+
+  // Files and their max-acceptable age (hours).
+  const FILES = [
+    { name: 'ar-snapshot.json',      maxHrs: 26, label: 'AR snapshot' },
+    { name: 'kpi-snapshot.json',     maxHrs: 192, label: 'KPI snapshot (weekly)' }, // 8 days
+    { name: 'aging-alerts.json',     maxHrs: 26, label: 'Aging alerts' },
+    { name: 'resubmit-alerts.json',  maxHrs: 26, label: 'Resubmit alerts' },
+    { name: 'posting-alerts.json',   maxHrs: 26, label: 'Posting alerts' },
+  ];
+
+  const stale = [];
+  const now = Date.now();
+  for (const f of FILES) {
+    try {
+      const r = await fetch('./' + f.name + '?t=' + now, { cache: 'no-cache' });
+      if (!r.ok) { stale.push({ ...f, reason: 'file missing (HTTP ' + r.status + ')' }); continue; }
+      const data = await r.json();
+      const ts = data.generated || data.asOf;
+      if (!ts) { stale.push({ ...f, reason: 'no timestamp' }); continue; }
+      const ageHrs = (now - new Date(ts).getTime()) / 3600000;
+      if (!Number.isFinite(ageHrs)) { stale.push({ ...f, reason: 'unparseable timestamp' }); continue; }
+      if (ageHrs > f.maxHrs) {
+        stale.push({ ...f, reason: `last updated ${ageHrs.toFixed(1)}h ago (max ${f.maxHrs}h)` });
+      }
+    } catch (e) {
+      stale.push({ ...f, reason: 'fetch error: ' + (e?.message || e) });
+    }
+  }
+
+  if (!stale.length) { banner.style.display = 'none'; return; }
+  const list = stale.map(s => `<strong>${escHtml(s.label)}</strong> · ${escHtml(s.reason)}`).join(' &nbsp;·&nbsp; ');
+  msgEl.innerHTML = `⚠ Scheduler missed a refresh — ${list}`;
+  banner.style.display = 'block';
+}
+
 async function fetchArSnapshot() {
   try {
     const cb = '?t=' + Date.now();
@@ -6534,6 +6587,9 @@ function renderPostingBadges() {
   fetchResubmitAlerts();
   fetchArSnapshot();
   fetchKpiSnapshot();
+  checkSchedulerHealth();
+  // Re-check every 15 minutes so the banner clears once a refresh lands.
+  setInterval(checkSchedulerHealth, 15 * 60 * 1000);
   // Refresh every 15 minutes
   setInterval(fetchAgingAlerts, 15 * 60 * 1000);
   setInterval(fetchPostingAlerts, 15 * 60 * 1000);
