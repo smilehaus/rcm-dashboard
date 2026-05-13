@@ -1,6 +1,6 @@
 {
-  "generated": "2026-05-12T00:08:08.096Z",
-  "asOf": "5/11/26, 7:08 PM CT",
+  "generated": "2026-05-13T19:15:43.037Z",
+  "asOf": "5/13/26, 2:15 PM CT",
   "listId": "901415926262",
   "metrics": [
     "monthlyProduction",
@@ -112,6 +112,15 @@
       "weekEnding": "2026-05-10",
       "weekLabel": "5/4 – 5/10",
       "offices": {
+        "GT": {
+          "monthlyProduction": 24164.3,
+          "collectionRate": null,
+          "hygReappt": null,
+          "cancellationRate": 8.4,
+          "caseAcceptance": null,
+          "arDays": 17.787,
+          "arOver30": 18394.15
+        },
         "AM": {
           "monthlyProduction": 24289.1,
           "collectionRate": null,
@@ -141,13 +150,13 @@
         }
       },
       "totals": {
-        "monthlyProduction": 74342.36,
+        "monthlyProduction": 98506.65999999999,
         "collectionRate": null,
         "hygReappt": null,
-        "cancellationRate": 13.079999999999998,
+        "cancellationRate": 11.91,
         "caseAcceptance": null,
-        "arDays": 42.662499999999994,
-        "arOver30": 278939.42
+        "arDays": 34.370666666666665,
+        "arOver30": 297333.57
       }
     }
   ]
