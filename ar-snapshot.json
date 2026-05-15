@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-15T04:09:47.686Z",
+  "generated": "2026-05-15T05:04:06.585Z",
   "asOf": "5/14/2026 8:00 PM CT",
   "totals": {
     "outstanding": {
@@ -60,7 +60,7 @@
         "mondayBaseline2026": 1664.8,
         "mondayBaselineDate": "2026-05-11",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-14"
+        "completedTodayDate": "2026-05-15"
       }
     },
     "GT": {
@@ -87,12 +87,12 @@
       },
       "unposted": {
         "y2025": 458746.23,
-        "y2026": 144742.48,
-        "total": 603488.71,
+        "y2026": 131775.78,
+        "total": 590522.01,
         "mondayBaseline2026": 172337.67,
         "mondayBaselineDate": "2026-05-11",
-        "completedToday2026": 3672.4,
-        "completedTodayDate": "2026-05-14"
+        "completedToday2026": 0,
+        "completedTodayDate": "2026-05-15"
       },
       "legacy": [
         {
@@ -147,12 +147,12 @@
       },
       "unposted": {
         "y2025": 31941.61,
-        "y2026": 56519.78,
-        "total": 88461.39,
+        "y2026": 49604.69,
+        "total": 81546.3,
         "mondayBaseline2026": 45431.83,
         "mondayBaselineDate": "2026-05-11",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-14"
+        "completedTodayDate": "2026-05-15"
       }
     },
     "MP": {
@@ -179,12 +179,12 @@
       },
       "unposted": {
         "y2025": 153610.03,
-        "y2026": 108332.02,
-        "total": 261942.05,
+        "y2026": 75880.5,
+        "total": 229490.53,
         "mondayBaseline2026": 116889.33,
         "mondayBaselineDate": "2026-05-11",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-14"
+        "completedTodayDate": "2026-05-15"
       },
       "legacy": [
         {
@@ -239,12 +239,12 @@
       },
       "unposted": {
         "y2025": 66827.63,
-        "y2026": 64142.95,
-        "total": 130970.58,
+        "y2026": 51703.25,
+        "total": 118530.88,
         "mondayBaseline2026": 65697.45,
         "mondayBaselineDate": "2026-05-11",
-        "completedToday2026": 8381.9,
-        "completedTodayDate": "2026-05-14"
+        "completedToday2026": 0,
+        "completedTodayDate": "2026-05-15"
       },
       "legacy": [
         {
@@ -290,8 +290,8 @@
         "total": 13496.59,
         "mondayBaseline2026": 20701.66,
         "mondayBaselineDate": "2026-05-11",
-        "completedToday2026": 18615.26,
-        "completedTodayDate": "2026-05-14"
+        "completedToday2026": 0,
+        "completedTodayDate": "2026-05-15"
       },
       "legacy": [
         {
@@ -338,7 +338,7 @@
         "mondayBaseline2026": 63045.34,
         "mondayBaselineDate": "2026-05-11",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-14"
+        "completedTodayDate": "2026-05-15"
       },
       "legacy": [
         {
@@ -385,7 +385,7 @@
         "mondayBaseline2026": 33734.91,
         "mondayBaselineDate": "2026-05-11",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-14"
+        "completedTodayDate": "2026-05-15"
       }
     },
     "SATX": {
@@ -412,12 +412,12 @@
       },
       "unposted": {
         "y2025": 154456.4,
-        "y2026": 142685.16,
-        "total": 297141.56,
+        "y2026": 142009.96,
+        "total": 296466.36,
         "mondayBaseline2026": 134743.96,
         "mondayBaselineDate": "2026-05-11",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-14"
+        "completedTodayDate": "2026-05-15"
       },
       "legacy": [
         {
@@ -464,7 +464,7 @@
         "mondayBaseline2026": 18676.41,
         "mondayBaselineDate": "2026-05-11",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-14"
+        "completedTodayDate": "2026-05-15"
       }
     }
   },
@@ -526,6 +526,12 @@
       "outstanding": 1758787.35,
       "patients": 838078.5499999999,
       "insurance": 920708.8000000002
+    },
+    {
+      "date": "2026-05-15",
+      "unposted": 1715648.4,
+      "unposted2026": 577257.61,
+      "unposted2025": 1138390.7899999998
     }
   ],
   "perOfficeHistory": [
