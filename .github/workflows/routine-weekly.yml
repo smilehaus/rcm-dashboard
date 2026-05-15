@@ -1,0 +1,35 @@
+name: Routine — Weekly KPI Snapshot (Mon 7:08 PM CT)
+
+on:
+  schedule:
+    # Monday 7:08 PM CDT = Tuesday 00:08 UTC  |  shifts to 01:08 UTC in winter
+    - cron: '8 0 * * 2'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  kpi-snapshot:
+    name: KPI Snapshot
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/smilehaus/rcm-dashboard.git
+
+      - name: fetch-kpi-snapshot
+        run: npx tsx scripts/fetch-kpi-snapshot.ts
+        env:
+          CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}

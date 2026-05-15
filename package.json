@@ -1,0 +1,24 @@
+{
+  "name": "rcm-dashboard-scripts",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "posting":  "tsx scripts/fetch-posting-goals.ts",
+    "unposted": "tsx scripts/fetch-unposted.ts",
+    "legacy":   "tsx scripts/fetch-legacy.ts",
+    "timely":   "tsx scripts/flag-recent-dos.ts",
+    "resubmit": "tsx scripts/flag-resubmit-claims.ts",
+    "archive":  "tsx scripts/archive-ar-snapshot.ts",
+    "backup":   "tsx scripts/backup-ar-snapshot-to-clickup.ts",
+    "watchdog": "tsx scripts/scheduler-watchdog.ts",
+    "kpi":      "tsx scripts/fetch-kpi-snapshot.ts"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}

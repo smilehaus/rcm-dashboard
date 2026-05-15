@@ -1,0 +1,35 @@
+name: Routine — Morning (10:32 AM CT)
+
+on:
+  schedule:
+    # 10:32 AM CDT = 15:32 UTC  |  10:32 AM CST = 16:32 UTC (shifts 1hr in winter)
+    - cron: '32 15 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  posting-completion:
+    name: Posting Completion %
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/smilehaus/rcm-dashboard.git
+
+      - name: fetch-posting-goals
+        run: npx tsx scripts/fetch-posting-goals.ts
+        env:
+          CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}

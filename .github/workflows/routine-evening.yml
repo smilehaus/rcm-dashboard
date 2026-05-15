@@ -1,0 +1,57 @@
+name: Routine — Evening (7:02–7:35 PM CT)
+
+# Runs unposted-daily → legacy-balances → archive (AM slot) → ClickUp backup
+# sequentially in one job — unposted and legacy both write ar-snapshot.json.
+
+on:
+  schedule:
+    # 7:02 PM CDT = 00:02 UTC (next day)  |  shifts to 01:02 UTC in winter
+    - cron: '2 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  evening-routines:
+    name: Evening Routines
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/smilehaus/rcm-dashboard.git
+
+      - name: fetch-unposted (daily)
+        run: npx tsx scripts/fetch-unposted.ts
+        env:
+          CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
+
+      # Must run after fetch-unposted — both write ar-snapshot.json.
+      # fetch-legacy uses pull --rebase to incorporate unposted's commit before pushing.
+      - name: fetch-legacy (daily)
+        run: npx tsx scripts/fetch-legacy.ts
+        env:
+          CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
+
+      # archive runs at ~7:35 PM CT equivalent — captures PF/SATX/AM from Ava's 6:04 PM run.
+      # The main 7-office Ava snapshot runs at 8:05 PM CT (not yet done at this point).
+      - name: archive-ar-snapshot (AM slot)
+        run: npx tsx scripts/archive-ar-snapshot.ts
+        env:
+          CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
+
+      - name: backup-ar-snapshot-to-clickup
+        run: npx tsx scripts/backup-ar-snapshot-to-clickup.ts
+        env:
+          CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}

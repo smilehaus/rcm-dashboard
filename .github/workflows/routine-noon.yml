@@ -1,0 +1,55 @@
+name: Routine — Noon (12:10–12:33 PM CT)
+
+# Runs resubmit-noon → unposted-noon → timely-filing-noon → archive (PM slot)
+# sequentially in one job to avoid git conflicts on ar-snapshot.json.
+
+on:
+  schedule:
+    # 12:10 PM CDT = 17:10 UTC  |  shifts to 18:10 UTC in winter
+    - cron: '10 17 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  noon-routines:
+    name: Noon Routines
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/smilehaus/rcm-dashboard.git
+
+      - name: flag-resubmit-claims (noon)
+        run: npx tsx scripts/flag-resubmit-claims.ts
+        env:
+          CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
+
+      - name: fetch-unposted (noon)
+        run: npx tsx scripts/fetch-unposted.ts
+        env:
+          CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
+
+      - name: flag-recent-dos (noon)
+        run: npx tsx scripts/flag-recent-dos.ts
+        env:
+          CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
+
+      # archive runs last — captures fresh unposted + Ava noon data (Ava runs at 12:18 PM,
+      # GitHub Actions checkout gets latest committed state so Ava's push is included)
+      - name: archive-ar-snapshot (PM slot)
+        run: npx tsx scripts/archive-ar-snapshot.ts
+        env:
+          CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}

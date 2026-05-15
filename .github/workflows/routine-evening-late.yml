@@ -1,0 +1,50 @@
+name: Routine — Evening Late (8:37 PM – 9:33 PM CT)
+
+# Runs timely-filing → resubmit → watchdog sequentially.
+# Watchdog is last so it verifies ALL earlier scripts fired successfully today.
+
+on:
+  schedule:
+    # 8:37 PM CDT = 01:37 UTC (next day)  |  shifts to 02:37 UTC in winter
+    - cron: '37 1 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  evening-late-routines:
+    name: Evening Late Routines
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/smilehaus/rcm-dashboard.git
+
+      - name: flag-recent-dos (evening)
+        run: npx tsx scripts/flag-recent-dos.ts
+        env:
+          CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
+
+      - name: flag-resubmit-claims (evening)
+        run: npx tsx scripts/flag-resubmit-claims.ts
+        env:
+          CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
+
+      # Watchdog runs last — reads committed JSON files to check timestamps.
+      # If any file is stale it creates a ClickUp alert task.
+      - name: scheduler-watchdog
+        run: npx tsx scripts/scheduler-watchdog.ts
+        env:
+          CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
