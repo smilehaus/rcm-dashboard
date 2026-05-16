@@ -113,13 +113,19 @@ function main() {
     console.warn(`  ⚠ Backup file write failed: ${err.message ?? err}`);
   }
 
-  // Git push — commit BOTH ar-snapshot.json and ar-history-backup.json
+  // Git push — conflict-proof: save our data, hard-reset to remote, re-apply, commit+push.
+  // Avoids merge conflict markers when two runs overlap (e.g. GitHub Actions + local rerun).
   try {
     console.log(`\n📤 Pushing to GitHub Pages...`);
-    execSync(`git add ar-snapshot.json ar-history-backup.json`, { cwd: dashboardDir, stdio: "pipe" });
-    try { execSync(`git stash`, { cwd: dashboardDir, stdio: "pipe" }); } catch {}
-    execSync(`git pull --rebase origin master`, { cwd: dashboardDir, stdio: "pipe" });
-    try { execSync(`git stash pop`, { cwd: dashboardDir, stdio: "pipe" }); } catch {}
+    // Hold what we just wrote in memory before resetting
+    const freshSnapshot = readFileSync(snapshotPath, "utf8");
+    const freshBackup   = readFileSync(backupPath,   "utf8");
+    // Sync to latest remote state (no stash needed — we'll re-apply below)
+    execSync(`git fetch origin master`, { cwd: dashboardDir, stdio: "pipe" });
+    execSync(`git reset --hard origin/master`, { cwd: dashboardDir, stdio: "pipe" });
+    // Re-apply our freshly computed data on top (guaranteed conflict-free)
+    writeFileSync(snapshotPath, freshSnapshot);
+    writeFileSync(backupPath,   freshBackup);
     execSync(`git add ar-snapshot.json ar-history-backup.json`, { cwd: dashboardDir, stdio: "pipe" });
     execSync(`git commit -m "archive: AR snapshot ${entryDate} ${SLOT} (per-office history)"`, { cwd: dashboardDir, stdio: "pipe" });
     execSync(`git push origin master`, { cwd: dashboardDir, stdio: "pipe" });
