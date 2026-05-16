@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-16T06:33:33.123Z",
+  "generated": "2026-05-16T16:07:53.649Z",
   "asOf": "5/15/2026 6:00 PM CT",
   "totals": {
     "outstanding": {
@@ -106,7 +106,7 @@
           "total": 18192,
           "taskCount": 29,
           "excludedCount": 3,
-          "asOf": "2026-05-16T02:37:15.577Z"
+          "asOf": "2026-05-16T16:07:53.647Z"
         },
         {
           "label": "HZ Dentrix",
@@ -119,7 +119,7 @@
           "total": 127981.69,
           "taskCount": 215,
           "excludedCount": 0,
-          "asOf": "2026-05-16T02:37:15.577Z"
+          "asOf": "2026-05-16T16:07:53.649Z"
         }
       ]
     },
@@ -198,7 +198,7 @@
           "total": 13321.87,
           "taskCount": 38,
           "excludedCount": 0,
-          "asOf": "2026-05-16T02:37:15.577Z"
+          "asOf": "2026-05-16T16:07:53.649Z"
         },
         {
           "label": "FS Dentrix",
@@ -211,7 +211,7 @@
           "total": 16939,
           "taskCount": 39,
           "excludedCount": 0,
-          "asOf": "2026-05-16T02:37:15.577Z"
+          "asOf": "2026-05-16T16:07:53.649Z"
         }
       ]
     },
@@ -254,11 +254,11 @@
           "d0_30": 0,
           "d31_60": 0,
           "d61_90": 0,
-          "d90plus": 119153,
-          "total": 119153,
-          "taskCount": 227,
+          "d90plus": 4100,
+          "total": 4100,
+          "taskCount": 9,
           "excludedCount": 0,
-          "asOf": "2026-05-16T02:37:15.577Z"
+          "asOf": "2026-05-16T16:07:53.649Z"
         }
       ]
     },
@@ -305,7 +305,7 @@
           "total": 14863.25,
           "taskCount": 6,
           "excludedCount": 0,
-          "asOf": "2026-05-16T02:37:15.577Z"
+          "asOf": "2026-05-16T16:07:53.649Z"
         }
       ]
     },
@@ -352,7 +352,7 @@
           "total": 1561,
           "taskCount": 6,
           "excludedCount": 0,
-          "asOf": "2026-05-16T02:37:15.577Z"
+          "asOf": "2026-05-16T16:07:53.649Z"
         }
       ]
     },
@@ -427,11 +427,11 @@
           "d0_30": 0,
           "d31_60": 0,
           "d61_90": 0,
-          "d90plus": 0,
-          "total": 0,
-          "taskCount": 0,
+          "d90plus": 17818,
+          "total": 17818,
+          "taskCount": 36,
           "excludedCount": 0,
-          "asOf": "2026-05-16T02:37:15.577Z"
+          "asOf": "2026-05-16T16:07:53.649Z"
         }
       ]
     },
