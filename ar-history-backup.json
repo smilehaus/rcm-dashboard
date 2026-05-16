@@ -1,5 +1,9 @@
 {
+<<<<<<< Updated upstream
   "updated": "2026-05-16T02:37:17.529Z",
+=======
+  "updated": "2026-05-16T04:02:38.771Z",
+>>>>>>> Stashed changes
   "perOfficeHistory": [
     {
       "date": "2026-05-12",
@@ -2044,8 +2048,13 @@
     {
       "date": "2026-05-16",
       "slot": "AM",
+<<<<<<< Updated upstream
       "asOf": "5/15/2026, 9:37 PM CT",
       "generated": "2026-05-16T02:37:17.527Z",
+=======
+      "asOf": "5/15/2026, 11:02 PM CT",
+      "generated": "2026-05-16T04:02:38.768Z",
+>>>>>>> Stashed changes
       "offices": {
         "SQ": {
           "outstanding": {
@@ -2115,7 +2124,11 @@
               "total": 18192,
               "taskCount": 29,
               "excludedCount": 3,
+<<<<<<< Updated upstream
               "asOf": "2026-05-16T02:37:15.577Z"
+=======
+              "asOf": "2026-05-15T03:56:50.072Z"
+>>>>>>> Stashed changes
             },
             {
               "label": "HZ Dentrix",
@@ -2128,7 +2141,11 @@
               "total": 127981.69,
               "taskCount": 215,
               "excludedCount": 0,
+<<<<<<< Updated upstream
               "asOf": "2026-05-16T02:37:15.577Z"
+=======
+              "asOf": "2026-05-15T03:56:50.074Z"
+>>>>>>> Stashed changes
             }
           ]
         },
@@ -2200,7 +2217,11 @@
               "total": 13321.87,
               "taskCount": 38,
               "excludedCount": 0,
+<<<<<<< Updated upstream
               "asOf": "2026-05-16T02:37:15.577Z"
+=======
+              "asOf": "2026-05-15T03:56:50.074Z"
+>>>>>>> Stashed changes
             },
             {
               "label": "FS Dentrix",
@@ -2213,7 +2234,11 @@
               "total": 16939,
               "taskCount": 39,
               "excludedCount": 0,
+<<<<<<< Updated upstream
               "asOf": "2026-05-16T02:37:15.577Z"
+=======
+              "asOf": "2026-05-15T03:56:50.074Z"
+>>>>>>> Stashed changes
             }
           ]
         },
@@ -2256,7 +2281,11 @@
               "total": 119153,
               "taskCount": 227,
               "excludedCount": 0,
+<<<<<<< Updated upstream
               "asOf": "2026-05-16T02:37:15.577Z"
+=======
+              "asOf": "2026-05-15T03:56:50.074Z"
+>>>>>>> Stashed changes
             }
           ]
         },
@@ -2299,7 +2328,11 @@
               "total": 14863.25,
               "taskCount": 6,
               "excludedCount": 0,
+<<<<<<< Updated upstream
               "asOf": "2026-05-16T02:37:15.577Z"
+=======
+              "asOf": "2026-05-15T03:56:50.074Z"
+>>>>>>> Stashed changes
             }
           ]
         },
@@ -2342,7 +2375,11 @@
               "total": 1561,
               "taskCount": 6,
               "excludedCount": 0,
+<<<<<<< Updated upstream
               "asOf": "2026-05-16T02:37:15.577Z"
+=======
+              "asOf": "2026-05-15T03:56:50.074Z"
+>>>>>>> Stashed changes
             }
           ]
         },
@@ -2414,7 +2451,11 @@
               "total": 0,
               "taskCount": 0,
               "excludedCount": 0,
+<<<<<<< Updated upstream
               "asOf": "2026-05-16T02:37:15.577Z"
+=======
+              "asOf": "2026-05-15T03:56:50.074Z"
+>>>>>>> Stashed changes
             }
           ]
         },
