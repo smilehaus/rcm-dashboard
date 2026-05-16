@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-16T02:37:15.577Z",
+  "generated": "2026-05-16T06:33:33.123Z",
   "asOf": "5/15/2026 6:00 PM CT",
   "totals": {
     "outstanding": {
@@ -59,8 +59,8 @@
         "total": 3109.27,
         "mondayBaseline2026": 1664.8,
         "mondayBaselineDate": "2026-05-11",
-        "completedToday2026": 1978.89,
-        "completedTodayDate": "2026-05-15"
+        "completedToday2026": 0,
+        "completedTodayDate": "2026-05-16"
       }
     },
     "GT": {
@@ -92,7 +92,7 @@
         "mondayBaseline2026": 172337.67,
         "mondayBaselineDate": "2026-05-11",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-15"
+        "completedTodayDate": "2026-05-16"
       },
       "legacy": [
         {
@@ -152,7 +152,7 @@
         "mondayBaseline2026": 45431.83,
         "mondayBaselineDate": "2026-05-11",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-15"
+        "completedTodayDate": "2026-05-16"
       }
     },
     "MP": {
@@ -184,7 +184,7 @@
         "mondayBaseline2026": 116889.33,
         "mondayBaselineDate": "2026-05-11",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-15"
+        "completedTodayDate": "2026-05-16"
       },
       "legacy": [
         {
@@ -243,8 +243,8 @@
         "total": 112959.88,
         "mondayBaseline2026": 65697.45,
         "mondayBaselineDate": "2026-05-11",
-        "completedToday2026": 9094.8,
-        "completedTodayDate": "2026-05-15"
+        "completedToday2026": 0,
+        "completedTodayDate": "2026-05-16"
       },
       "legacy": [
         {
@@ -290,8 +290,8 @@
         "total": 16436.59,
         "mondayBaseline2026": 20701.66,
         "mondayBaselineDate": "2026-05-11",
-        "completedToday2026": 4173,
-        "completedTodayDate": "2026-05-15"
+        "completedToday2026": 0,
+        "completedTodayDate": "2026-05-16"
       },
       "legacy": [
         {
@@ -338,7 +338,7 @@
         "mondayBaseline2026": 63045.34,
         "mondayBaselineDate": "2026-05-11",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-15"
+        "completedTodayDate": "2026-05-16"
       },
       "legacy": [
         {
@@ -385,7 +385,7 @@
         "mondayBaseline2026": 33734.91,
         "mondayBaselineDate": "2026-05-11",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-15"
+        "completedTodayDate": "2026-05-16"
       }
     },
     "SATX": {
@@ -417,7 +417,7 @@
         "mondayBaseline2026": 134743.96,
         "mondayBaselineDate": "2026-05-11",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-15"
+        "completedTodayDate": "2026-05-16"
       },
       "legacy": [
         {
@@ -459,12 +459,12 @@
       },
       "unposted": {
         "y2025": 0,
-        "y2026": 15495.77,
-        "total": 15495.77,
+        "y2026": 13633.89,
+        "total": 13633.89,
         "mondayBaseline2026": 18676.41,
         "mondayBaselineDate": "2026-05-11",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-15"
+        "completedTodayDate": "2026-05-16"
       }
     }
   },
@@ -535,6 +535,12 @@
       "outstanding": 1749371.49,
       "patients": 835390.26,
       "insurance": 913981.2300000002
+    },
+    {
+      "date": "2026-05-16",
+      "unposted": 1677873.82,
+      "unposted2026": 539483.03,
+      "unposted2025": 1138390.7899999998
     }
   ],
   "perOfficeHistory": [
