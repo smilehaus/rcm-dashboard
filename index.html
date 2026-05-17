@@ -5658,10 +5658,16 @@ function scheduleMidnightCheck() {
 // ════════════════════════════════════════════════
 // AGING ALERTS — ClickUp Integration
 // ════════════════════════════════════════════════
-// AR SNAPSHOT — daily Total AR + EOB/EFT Unposted per office
-// Generated daily by scripts/fetch-ar-snapshot.ts → ar-snapshot.json
+// AR SNAPSHOT — per-office Total AR + EOB/EFT Unposted + Legacy balances
+// ar-snapshot.json is updated by several jobs, all writing into offices.<CODE>:
+//   • Ava (Oryx browser scrape)   → outstanding / patients / insurance
+//   • scripts/fetch-unposted.ts   → unposted (y2025 / y2026 / baselines)
+//   • scripts/fetch-legacy.ts     → legacy[] (Dentrix / Open Dental buckets)
+//   • scripts/archive-ar-snapshot.ts → perOfficeHistory[] (AM/PM snapshots)
+// The dashboard derives ALL org-wide + trend figures from offices/perOfficeHistory,
+// so every view stays in sync from a single source.
 // ════════════════════════════════════════════════
-let _arSnapshot = { generated: null, asOf: null, totals: null, offices: {} };
+let _arSnapshot = { generated: null, asOf: null, totals: null, offices: {}, perOfficeHistory: [] };
 
 // ════════════════════════════════════════════════
 // SCHEDULER HEALTH CHECK
@@ -5720,7 +5726,7 @@ async function fetchArSnapshot() {
         if (r.ok) { data = await r.json(); break; }
       } catch (_) {}
     }
-    if (!data) { console.warn('ar-snapshot.json not found — run fetch-ar-snapshot.ts to generate'); return; }
+    if (!data) { console.warn('ar-snapshot.json not found — Ava AR snapshot run needed to generate'); return; }
     // Belt-and-suspenders: also try to load the standalone history backup and
     // merge in any dates that aren't present in the main snapshot. This protects
     // against a stale or partial ar-snapshot.json silently dropping history.
