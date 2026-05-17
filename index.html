@@ -6251,10 +6251,11 @@ function renderArSnapshot() {
 
 // ════════════════════════════════════════════════
 // AR HISTORY — 7-day trend line chart
-// Reads _arSnapshot.history (array of daily totals snapshots).
-// Each entry: { date: 'YYYY-MM-DD', outstanding: <num>, patients: <num>, insurance: <num> }
-// If today's totals aren't already in history, today's derived values are appended
-// as the rightmost data point so the chart always shows the latest.
+// Derives daily points from _arSnapshot.perOfficeHistory — the SAME source the
+// Org-Wide Breakdown table sums — so the chart and the table never drift.
+// perOfficeHistory has up to 2 entries per date (AM/PM); we take the latest
+// slot per date (PM > AM) and sum its offices into org-wide totals.
+// The live "today" point is always re-derived from current per-office data.
 // ════════════════════════════════════════════════
 function renderArHistoryChart(outstandingT, patientsT, insuranceT, asOfStr, unpostedT) {
   const bodyEl = document.getElementById('ar-history-body');
@@ -6268,12 +6269,33 @@ function renderArHistoryChart(outstandingT, patientsT, insuranceT, asOfStr, unpo
     return dow !== 0 && dow !== 6;
   }
 
-  // Pull history → keep weekdays only → last 7
-  let hist = Array.isArray(_arSnapshot.history)
-    ? _arSnapshot.history.filter(h => h && h.date && isWeekday(h.date)).slice(-7)
-    : [];
+  // Sum a perOfficeHistory entry's offices into org-wide totals.
+  function sumEntry(entry) {
+    let o = 0, p = 0, i = 0, u26 = 0;
+    for (const off of Object.values(entry.offices || {})) {
+      o   += Number(off?.outstanding?.total ?? 0);
+      p   += Number(off?.patients?.total    ?? 0);
+      i   += Number(off?.insurance?.total   ?? 0);
+      u26 += Number(off?.unposted?.y2026    ?? 0);
+    }
+    return { outstanding: o, patients: p, insurance: i, unposted2026: u26 };
+  }
 
-  // Append today's derived totals if not already represented (date matches today's local date)
+  // Collapse perOfficeHistory to one row per date (latest slot wins: PM > AM).
+  const slotRank = { AM: 0, PM: 1 };
+  const byDate = new Map();
+  for (const e of (_arSnapshot.perOfficeHistory || [])) {
+    if (!e || !e.date || !isWeekday(e.date)) continue;
+    const prev = byDate.get(e.date);
+    if (!prev || (slotRank[e.slot] ?? 0) >= (slotRank[prev.slot] ?? 0)) byDate.set(e.date, e);
+  }
+  let hist = Array.from(byDate.values())
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .map(e => ({ date: e.date, ...sumEntry(e) }))
+    .slice(-7);
+
+  // Always re-derive today's point from live per-office data so the chart's
+  // rightmost value matches the Org-Wide Breakdown table exactly.
   const todayLocal = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
   const todayIsWeekday = isWeekday(todayLocal);
   const todayUnposted2026 = (unpostedT && unpostedT.y2026 != null) ? unpostedT.y2026 : null;
@@ -6284,7 +6306,6 @@ function renderArHistoryChart(outstandingT, patientsT, insuranceT, asOfStr, unpo
     insurance:     insuranceT.total,
     unposted2026:  todayUnposted2026,
   };
-  // Merge today's values into existing entry, or append new
   const existingIdx = hist.findIndex(h => h.date === todayLocal);
   if (existingIdx >= 0) {
     hist[existingIdx] = { ...hist[existingIdx], ...Object.fromEntries(Object.entries(todaysTotals).filter(([_, v]) => v != null)) };
