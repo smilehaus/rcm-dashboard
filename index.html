@@ -399,12 +399,14 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 .ar-snap-office td.unposted-cell.warn{color:#a04545;}
 /* Stronger horizontal divider between offices */
 .ar-snap-office tbody tr.office-end td{border-bottom:2px solid rgba(92,79,68,.65);}
-/* Region header row (North / South) inside the Per-Office Breakdown */
-.ar-snap-office tbody tr.region-header td{
-  background:#5C4F44;color:#F2EFE8;font-family:var(--font-body);
-  font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
-  padding:6px 14px;border-bottom:2px solid rgba(92,79,68,.65);
-}
+/* North / South region tabs above the Per-Office Breakdown table */
+.ar-region-tabs{display:flex;gap:6px;margin:0 24px 10px;}
+.ar-region-tab{background:#ede4d5;border:1px solid rgba(92,79,68,.25);color:#877765;
+  font-family:var(--font-body);font-size:11px;font-weight:700;letter-spacing:.10em;
+  text-transform:uppercase;padding:7px 18px;border-radius:6px 6px 0 0;cursor:pointer;
+  transition:background .15s,color .15s;}
+.ar-region-tab:hover{background:#e3d8c4;}
+.ar-region-tab.active{background:#5C4F44;color:#F2EFE8;border-color:#5C4F44;}
 .ar-snap-office tbody tr.legacy-row td{background:rgba(135,119,101,.06);}
 .ar-snap-office tbody tr.legacy-row td.balance-type.legacy{font-style:italic;color:#5C4F44;letter-spacing:.02em;}
 /* Full-width "Last Automated Statement Sent" strip under each office block */
@@ -857,6 +859,11 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
         <button id="arsnap-history-btn" type="button" onclick="openPerOfficeHistory()" class="arsnap-history-btn">📚 History</button>
       </span>
       <span id="arsnap-last-updated" style="font-weight:500;letter-spacing:.06em;text-transform:none;color:#877765;font-size:10.5px;font-style:italic">—</span>
+    </div>
+    <!-- North / South region tabs -->
+    <div class="ar-region-tabs">
+      <button type="button" class="ar-region-tab active" data-region="North" onclick="setArRegion('North')">North Region</button>
+      <button type="button" class="ar-region-tab" data-region="South" onclick="setArRegion('South')">South Region</button>
     </div>
     <div class="ar-snap-table-wrap">
       <table class="ar-snap-table ar-snap-office">
@@ -1979,7 +1986,8 @@ const OFFICE_DEF = [
   {code:'SATX', lbl:'S.ATX',name:'South Austin'},
 ];
 
-// AR Snapshot region grouping — Per-Office Breakdown is split North / South.
+// AR Snapshot region grouping — Per-Office Breakdown is split North / South,
+// shown as tabs (one region's table visible at a time).
 const AR_REGIONS = [
   { name: 'North', codes: ['SQ', 'GT', 'IC', 'PF', 'AM'] },
   { name: 'South', codes: ['ATX', 'MP', 'NBDA', 'AR', 'SATX'] },
@@ -1987,6 +1995,13 @@ const AR_REGIONS = [
 function arRegionOf(code) {
   const r = AR_REGIONS.find(reg => reg.codes.includes(code));
   return r ? r.name : null;
+}
+let _arRegion = 'North'; // active Per-Office Breakdown region tab
+function setArRegion(name) {
+  _arRegion = name;
+  document.querySelectorAll('.ar-region-tab').forEach(b =>
+    b.classList.toggle('active', b.dataset.region === name));
+  renderArSnapshot();
 }
 
 // Office open days for IV alert thresholds — JS day-of-week (0=Sun, 1=Mon, …, 6=Sat).
@@ -6446,24 +6461,12 @@ function renderArSnapshot() {
     return html;
   }
 
-  // Build the table grouped into North / South regions, each with a header row.
-  let rows = '';
-  for (const region of AR_REGIONS) {
-    const regionOffices = region.codes
-      .map(code => officesToRender.find(o => o.code === code))
-      .filter(Boolean);
-    if (!regionOffices.length) continue;
-    rows += `<tr class="region-header"><td colspan="10">${region.name} Region</td></tr>`;
-    rows += regionOffices.map(renderOfficeRowGroup).join('');
-  }
-  // Safety net: any office not assigned to a region still renders at the end.
-  const placed = new Set(AR_REGIONS.flatMap(r => r.codes));
-  const unplaced = officesToRender.filter(o => !placed.has(o.code));
-  if (unplaced.length) {
-    rows += `<tr class="region-header"><td colspan="10">Other</td></tr>`;
-    rows += unplaced.map(renderOfficeRowGroup).join('');
-  }
-  bodyEl.innerHTML = rows;
+  // Render only the active region's offices (North / South tab selection).
+  const activeRegion = AR_REGIONS.find(r => r.name === _arRegion) || AR_REGIONS[0];
+  const regionOffices = activeRegion.codes
+    .map(code => officesToRender.find(o => o.code === code))
+    .filter(Boolean);
+  bodyEl.innerHTML = regionOffices.map(renderOfficeRowGroup).join('');
 }
 
 // ════════════════════════════════════════════════
