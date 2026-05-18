@@ -7,7 +7,7 @@
  */
 
 import { getClickUpToken } from "../lib/clickup-oauth.js";
-import { writeFileSync } from "fs";
+import { writeFileSync, readFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { execSync } from "child_process";
@@ -97,10 +97,10 @@ async function main() {
 
   try {
     console.log(`\n📤 Pushing to GitHub Pages...`);
-    execSync(`git add posting-alerts.json`, { cwd: dashboardDir, stdio: "pipe" });
-    try { execSync(`git stash`, { cwd: dashboardDir, stdio: "pipe" }); } catch {}
-    execSync(`git pull --rebase origin master`, { cwd: dashboardDir, stdio: "pipe" });
-    try { execSync(`git stash pop`, { cwd: dashboardDir, stdio: "pipe" }); } catch {}
+    const freshFile = readFileSync(dashboardPath, "utf8");
+    execSync(`git fetch origin master`, { cwd: dashboardDir, stdio: "pipe" });
+    execSync(`git reset --hard origin/master`, { cwd: dashboardDir, stdio: "pipe" });
+    writeFileSync(dashboardPath, freshFile);
     execSync(`git add posting-alerts.json`, { cwd: dashboardDir, stdio: "pipe" });
     execSync(`git commit -m "chore: update posting-alerts ${new Date().toLocaleDateString("en-US")}"`, { cwd: dashboardDir, stdio: "pipe" });
     execSync(`git push origin master`, { cwd: dashboardDir, stdio: "pipe" });

@@ -231,10 +231,10 @@ async function main() {
 
   try {
     console.log(`\n📤 Pushing to GitHub Pages...`);
-    execSync(`git add ar-snapshot.json`, { cwd: dashboardDir, stdio: "pipe" });
-    try { execSync(`git stash`, { cwd: dashboardDir, stdio: "pipe" }); } catch {}
-    execSync(`git pull --rebase origin master`, { cwd: dashboardDir, stdio: "pipe" });
-    try { execSync(`git stash pop`, { cwd: dashboardDir, stdio: "pipe" }); } catch {}
+    const freshSnapshot = readFileSync(snapshotPath, "utf8");
+    execSync(`git fetch origin master`, { cwd: dashboardDir, stdio: "pipe" });
+    execSync(`git reset --hard origin/master`, { cwd: dashboardDir, stdio: "pipe" });
+    writeFileSync(snapshotPath, freshSnapshot);
     execSync(`git add ar-snapshot.json`, { cwd: dashboardDir, stdio: "pipe" });
     execSync(`git commit -m "chore: update unposted ${new Date().toLocaleDateString("en-US")}"`, { cwd: dashboardDir, stdio: "pipe" });
     execSync(`git push origin master`, { cwd: dashboardDir, stdio: "pipe" });
