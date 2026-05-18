@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-17T18:07:04.874Z",
+  "generated": "2026-05-18T02:55:32.837Z",
   "asOf": "5/15/2026 6:00 PM CT",
   "totals": {
     "outstanding": {
@@ -459,11 +459,11 @@
       },
       "unposted": {
         "y2025": 0,
-        "y2026": 7603.14,
-        "total": 7603.14,
+        "y2026": 3766.9,
+        "total": 3766.9,
         "mondayBaseline2026": 18676.41,
         "mondayBaselineDate": "2026-05-11",
-        "completedToday2026": 1404,
+        "completedToday2026": 5240.24,
         "completedTodayDate": "2026-05-17"
       }
     }
@@ -4140,6 +4140,14 @@
           "legacy": null
         }
       }
+    }
+  ],
+  "history": [
+    {
+      "date": "2026-05-17",
+      "unposted": 1656899.83,
+      "unposted2026": 518509.04000000004,
+      "unposted2025": 1138390.7899999998
     }
   ]
 }
