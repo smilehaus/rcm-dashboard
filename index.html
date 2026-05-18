@@ -2082,21 +2082,25 @@ let _lastFbWrite = '';   // ISO string of last write we pushed
 // aren't clobbered on the next write. See mergeBoardState().
 let _syncBase = null;
 
-// ── Per-cell merge ─────────────────────────────────────────────────────────
+// ── Per-cell token-set merge ───────────────────────────────────────────────
 // The board is a shared doc. fbWrite used to push the whole local state, so if
 // User B saved between User A's edit and User A's poll, B's write wiped A's
 // token. This merges three states:
 //   base   = state at our last sync
 //   local  = our current state (has our edits)
 //   remote = freshly-read Firebase state (has other users' edits)
-// Result: remote as the baseline, with ONLY the cells/fields we changed
-// (local ≠ base) overlaid on top. Two users editing different cells no longer
-// clobber each other.
+//
+// Per cell, instead of last-writer-wins we apply OUR delta onto remote:
+//   added   = tokens we added   (in local, not in base)
+//   removed = tokens we removed (in base, not in local)
+//   result  = (remote ∪ added) − removed
+// This means even concurrent edits to the SAME cell coexist — if A adds token X
+// and B adds token Y to the same cell at the same time, the cell ends up with
+// both X and Y. Each user's own removals still apply.
 function mergeBoardState(base, local, remote) {
   const merged = clone(remote);
   const J = v => JSON.stringify(v ?? null);
 
-  // Per-cell merge for the two token grids.
   for (const board of ['live', 'assign']) {
     const baseB = base[board] || {}, locB = local[board] || {};
     const offices = new Set([...Object.keys(baseB), ...Object.keys(locB)]);
@@ -2104,22 +2108,43 @@ function mergeBoardState(base, local, remote) {
       const baseCols = baseB[off] || {}, locCols = locB[off] || {};
       const cols = new Set([...Object.keys(baseCols), ...Object.keys(locCols)]);
       for (const col of cols) {
-        const baseCell = baseCols[col];
-        const locCell  = locCols[col];
-        // Only overlay cells WE changed since last sync.
-        if (J(baseCell) !== J(locCell)) {
-          merged[board] = merged[board] || {};
-          merged[board][off] = merged[board][off] || {};
-          merged[board][off][col] = locCell ?? [];
-        }
+        const baseCell = Array.isArray(baseCols[col]) ? baseCols[col] : [];
+        const locCell  = Array.isArray(locCols[col])  ? locCols[col]  : [];
+        if (J(baseCell) === J(locCell)) continue; // we didn't touch this cell
+
+        const remoteCell = (((merged[board] || {})[off] || {})[col]) || [];
+        const added   = locCell.filter(x => !baseCell.includes(x));
+        const removed = baseCell.filter(x => !locCell.includes(x));
+
+        // Start from remote (other users' state), drop what we removed,
+        // then add what we added — preserving order and avoiding dupes.
+        const result = remoteCell.filter(x => !removed.includes(x));
+        for (const x of added) if (!result.includes(x)) result.push(x);
+
+        merged[board]      = merged[board]      || {};
+        merged[board][off] = merged[board][off] || {};
+        merged[board][off][col] = result;
       }
     }
   }
 
-  // Other top-level keys (staff, lunch, off, helpInstances, kpi, …):
-  // coarse last-writer-wins, but only if WE actually changed the key.
+  // lunch / off — same token-set delta merge (flat arrays).
+  for (const arr of ['lunch', 'off']) {
+    const baseArr  = Array.isArray(base[arr])  ? base[arr]  : [];
+    const locArr   = Array.isArray(local[arr]) ? local[arr] : [];
+    if (J(baseArr) === J(locArr)) continue;
+    const remoteArr = Array.isArray(merged[arr]) ? merged[arr] : [];
+    const added   = locArr.filter(x => !baseArr.includes(x));
+    const removed = baseArr.filter(x => !locArr.includes(x));
+    const result  = remoteArr.filter(x => !removed.includes(x));
+    for (const x of added) if (!result.includes(x)) result.push(x);
+    merged[arr] = result;
+  }
+
+  // Other top-level keys (staff, helpInstances, kpi, …): coarse
+  // last-writer-wins, but only if WE actually changed the key.
   for (const k of Object.keys(local)) {
-    if (k === 'live' || k === 'assign' || k.startsWith('_')) continue;
+    if (k === 'live' || k === 'assign' || k === 'lunch' || k === 'off' || k.startsWith('_')) continue;
     if (J(base[k]) !== J(local[k])) merged[k] = local[k];
   }
   return merged;
