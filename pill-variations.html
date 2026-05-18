@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Last Stmt Sent — Pill Variations</title>
+<style>
+  body{background:#f5efe4;font-family:'Inter',-apple-system,Segoe UI,sans-serif;color:#2A2E31;margin:0;padding:40px 24px;}
+  h1{font-size:20px;font-weight:700;letter-spacing:.02em;margin:0 0 6px;}
+  .sub{font-size:12px;color:#877765;margin-bottom:28px;}
+  .grid{display:flex;flex-wrap:wrap;gap:24px;}
+  .card{background:#FBF8F0;border:1px solid rgba(135,119,101,.3);border-radius:10px;padding:20px 22px;width:300px;box-shadow:0 4px 14px rgba(0,0,0,.06);}
+  .card h2{font-size:14px;margin:0 0 4px;letter-spacing:.03em;}
+  .card .desc{font-size:11px;color:#877765;line-height:1.5;margin-bottom:16px;min-height:48px;}
+  /* mimic the live-board financial cell */
+  .fin-cell-inner{background:#FBF8F0;border:1px solid rgba(135,119,101,.25);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;}
+  .fin-row{display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
+  .fin-row + .fin-row{padding-top:6px;border-top:1px dashed rgba(135,119,101,.25);}
+  .fin-lbl{font-size:9px;font-weight:600;color:#877765;letter-spacing:.10em;text-transform:uppercase;}
+  .fin-val{font-size:13px;font-weight:700;color:#2A2E31;letter-spacing:.01em;}
+  .fin-val.warn{color:#a04545;}
+  .tier-label{font-size:9px;font-weight:700;color:#877765;letter-spacing:.08em;text-transform:uppercase;margin:14px 0 5px;}
+
+  /* ============ VARIATION A — Escalating ============ */
+  .pillA-mild{display:inline-block;background:#c93333;color:#fff;font-size:11px;font-weight:700;
+    padding:2px 8px;border-radius:100px;white-space:nowrap;animation:pulseMild 2.2s ease-in-out infinite;}
+  @keyframes pulseMild{0%,100%{opacity:.92;}50%{opacity:1;}}
+  .pillA-severe{display:inline-block;background:#c93333;color:#fff;font-size:11px;font-weight:800;
+    padding:2px 8px;border-radius:100px;white-space:nowrap;animation:flashSevere 1.1s ease-in-out infinite;}
+  @keyframes flashSevere{0%,100%{background:#c93333;box-shadow:0 0 0 rgba(201,51,51,0);}
+    50%{background:#e8001f;box-shadow:0 0 9px 2px rgba(201,51,51,.7);}}
+
+  /* ============ VARIATION B — Steady glow ============ */
+  .pillB{display:inline-block;background:#c93333;color:#fff;font-size:11px;font-weight:700;
+    padding:2px 8px;border-radius:100px;white-space:nowrap;animation:glowRing 2.2s ease-in-out infinite;}
+  @keyframes glowRing{0%,100%{box-shadow:0 0 0 0 rgba(201,51,51,0);}
+    50%{box-shadow:0 0 8px 2px rgba(201,51,51,.6);}}
+
+  /* ============ VARIATION C — Bold blink ============ */
+  .pillC{display:inline-block;color:#fff;font-size:11px;font-weight:700;
+    padding:2px 9px;border-radius:100px;white-space:nowrap;animation:blink 1.4s steps(1,end) infinite;}
+  @keyframes blink{0%,49%{background:#c93333;}50%,100%{background:#8a1f1f;}}
+  .pillC .count{font-size:12px;font-weight:800;letter-spacing:.02em;}
+</style>
+</head>
+<body>
+  <h1>"Last Stmt Sent" — Overdue Pill Variations</h1>
+  <div class="sub">Live preview. Each shown inside a mock Live-Board financial cell. Overdue fires when today &gt; 14 days past the last statement date.</div>
+
+  <div class="grid">
+
+    <!-- VARIATION A -->
+    <div class="card">
+      <h2>A — Escalating</h2>
+      <div class="desc">Two tiers. 15–30 days: gentle slow pulse. 30+ days: fast bright glow flash. Worst offices stand apart.</div>
+      <div class="tier-label">15–30 days overdue</div>
+      <div class="fin-cell-inner">
+        <div class="fin-row"><span class="fin-lbl">Need to REDUCE by</span><span class="fin-val warn">$12,400</span></div>
+        <div class="fin-row"><span class="fin-lbl">Last Stmt Sent</span><span class="pillA-mild">⚠ 5/12/2026 · 23d</span></div>
+      </div>
+      <div class="tier-label">30+ days overdue</div>
+      <div class="fin-cell-inner">
+        <div class="fin-row"><span class="fin-lbl">Need to REDUCE by</span><span class="fin-val warn">$12,400</span></div>
+        <div class="fin-row"><span class="fin-lbl">Last Stmt Sent</span><span class="pillA-severe">⚠ 4/2/2026 · 46d</span></div>
+      </div>
+    </div>
+
+    <!-- VARIATION B -->
+    <div class="card">
+      <h2>B — Steady glow</h2>
+      <div class="desc">One uniform style for anything &gt;14 days. Soft red glow ring pulses in/out. Text steady — calm but clear, no tiers.</div>
+      <div class="tier-label">Any office &gt;14 days overdue</div>
+      <div class="fin-cell-inner">
+        <div class="fin-row"><span class="fin-lbl">Need to REDUCE by</span><span class="fin-val warn">$12,400</span></div>
+        <div class="fin-row"><span class="fin-lbl">Last Stmt Sent</span><span class="pillB">⚠ 5/12/2026 · 23d</span></div>
+      </div>
+      <div class="tier-label">A more-overdue office (same style)</div>
+      <div class="fin-cell-inner">
+        <div class="fin-row"><span class="fin-lbl">Need to REDUCE by</span><span class="fin-val warn">$12,400</span></div>
+        <div class="fin-row"><span class="fin-lbl">Last Stmt Sent</span><span class="pillB">⚠ 4/2/2026 · 46d</span></div>
+      </div>
+    </div>
+
+    <!-- VARIATION C -->
+    <div class="card">
+      <h2>C — Bold blink</h2>
+      <div class="desc">Strongest grab. Day count is the focal point. Whole pill blinks red ↔ deep-red — sharp on/off pull.</div>
+      <div class="tier-label">Any office &gt;14 days overdue</div>
+      <div class="fin-cell-inner">
+        <div class="fin-row"><span class="fin-lbl">Need to REDUCE by</span><span class="fin-val warn">$12,400</span></div>
+        <div class="fin-row"><span class="fin-lbl">Last Stmt Sent</span><span class="pillC">5/12/2026 &nbsp;⚠ <span class="count">23d OVERDUE</span></span></div>
+      </div>
+      <div class="tier-label">A more-overdue office (same style)</div>
+      <div class="fin-cell-inner">
+        <div class="fin-row"><span class="fin-lbl">Need to REDUCE by</span><span class="fin-val warn">$12,400</span></div>
+        <div class="fin-row"><span class="fin-lbl">Last Stmt Sent</span><span class="pillC">4/2/2026 &nbsp;⚠ <span class="count">46d OVERDUE</span></span></div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
