@@ -329,6 +329,11 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
   font-family:var(--font-body);letter-spacing:.01em;padding:2px 8px;border-radius:100px;white-space:nowrap;
   animation:finStmtPulse 2.2s ease-in-out infinite;}
 @keyframes finStmtPulse{0%,100%{box-shadow:0 0 0 0 rgba(201,51,51,0);}50%{box-shadow:0 0 8px 2px rgba(201,51,51,.6);}}
+/* Manual statement action pills — shown next to statement date */
+.stmt-manual-pill{display:inline-block;font-size:10px;font-weight:700;font-family:var(--font-body);
+  padding:2px 7px;border-radius:100px;white-space:nowrap;margin-left:6px;vertical-align:middle;}
+.stmt-manual-pill.print{background:#7a1a1a;color:#fff;}
+.stmt-manual-pill.email{background:#7a4500;color:#fff;}
 
 /* ── AR Snapshot tab ───────────────────────────────── */
 .ar-snap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:24px;}
@@ -4401,11 +4406,13 @@ function buildGrid(tableEl, boardId) {
           ? 'critical flash'
           : (shouldSubtleFlash(reduceTarget) ? 'warn flash-subtle' : (reduceTarget > 0 ? 'warn' : ''));
         const reduceVal    = reduceTarget != null ? fmtMoney(reduceTarget) : '—';
-        // Last Automated Statement Sent — pulled per office by Ava from Oryx.
+        // Last Automated Statement Sent — pulled per office by Statement Tracker from Oryx (Fridays).
         // If today is > 14 days past that date, render an overdue red pill
         // (⚠ + date + days-overdue count, subtle pulse).
         const ls = finData ? finData.lastStatementSent : null;
         const lsDate = ls ? (typeof ls === 'string' ? ls : (ls.date || ls.value || '')) : '';
+        const lsManualNoPrint   = (ls && typeof ls === 'object' && ls.manualNoPrint)   ? ls.manualNoPrint   : 0;
+        const lsManualWithEmail = (ls && typeof ls === 'object' && ls.manualWithEmail) ? ls.manualWithEmail : 0;
         let lsValHtml;
         if (!lsDate) {
           lsValHtml = `<span class="fin-val" style="font-weight:500;color:#877765;font-style:italic">—</span>`;
@@ -4418,12 +4425,16 @@ function buildGrid(tableEl, boardId) {
             lsValHtml = `<span class="fin-val">${escHtml(lsDate)}</span>`;
           }
         }
+        // Manual statement action badges
+        let lsManualHtml = '';
+        if (lsManualNoPrint > 0)   lsManualHtml += `<span class="stmt-manual-pill print"  title="No email on file — print and mail" style="font-size:9px">📋 ${lsManualNoPrint}</span>`;
+        if (lsManualWithEmail > 0) lsManualHtml += `<span class="stmt-manual-pill email"  title="Has email — Create &amp; Send + print/mail" style="font-size:9px">✉ ${lsManualWithEmail}</span>`;
         finTd.innerHTML = `
           <div class="fin-cell-inner">
             <div class="fin-row"><span class="fin-lbl">Total AR</span><span class="fin-val">${fmtMoney(arVal)}</span></div>
             <div class="fin-row" title="2026 unposted only — see AR Snapshot tab for 2025/2026/Total breakdown"><span class="fin-lbl">Unposted '26</span><span class="fin-val warn">${fmtMoney(unVal)}</span></div>
             <div class="fin-row" title="Daily target: $28k minus today's postings (SH POSTING Progress = Completed with Date Posted = today). Resets at 12:00 AM CT. Flashes red Wed–Fri if still > $14k."><span class="fin-lbl">Need to REDUCE by</span><span class="fin-val ${reduceCls}">${reduceVal}</span></div>
-            <div class="fin-row" title="Date the last automated patient statement batch went out (pulled from Oryx by Ava)."><span class="fin-lbl">Last Stmt Sent</span>${lsValHtml}</div>
+            <div class="fin-row" title="Date the last automated patient statement batch went out (pulled from Oryx by Statement Tracker, Fridays)."><span class="fin-lbl">Last Stmt Sent</span>${lsValHtml}${lsManualHtml}</div>
           </div>`;
         tr.appendChild(finTd);
       }
@@ -6451,13 +6462,19 @@ function renderArSnapshot() {
         ${row(legBuckets, labelText, false, 'legacy')}
       </tr>`;
     });
-    // Full-width "Last Automated Statement Sent" strip — Ava pulls this per
-    // office from Oryx. d.lastStatementSent may be a string or { date, asOf }.
+    // Full-width "Last Automated Statement Sent" strip — Statement Tracker agent
+    // pulls this per office from Oryx each Friday evening.
+    // d.lastStatementSent may be a string or { date, eStatementsSent, manualNoPrint, manualWithEmail, asOf }.
     const ls = d.lastStatementSent;
     const lsDate = ls ? (typeof ls === 'string' ? ls : (ls.date || ls.value || '')) : '';
     const lsAsOf = (ls && typeof ls === 'object' && ls.asOf) ? ` (as of ${escHtml(ls.asOf)})` : '';
+    const lsManualNoPrint   = (ls && typeof ls === 'object' && ls.manualNoPrint)   ? ls.manualNoPrint   : 0;
+    const lsManualWithEmail = (ls && typeof ls === 'object' && ls.manualWithEmail) ? ls.manualWithEmail : 0;
+    let manualPillsHtml = '';
+    if (lsManualNoPrint > 0)   manualPillsHtml += `<span class="stmt-manual-pill print"  title="No email on file — must be printed and mailed">📋 ${lsManualNoPrint} PRINT/MAIL</span>`;
+    if (lsManualWithEmail > 0) manualPillsHtml += `<span class="stmt-manual-pill email"  title="Has email — send via Create &amp; Send AND print/mail">✉ ${lsManualWithEmail} EMAIL+PRINT/MAIL</span>`;
     const lsHtml = lsDate
-      ? `<span class="stmt-val">${escHtml(lsDate)}</span><span style="font-weight:500;text-transform:none;color:#877765;font-size:10px">${lsAsOf}</span>`
+      ? `<span class="stmt-val">${escHtml(lsDate)}</span><span style="font-weight:500;text-transform:none;color:#877765;font-size:10px">${lsAsOf}</span>${manualPillsHtml}`
       : `<span class="stmt-val muted">Not yet captured</span>`;
     html += `
       <tr class="stmt-row">
