@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-18T16:01:01.403Z",
+  "generated": "2026-05-18T19:59:40.692Z",
   "asOf": "5/15/2026 6:00 PM CT",
   "totals": {
     "outstanding": {
@@ -87,11 +87,11 @@
       },
       "unposted": {
         "y2025": 458746.23,
-        "y2026": 93940.74,
-        "total": 552686.97,
+        "y2026": 93430.94,
+        "total": 552177.17,
         "mondayBaseline2026": 97003.84,
         "mondayBaselineDate": "2026-05-18",
-        "completedToday2026": 0,
+        "completedToday2026": 3483.7,
         "completedTodayDate": "2026-05-18"
       },
       "legacy": [
@@ -239,8 +239,8 @@
       },
       "unposted": {
         "y2025": 66827.63,
-        "y2026": 46132.25,
-        "total": 112959.88,
+        "y2026": 47563.03,
+        "total": 114390.66,
         "mondayBaseline2026": 46132.25,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
@@ -4967,8 +4967,8 @@
     },
     {
       "date": "2026-05-18",
-      "unposted": 1653132.96,
-      "unposted2026": 514742.17000000004,
+      "unposted": 1654053.94,
+      "unposted2026": 515663.15,
       "unposted2025": 1138390.7899999998
     }
   ]
