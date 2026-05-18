@@ -4552,8 +4552,8 @@
     {
       "date": "2026-05-18",
       "slot": "PM",
-      "asOf": "5/18/2026, 3:02 PM CT",
-      "generated": "2026-05-18T20:02:13.568Z",
+      "asOf": "5/18/2026, 3:46 PM CT",
+      "generated": "2026-05-18T20:46:09.502Z",
       "offices": {
         "SQ": {
           "outstanding": {
@@ -4623,7 +4623,7 @@
               "total": 3899,
               "taskCount": 14,
               "excludedCount": 3,
-              "asOf": "2026-05-18T16:01:01.402Z"
+              "asOf": "2026-05-18T20:46:07.277Z"
             },
             {
               "label": "HZ Dentrix",
@@ -4636,7 +4636,7 @@
               "total": 28970.06,
               "taskCount": 55,
               "excludedCount": 0,
-              "asOf": "2026-05-18T16:01:01.403Z"
+              "asOf": "2026-05-18T20:46:07.277Z"
             }
           ]
         },
@@ -4708,7 +4708,7 @@
               "total": 13077.19,
               "taskCount": 37,
               "excludedCount": 0,
-              "asOf": "2026-05-18T16:01:01.403Z"
+              "asOf": "2026-05-18T20:46:07.277Z"
             },
             {
               "label": "FS Dentrix",
@@ -4721,7 +4721,7 @@
               "total": 15706,
               "taskCount": 38,
               "excludedCount": 0,
-              "asOf": "2026-05-18T16:01:01.403Z"
+              "asOf": "2026-05-18T20:46:07.277Z"
             }
           ]
         },
@@ -4764,7 +4764,7 @@
               "total": 2995,
               "taskCount": 4,
               "excludedCount": 0,
-              "asOf": "2026-05-18T16:01:01.403Z"
+              "asOf": "2026-05-18T20:46:07.277Z"
             }
           ]
         },
@@ -4807,7 +4807,7 @@
               "total": 14863.25,
               "taskCount": 6,
               "excludedCount": 0,
-              "asOf": "2026-05-18T16:01:01.403Z"
+              "asOf": "2026-05-18T20:46:07.277Z"
             }
           ]
         },
@@ -4850,7 +4850,7 @@
               "total": 1561,
               "taskCount": 6,
               "excludedCount": 0,
-              "asOf": "2026-05-18T16:01:01.403Z"
+              "asOf": "2026-05-18T20:46:07.277Z"
             }
           ]
         },
@@ -4922,7 +4922,7 @@
               "total": 15504,
               "taskCount": 33,
               "excludedCount": 0,
-              "asOf": "2026-05-18T16:01:01.403Z"
+              "asOf": "2026-05-18T20:46:07.277Z"
             }
           ]
         },
