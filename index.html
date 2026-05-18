@@ -394,6 +394,15 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 .ar-snap-office tbody tr.office-end td{border-bottom:2px solid rgba(92,79,68,.65);}
 .ar-snap-office tbody tr.legacy-row td{background:rgba(135,119,101,.06);}
 .ar-snap-office tbody tr.legacy-row td.balance-type.legacy{font-style:italic;color:#5C4F44;letter-spacing:.02em;}
+/* Full-width "Last Automated Statement Sent" strip under each office block */
+.ar-snap-office tbody tr.stmt-row td{
+  background:rgba(92,79,68,.09);
+  border-bottom:2px solid rgba(92,79,68,.65);
+  padding:7px 14px;font-size:11px;font-weight:600;letter-spacing:.04em;
+  color:#5C4F44;font-family:var(--font-body);text-transform:uppercase;
+}
+.ar-snap-office tbody tr.stmt-row td .stmt-val{font-weight:700;color:#2A2E31;text-transform:none;letter-spacing:.01em;}
+.ar-snap-office tbody tr.stmt-row td .stmt-val.muted{font-weight:500;color:#877765;font-style:italic;}
 .ar-snap-card{background:#FBF8F0;border:1px solid rgba(135,119,101,.28);border-radius:6px;padding:20px 22px;}
 .ar-snap-card-lbl{font-size:9px;font-weight:700;color:#877765;letter-spacing:.16em;text-transform:uppercase;font-family:var(--font-body);}
 .ar-snap-card-val{font-family:var(--font-display);font-size:34px;font-weight:400;color:#2A2E31;margin-top:8px;line-height:1;letter-spacing:.005em;}
@@ -6323,6 +6332,7 @@ function renderArSnapshot() {
         <td>${fmtMoney(b.total)}</td>`;
     };
 
+    // office-cell spans the 3 standard rows + N legacy rows (NOT the statement row).
     let html = `
       <tr class="total-row">
         <td class="office-cell" rowspan="${rowCount}">
@@ -6337,19 +6347,30 @@ function renderArSnapshot() {
       <tr>
         ${row(pat, 'Patient Balances', false)}
       </tr>
-      <tr${legArr.length ? '' : ' class="office-end"'}>
+      <tr>
         ${row(ins, 'Insurance Balances', false)}
       </tr>`;
-    legArr.forEach((leg, idx) => {
-      const isLast = idx === legArr.length - 1;
+    legArr.forEach((leg) => {
       const legBuckets = { d0_30: leg.d0_30, d31_60: leg.d31_60, d61_90: leg.d61_90, d90plus: leg.d90plus, total: leg.total };
       const labelText = `Legacy (${leg.label || leg.source})`;
       const titleAttr = `${leg.source || ''} · DOS ≥ ${leg.closingDate || '—'}${leg.taskCount ? ` · ${leg.taskCount} claims` : ''}`;
       html += `
-      <tr${isLast ? ' class="office-end legacy-row"' : ' class="legacy-row"'} title="${titleAttr}">
+      <tr class="legacy-row" title="${titleAttr}">
         ${row(legBuckets, labelText, false, 'legacy')}
       </tr>`;
     });
+    // Full-width "Last Automated Statement Sent" strip — Ava pulls this per
+    // office from Oryx. d.lastStatementSent may be a string or { date, asOf }.
+    const ls = d.lastStatementSent;
+    const lsDate = ls ? (typeof ls === 'string' ? ls : (ls.date || ls.value || '')) : '';
+    const lsAsOf = (ls && typeof ls === 'object' && ls.asOf) ? ` (as of ${escHtml(ls.asOf)})` : '';
+    const lsHtml = lsDate
+      ? `<span class="stmt-val">${escHtml(lsDate)}</span><span style="font-weight:500;text-transform:none;color:#877765;font-size:10px">${lsAsOf}</span>`
+      : `<span class="stmt-val muted">Not yet captured</span>`;
+    html += `
+      <tr class="stmt-row">
+        <td colspan="10">Last Automated Statement Sent: &nbsp;${lsHtml}</td>
+      </tr>`;
     return html;
   }).join('');
   bodyEl.innerHTML = rows;
