@@ -2077,6 +2077,53 @@ const FB_URL = 'https://smilehaus-rcm-default-rtdb.firebaseio.com/state.json';
 let _fbSaveTimer = null;
 let _fbPollTimer = null;
 let _lastFbWrite = '';   // ISO string of last write we pushed
+// Snapshot of state as it was at our last successful sync (read or write).
+// Used to compute what THIS user changed so concurrent edits by other users
+// aren't clobbered on the next write. See mergeBoardState().
+let _syncBase = null;
+
+// ── Per-cell merge ─────────────────────────────────────────────────────────
+// The board is a shared doc. fbWrite used to push the whole local state, so if
+// User B saved between User A's edit and User A's poll, B's write wiped A's
+// token. This merges three states:
+//   base   = state at our last sync
+//   local  = our current state (has our edits)
+//   remote = freshly-read Firebase state (has other users' edits)
+// Result: remote as the baseline, with ONLY the cells/fields we changed
+// (local ≠ base) overlaid on top. Two users editing different cells no longer
+// clobber each other.
+function mergeBoardState(base, local, remote) {
+  const merged = clone(remote);
+  const J = v => JSON.stringify(v ?? null);
+
+  // Per-cell merge for the two token grids.
+  for (const board of ['live', 'assign']) {
+    const baseB = base[board] || {}, locB = local[board] || {};
+    const offices = new Set([...Object.keys(baseB), ...Object.keys(locB)]);
+    for (const off of offices) {
+      const baseCols = baseB[off] || {}, locCols = locB[off] || {};
+      const cols = new Set([...Object.keys(baseCols), ...Object.keys(locCols)]);
+      for (const col of cols) {
+        const baseCell = baseCols[col];
+        const locCell  = locCols[col];
+        // Only overlay cells WE changed since last sync.
+        if (J(baseCell) !== J(locCell)) {
+          merged[board] = merged[board] || {};
+          merged[board][off] = merged[board][off] || {};
+          merged[board][off][col] = locCell ?? [];
+        }
+      }
+    }
+  }
+
+  // Other top-level keys (staff, lunch, off, helpInstances, kpi, …):
+  // coarse last-writer-wins, but only if WE actually changed the key.
+  for (const k of Object.keys(local)) {
+    if (k === 'live' || k === 'assign' || k.startsWith('_')) continue;
+    if (J(base[k]) !== J(local[k])) merged[k] = local[k];
+  }
+  return merged;
+}
 
 async function fbRead() {
   try {
@@ -2101,10 +2148,33 @@ function scheduleFbSave() {
   clearTimeout(_fbSaveTimer);
   _fbSaveTimer = setTimeout(async () => {
     _fbSaveTimer = null; // mark save as no-longer-pending so polls can apply remote state
+    const el = document.getElementById('last-updated');
+
+    // ── Read-merge-write ──────────────────────────────────────────────────
+    // Re-read Firebase right before writing. If another user wrote since our
+    // last sync, merge their changes in (per-cell) so we never clobber them.
+    let didMerge = false;
+    try {
+      const remote = await fbRead();
+      if (remote && _syncBase && remote._savedAt && remote._savedAt > (_syncBase._savedAt || '')) {
+        const colsValid = Array.isArray(remote.columns) && remote.columns[0] && typeof remote.columns[0].id === 'string';
+        if (remote._v === DATA_VERSION && colsValid && !__isDragging) {
+          const merged = mergeBoardState(_syncBase, S, remote);
+          // Replace S contents in place
+          Object.keys(S).forEach(k => { if (!(k in merged)) delete S[k]; });
+          Object.assign(S, merged);
+          didMerge = true;
+        }
+      }
+    } catch (_) {}
+
     S._savedAt = new Date().toISOString();
+    S._v = DATA_VERSION;
     _lastFbWrite = S._savedAt;
     const ok = await fbWrite({ ...S });
-    const el = document.getElementById('last-updated');
+    if (ok) _syncBase = clone(S);   // new sync baseline
+    if (didMerge) renderAll();      // reflect merged-in changes from other users
+
     if (el) {
       el.textContent = ok ? '☁ Synced' : '⚠ Sync failed';
       el.style.color = ok ? '#4ade80' : '#f87171';
@@ -2498,6 +2568,7 @@ function startFbPolling() {
         // Check for new Newly Assigned items for the checked-in user
         checkForNewAssignments(remote.staff || []);
         Object.assign(S, remote);
+        _syncBase = clone(remote);   // poll-applied remote is our new sync baseline
         renderAll();
       }
     }
@@ -2534,6 +2605,9 @@ async function load() {
   }
 
   if (src) Object.assign(S, src);
+
+  // Establish the initial sync baseline for read-merge-write conflict handling.
+  _syncBase = clone(S);
 
   // Back-fill PINs for any staff that don't have one yet
   let pinBackfilled = false;
@@ -2661,6 +2735,7 @@ async function publishState() {
   _lastFbWrite = S._savedAt;
   try { localStorage.setItem('sh-rcm-v5', JSON.stringify(S)); } catch(e) {}
   const ok = await fbWrite({ ...S });
+  if (ok) _syncBase = clone(S);   // publish establishes a new sync baseline
 
   if (publishBtn) {
     publishBtn.textContent = ok ? '✓ Synced!' : '⚠ Failed';
