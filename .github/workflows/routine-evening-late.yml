@@ -1,12 +1,12 @@
-name: Routine — Evening Late (8:37 PM – 9:33 PM CT)
+name: Routine — Evening Late (10:37 PM – 11:33 PM CT)
 
 # Runs timely-filing → resubmit → watchdog sequentially.
 # Watchdog is last so it verifies ALL earlier scripts fired successfully today.
 
 on:
   schedule:
-    # 8:37 PM CST = 02:37 UTC  |  shifts to 01:37 UTC in summer (CDT)
-    - cron: '37 2 * * *'
+    # 10:37 PM CST = 04:37 UTC — quiet window, runs after evening routine finishes
+    - cron: '37 4 * * *'
   workflow_dispatch:
 
 permissions:

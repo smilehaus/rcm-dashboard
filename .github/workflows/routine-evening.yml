@@ -1,12 +1,12 @@
-name: Routine — Evening (7:02–7:35 PM CT)
+name: Routine — Evening (9:02–9:35 PM CT)
 
 # Runs unposted-daily → legacy-balances → archive (AM slot) → ClickUp backup
 # sequentially in one job — unposted and legacy both write ar-snapshot.json.
 
 on:
   schedule:
-    # 7:02 PM CST = 01:02 UTC  |  shifts to 00:02 UTC in summer (CDT)
-    - cron: '2 1 * * *'
+    # 9:02 PM CST = 03:02 UTC — quiet window, avoids midnight UTC congestion
+    - cron: '2 3 * * *'
   workflow_dispatch:
 
 permissions:
