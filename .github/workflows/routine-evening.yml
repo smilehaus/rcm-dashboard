@@ -5,8 +5,8 @@ name: Routine — Evening (7:02–7:35 PM CT)
 
 on:
   schedule:
-    # 7:02 PM CDT = 00:02 UTC (next day)  |  shifts to 01:02 UTC in winter
-    - cron: '2 0 * * *'
+    # 7:02 PM CST = 01:02 UTC  |  shifts to 00:02 UTC in summer (CDT)
+    - cron: '2 1 * * *'
   workflow_dispatch:
 
 permissions:

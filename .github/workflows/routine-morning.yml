@@ -2,8 +2,8 @@ name: Routine — Morning (10:32 AM CT)
 
 on:
   schedule:
-    # 10:32 AM CDT = 15:32 UTC  |  10:32 AM CST = 16:32 UTC (shifts 1hr in winter)
-    - cron: '32 15 * * *'
+    # 10:32 AM CST = 16:32 UTC  |  shifts to 15:32 UTC in summer (CDT)
+    - cron: '32 16 * * *'
   workflow_dispatch:
 
 permissions:

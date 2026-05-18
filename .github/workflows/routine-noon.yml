@@ -5,8 +5,8 @@ name: Routine — Noon (12:10–12:33 PM CT)
 
 on:
   schedule:
-    # 12:10 PM CDT = 17:10 UTC  |  shifts to 18:10 UTC in winter
-    - cron: '10 17 * * *'
+    # 12:10 PM CST = 18:10 UTC  |  shifts to 17:10 UTC in summer (CDT)
+    - cron: '10 18 * * *'
   workflow_dispatch:
 
 permissions:
