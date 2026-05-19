@@ -85,6 +85,11 @@ async function sumLegacyBucket(cfg: LegacyBucketConfig): Promise<LegacyResult> {
       const ho = getDropdownOption(getCustomFieldByName(t, "HOME OFFICE"));
       if (ho !== cfg.homeOfficeFilter) { filteredOut++; continue; }
     }
+    // Skip resolved/closed tasks — balance is preserved for history but must not
+    // be counted toward active AR totals. Status is the source of truth; do NOT
+    // rely on $0 balance to exclude resolved tasks (that destroys historical data).
+    if (t.status?.status === "resolved per report" || t.status?.type === "closed") continue;
+
     const dosField = getCustomFieldByName(t, "Date-of-Service");
     const dosMs    = dosField?.value ? Number(dosField.value) : null;
     if (!dosMs || dosMs < closingMs) { preDos++; continue; }
