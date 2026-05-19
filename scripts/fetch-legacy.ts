@@ -90,6 +90,12 @@ async function sumLegacyBucket(cfg: LegacyBucketConfig): Promise<LegacyResult> {
     // rely on $0 balance to exclude resolved tasks (that destroys historical data).
     if (t.status?.status === "resolved per report" || t.status?.type === "closed") continue;
 
+    // Skip recreated claims — if "Recreated Claim?" was checked, ClickUp automation
+    // flips PMS to Oryx. This task is now tracked by the Oryx aging report. Counting
+    // it here would double-count the balance (Oryx AR totals also include it).
+    const pmsField = getCustomFieldByName(t, "🏳 PMS");
+    if (pmsField?.value === "babef71d-865c-4e0a-81fe-c9a5c498a89c") continue; // Oryx option ID
+
     const dosField = getCustomFieldByName(t, "Date-of-Service");
     const dosMs    = dosField?.value ? Number(dosField.value) : null;
     if (!dosMs || dosMs < closingMs) { preDos++; continue; }
