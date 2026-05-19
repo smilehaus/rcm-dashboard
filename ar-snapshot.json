@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-19T06:52:03.662Z",
+  "generated": "2026-05-19T06:52:41.891Z",
   "asOf": "5/15/2026 6:00 PM CT",
   "totals": {
     "outstanding": {
@@ -106,7 +106,7 @@
           "total": 3899,
           "taskCount": 14,
           "excludedCount": 3,
-          "asOf": "2026-05-18T21:54:09.988Z"
+          "asOf": "2026-05-19T06:52:41.891Z"
         },
         {
           "label": "HZ Dentrix",
@@ -119,7 +119,7 @@
           "total": 28970.06,
           "taskCount": 55,
           "excludedCount": 0,
-          "asOf": "2026-05-18T21:54:09.988Z"
+          "asOf": "2026-05-19T06:52:41.891Z"
         }
       ]
     },
@@ -198,7 +198,7 @@
           "total": 13077.19,
           "taskCount": 37,
           "excludedCount": 0,
-          "asOf": "2026-05-18T21:54:09.988Z"
+          "asOf": "2026-05-19T06:52:41.891Z"
         },
         {
           "label": "FS Dentrix",
@@ -211,7 +211,7 @@
           "total": 15706,
           "taskCount": 38,
           "excludedCount": 0,
-          "asOf": "2026-05-18T21:54:09.988Z"
+          "asOf": "2026-05-19T06:52:41.891Z"
         }
       ]
     },
@@ -258,7 +258,7 @@
           "total": 2995,
           "taskCount": 4,
           "excludedCount": 0,
-          "asOf": "2026-05-18T21:54:09.988Z"
+          "asOf": "2026-05-19T06:52:41.891Z"
         }
       ]
     },
@@ -305,7 +305,7 @@
           "total": 14863.25,
           "taskCount": 6,
           "excludedCount": 0,
-          "asOf": "2026-05-18T21:54:09.988Z"
+          "asOf": "2026-05-19T06:52:41.891Z"
         }
       ]
     },
@@ -352,7 +352,7 @@
           "total": 1561,
           "taskCount": 6,
           "excludedCount": 0,
-          "asOf": "2026-05-18T21:54:09.988Z"
+          "asOf": "2026-05-19T06:52:41.891Z"
         }
       ]
     },
@@ -431,7 +431,7 @@
           "total": 15504,
           "taskCount": 33,
           "excludedCount": 0,
-          "asOf": "2026-05-18T21:54:09.988Z"
+          "asOf": "2026-05-19T06:52:41.891Z"
         }
       ]
     },
