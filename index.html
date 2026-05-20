@@ -6142,20 +6142,26 @@ function computeReduceTarget(unpostedObj) {
     : unpostedObj;
   if (current == null) return null;
   if (current <= 0) return 0;
-  let completedToday = 0;
+  let completedThisWeek = 0;
   if (unpostedObj && typeof unpostedObj === 'object') {
-    // Only count completedToday2026 if the snapshot date matches today CT.
-    // If the snapshot is from yesterday (fetch-unposted hasn't run yet today),
-    // treat today's completions as 0 — don't carry yesterday's credit forward.
-    const todayCT = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' }));
-    const todayISO = todayCT.getFullYear() + '-' +
-      String(todayCT.getMonth() + 1).padStart(2, '0') + '-' +
-      String(todayCT.getDate()).padStart(2, '0');
-    if ((unpostedObj.completedTodayDate || '') === todayISO) {
-      completedToday = unpostedObj.completedToday2026 ?? 0;
+    // Use weekly total (Mon–today) if the week-start matches this Monday CT.
+    // Falls back to today-only if weekly field not yet in snapshot.
+    const nowCT = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' }));
+    const dow = nowCT.getDay(); // 0=Sun
+    const daysToMon = dow === 0 ? 6 : dow - 1;
+    const monDate = new Date(nowCT);
+    monDate.setDate(nowCT.getDate() - daysToMon);
+    const mondayISO = monDate.getFullYear() + '-' +
+      String(monDate.getMonth() + 1).padStart(2, '0') + '-' +
+      String(monDate.getDate()).padStart(2, '0');
+    if ((unpostedObj.completedThisWeekStart || '') === mondayISO) {
+      completedThisWeek = unpostedObj.completedThisWeek2026 ?? 0;
+    } else if ((unpostedObj.completedTodayDate || '') === mondayISO.slice(0, 10)) {
+      // fallback: if only today data and today is Monday, use it
+      completedThisWeek = unpostedObj.completedToday2026 ?? 0;
     }
   }
-  const remaining = Math.max(0, WEEKLY_REDUCE_TARGET - completedToday);
+  const remaining = Math.max(0, WEEKLY_REDUCE_TARGET - completedThisWeek);
   // Cap at current balance — if the office only has $5k left, that's all they can clear.
   return Math.min(remaining, current);
 }

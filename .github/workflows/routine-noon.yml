@@ -53,3 +53,8 @@ jobs:
         run: npx tsx scripts/archive-ar-snapshot.ts
         env:
           CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
+
+      - name: backup-ar-snapshot-to-clickup (PM slot)
+        run: npx tsx scripts/backup-ar-snapshot-to-clickup.ts
+        env:
+          CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
