@@ -342,9 +342,8 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 .ar-snap-section-lbl{font-family:var(--font-body);font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#877765;padding:6px 24px 10px;}
 .arsnap-history-btn{font-family:var(--font-body);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#5C4F44;background:#FBF8F0;border:1px solid rgba(135,119,101,.32);border-radius:100px;padding:4px 11px;cursor:pointer;transition:all .15s ease;}
 .arsnap-history-btn:hover{background:#ede4d5;border-color:#877765;color:#2A2E31;}
-#arsnap-history-modal{position:fixed;inset:0;background:rgba(42,46,49,.55);display:none;align-items:center;justify-content:center;z-index:200;padding:24px;}
-#arsnap-history-modal.open{display:flex;}
-#arsnap-orgwide-history-modal.open{display:flex;}
+#arsnap-history-modal,#arsnap-orgwide-history-modal{position:fixed;inset:0;background:rgba(42,46,49,.55);display:none;align-items:center;justify-content:center;z-index:200;padding:24px;}
+#arsnap-history-modal.open,#arsnap-orgwide-history-modal.open{display:flex;}
 .arsnap-history-card{background:#FBF8F0;border:1px solid rgba(135,119,101,.3);border-radius:10px;width:min(1600px,98vw);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.25);}
 .arsnap-history-card .ar-snap-table th,
 .arsnap-history-card .ar-snap-table td{white-space:nowrap;}
@@ -903,7 +902,7 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 
 <!-- ── PER-OFFICE HISTORY MODAL ───────────────── -->
 <!-- Org-Wide History modal -->
-<div id="arsnap-orgwide-history-modal" onclick="if(event.target.id==='arsnap-orgwide-history-modal')closeOrgWideHistory()" style="position:fixed;inset:0;background:rgba(42,46,49,.55);display:none;align-items:center;justify-content:center;z-index:200;padding:24px;">
+<div id="arsnap-orgwide-history-modal" onclick="if(event.target.id==='arsnap-orgwide-history-modal')closeOrgWideHistory()">
   <div class="arsnap-history-card">
     <div class="arsnap-history-head">
       <div>
