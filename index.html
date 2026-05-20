@@ -121,6 +121,10 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 
 /* ── Token tile (V1 — solid square 28×28) ───────────── */
 .gtile{display:flex;align-items:center;justify-content:center;border-radius:4px;overflow:hidden;cursor:grab;transition:transform .12s,box-shadow .12s;height:28px;user-select:none;position:relative;flex-shrink:0;width:28px;}
+/* Click-Assign: token that's been "picked up" — teal ring + lift + pulse */
+.gtile.picked,.rtok.picked{outline:2.5px solid #2aa898;outline-offset:1px;border-radius:5px;
+  box-shadow:0 0 0 3px rgba(42,168,152,.25),0 3px 8px rgba(0,0,0,.2);animation:pickedPulse 1.3s ease-in-out infinite;}
+@keyframes pickedPulse{0%,100%{box-shadow:0 0 0 3px rgba(42,168,152,.20),0 3px 8px rgba(0,0,0,.18);}50%{box-shadow:0 0 0 5px rgba(42,168,152,.40),0 3px 10px rgba(0,0,0,.22);}}
 .gtile:active{cursor:grabbing;}
 /* Wrap holds a 28x28 token (auto width) */
 .gtile-wrap{position:relative;width:28px;flex-shrink:0;}
@@ -604,6 +608,11 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
   <span style="font-size:11px;opacity:.85;margin-left:14px;font-weight:500;">(click to dismiss)</span>
 </div>
 
+<!-- Click-Assign mode banner — shows which token is "picked up" -->
+<div id="click-assign-banner" style="display:none;position:fixed;left:50%;transform:translateX(-50%);top:10px;z-index:1200;background:#2A2E31;color:#fff;font-family:var(--font-body);font-size:13px;font-weight:600;letter-spacing:.02em;padding:9px 18px;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.28);">
+  <span id="click-assign-msg">Click-Assign on — tap a token to pick it up.</span>
+  <span style="font-size:11px;opacity:.7;margin-left:12px">Esc to cancel</span>
+</div>
 
 <!-- ── HEADER ─────────────────────────────────── -->
 <header class="header">
@@ -700,7 +709,9 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
       </div>
       <div style="display:flex;align-items:center;gap:10px">
         <span class="ts" id="last-updated"></span>
-<button class="btn btn-clear btn-sm" onclick="clearLive()">✕ Clear Board</button>
+        <button class="btn btn-sm" id="click-assign-btn" onclick="toggleClickAssign()"
+          title="Click-Assign mode: tap a token to pick it up, then tap a cell to place it — no dragging needed for long moves.">✛ Click-Assign: Off</button>
+        <button class="btn btn-clear btn-sm" onclick="clearLive()">✕ Clear Board</button>
       </div>
     </div>
     <div class="grid-scroll">
@@ -745,12 +756,14 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
       <div class="away-area lunch">
         <div class="away-area-title">🍕 &nbsp;Lunch Break</div>
         <div class="away-tokens" id="zone-lunch"
-          ondragover="dzOver(event)" ondragleave="dzLeave(event)" ondrop="dropBreak(event,'lunch')"></div>
+          ondragover="dzOver(event)" ondragleave="dzLeave(event)" ondrop="dropBreak(event,'lunch')"
+          onclick="clickAssignDropBreak('lunch')"></div>
       </div>
       <div class="away-area off">
         <div class="away-area-title">🏠 &nbsp;Off / Out of Office</div>
         <div class="away-tokens" id="zone-off"
-          ondragover="dzOver(event)" ondragleave="dzLeave(event)" ondrop="dropBreak(event,'off')"></div>
+          ondragover="dzOver(event)" ondragleave="dzLeave(event)" ondrop="dropBreak(event,'off')"
+          onclick="clickAssignDropBreak('off')"></div>
       </div>
     </div>
   </div>
@@ -2916,6 +2929,85 @@ document.addEventListener('dragover', e => {
 document.addEventListener('drop',    stopAutoScroll);
 document.addEventListener('dragend', stopAutoScroll);
 
+// ── Click-Assign mode ──────────────────────────────────────────────────────
+// Toggle: tap a token to "pick it up", then tap any cell / break zone to
+// place it. Eliminates long drags entirely. Drag-and-drop still works when
+// the mode is off (default).
+let __clickAssign = false;          // mode on/off
+let __pickedToken = null;           // { staffId, srcBoard, srcZone }
+function toggleClickAssign() {
+  __clickAssign = !__clickAssign;
+  __pickedToken = null;
+  const btn = document.getElementById('click-assign-btn');
+  if (btn) {
+    btn.textContent = __clickAssign ? '✛ Click-Assign: On' : '✛ Click-Assign: Off';
+    btn.style.background = __clickAssign ? '#2aa898' : '';
+    btn.style.color      = __clickAssign ? '#fff' : '';
+  }
+  updateClickAssignBanner();
+  renderAll();
+}
+function updateClickAssignBanner() {
+  const banner = document.getElementById('click-assign-banner');
+  const msg    = document.getElementById('click-assign-msg');
+  if (!banner || !msg) return;
+  if (!__clickAssign) { banner.style.display = 'none'; return; }
+  banner.style.display = 'block';
+  if (__pickedToken) {
+    const s = getStaff(__pickedToken.staffId);
+    const nm = __pickedToken.staffId.startsWith('help_') ? 'NEED HELP token'
+             : (s ? firstName(s.name) : __pickedToken.staffId);
+    msg.textContent = `${nm} picked up — tap a cell or break zone to place it.`;
+  } else {
+    msg.textContent = 'Click-Assign on — tap a token to pick it up.';
+  }
+}
+// Called from a token's click handler. Returns true if it consumed the click.
+function clickAssignPickup(staffId, srcBoard, srcZone) {
+  if (!__clickAssign) return false;
+  if (__pickedToken && __pickedToken.staffId === staffId) {
+    __pickedToken = null;            // tapping the same token again cancels
+  } else {
+    __pickedToken = { staffId, srcBoard, srcZone };
+  }
+  updateClickAssignBanner();
+  renderAll();
+  return true;
+}
+// Called from a destination cell / break zone click. Returns true if it placed.
+function clickAssignDrop(destBoard, office, colId) {
+  if (!__clickAssign || !__pickedToken) return false;
+  const info = __pickedToken;
+  if (info.staffId.startsWith('help_') && destBoard === 'live') {
+    if (S.helpInstances[info.staffId]) {
+      S.helpInstances[info.staffId].location = `${office}|${colId}`;
+    }
+  }
+  removeFrom(info.srcBoard, info.srcZone, info.staffId);
+  addToGrid(destBoard, office, colId, info.staffId);
+  __pickedToken = null;
+  updateClickAssignBanner();
+  save(); renderAll();
+  return true;
+}
+function clickAssignDropBreak(area) {
+  if (!__clickAssign || !__pickedToken) return false;
+  const info = __pickedToken;
+  removeFrom(info.srcBoard, info.srcZone, info.staffId);
+  if (!S[area].includes(info.staffId)) S[area].push(info.staffId);
+  __pickedToken = null;
+  updateClickAssignBanner();
+  save(); renderAll();
+  return true;
+}
+// Esc cancels a pickup.
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && __pickedToken) {
+    __pickedToken = null;
+    updateClickAssignBanner();
+    renderAll();
+  }
+});
 
 // ════════════════════════════════════════════════
 // CONTEXT MENU
@@ -3927,6 +4019,7 @@ function makeTok(staffId, opts) {
   wrap.addEventListener('click', e => {
     e.stopPropagation();
     if (__isDragging) return;
+    if (clickAssignPickup(staffId, srcBoard, srcZone)) return;
     openProfile(staffId);
   });
 
@@ -3983,6 +4076,7 @@ function makeHelpTokEl(helpId, srcBoard, srcZone) {
   wrap.addEventListener('click', e => {
     e.stopPropagation();
     if (__isDragging) return;
+    if (clickAssignPickup(helpId, srcBoard, srcZone)) return;
     openHelpModal(helpId);
   });
   wrap.addEventListener('contextmenu', e => {
@@ -4051,6 +4145,7 @@ function makeRosterTok(staffId) {
   tok.addEventListener('click', e => {
     e.stopPropagation();
     if (__isDragging) return;
+    if (clickAssignPickup(staffId, 'roster', null)) return;
     openProfile(staffId);
   });
   tok.addEventListener('contextmenu', e => {
@@ -4223,7 +4318,15 @@ function buildGrid(tableEl, boardId) {
         save(); renderAll();
       });
 
-// Pink background on assignment board if help token present
+      // Click-Assign: tapping a cell places the picked-up token here.
+      td.addEventListener('click', e => {
+        if (!__clickAssign || !__pickedToken) return;
+        if (!isLive && !__rosterUnlocked) { rosterGated(() => buildGrid(tableEl, boardId)); return; }
+        e.stopPropagation();
+        clickAssignDrop(boardId, office.code, col.id);
+      });
+
+      // Pink background on assignment board if help token present
       if (!isLive && tokens.some(sid => sid.startsWith('help_'))) {
         td.style.background = 'rgba(239,68,68,.07)';
       }
