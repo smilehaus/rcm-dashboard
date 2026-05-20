@@ -71,8 +71,18 @@ async function main() {
     }
 
     if (!entry.date) {
-      console.log(`  — ${code}: no valid statement date captured (green badge absent) — leaving existing`);
-      skipped++;
+      // Tracker ran but found no valid statement batch (no green badge / no batches).
+      // Write explicitly as { date: null } so the dashboard shows "NONE" (flashing red)
+      // rather than leaving a stale old date or showing "Not yet captured".
+      snapshot.offices[code].lastStatementSent = {
+        date:            null,
+        eStatementsSent: null,
+        manualNoPrint:   0,
+        manualWithEmail: 0,
+        asOf:            entry.capturedAt || new Date().toISOString(),
+      };
+      console.log(`  ○ ${code.padEnd(5)} NONE — no valid statement batch found in Oryx`);
+      updated++;
       continue;
     }
 
