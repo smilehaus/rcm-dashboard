@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-20T00:40:01.967Z",
+  "generated": "2026-05-20T00:43:04.274Z",
   "asOf": "5/19/2026, 1:57 PM CT",
   "totals": {
     "outstanding": {
@@ -153,6 +153,13 @@
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
         "completedTodayDate": "2026-05-19"
+      },
+      "lastStatementSent": {
+        "date": "05/18/2026",
+        "eStatementsSent": 59,
+        "manualNoPrint": 10,
+        "manualWithEmail": 5,
+        "asOf": "2026-05-20T00:42:56.071Z"
       }
     },
     "MP": {

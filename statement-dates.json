@@ -7,7 +7,14 @@
     "SQ": {
       "date": null,
       "capturedAt": "2026-05-20T00:39:54.450Z"
+    },
+    "ATX": {
+      "date": "05/18/2026",
+      "eStatementsSent": 59,
+      "manualNoPrint": 10,
+      "manualWithEmail": 5,
+      "capturedAt": "2026-05-20T00:42:56.071Z"
     }
   },
-  "generated": "2026-05-20T00:39:54.450Z"
+  "generated": "2026-05-20T00:42:56.072Z"
 }
