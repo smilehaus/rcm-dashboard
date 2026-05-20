@@ -216,7 +216,13 @@ async function main() {
     }
   }
   console.log(`📅 Weekly baseline date = ${mondayISO}`);
-  data.generated = new Date().toISOString();
+  const _now = new Date();
+  data.generated = _now.toISOString();
+  data.asOf = _now.toLocaleString('en-US', {
+    timeZone: 'America/Chicago',
+    month: 'numeric', day: 'numeric', year: 'numeric',
+    hour: 'numeric', minute: '2-digit', hour12: true,
+  }) + ' CT';
 
   const todayCT = new Date().toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
   data.history = Array.isArray(data.history) ? data.history : [];

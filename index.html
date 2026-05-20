@@ -6142,9 +6142,19 @@ function computeReduceTarget(unpostedObj) {
     : unpostedObj;
   if (current == null) return null;
   if (current <= 0) return 0;
-  const completedToday = (unpostedObj && typeof unpostedObj === 'object')
-    ? (unpostedObj.completedToday2026 ?? 0)
-    : 0;
+  let completedToday = 0;
+  if (unpostedObj && typeof unpostedObj === 'object') {
+    // Only count completedToday2026 if the snapshot date matches today CT.
+    // If the snapshot is from yesterday (fetch-unposted hasn't run yet today),
+    // treat today's completions as 0 — don't carry yesterday's credit forward.
+    const todayCT = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' }));
+    const todayISO = todayCT.getFullYear() + '-' +
+      String(todayCT.getMonth() + 1).padStart(2, '0') + '-' +
+      String(todayCT.getDate()).padStart(2, '0');
+    if ((unpostedObj.completedTodayDate || '') === todayISO) {
+      completedToday = unpostedObj.completedToday2026 ?? 0;
+    }
+  }
   const remaining = Math.max(0, WEEKLY_REDUCE_TARGET - completedToday);
   // Cap at current balance — if the office only has $5k left, that's all they can clear.
   return Math.min(remaining, current);
