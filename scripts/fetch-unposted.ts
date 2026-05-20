@@ -100,6 +100,8 @@ type OfficeUnpostedResult = {
   y2025: number | null; y2026: number | null; total: number; taskCount: number;
   perList: { name: string; year: number; total: number; tasks: number }[];
   completedToday2026: number;
+  completedThisWeek2026: number;
+  completedThisWeekStart: string; // YYYY-MM-DD of Monday
 };
 
 function detectListYear(listName: string): number | null {
@@ -113,7 +115,15 @@ async function sumOfficeUnposted(code: OfficeCode, lists: { id: string; name: st
   let totalTaskCount = 0;
   const perList: { name: string; year: number; total: number; tasks: number }[] = [];
   const todayCT = new Date().toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
+  // Monday of the current week in CT — week resets at midnight Monday CT.
+  const nowCT_ = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Chicago" }));
+  const daysToMon_ = (nowCT_.getDay() + 6) % 7; // Sun→6, Mon→0, Tue→1, ...
+  const monCT_ = new Date(nowCT_); monCT_.setDate(nowCT_.getDate() - daysToMon_);
+  const mondayISO_ = monCT_.getFullYear() + "-" +
+    String(monCT_.getMonth() + 1).padStart(2, "0") + "-" +
+    String(monCT_.getDate()).padStart(2, "0");
   let completedToday2026 = 0;
+  let completedThisWeek2026 = 0;
 
   for (const list of lists) {
     const year = detectListYear(list.name);
@@ -134,7 +144,8 @@ async function sumOfficeUnposted(code: OfficeCode, lists: { id: string; name: st
           const dp = getCustomField(task, DATE_POSTED_FIELD);
           if (dp?.value) {
             const dpDate = new Date(Number(dp.value)).toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
-            if (dpDate === todayCT) completedToday2026 += v;
+            if (dpDate === todayCT)    completedToday2026    += v;
+            if (dpDate >= mondayISO_) completedThisWeek2026 += v;
           }
         }
         continue;
@@ -149,7 +160,12 @@ async function sumOfficeUnposted(code: OfficeCode, lists: { id: string; name: st
   const round = (n: number) => Math.round(n * 100) / 100;
   const y2025 = allowedYears.has(2025) ? round(yearTotals[2025] || 0) : null;
   const y2026 = allowedYears.has(2026) ? round(yearTotals[2026] || 0) : null;
-  return { y2025, y2026, total: round((y2025 || 0) + (y2026 || 0)), taskCount: totalTaskCount, perList, completedToday2026: round(completedToday2026) };
+  return {
+    y2025, y2026, total: round((y2025 || 0) + (y2026 || 0)), taskCount: totalTaskCount, perList,
+    completedToday2026:    round(completedToday2026),
+    completedThisWeek2026: round(completedThisWeek2026),
+    completedThisWeekStart: mondayISO_,
+  };
 }
 
 async function main() {
@@ -185,7 +201,7 @@ async function main() {
 
   if (DRY_RUN) { console.log(`\nDRY RUN — skipping write.`); return; }
 
-  const data = JSON.parse(readFileSync(snapshotPath, "utf8"));
+  const data = JSON.parse(readFileSync(snapshotPath, "utf8").replace(/^﻿/, ""));
   data.offices = data.offices || {};
   for (const code of OFFICE_CODES) {
     if (ONLY_OFFICE && code !== ONLY_OFFICE) continue;
@@ -199,6 +215,8 @@ async function main() {
       mondayBaselineDate: prevUnposted.mondayBaselineDate ?? null,
       completedToday2026: r.completedToday2026,
       completedTodayDate: new Date().toLocaleDateString("en-CA", { timeZone: "America/Chicago" }),
+      completedThisWeek2026: r.completedThisWeek2026,
+      completedThisWeekStart: r.completedThisWeekStart,
     };
   }
 

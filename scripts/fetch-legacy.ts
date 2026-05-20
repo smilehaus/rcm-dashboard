@@ -141,7 +141,7 @@ async function main() {
 
   if (DRY_RUN) { console.log(`\nDRY RUN — skipping write.`); return; }
 
-  const data = JSON.parse(readFileSync(snapshotPath, "utf8"));
+  const data = JSON.parse(readFileSync(snapshotPath, "utf8").replace(/^﻿/, ""));
   data.offices = data.offices || {};
   if (data.offices.HZ) { delete data.offices.HZ; console.log(`✓ Removed standalone HZ office`); }
   for (const [code, items] of Object.entries(results)) {

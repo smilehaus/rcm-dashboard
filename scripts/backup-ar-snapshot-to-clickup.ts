@@ -92,7 +92,7 @@ async function main() {
     ? join(scriptDir, "..")
     : join(scriptDir, "..", "apps", "rcm-dashboard");
   const snapshotPath = join(dashboardDir, "ar-snapshot.json");
-  const snapshot     = JSON.parse(readFileSync(snapshotPath, "utf8"));
+  const snapshot     = JSON.parse(readFileSync(snapshotPath, "utf8").replace(/^﻿/, ""));
 
   const history = Array.isArray(snapshot.perOfficeHistory) ? snapshot.perOfficeHistory : [];
   if (!history.length) { console.warn("  ⚠ perOfficeHistory is empty. Run archive-ar-snapshot.ts first."); return; }

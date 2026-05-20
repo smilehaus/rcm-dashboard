@@ -58,7 +58,7 @@ function main() {
     : join(scriptDir, "..", "apps", "rcm-dashboard");
   const snapshotPath = join(dashboardDir, "ar-snapshot.json");
   const backupPath   = join(dashboardDir, "ar-history-backup.json");
-  const data = JSON.parse(readFileSync(snapshotPath, "utf8"));
+  const data = JSON.parse(readFileSync(snapshotPath, "utf8").replace(/^﻿/, ""));
 
   const entryDate = resolveEntryDate(SLOT);
   const entry = {
