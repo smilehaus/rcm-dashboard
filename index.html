@@ -839,7 +839,10 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
     </div>
 
     <!-- Org-wide breakdown: Outstanding / Patients / Insurance × 4 buckets + Total -->
-    <div class="ar-snap-section-lbl">Org-Wide Breakdown</div>
+    <div class="ar-snap-section-lbl" style="display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;padding-right:24px">
+      <span>Org-Wide Breakdown</span>
+      <span id="arsnap-breakdown-asof" style="font-weight:500;letter-spacing:.06em;text-transform:none;color:#877765;font-size:10.5px;font-style:italic">—</span>
+    </div>
     <div class="ar-snap-table-wrap">
       <table class="ar-snap-table ar-snap-breakdown">
         <thead>
@@ -6388,23 +6391,23 @@ function renderArSnapshot() {
 
   if (asOfEl) asOfEl.textContent = asOf ? ('As of: ' + asOf) : 'No data yet';
 
-  // "Last updated" pill on the Per-Office Breakdown header — uses the snapshot's
-  // generated ISO timestamp (set every time fetch-unposted or Ava writes the file).
-  const lastUpEl = document.getElementById('arsnap-last-updated');
-  if (lastUpEl) {
+  // "Last updated" pills — shared helper produces a friendly CT timestamp.
+  // Shown on both the Org-Wide Breakdown header and the Per-Office Breakdown header.
+  function snapshotFriendlyDate() {
     const gen = _arSnapshot.generated;
-    if (gen) {
-      const d = new Date(gen);
-      const friendly = d.toLocaleString('en-US', {
-        timeZone: 'America/Chicago',
-        month: 'short', day: 'numeric', year: 'numeric',
-        hour: 'numeric', minute: '2-digit'
-      }) + ' CT';
-      lastUpEl.textContent = 'Last updated: ' + friendly;
-    } else {
-      lastUpEl.textContent = '';
-    }
+    if (!gen) return '';
+    const d = new Date(gen);
+    return 'Last updated: ' + d.toLocaleString('en-US', {
+      timeZone: 'America/Chicago',
+      month: 'short', day: 'numeric', year: 'numeric',
+      hour: 'numeric', minute: '2-digit'
+    }) + ' CT';
   }
+  const friendlyDate = snapshotFriendlyDate();
+  const breakdownAsOfEl = document.getElementById('arsnap-breakdown-asof');
+  if (breakdownAsOfEl) breakdownAsOfEl.textContent = friendlyDate || '—';
+  const lastUpEl = document.getElementById('arsnap-last-updated');
+  if (lastUpEl) lastUpEl.textContent = friendlyDate || '';
 
   // ── 7-day history line chart ──
   renderArHistoryChart(outstandingT, patientsT, insuranceT, asOf, unpostedT);
