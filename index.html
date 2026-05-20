@@ -4486,7 +4486,7 @@ function buildGrid(tableEl, boardId) {
           <div class="fin-cell-inner">
             <div class="fin-row"><span class="fin-lbl">Total AR</span><span class="fin-val">${fmtMoney(arVal)}</span></div>
             <div class="fin-row" title="2026 unposted only — see AR Snapshot tab for 2025/2026/Total breakdown"><span class="fin-lbl">Unposted '26</span><span class="fin-val warn">${fmtMoney(unVal)}</span></div>
-            <div class="fin-row" title="Daily target: $28k minus today's postings (SH POSTING Progress = Completed with Date Posted = today). Resets at 12:00 AM CT. Flashes red Wed–Fri if still > $14k."><span class="fin-lbl">Need to REDUCE by</span><span class="fin-val ${reduceCls}">${reduceVal}</span></div>
+            <div class="fin-row" title="Weekly target: $28k minus total posted since Monday CT (SH POSTING Progress = Completed, Date Posted ≥ Monday). Resets each Monday at midnight CT. Flashes red Wed–Fri if still > $14k."><span class="fin-lbl">Need to REDUCE by</span><span class="fin-val ${reduceCls}">${reduceVal}</span></div>
             <div class="fin-row" title="Date the last automated patient statement batch went out (pulled from Oryx by Statement Tracker, Fridays)."><span class="fin-lbl">Last Stmt Sent</span>${lsValHtml}${lsManualHtml}</div>
           </div>`;
         tr.appendChild(finTd);
