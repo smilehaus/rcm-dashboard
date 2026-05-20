@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-20T00:43:04.274Z",
+  "generated": "2026-05-20T01:13:14.953Z",
   "asOf": "5/19/2026, 1:57 PM CT",
   "totals": {
     "outstanding": {
@@ -220,7 +220,14 @@
           "excludedCount": 0,
           "asOf": "2026-05-19T18:57:46.532Z"
         }
-      ]
+      ],
+      "lastStatementSent": {
+        "date": "10/23/2025",
+        "eStatementsSent": 475,
+        "manualNoPrint": 42,
+        "manualWithEmail": 80,
+        "asOf": "2026-05-20T01:10:27.600Z"
+      }
     },
     "NBDA": {
       "outstanding": {
@@ -393,6 +400,13 @@
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
         "completedTodayDate": "2026-05-19"
+      },
+      "lastStatementSent": {
+        "date": "09/11/2025",
+        "eStatementsSent": 43,
+        "manualNoPrint": 14,
+        "manualWithEmail": 12,
+        "asOf": "2026-05-20T01:10:27.600Z"
       }
     },
     "SATX": {

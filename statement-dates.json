@@ -14,7 +14,41 @@
       "manualNoPrint": 10,
       "manualWithEmail": 5,
       "capturedAt": "2026-05-20T00:42:56.071Z"
+    },
+    "MP": {
+      "date": "10/23/2025",
+      "eStatementsSent": 475,
+      "manualNoPrint": 42,
+      "manualWithEmail": 80,
+      "capturedAt": "2026-05-20T01:10:27.600Z"
+    },
+    "IC": {
+      "date": null,
+      "capturedAt": "2026-05-20T01:10:27.600Z"
+    },
+    "AR": {
+      "date": null,
+      "capturedAt": "2026-05-20T01:10:27.600Z"
+    },
+    "PF": {
+      "date": "09/11/2025",
+      "eStatementsSent": 43,
+      "manualNoPrint": 14,
+      "manualWithEmail": 12,
+      "capturedAt": "2026-05-20T01:10:27.600Z"
+    },
+    "AM": {
+      "date": null,
+      "capturedAt": "2026-05-20T01:13:06.137Z"
+    },
+    "NBDA": {
+      "date": null,
+      "capturedAt": "2026-05-20T01:13:06.137Z"
+    },
+    "SATX": {
+      "date": null,
+      "capturedAt": "2026-05-20T01:13:06.137Z"
     }
   },
-  "generated": "2026-05-20T00:42:56.072Z"
+  "generated": "2026-05-20T01:13:06.137Z"
 }
