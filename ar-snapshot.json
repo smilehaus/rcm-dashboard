@@ -1,6 +1,6 @@
 {
-  "generated": "2026-05-20T04:21:18.902Z",
-  "asOf": "5/19/2026, 1:57 PM CT",
+  "generated": "2026-05-20T06:51:58.440Z",
+  "asOf": "5/20/2026, 1:51 AM CT",
   "totals": {
     "outstanding": {
       "d0_30": 524014.94,
@@ -60,7 +60,7 @@
         "mondayBaseline2026": 2959.7,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-19"
+        "completedTodayDate": "2026-05-20"
       },
       "lastStatementSent": {
         "date": null,
@@ -94,12 +94,12 @@
       },
       "unposted": {
         "y2025": 458746.23,
-        "y2026": 83450.19,
-        "total": 542196.42,
+        "y2026": 90525.2,
+        "total": 549271.43,
         "mondayBaseline2026": 97003.84,
         "mondayBaselineDate": "2026-05-18",
-        "completedToday2026": 4422.4,
-        "completedTodayDate": "2026-05-19"
+        "completedToday2026": 0,
+        "completedTodayDate": "2026-05-20"
       },
       "legacy": [
         {
@@ -166,7 +166,7 @@
         "mondayBaseline2026": 49604.69,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-19"
+        "completedTodayDate": "2026-05-20"
       },
       "lastStatementSent": {
         "date": "05/18/2026",
@@ -200,12 +200,12 @@
       },
       "unposted": {
         "y2025": 153610.03,
-        "y2026": 77394.06,
-        "total": 231004.09,
+        "y2026": 79390.11,
+        "total": 233000.14,
         "mondayBaseline2026": 75880.5,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-19"
+        "completedTodayDate": "2026-05-20"
       },
       "legacy": [
         {
@@ -267,12 +267,12 @@
       },
       "unposted": {
         "y2025": 66827.63,
-        "y2026": 48403.25,
-        "total": 115230.88,
+        "y2026": 40886.25,
+        "total": 107713.88,
         "mondayBaseline2026": 46132.25,
         "mondayBaselineDate": "2026-05-18",
-        "completedToday2026": 2227.18,
-        "completedTodayDate": "2026-05-19"
+        "completedToday2026": 0,
+        "completedTodayDate": "2026-05-20"
       },
       "legacy": [
         {
@@ -321,12 +321,12 @@
       },
       "unposted": {
         "y2025": 10380.84,
-        "y2026": 6055.75,
-        "total": 16436.59,
+        "y2026": 13978.94,
+        "total": 24359.78,
         "mondayBaseline2026": 6055.75,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-19"
+        "completedTodayDate": "2026-05-20"
       },
       "legacy": [
         {
@@ -380,7 +380,7 @@
         "mondayBaseline2026": 61155.44,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-19"
+        "completedTodayDate": "2026-05-20"
       },
       "legacy": [
         {
@@ -429,12 +429,12 @@
       },
       "unposted": {
         "y2025": 55960.58,
-        "y2026": 33940.01,
-        "total": 89900.59,
+        "y2026": 34154.01,
+        "total": 90114.59,
         "mondayBaseline2026": 33940.01,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-19"
+        "completedTodayDate": "2026-05-20"
       },
       "lastStatementSent": {
         "date": "09/11/2025",
@@ -468,12 +468,12 @@
       },
       "unposted": {
         "y2025": 154456.4,
-        "y2026": 144122.26,
-        "total": 298578.66,
+        "y2026": 145132.46,
+        "total": 299588.86,
         "mondayBaseline2026": 142009.96,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-19"
+        "completedTodayDate": "2026-05-20"
       },
       "legacy": [
         {
@@ -527,7 +527,7 @@
         "mondayBaseline2026": 3063.13,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-19"
+        "completedTodayDate": "2026-05-20"
       },
       "lastStatementSent": {
         "date": null,
@@ -5861,6 +5861,12 @@
       "date": "2026-05-19",
       "unposted": 1668909.6600000001,
       "unposted2026": 530518.8700000001,
+      "unposted2025": 1138390.7899999998
+    },
+    {
+      "date": "2026-05-20",
+      "unposted": 1679611.1100000003,
+      "unposted2026": 541220.3200000001,
       "unposted2025": 1138390.7899999998
     }
   ]
