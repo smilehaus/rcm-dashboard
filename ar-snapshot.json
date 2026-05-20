@@ -1,6 +1,6 @@
 {
-  "generated": "2026-05-20T17:59:48.861Z",
-  "asOf": "5/20/2026, 12:59 PM CT",
+  "generated": "2026-05-20T18:05:56.338Z",
+  "asOf": "5/20/2026, 1:05 PM CT",
   "totals": {
     "outstanding": {
       "d0_30": 524014.94,
@@ -60,7 +60,9 @@
         "mondayBaseline2026": 2959.7,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-20"
+        "completedTodayDate": "2026-05-20",
+        "completedThisWeek2026": 0,
+        "completedThisWeekStart": "2026-05-18"
       },
       "lastStatementSent": {
         "date": null,
@@ -99,7 +101,9 @@
         "mondayBaseline2026": 97003.84,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-20"
+        "completedTodayDate": "2026-05-20",
+        "completedThisWeek2026": 9550.8,
+        "completedThisWeekStart": "2026-05-18"
       },
       "legacy": [
         {
@@ -166,7 +170,9 @@
         "mondayBaseline2026": 49604.69,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-20"
+        "completedTodayDate": "2026-05-20",
+        "completedThisWeek2026": 0,
+        "completedThisWeekStart": "2026-05-18"
       },
       "lastStatementSent": {
         "date": "05/18/2026",
@@ -205,7 +211,9 @@
         "mondayBaseline2026": 75880.5,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-20"
+        "completedTodayDate": "2026-05-20",
+        "completedThisWeek2026": 10080.9,
+        "completedThisWeekStart": "2026-05-18"
       },
       "legacy": [
         {
@@ -272,7 +280,9 @@
         "mondayBaseline2026": 46132.25,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-20"
+        "completedTodayDate": "2026-05-20",
+        "completedThisWeek2026": 9744.18,
+        "completedThisWeekStart": "2026-05-18"
       },
       "legacy": [
         {
@@ -326,7 +336,9 @@
         "mondayBaseline2026": 6055.75,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-20"
+        "completedTodayDate": "2026-05-20",
+        "completedThisWeek2026": 0,
+        "completedThisWeekStart": "2026-05-18"
       },
       "legacy": [
         {
@@ -380,7 +392,9 @@
         "mondayBaseline2026": 61155.44,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-20"
+        "completedTodayDate": "2026-05-20",
+        "completedThisWeek2026": 0,
+        "completedThisWeekStart": "2026-05-18"
       },
       "legacy": [
         {
@@ -434,7 +448,9 @@
         "mondayBaseline2026": 33940.01,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-20"
+        "completedTodayDate": "2026-05-20",
+        "completedThisWeek2026": 0,
+        "completedThisWeekStart": "2026-05-18"
       },
       "lastStatementSent": {
         "date": "09/11/2025",
@@ -473,7 +489,9 @@
         "mondayBaseline2026": 142009.96,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-20"
+        "completedTodayDate": "2026-05-20",
+        "completedThisWeek2026": 0,
+        "completedThisWeekStart": "2026-05-18"
       },
       "legacy": [
         {
@@ -527,7 +545,9 @@
         "mondayBaseline2026": 3063.13,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-05-20"
+        "completedTodayDate": "2026-05-20",
+        "completedThisWeek2026": 0,
+        "completedThisWeekStart": "2026-05-18"
       },
       "lastStatementSent": {
         "date": null,
