@@ -344,6 +344,7 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 .arsnap-history-btn:hover{background:#ede4d5;border-color:#877765;color:#2A2E31;}
 #arsnap-history-modal{position:fixed;inset:0;background:rgba(42,46,49,.55);display:none;align-items:center;justify-content:center;z-index:200;padding:24px;}
 #arsnap-history-modal.open{display:flex;}
+#arsnap-orgwide-history-modal.open{display:flex;}
 .arsnap-history-card{background:#FBF8F0;border:1px solid rgba(135,119,101,.3);border-radius:10px;width:min(1600px,98vw);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.25);}
 .arsnap-history-card .ar-snap-table th,
 .arsnap-history-card .ar-snap-table td{white-space:nowrap;}
@@ -840,7 +841,10 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 
     <!-- Org-wide breakdown: Outstanding / Patients / Insurance × 4 buckets + Total -->
     <div class="ar-snap-section-lbl" style="display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;padding-right:24px">
-      <span>Org-Wide Breakdown</span>
+      <span style="display:flex;align-items:center;gap:10px">
+        Org-Wide Breakdown
+        <button id="arsnap-orgwide-history-btn" type="button" onclick="openOrgWideHistory()" class="arsnap-history-btn">📚 History</button>
+      </span>
       <span id="arsnap-breakdown-asof" style="font-weight:500;letter-spacing:.06em;text-transform:none;color:#877765;font-size:10.5px;font-style:italic">—</span>
     </div>
     <div class="ar-snap-table-wrap">
@@ -898,6 +902,21 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 </div>
 
 <!-- ── PER-OFFICE HISTORY MODAL ───────────────── -->
+<!-- Org-Wide History modal -->
+<div id="arsnap-orgwide-history-modal" onclick="if(event.target.id==='arsnap-orgwide-history-modal')closeOrgWideHistory()" style="position:fixed;inset:0;background:rgba(42,46,49,.55);display:none;align-items:center;justify-content:center;z-index:200;padding:24px;">
+  <div class="arsnap-history-card">
+    <div class="arsnap-history-head">
+      <div>
+        <h3>Org-Wide Breakdown · History</h3>
+        <div class="sub">Daily snapshots — one entry per date (PM slot preferred over AM) · oldest to newest, newest at top</div>
+      </div>
+      <div class="arsnap-history-controls">
+        <button class="close" onclick="closeOrgWideHistory()">✕</button>
+      </div>
+    </div>
+    <div class="arsnap-history-body" id="arsnap-orgwide-history-body"></div>
+  </div>
+</div>
 <div id="arsnap-history-modal" onclick="if(event.target.id==='arsnap-history-modal')closePerOfficeHistory()">
   <div class="arsnap-history-card">
     <div class="arsnap-history-head">
@@ -6318,6 +6337,116 @@ function renderPerOfficeHistory() {
           </tr>
         </thead>
         <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+// ════════════════════════════════════════════════
+// ORG-WIDE HISTORY MODAL
+// ════════════════════════════════════════════════
+function openOrgWideHistory() {
+  const modal = document.getElementById('arsnap-orgwide-history-modal');
+  if (!modal) return;
+  modal.classList.add('open');
+  renderOrgWideHistory();
+}
+
+function closeOrgWideHistory() {
+  document.getElementById('arsnap-orgwide-history-modal')?.classList.remove('open');
+}
+
+function renderOrgWideHistory() {
+  const body = document.getElementById('arsnap-orgwide-history-body');
+  if (!body) return;
+
+  const history = Array.isArray(_arSnapshot.perOfficeHistory) ? _arSnapshot.perOfficeHistory : [];
+  if (history.length === 0) {
+    body.innerHTML = '<div style="padding:40px;text-align:center;color:#877765;font-style:italic">No history yet. Archive runs daily.</div>';
+    return;
+  }
+
+  // Collapse to one entry per date (PM slot > AM slot > no slot)
+  const slotRank = { PM: 0, AM: 1 };
+  const byDate = new Map();
+  for (const e of history) {
+    if (!e?.date) continue;
+    const existing = byDate.get(e.date);
+    if (!existing || (slotRank[e.slot] ?? 2) < (slotRank[existing.slot] ?? 2)) {
+      byDate.set(e.date, e);
+    }
+  }
+  // Newest first
+  const rows = [...byDate.values()].sort((a, b) => b.date.localeCompare(a.date));
+
+  // Sum one history entry's offices into org-wide totals
+  function sumEntry(e) {
+    if (!e) return null;
+    let out = 0, pat = 0, ins = 0, un26 = 0, unTotal = 0;
+    let hasOut = false, hasPat = false, hasIns = false, hasUn = false;
+    for (const off of Object.values(e.offices || {})) {
+      if (off?.outstanding?.total != null) { out     += Number(off.outstanding.total) || 0; hasOut = true; }
+      if (off?.patients?.total    != null) { pat     += Number(off.patients.total)    || 0; hasPat = true; }
+      if (off?.insurance?.total   != null) { ins     += Number(off.insurance.total)   || 0; hasIns = true; }
+      if (off?.unposted?.y2026    != null) { un26    += Number(off.unposted.y2026)    || 0; hasUn  = true; }
+      if (off?.unposted?.total    != null) { unTotal += Number(off.unposted.total)    || 0; }
+    }
+    return {
+      outstanding:   hasOut ? out    : null,
+      patients:      hasPat ? pat    : null,
+      insurance:     hasIns ? ins    : null,
+      unposted2026:  hasUn  ? un26   : null,
+      unpostedTotal: hasUn  ? unTotal: null,
+    };
+  }
+
+  // Delta cell: current value + ▲/▼ vs previous row
+  function deltaCell(cur, prev) {
+    if (cur == null) return `<td style="color:#877765">—</td>`;
+    const curFmt = fmtMoney(cur);
+    if (prev == null || Math.abs(cur - prev) < 1) return `<td>${curFmt}</td>`;
+    const delta = cur - prev;
+    const cls   = delta > 0 ? 'up' : 'down';
+    const sign  = delta > 0 ? '▲' : '▼';
+    const pct   = prev !== 0
+      ? ` (${delta > 0 ? '+' : ''}${((delta / Math.abs(prev)) * 100).toFixed(1)}%)`
+      : (cur !== 0 ? ' (new)' : '');
+    return `<td>${curFmt}<div class="arsnap-history-delta ${cls}">${sign} ${fmtMoney(Math.abs(delta))}${pct}</div></td>`;
+  }
+
+  const tableRows = rows.map((entry, i) => {
+    const cur  = sumEntry(entry);
+    const prev = i < rows.length - 1 ? sumEntry(rows[i + 1]) : null;
+    const dateLabel  = formatHistoryDate(entry.date);
+    const slotBadge  = entry.slot ? ` <span style="font-size:9px;font-weight:600;opacity:.55;letter-spacing:.04em">${entry.slot}</span>` : '';
+    const asOfTitle  = entry.asOf ? ` title="Captured: ${escHtml(entry.asOf)}"` : '';
+    return `<tr>
+      <td class="first" style="white-space:nowrap"${asOfTitle}>${dateLabel}${slotBadge}</td>
+      ${deltaCell(cur?.outstanding,   prev?.outstanding)}
+      ${deltaCell(cur?.patients,      prev?.patients)}
+      ${deltaCell(cur?.insurance,     prev?.insurance)}
+      ${deltaCell(cur?.unposted2026,  prev?.unposted2026)}
+      ${deltaCell(cur?.unpostedTotal, prev?.unpostedTotal)}
+    </tr>`;
+  }).join('');
+
+  body.innerHTML = `
+    <div class="arsnap-history-meta">
+      ${rows.length} day(s) · newest first · PM slot preferred per date · deltas vs prior day
+      &nbsp;·&nbsp; <a href="https://app.clickup.com/9014079163/v/l/901416373479" target="_blank" style="color:#877765;text-decoration:underline">ClickUp backups ↗</a>
+    </div>
+    <div class="ar-snap-table-wrap">
+      <table class="ar-snap-table">
+        <thead>
+          <tr>
+            <th class="first">Date</th>
+            <th>Total Outstanding</th>
+            <th>Patient Balances</th>
+            <th>Insurance Balances</th>
+            <th>Unposted 2026</th>
+            <th>Unposted Total</th>
+          </tr>
+        </thead>
+        <tbody>${tableRows}</tbody>
       </table>
     </div>`;
 }
