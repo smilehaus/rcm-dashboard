@@ -1,0 +1,47 @@
+name: Routine — Weekly Statements (Fri 9:45 PM CT)
+
+# Merges statement-dates.json (written by the local statement-tracker browser
+# agent) into ar-snapshot.json and pushes to GitHub Pages.
+#
+# The browser agent (statement-tracker) runs locally in two batches:
+#   Batch 1 — SQ/GT/ATX/MP/IC  at 7:02 PM CT
+#   Batch 2 — AR/PF/NBDA/SATX/AM at 9:04 PM CT
+#
+# This workflow fires at 9:45 PM CT (after both batches) to ensure
+# ar-snapshot.json is always up to date even if fetch-statements.ts
+# wasn't run locally. Exits cleanly (no failure) if statement-dates.json
+# hasn't been pushed yet.
+
+on:
+  schedule:
+    # 9:45 PM CST = 03:45 UTC Saturday  |  02:45 UTC in summer (CDT)
+    - cron: '45 3 * * 6'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  merge-statements:
+    name: Merge Statement Dates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/smilehaus/rcm-dashboard.git
+
+      - name: fetch-statements
+        run: npx tsx scripts/fetch-statements.ts
+        env:
+          CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
