@@ -2277,6 +2277,7 @@ function scheduleFbSave() {
             // Replace S contents in place
             Object.keys(S).forEach(k => { if (!(k in merged)) delete S[k]; });
             Object.assign(S, merged);
+            normalizeSArrays();
             didMerge = true;
           }
         }
@@ -2697,6 +2698,7 @@ function startFbPolling() {
         } else {
           Object.assign(S, remote);
         }
+        normalizeSArrays();          // guard against Firebase returning null/undefined arrays
         _syncBase = clone(remote);   // poll-applied remote is our new sync baseline
         renderAll();
       }
@@ -2734,6 +2736,7 @@ async function load() {
   }
 
   if (src) Object.assign(S, src);
+  normalizeSArrays(); // ensure all array fields exist before any code touches them
 
   // Establish the initial sync baseline for read-merge-write conflict handling.
   _syncBase = clone(S);
@@ -2765,6 +2768,19 @@ async function load() {
 
   // Start polling for remote changes
   startFbPolling();
+}
+
+// ── Defensive normalizer — always call after Object.assign(S, …) from Firebase ──
+// Ensures every field that code calls .includes()/.push()/.filter() on is actually
+// an array, even if Firebase returned null/undefined for that key.
+function normalizeSArrays() {
+  const ARR_FIELDS = ['off','lunch','staff','offices','columns','vacationActive','helpLog','checkinLog','perOfficeHistory'];
+  for (const f of ARR_FIELDS) {
+    if (!Array.isArray(S[f])) S[f] = S[f] ? [S[f]] : [];
+  }
+  // Ensure ivDates is an object
+  if (!S.ivDates || typeof S.ivDates !== 'object' || Array.isArray(S.ivDates)) S.ivDates = {};
+  if (!S.helpInstances || typeof S.helpInstances !== 'object' || Array.isArray(S.helpInstances)) S.helpInstances = {};
 }
 
 function save() {
@@ -5799,7 +5815,9 @@ function todayStr() {
 }
 
 function checkVacations() {
-  if (!S.vacationActive) S.vacationActive = [];
+  if (!Array.isArray(S.vacationActive)) S.vacationActive = [];
+  if (!Array.isArray(S.off))            S.off = [];
+  if (!Array.isArray(S.lunch))          S.lunch = [];
   const today = todayStr();
 
   S.staff.forEach(s => {
