@@ -1,6 +1,6 @@
 {
-  "generated": "2026-05-20T20:31:02.236Z",
-  "asOf": "5/20/2026, 3:31 PM CT",
+  "generated": "2026-05-21T04:24:20.053Z",
+  "asOf": "5/20/2026, 11:24 PM CT",
   "totals": {
     "outstanding": {
       "d0_30": 524014.94,
@@ -96,8 +96,8 @@
       },
       "unposted": {
         "y2025": 458746.23,
-        "y2026": 102087,
-        "total": 560833.23,
+        "y2026": 103679.7,
+        "total": 562425.93,
         "mondayBaseline2026": 97003.84,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
@@ -275,13 +275,13 @@
       },
       "unposted": {
         "y2025": 66827.63,
-        "y2026": 41570.85,
-        "total": 108398.48,
+        "y2026": 36370.45,
+        "total": 103198.08,
         "mondayBaseline2026": 46132.25,
         "mondayBaselineDate": "2026-05-18",
-        "completedToday2026": 0,
+        "completedToday2026": 5200.4,
         "completedTodayDate": "2026-05-20",
-        "completedThisWeek2026": 9744.18,
+        "completedThisWeek2026": 14944.58,
         "completedThisWeekStart": "2026-05-18"
       },
       "legacy": [
@@ -443,13 +443,13 @@
       },
       "unposted": {
         "y2025": 55960.58,
-        "y2026": 34154.01,
-        "total": 90114.59,
+        "y2026": 32101.01,
+        "total": 88061.59,
         "mondayBaseline2026": 33940.01,
         "mondayBaselineDate": "2026-05-18",
-        "completedToday2026": 0,
+        "completedToday2026": 1129.8,
         "completedTodayDate": "2026-05-20",
-        "completedThisWeek2026": 0,
+        "completedThisWeek2026": 1129.8,
         "completedThisWeekStart": "2026-05-18"
       },
       "lastStatementSent": {
@@ -6771,8 +6771,8 @@
     },
     {
       "date": "2026-05-20",
-      "unposted": 1698358.53,
-      "unposted2026": 559967.74,
+      "unposted": 1692697.8299999998,
+      "unposted2026": 554307.04,
       "unposted2025": 1138390.7899999998
     }
   ]
