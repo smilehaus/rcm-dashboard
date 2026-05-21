@@ -1,6 +1,6 @@
 {
-  "generated": "2026-05-21T06:57:14.317Z",
-  "asOf": "5/21/2026, 1:56 AM CT",
+  "generated": "2026-05-21T20:09:07.287Z",
+  "asOf": "5/21/2026, 3:09 PM CT",
   "totals": {
     "outstanding": {
       "d0_30": 524014.94,
@@ -55,8 +55,8 @@
       },
       "unposted": {
         "y2025": 149.57,
-        "y2026": 5113.88,
-        "total": 5263.45,
+        "y2026": 7712.18,
+        "total": 7861.75,
         "mondayBaseline2026": 2959.7,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
@@ -96,13 +96,13 @@
       },
       "unposted": {
         "y2025": 458746.23,
-        "y2026": 98847.5,
-        "total": 557593.73,
+        "y2026": 99366.6,
+        "total": 558112.83,
         "mondayBaseline2026": 97003.84,
         "mondayBaselineDate": "2026-05-18",
-        "completedToday2026": 4832.2,
+        "completedToday2026": 10317.5,
         "completedTodayDate": "2026-05-21",
-        "completedThisWeek2026": 14383,
+        "completedThisWeek2026": 19868.3,
         "completedThisWeekStart": "2026-05-18"
       },
       "legacy": [
@@ -165,8 +165,8 @@
       },
       "unposted": {
         "y2025": 31941.61,
-        "y2026": 59501.8,
-        "total": 91443.41,
+        "y2026": 63443.83,
+        "total": 95385.44,
         "mondayBaseline2026": 49604.69,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
@@ -206,8 +206,8 @@
       },
       "unposted": {
         "y2025": 153610.03,
-        "y2026": 81336.71,
-        "total": 234946.74,
+        "y2026": 87052.81,
+        "total": 240662.84,
         "mondayBaseline2026": 75880.5,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
@@ -275,13 +275,13 @@
       },
       "unposted": {
         "y2025": 66827.63,
-        "y2026": 36370.45,
-        "total": 103198.08,
+        "y2026": 34079.45,
+        "total": 100907.08,
         "mondayBaseline2026": 46132.25,
         "mondayBaselineDate": "2026-05-18",
-        "completedToday2026": 0,
+        "completedToday2026": 9252.25,
         "completedTodayDate": "2026-05-21",
-        "completedThisWeek2026": 14944.58,
+        "completedThisWeek2026": 24196.83,
         "completedThisWeekStart": "2026-05-18"
       },
       "legacy": [
@@ -331,8 +331,8 @@
       },
       "unposted": {
         "y2025": 10380.84,
-        "y2026": 13406.94,
-        "total": 23787.78,
+        "y2026": 15216.94,
+        "total": 25597.78,
         "mondayBaseline2026": 6055.75,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
@@ -387,8 +387,8 @@
       },
       "unposted": {
         "y2025": 206317.9,
-        "y2026": 69890.16,
-        "total": 276208.06,
+        "y2026": 76905.46,
+        "total": 283223.36,
         "mondayBaseline2026": 61155.44,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
@@ -443,8 +443,8 @@
       },
       "unposted": {
         "y2025": 55960.58,
-        "y2026": 32101.01,
-        "total": 88061.59,
+        "y2026": 32509.61,
+        "total": 88470.19,
         "mondayBaseline2026": 33940.01,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
@@ -484,8 +484,8 @@
       },
       "unposted": {
         "y2025": 154456.4,
-        "y2026": 145692.96,
-        "total": 300149.36,
+        "y2026": 148656.51,
+        "total": 303112.91,
         "mondayBaseline2026": 142009.96,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
@@ -540,8 +540,8 @@
       },
       "unposted": {
         "y2025": 0,
-        "y2026": 7213.43,
-        "total": 7213.43,
+        "y2026": 7748.43,
+        "total": 7748.43,
         "mondayBaseline2026": 3063.13,
         "mondayBaselineDate": "2026-05-18",
         "completedToday2026": 0,
@@ -7593,8 +7593,8 @@
     },
     {
       "date": "2026-05-21",
-      "unposted": 1687865.6300000001,
-      "unposted2026": 549474.8400000001,
+      "unposted": 1711082.6099999999,
+      "unposted2026": 572691.8200000001,
       "unposted2025": 1138390.7899999998
     }
   ]
