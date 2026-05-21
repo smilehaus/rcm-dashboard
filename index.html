@@ -2776,7 +2776,7 @@ async function load() {
 function normalizeSArrays() {
   const ARR_FIELDS = ['off','lunch','staff','offices','columns','vacationActive','helpLog','checkinLog','perOfficeHistory'];
   for (const f of ARR_FIELDS) {
-    if (!Array.isArray(S[f])) S[f] = S[f] ? [S[f]] : [];
+    if (!Array.isArray(S[f])) S[f] = [];
   }
   // Ensure ivDates is an object
   if (!S.ivDates || typeof S.ivDates !== 'object' || Array.isArray(S.ivDates)) S.ivDates = {};
