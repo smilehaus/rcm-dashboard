@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-25T07:18:32.150Z",
+  "generated": "2026-05-25T07:19:05.793Z",
   "asOf": "5/25/2026, 2:18 AM CT",
   "totals": {
     "outstanding": {
@@ -117,7 +117,7 @@
           "total": 3029,
           "taskCount": 10,
           "excludedCount": 3,
-          "asOf": "2026-05-24T06:40:39.591Z"
+          "asOf": "2026-05-25T07:19:05.793Z"
         },
         {
           "label": "HZ Dentrix",
@@ -130,7 +130,7 @@
           "total": 12235.72,
           "taskCount": 29,
           "excludedCount": 0,
-          "asOf": "2026-05-24T06:40:39.591Z"
+          "asOf": "2026-05-25T07:19:05.793Z"
         }
       ],
       "lastStatementSent": {
@@ -227,7 +227,7 @@
           "total": 12216.19,
           "taskCount": 34,
           "excludedCount": 0,
-          "asOf": "2026-05-24T06:40:39.591Z"
+          "asOf": "2026-05-25T07:19:05.793Z"
         },
         {
           "label": "FS Dentrix",
@@ -240,7 +240,7 @@
           "total": 14979,
           "taskCount": 37,
           "excludedCount": 0,
-          "asOf": "2026-05-24T06:40:39.591Z"
+          "asOf": "2026-05-25T07:19:05.793Z"
         }
       ],
       "lastStatementSent": {
@@ -296,7 +296,7 @@
           "total": 2875,
           "taskCount": 3,
           "excludedCount": 0,
-          "asOf": "2026-05-24T06:40:39.591Z"
+          "asOf": "2026-05-25T07:19:05.793Z"
         }
       ],
       "lastStatementSent": {
@@ -352,7 +352,7 @@
           "total": 11711.25,
           "taskCount": 5,
           "excludedCount": 0,
-          "asOf": "2026-05-24T06:40:39.591Z"
+          "asOf": "2026-05-25T07:19:05.793Z"
         }
       ],
       "lastStatementSent": {
@@ -408,7 +408,7 @@
           "total": 1561,
           "taskCount": 6,
           "excludedCount": 0,
-          "asOf": "2026-05-24T06:40:39.591Z"
+          "asOf": "2026-05-25T07:19:05.793Z"
         }
       ],
       "lastStatementSent": {
@@ -505,7 +505,7 @@
           "total": 16746,
           "taskCount": 33,
           "excludedCount": 0,
-          "asOf": "2026-05-24T06:40:39.591Z"
+          "asOf": "2026-05-25T07:19:05.793Z"
         }
       ],
       "lastStatementSent": {
