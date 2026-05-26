@@ -101,7 +101,8 @@ type OfficeUnpostedResult = {
   perList: { name: string; year: number; total: number; tasks: number }[];
   completedToday2026: number;
   completedThisWeek2026: number;
-  completedThisWeekStart: string; // YYYY-MM-DD of Monday
+  completedThisWeekStart: string;    // YYYY-MM-DD of Monday
+  newTasksAddedThisWeek2026: number; // Grand Total of all 2026 tasks created since Monday CT
 };
 
 function detectListYear(listName: string): number | null {
@@ -124,6 +125,7 @@ async function sumOfficeUnposted(code: OfficeCode, lists: { id: string; name: st
     String(monCT_.getDate()).padStart(2, "0");
   let completedToday2026 = 0;
   let completedThisWeek2026 = 0;
+  let newTasksAddedThisWeek2026 = 0;
 
   for (const list of lists) {
     const year = detectListYear(list.name);
@@ -139,6 +141,14 @@ async function sumOfficeUnposted(code: OfficeCode, lists: { id: string; name: st
       const isExcluded  = EXCLUDED_STATUSES.has(progressName);
       const gt = getCustomField(task, GRAND_TOTAL_FIELD);
       const v = getCurrencyValue(gt);
+
+      // Track all 2026 tasks created this week — pending OR completed — for organic posting metric.
+      // "New additions" = ERA/EOB value that entered the queue since Monday CT.
+      if (year === 2026 && v > 0 && task.date_created) {
+        const createdCTDate = new Date(Number(task.date_created)).toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
+        if (createdCTDate >= mondayISO_) newTasksAddedThisWeek2026 += v;
+      }
+
       if (isCompleted) {
         if (year === 2026 && v > 0) {
           const dp = getCustomField(task, DATE_POSTED_FIELD);
@@ -162,9 +172,10 @@ async function sumOfficeUnposted(code: OfficeCode, lists: { id: string; name: st
   const y2026 = allowedYears.has(2026) ? round(yearTotals[2026] || 0) : null;
   return {
     y2025, y2026, total: round((y2025 || 0) + (y2026 || 0)), taskCount: totalTaskCount, perList,
-    completedToday2026:    round(completedToday2026),
-    completedThisWeek2026: round(completedThisWeek2026),
-    completedThisWeekStart: mondayISO_,
+    completedToday2026:       round(completedToday2026),
+    completedThisWeek2026:    round(completedThisWeek2026),
+    completedThisWeekStart:   mondayISO_,
+    newTasksAddedThisWeek2026: round(newTasksAddedThisWeek2026),
   };
 }
 
@@ -213,10 +224,11 @@ async function main() {
       y2025: r.y2025, y2026: r.y2026, total: r.total,
       mondayBaseline2026: prevUnposted.mondayBaseline2026 ?? null,
       mondayBaselineDate: prevUnposted.mondayBaselineDate ?? null,
-      completedToday2026: r.completedToday2026,
-      completedTodayDate: new Date().toLocaleDateString("en-CA", { timeZone: "America/Chicago" }),
-      completedThisWeek2026: r.completedThisWeek2026,
-      completedThisWeekStart: r.completedThisWeekStart,
+      completedToday2026:        r.completedToday2026,
+      completedTodayDate:        new Date().toLocaleDateString("en-CA", { timeZone: "America/Chicago" }),
+      completedThisWeek2026:     r.completedThisWeek2026,
+      completedThisWeekStart:    r.completedThisWeekStart,
+      newTasksAddedThisWeek2026: r.newTasksAddedThisWeek2026,
     };
   }
 

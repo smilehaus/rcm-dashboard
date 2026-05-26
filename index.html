@@ -6643,6 +6643,24 @@ function renderArSnapshot() {
     const un26Cls = u2026  > 0 ? 'warn' : '';
     const unTCls  = uTotal > 0 ? 'warn' : '';
 
+    // Organic posting = posted this week minus new ERA/EOB tasks added this week.
+    // Only show when both fields present and week-start matches current Monday CT.
+    const nowCTx = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' }));
+    const daysToMonx = (nowCTx.getDay() + 6) % 7;
+    const monDatex = new Date(nowCTx); monDatex.setDate(nowCTx.getDate() - daysToMonx);
+    const mondayISOx = monDatex.getFullYear() + '-' + String(monDatex.getMonth()+1).padStart(2,'0') + '-' + String(monDatex.getDate()).padStart(2,'0');
+    const weekMatches = u && u.completedThisWeekStart === mondayISOx;
+    const organicPosted = weekMatches && u.completedThisWeek2026 != null && u.newTasksAddedThisWeek2026 != null
+      ? u.completedThisWeek2026 - u.newTasksAddedThisWeek2026
+      : null;
+    const organicHtml = organicPosted != null ? (() => {
+      const isPos = organicPosted >= 0;
+      const arrow = isPos ? '▲' : '▼';
+      const clr   = isPos ? '#2aa898' : '#a04545';
+      const tip   = `Posted this week: ${fmtMoney(u.completedThisWeek2026)} · New scans added: ${fmtMoney(u.newTasksAddedThisWeek2026)} · Net effect on pre-existing backlog: ${isPos ? '+' : ''}${fmtMoney(organicPosted)}`;
+      return `<div style="font-size:9.5px;margin-top:4px;color:${clr};font-weight:600;line-height:1.3" title="${tip}">${arrow} ${fmtMoney(Math.abs(organicPosted))}<div style="font-weight:400;font-size:8.5px;opacity:.75">organic</div></div>`;
+    })() : '';
+
     const row = (b, lbl, isTotal, extraCls) => {
       const c61Cls = b.d61_90  > 0 ? 'warn' : '';
       const c90Cls = b.d90plus > 0 ? 'warn' : '';
@@ -6665,7 +6683,7 @@ function renderArSnapshot() {
         </td>
         ${row(out, 'Total Outstanding', true)}
         <td class="unposted-cell ${un25Cls}" rowspan="${rowCount}">${fmtMoney(u2025)}</td>
-        <td class="unposted-cell ${un26Cls}" rowspan="${rowCount}">${fmtMoney(u2026)}</td>
+        <td class="unposted-cell ${un26Cls}" rowspan="${rowCount}">${fmtMoney(u2026)}${organicHtml}</td>
         <td class="unposted-cell ${unTCls}" rowspan="${rowCount}">${fmtMoney(uTotal)}</td>
       </tr>
       <tr>
