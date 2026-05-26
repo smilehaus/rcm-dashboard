@@ -9210,8 +9210,8 @@
     {
       "date": "2026-05-26",
       "slot": "PM",
-      "asOf": "5/26/2026, 12:26 PM CT",
-      "generated": "2026-05-26T17:26:36.678Z",
+      "asOf": "5/26/2026, 3:27 PM CT",
+      "generated": "2026-05-26T20:27:53.228Z",
       "offices": {
         "SQ": {
           "outstanding": {
@@ -9240,14 +9240,7 @@
             "y2026": 1571.4,
             "total": 1720.97
           },
-          "legacy": null,
-          "lastStatementSent": {
-            "date": null,
-            "eStatementsSent": null,
-            "manualNoPrint": 0,
-            "manualWithEmail": 0,
-            "asOf": "2026-05-20T00:39:54.450Z"
-          }
+          "legacy": null
         },
         "GT": {
           "outstanding": {
@@ -9273,8 +9266,8 @@
           },
           "unposted": {
             "y2025": 458746.23,
-            "y2026": 77623.78,
-            "total": 536370.01
+            "y2026": 77613.67,
+            "total": 536359.9
           },
           "legacy": [
             {
@@ -9303,14 +9296,7 @@
               "excludedCount": 0,
               "asOf": "2026-05-26T14:27:23.997Z"
             }
-          ],
-          "lastStatementSent": {
-            "date": null,
-            "eStatementsSent": null,
-            "manualNoPrint": 0,
-            "manualWithEmail": 0,
-            "asOf": "2026-05-20T00:39:54.450Z"
-          }
+          ]
         },
         "ATX": {
           "outstanding": {
@@ -9336,17 +9322,10 @@
           },
           "unposted": {
             "y2025": 31941.61,
-            "y2026": 53254.62,
-            "total": 85196.23
+            "y2026": 54254.12,
+            "total": 86195.73
           },
-          "legacy": null,
-          "lastStatementSent": {
-            "date": "05/18/2026",
-            "eStatementsSent": 59,
-            "manualNoPrint": 10,
-            "manualWithEmail": 5,
-            "asOf": "2026-05-20T00:42:56.071Z"
-          }
+          "legacy": null
         },
         "MP": {
           "outstanding": {
@@ -9372,8 +9351,8 @@
           },
           "unposted": {
             "y2025": 153610.03,
-            "y2026": 92933.59,
-            "total": 246543.62
+            "y2026": 93898.59,
+            "total": 247508.62
           },
           "legacy": [
             {
@@ -9402,14 +9381,7 @@
               "excludedCount": 0,
               "asOf": "2026-05-26T14:27:23.997Z"
             }
-          ],
-          "lastStatementSent": {
-            "date": "10/23/2025",
-            "eStatementsSent": 475,
-            "manualNoPrint": 42,
-            "manualWithEmail": 80,
-            "asOf": "2026-05-20T01:10:27.600Z"
-          }
+          ]
         },
         "NBDA": {
           "outstanding": {
@@ -9452,14 +9424,7 @@
               "excludedCount": 0,
               "asOf": "2026-05-26T14:27:23.997Z"
             }
-          ],
-          "lastStatementSent": {
-            "date": null,
-            "eStatementsSent": null,
-            "manualNoPrint": 0,
-            "manualWithEmail": 0,
-            "asOf": "2026-05-20T01:13:06.137Z"
-          }
+          ]
         },
         "IC": {
           "outstanding": {
@@ -9485,8 +9450,8 @@
           },
           "unposted": {
             "y2025": 10380.84,
-            "y2026": 8816.15,
-            "total": 19196.99
+            "y2026": 11844.45,
+            "total": 22225.29
           },
           "legacy": [
             {
@@ -9502,14 +9467,7 @@
               "excludedCount": 0,
               "asOf": "2026-05-26T14:27:23.997Z"
             }
-          ],
-          "lastStatementSent": {
-            "date": null,
-            "eStatementsSent": null,
-            "manualNoPrint": 0,
-            "manualWithEmail": 0,
-            "asOf": "2026-05-20T01:10:27.600Z"
-          }
+          ]
         },
         "AR": {
           "outstanding": {
@@ -9535,8 +9493,8 @@
           },
           "unposted": {
             "y2025": 206317.9,
-            "y2026": 83623.96,
-            "total": 289941.86
+            "y2026": 80347.56,
+            "total": 286665.46
           },
           "legacy": [
             {
@@ -9552,14 +9510,7 @@
               "excludedCount": 0,
               "asOf": "2026-05-26T14:27:23.997Z"
             }
-          ],
-          "lastStatementSent": {
-            "date": null,
-            "eStatementsSent": null,
-            "manualNoPrint": 0,
-            "manualWithEmail": 0,
-            "asOf": "2026-05-20T01:10:27.600Z"
-          }
+          ]
         },
         "PF": {
           "outstanding": {
@@ -9585,17 +9536,10 @@
           },
           "unposted": {
             "y2025": 55960.58,
-            "y2026": 32509.61,
-            "total": 88470.19
+            "y2026": 32818.61,
+            "total": 88779.19
           },
-          "legacy": null,
-          "lastStatementSent": {
-            "date": "09/11/2025",
-            "eStatementsSent": 43,
-            "manualNoPrint": 14,
-            "manualWithEmail": 12,
-            "asOf": "2026-05-20T01:10:27.600Z"
-          }
+          "legacy": null
         },
         "SATX": {
           "outstanding": {
@@ -9638,14 +9582,7 @@
               "excludedCount": 0,
               "asOf": "2026-05-26T14:27:23.997Z"
             }
-          ],
-          "lastStatementSent": {
-            "date": null,
-            "eStatementsSent": null,
-            "manualNoPrint": 0,
-            "manualWithEmail": 0,
-            "asOf": "2026-05-20T01:13:06.137Z"
-          }
+          ]
         },
         "AM": {
           "outstanding": {
@@ -9671,17 +9608,10 @@
           },
           "unposted": {
             "y2025": 0,
-            "y2026": 7748.43,
-            "total": 7748.43
+            "y2026": 8205.43,
+            "total": 8205.43
           },
-          "legacy": null,
-          "lastStatementSent": {
-            "date": null,
-            "eStatementsSent": null,
-            "manualNoPrint": 0,
-            "manualWithEmail": 0,
-            "asOf": "2026-05-20T01:13:06.137Z"
-          }
+          "legacy": null
         }
       }
     },
