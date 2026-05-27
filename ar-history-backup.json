@@ -1,5 +1,5 @@
 {
-  "updated": "2026-05-26T20:27:53.233Z",
+  "updated": "2026-05-27T00:36:24.331Z",
   "perOfficeHistory": [
     {
       "date": "2026-05-12",
@@ -8642,8 +8642,8 @@
     {
       "date": "2026-05-26",
       "slot": "PM",
-      "asOf": "5/26/2026, 3:27 PM CT",
-      "generated": "2026-05-26T20:27:53.228Z",
+      "asOf": "5/26/2026, 7:36 PM CT",
+      "generated": "2026-05-27T00:36:24.327Z",
       "offices": {
         "SQ": {
           "outstanding": {
@@ -8672,7 +8672,14 @@
             "y2026": 1571.4,
             "total": 1720.97
           },
-          "legacy": null
+          "legacy": null,
+          "lastStatementSent": {
+            "date": null,
+            "eStatementsSent": null,
+            "manualNoPrint": 0,
+            "manualWithEmail": 0,
+            "asOf": "2026-05-20T00:39:54.450Z"
+          }
         },
         "GT": {
           "outstanding": {
@@ -8698,8 +8705,8 @@
           },
           "unposted": {
             "y2025": 458746.23,
-            "y2026": 77613.67,
-            "total": 536359.9
+            "y2026": 80720.37,
+            "total": 539466.6
           },
           "legacy": [
             {
@@ -8713,7 +8720,7 @@
               "total": 3029,
               "taskCount": 10,
               "excludedCount": 3,
-              "asOf": "2026-05-26T14:27:23.996Z"
+              "asOf": "2026-05-27T00:16:03.330Z"
             },
             {
               "label": "HZ Dentrix",
@@ -8726,9 +8733,16 @@
               "total": 12235.72,
               "taskCount": 29,
               "excludedCount": 0,
-              "asOf": "2026-05-26T14:27:23.997Z"
+              "asOf": "2026-05-27T00:16:03.331Z"
             }
-          ]
+          ],
+          "lastStatementSent": {
+            "date": null,
+            "eStatementsSent": null,
+            "manualNoPrint": 0,
+            "manualWithEmail": 0,
+            "asOf": "2026-05-20T00:39:54.450Z"
+          }
         },
         "ATX": {
           "outstanding": {
@@ -8754,10 +8768,17 @@
           },
           "unposted": {
             "y2025": 31941.61,
-            "y2026": 54254.12,
-            "total": 86195.73
+            "y2026": 52128.21,
+            "total": 84069.82
           },
-          "legacy": null
+          "legacy": null,
+          "lastStatementSent": {
+            "date": "05/18/2026",
+            "eStatementsSent": 59,
+            "manualNoPrint": 10,
+            "manualWithEmail": 5,
+            "asOf": "2026-05-20T00:42:56.071Z"
+          }
         },
         "MP": {
           "outstanding": {
@@ -8783,8 +8804,8 @@
           },
           "unposted": {
             "y2025": 153610.03,
-            "y2026": 93898.59,
-            "total": 247508.62
+            "y2026": 86427.14,
+            "total": 240037.17
           },
           "legacy": [
             {
@@ -8794,11 +8815,11 @@
               "d0_30": 0,
               "d31_60": 0,
               "d61_90": 0,
-              "d90plus": 12216.19,
-              "total": 12216.19,
-              "taskCount": 34,
+              "d90plus": 11791.19,
+              "total": 11791.19,
+              "taskCount": 32,
               "excludedCount": 0,
-              "asOf": "2026-05-26T14:27:23.997Z"
+              "asOf": "2026-05-27T00:16:03.332Z"
             },
             {
               "label": "FS Dentrix",
@@ -8811,9 +8832,16 @@
               "total": 14979,
               "taskCount": 37,
               "excludedCount": 0,
-              "asOf": "2026-05-26T14:27:23.997Z"
+              "asOf": "2026-05-27T00:16:03.332Z"
             }
-          ]
+          ],
+          "lastStatementSent": {
+            "date": "10/23/2025",
+            "eStatementsSent": 475,
+            "manualNoPrint": 42,
+            "manualWithEmail": 80,
+            "asOf": "2026-05-20T01:10:27.600Z"
+          }
         },
         "NBDA": {
           "outstanding": {
@@ -8839,8 +8867,8 @@
           },
           "unposted": {
             "y2025": 66827.63,
-            "y2026": 37248.1,
-            "total": 104075.73
+            "y2026": 40905.1,
+            "total": 107732.73
           },
           "legacy": [
             {
@@ -8854,9 +8882,16 @@
               "total": 2875,
               "taskCount": 3,
               "excludedCount": 0,
-              "asOf": "2026-05-26T14:27:23.997Z"
+              "asOf": "2026-05-27T00:16:03.332Z"
             }
-          ]
+          ],
+          "lastStatementSent": {
+            "date": null,
+            "eStatementsSent": null,
+            "manualNoPrint": 0,
+            "manualWithEmail": 0,
+            "asOf": "2026-05-20T01:13:06.137Z"
+          }
         },
         "IC": {
           "outstanding": {
@@ -8897,9 +8932,16 @@
               "total": 11711.25,
               "taskCount": 5,
               "excludedCount": 0,
-              "asOf": "2026-05-26T14:27:23.997Z"
+              "asOf": "2026-05-27T00:16:03.332Z"
             }
-          ]
+          ],
+          "lastStatementSent": {
+            "date": null,
+            "eStatementsSent": null,
+            "manualNoPrint": 0,
+            "manualWithEmail": 0,
+            "asOf": "2026-05-20T01:10:27.600Z"
+          }
         },
         "AR": {
           "outstanding": {
@@ -8940,9 +8982,16 @@
               "total": 1561,
               "taskCount": 6,
               "excludedCount": 0,
-              "asOf": "2026-05-26T14:27:23.997Z"
+              "asOf": "2026-05-27T00:16:03.332Z"
             }
-          ]
+          ],
+          "lastStatementSent": {
+            "date": null,
+            "eStatementsSent": null,
+            "manualNoPrint": 0,
+            "manualWithEmail": 0,
+            "asOf": "2026-05-20T01:10:27.600Z"
+          }
         },
         "PF": {
           "outstanding": {
@@ -8971,7 +9020,14 @@
             "y2026": 32818.61,
             "total": 88779.19
           },
-          "legacy": null
+          "legacy": null,
+          "lastStatementSent": {
+            "date": "09/11/2025",
+            "eStatementsSent": 43,
+            "manualNoPrint": 14,
+            "manualWithEmail": 12,
+            "asOf": "2026-05-20T01:10:27.600Z"
+          }
         },
         "SATX": {
           "outstanding": {
@@ -8997,8 +9053,8 @@
           },
           "unposted": {
             "y2025": 154456.4,
-            "y2026": 144708.46,
-            "total": 299164.86
+            "y2026": 147015.26,
+            "total": 301471.66
           },
           "legacy": [
             {
@@ -9008,13 +9064,20 @@
               "d0_30": 0,
               "d31_60": 0,
               "d61_90": 0,
-              "d90plus": 16746,
-              "total": 16746,
-              "taskCount": 33,
+              "d90plus": 16195,
+              "total": 16195,
+              "taskCount": 32,
               "excludedCount": 0,
-              "asOf": "2026-05-26T14:27:23.997Z"
+              "asOf": "2026-05-27T00:16:03.332Z"
             }
-          ]
+          ],
+          "lastStatementSent": {
+            "date": null,
+            "eStatementsSent": null,
+            "manualNoPrint": 0,
+            "manualWithEmail": 0,
+            "asOf": "2026-05-20T01:13:06.137Z"
+          }
         },
         "AM": {
           "outstanding": {
@@ -9043,7 +9106,14 @@
             "y2026": 8205.43,
             "total": 8205.43
           },
-          "legacy": null
+          "legacy": null,
+          "lastStatementSent": {
+            "date": null,
+            "eStatementsSent": null,
+            "manualNoPrint": 0,
+            "manualWithEmail": 0,
+            "asOf": "2026-05-20T01:13:06.137Z"
+          }
         }
       }
     },
