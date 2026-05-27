@@ -1,5 +1,5 @@
 {
-  "updated": "2026-05-27T17:33:02.648Z",
+  "updated": "2026-05-27T20:32:33.787Z",
   "perOfficeHistory": [
     {
       "date": "2026-05-12",
@@ -9598,8 +9598,8 @@
     {
       "date": "2026-05-27",
       "slot": "PM",
-      "asOf": "5/27/2026, 12:33 PM CT",
-      "generated": "2026-05-27T17:33:02.644Z",
+      "asOf": "5/27/2026, 3:32 PM CT",
+      "generated": "2026-05-27T20:32:33.782Z",
       "offices": {
         "SQ": {
           "outstanding": {
@@ -9628,14 +9628,7 @@
             "y2026": 1712.8,
             "total": 1862.37
           },
-          "legacy": null,
-          "lastStatementSent": {
-            "date": null,
-            "eStatementsSent": null,
-            "manualNoPrint": 0,
-            "manualWithEmail": 0,
-            "asOf": "2026-05-20T00:39:54.450Z"
-          }
+          "legacy": null
         },
         "GT": {
           "outstanding": {
@@ -9661,8 +9654,8 @@
           },
           "unposted": {
             "y2025": 458746.23,
-            "y2026": 76020.97,
-            "total": 534767.2
+            "y2026": 78010.87,
+            "total": 536757.1
           },
           "legacy": [
             {
@@ -9691,14 +9684,7 @@
               "excludedCount": 0,
               "asOf": "2026-05-27T07:07:51.690Z"
             }
-          ],
-          "lastStatementSent": {
-            "date": null,
-            "eStatementsSent": null,
-            "manualNoPrint": 0,
-            "manualWithEmail": 0,
-            "asOf": "2026-05-20T00:39:54.450Z"
-          }
+          ]
         },
         "ATX": {
           "outstanding": {
@@ -9727,14 +9713,7 @@
             "y2026": 52624.68,
             "total": 84566.29
           },
-          "legacy": null,
-          "lastStatementSent": {
-            "date": "05/18/2026",
-            "eStatementsSent": 59,
-            "manualNoPrint": 10,
-            "manualWithEmail": 5,
-            "asOf": "2026-05-20T00:42:56.071Z"
-          }
+          "legacy": null
         },
         "MP": {
           "outstanding": {
@@ -9790,14 +9769,7 @@
               "excludedCount": 0,
               "asOf": "2026-05-27T07:07:51.690Z"
             }
-          ],
-          "lastStatementSent": {
-            "date": "10/23/2025",
-            "eStatementsSent": 475,
-            "manualNoPrint": 42,
-            "manualWithEmail": 80,
-            "asOf": "2026-05-20T01:10:27.600Z"
-          }
+          ]
         },
         "NBDA": {
           "outstanding": {
@@ -9823,8 +9795,8 @@
           },
           "unposted": {
             "y2025": 66827.63,
-            "y2026": 41167.1,
-            "total": 107994.73
+            "y2026": 41216.1,
+            "total": 108043.73
           },
           "legacy": [
             {
@@ -9840,14 +9812,7 @@
               "excludedCount": 0,
               "asOf": "2026-05-27T07:07:51.690Z"
             }
-          ],
-          "lastStatementSent": {
-            "date": null,
-            "eStatementsSent": null,
-            "manualNoPrint": 0,
-            "manualWithEmail": 0,
-            "asOf": "2026-05-20T01:13:06.137Z"
-          }
+          ]
         },
         "IC": {
           "outstanding": {
@@ -9873,8 +9838,8 @@
           },
           "unposted": {
             "y2025": 10380.84,
-            "y2026": 11844.45,
-            "total": 22225.29
+            "y2026": 10543.05,
+            "total": 20923.89
           },
           "legacy": [
             {
@@ -9890,14 +9855,7 @@
               "excludedCount": 0,
               "asOf": "2026-05-27T07:07:51.690Z"
             }
-          ],
-          "lastStatementSent": {
-            "date": null,
-            "eStatementsSent": null,
-            "manualNoPrint": 0,
-            "manualWithEmail": 0,
-            "asOf": "2026-05-20T01:10:27.600Z"
-          }
+          ]
         },
         "AR": {
           "outstanding": {
@@ -9923,8 +9881,8 @@
           },
           "unposted": {
             "y2025": 206317.9,
-            "y2026": 81320.36,
-            "total": 287638.26
+            "y2026": 87120.96,
+            "total": 293438.86
           },
           "legacy": [
             {
@@ -9940,14 +9898,7 @@
               "excludedCount": 0,
               "asOf": "2026-05-27T07:07:51.690Z"
             }
-          ],
-          "lastStatementSent": {
-            "date": null,
-            "eStatementsSent": null,
-            "manualNoPrint": 0,
-            "manualWithEmail": 0,
-            "asOf": "2026-05-20T01:10:27.600Z"
-          }
+          ]
         },
         "PF": {
           "outstanding": {
@@ -9976,14 +9927,7 @@
             "y2026": 32818.61,
             "total": 88779.19
           },
-          "legacy": null,
-          "lastStatementSent": {
-            "date": "09/11/2025",
-            "eStatementsSent": 43,
-            "manualNoPrint": 14,
-            "manualWithEmail": 12,
-            "asOf": "2026-05-20T01:10:27.600Z"
-          }
+          "legacy": null
         },
         "SATX": {
           "outstanding": {
@@ -10009,8 +9953,8 @@
           },
           "unposted": {
             "y2025": 154456.4,
-            "y2026": 147015.26,
-            "total": 301471.66
+            "y2026": 147268.46,
+            "total": 301724.86
           },
           "legacy": [
             {
@@ -10026,14 +9970,7 @@
               "excludedCount": 0,
               "asOf": "2026-05-27T07:07:51.690Z"
             }
-          ],
-          "lastStatementSent": {
-            "date": null,
-            "eStatementsSent": null,
-            "manualNoPrint": 0,
-            "manualWithEmail": 0,
-            "asOf": "2026-05-20T01:13:06.137Z"
-          }
+          ]
         },
         "AM": {
           "outstanding": {
@@ -10062,14 +9999,7 @@
             "y2026": 8558.43,
             "total": 8558.43
           },
-          "legacy": null,
-          "lastStatementSent": {
-            "date": null,
-            "eStatementsSent": null,
-            "manualNoPrint": 0,
-            "manualWithEmail": 0,
-            "asOf": "2026-05-20T01:13:06.137Z"
-          }
+          "legacy": null
         }
       }
     }
