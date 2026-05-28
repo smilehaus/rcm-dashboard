@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-28T08:29:49.146Z",
+  "generated": "2026-05-28T20:39:16.655Z",
   "offices": {
     "SQ": {
       "oryx": {
@@ -13,7 +13,7 @@
     },
     "GT": {
       "oryx": {
-        "overdue": 12,
+        "overdue": 7,
         "priority": 1
       },
       "legacy": {
@@ -53,11 +53,11 @@
     },
     "IC": {
       "oryx": {
-        "overdue": 1,
+        "overdue": 0,
         "priority": 0
       },
       "legacy": {
-        "overdue": 3,
+        "overdue": 1,
         "priority": 0
       }
     },
@@ -88,7 +88,7 @@
       },
       "legacy": {
         "overdue": 0,
-        "priority": 0
+        "priority": 1
       }
     },
     "AM": {
