@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-01T08:38:58.961Z",
-  "asOf": "6/1/2026, 3:38 AM CT",
+  "generated": "2026-06-01T21:44:27.526Z",
+  "asOf": "6/1/2026, 4:44 PM CT",
   "totals": {
     "outstanding": {
       "d0_30": 524014.94,
@@ -55,15 +55,15 @@
       },
       "unposted": {
         "y2025": 149.57,
-        "y2026": 526,
-        "total": 675.57,
-        "mondayBaseline2026": 526,
-        "mondayBaselineDate": "2026-05-31",
+        "y2026": 784,
+        "total": 933.57,
+        "mondayBaseline2026": 784,
+        "mondayBaselineDate": "2026-06-01",
         "completedToday2026": 0,
         "completedTodayDate": "2026-06-01",
         "completedThisWeek2026": 0,
         "completedThisWeekStart": "2026-06-01",
-        "newTasksAddedThisWeek2026": 0
+        "newTasksAddedThisWeek2026": 258
       },
       "lastStatementSent": {
         "date": null,
@@ -97,15 +97,15 @@
       },
       "unposted": {
         "y2025": 458746.23,
-        "y2026": 70949.57,
-        "total": 529695.8,
-        "mondayBaseline2026": 70949.57,
-        "mondayBaselineDate": "2026-05-31",
+        "y2026": 73989.61,
+        "total": 532735.84,
+        "mondayBaseline2026": 73989.61,
+        "mondayBaselineDate": "2026-06-01",
         "completedToday2026": 0,
         "completedTodayDate": "2026-06-01",
         "completedThisWeek2026": 0,
         "completedThisWeekStart": "2026-06-01",
-        "newTasksAddedThisWeek2026": 0
+        "newTasksAddedThisWeek2026": 4129.64
       },
       "legacy": [
         {
@@ -170,7 +170,7 @@
         "y2026": 51061.23,
         "total": 83002.84,
         "mondayBaseline2026": 51061.23,
-        "mondayBaselineDate": "2026-05-31",
+        "mondayBaselineDate": "2026-06-01",
         "completedToday2026": 0,
         "completedTodayDate": "2026-06-01",
         "completedThisWeek2026": 0,
@@ -212,7 +212,7 @@
         "y2026": 66788.79,
         "total": 220398.82,
         "mondayBaseline2026": 66788.79,
-        "mondayBaselineDate": "2026-05-31",
+        "mondayBaselineDate": "2026-06-01",
         "completedToday2026": 0,
         "completedTodayDate": "2026-06-01",
         "completedThisWeek2026": 0,
@@ -282,7 +282,7 @@
         "y2026": 35165.25,
         "total": 101992.88,
         "mondayBaseline2026": 35165.25,
-        "mondayBaselineDate": "2026-05-31",
+        "mondayBaselineDate": "2026-06-01",
         "completedToday2026": 0,
         "completedTodayDate": "2026-06-01",
         "completedThisWeek2026": 0,
@@ -339,7 +339,7 @@
         "y2026": 5374.75,
         "total": 15755.59,
         "mondayBaseline2026": 5374.75,
-        "mondayBaselineDate": "2026-05-31",
+        "mondayBaselineDate": "2026-06-01",
         "completedToday2026": 0,
         "completedTodayDate": "2026-06-01",
         "completedThisWeek2026": 0,
@@ -396,7 +396,7 @@
         "y2026": 93927.66,
         "total": 300245.56,
         "mondayBaseline2026": 93927.66,
-        "mondayBaselineDate": "2026-05-31",
+        "mondayBaselineDate": "2026-06-01",
         "completedToday2026": 0,
         "completedTodayDate": "2026-06-01",
         "completedThisWeek2026": 0,
@@ -453,7 +453,7 @@
         "y2026": 32818.61,
         "total": 88779.19,
         "mondayBaseline2026": 32818.61,
-        "mondayBaselineDate": "2026-05-31",
+        "mondayBaselineDate": "2026-06-01",
         "completedToday2026": 0,
         "completedTodayDate": "2026-06-01",
         "completedThisWeek2026": 0,
@@ -495,7 +495,7 @@
         "y2026": 149369.76,
         "total": 303826.16,
         "mondayBaseline2026": 149369.76,
-        "mondayBaselineDate": "2026-05-31",
+        "mondayBaselineDate": "2026-06-01",
         "completedToday2026": 0,
         "completedTodayDate": "2026-06-01",
         "completedThisWeek2026": 0,
@@ -552,7 +552,7 @@
         "y2026": 23726.33,
         "total": 23726.33,
         "mondayBaseline2026": 23726.33,
-        "mondayBaselineDate": "2026-05-31",
+        "mondayBaselineDate": "2026-06-01",
         "completedToday2026": 0,
         "completedTodayDate": "2026-06-01",
         "completedThisWeek2026": 0,
@@ -12693,8 +12693,8 @@
     },
     {
       "date": "2026-06-01",
-      "unposted": 1668098.74,
-      "unposted2026": 529707.95,
+      "unposted": 1671396.7799999998,
+      "unposted2026": 533005.99,
       "unposted2025": 1138390.7899999998
     }
   ]
