@@ -2716,9 +2716,14 @@ function startFbPolling() {
           // Only fill in missing/empty slots — never overwrite remote data that
           // genuinely exists (concurrent clears by another user are respected).
           if (!S.assign || typeof S.assign !== 'object') S.assign = {};
+          // assign[off] is an OBJECT keyed by column id. Check if ANY column has tokens.
+          function _offHasData(obj) {
+            return obj && typeof obj === 'object' && !Array.isArray(obj) &&
+              Object.values(obj).some(v => Array.isArray(v) && v.length > 0);
+          }
           for (const off of Object.keys(preAssign)) {
-            const had = Array.isArray(preAssign[off]) && preAssign[off].length > 0;
-            const now = Array.isArray(S.assign[off])  && S.assign[off].length  > 0;
+            const had = _offHasData(preAssign[off]);
+            const now = _offHasData(S.assign[off]);
             if (had && !now) S.assign[off] = preAssign[off];
           }
           if (!S.live || typeof S.live !== 'object') S.live = {};
@@ -2826,7 +2831,13 @@ function normalizeSArrays() {
   S.offices.forEach(o => {
     if (!S.live[o.code] || typeof S.live[o.code] !== 'object') S.live[o.code] = {};
     S.columns.forEach(c => { if (!Array.isArray(S.live[o.code][c.id])) S.live[o.code][c.id] = []; });
-    if (!Array.isArray(S.assign[o.code])) S.assign[o.code] = [];
+    // assign[office] is an OBJECT keyed by column id (not an array).
+    // Only reset to {} if it's genuinely missing or wrong type.
+    if (!S.assign[o.code] || typeof S.assign[o.code] !== 'object' || Array.isArray(S.assign[o.code])) {
+      S.assign[o.code] = {};
+    }
+    // Initialize any column slot that is missing (existing non-empty arrays are left untouched).
+    S.columns.forEach(c => { if (!Array.isArray(S.assign[o.code][c.id])) S.assign[o.code][c.id] = []; });
   });
   // Also guard each helpInstance's helpers array
   if (S.helpInstances) {
