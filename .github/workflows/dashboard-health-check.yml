@@ -1,0 +1,177 @@
+name: RCM Dashboard — Health Check
+
+# Runs Tuesday + Friday at ~10 AM CT (15:37 UTC).
+# Also fires on every push to master so every deploy is auto-verified,
+# and can be triggered manually from the Actions tab at any time.
+
+on:
+  schedule:
+    - cron: '37 15 * * 2,5'
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    name: Fetch & audit dashboard HTML
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Fetch live page ───────────────────────────────────────────────
+      - name: Fetch live dashboard
+        run: |
+          URL="https://smilehaus.github.io/rcm-dashboard/index.html?t=$(date +%s)"
+          echo "Fetching: $URL"
+          HTTP_STATUS=$(curl -s -o /tmp/dashboard.html -w "%{http_code}" "$URL")
+
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "❌ FAIL — HTTP $HTTP_STATUS (expected 200)"
+            exit 1
+          fi
+
+          FILE_SIZE=$(wc -c < /tmp/dashboard.html)
+          echo "✅ HTTP 200 — ${FILE_SIZE} bytes"
+
+          # Blank / broken pages are typically < 50 KB
+          if [ "$FILE_SIZE" -lt 50000 ]; then
+            echo "❌ FAIL — Page is only ${FILE_SIZE} bytes (threshold: 50000)"
+            echo "   The page is likely blank or severely broken."
+            exit 1
+          fi
+          echo "✅ File size OK: ${FILE_SIZE} bytes"
+
+      # ── 2. Structural landmarks ──────────────────────────────────────────
+      # These IDs / function names must always be present. A missing one means
+      # a section was accidentally wiped during an edit.
+      - name: Check structural landmarks
+        run: |
+          FAIL=0
+          check() {
+            local pattern="$1"
+            local label="$2"
+            if grep -qF "$pattern" /tmp/dashboard.html; then
+              echo "  ✅  $label"
+            else
+              echo "  ❌  MISSING: $label"
+              FAIL=1
+            fi
+          }
+
+          echo "── Structural landmarks ────────────────────────────────"
+          check "arsnap-cards"                 "arsnap-cards section"
+          check "live-board"                   "live-board section"
+          check "arsnap-history-modal"         "per-office history modal"
+          check "arsnap-orgwide-history-modal" "org-wide history modal"
+          check "renderOfficeRowGroup"         "renderOfficeRowGroup()"
+          check "renderPerOfficeHistory"       "renderPerOfficeHistory()"
+          check "normalizeSArrays"             "normalizeSArrays()"
+          check "mergeBoardState"              "mergeBoardState()"
+          check "startFbPolling"               "startFbPolling()"
+          check "unpostedWeekArrowsHtml"       "two-arrow posting indicator"
+
+          if [ "$FAIL" -ne 0 ]; then
+            echo ""
+            echo "❌ One or more structural sections are missing."
+            echo "   A recent edit likely left an unclosed tag or erased a section."
+            exit 1
+          fi
+
+      # ── 3. Token-safety guards ───────────────────────────────────────────
+      # These exact code patterns protect live-board tokens from being silently
+      # deleted when Firebase RTDB strips empty array/object nodes from its tree.
+      # If ANY of these are missing, tokens (staff placement, off markers, lunch
+      # markers) can disappear the next time the Firebase poll runs.
+      - name: Check token-safety guards
+        run: |
+          FAIL=0
+          guard() {
+            local pattern="$1"
+            local label="$2"
+            local note="$3"
+            if grep -qF "$pattern" /tmp/dashboard.html; then
+              echo "  ✅  $label"
+            else
+              echo "  ❌  MISSING: $label"
+              echo "       ↳ Risk: $note"
+              FAIL=1
+            fi
+          }
+
+          echo "── Token-safety guards ──────────────────────────────────"
+
+          # PROTECTED_KEYS set — prevents Firebase-stripped keys from being
+          # deleted out of S during the poll merge loop.
+          guard "PROTECTED_KEYS" \
+            "PROTECTED_KEYS set defined" \
+            "delete S[k] loop has no guard — ANY key Firebase strips will vanish from S"
+
+          # The actual guard expression inside the delete loop.
+          guard "PROTECTED_KEYS.has(k)" \
+            "PROTECTED_KEYS.has(k) guard in poll merge loop" \
+            "S.live / S.assign will be deleted when Firebase returns empty board state"
+
+          # S.live restoration inside normalizeSArrays — rebuilds per-office
+          # live token arrays if Firebase stripped the entire live object.
+          guard "S.live[o.code]" \
+            "S.live[o.code] restoration in normalizeSArrays" \
+            "Live token cells won't be rebuilt after a Firebase empty-node strip"
+
+          # S.assign restoration — same concept for the assignment column.
+          guard "S.assign[o.code]" \
+            "S.assign[o.code] restoration in normalizeSArrays" \
+            "Assignment rows may disappear if Firebase strips empty assign arrays"
+
+          # inst.helpers guard — prevents 'Cannot read properties of undefined
+          # (reading includes)' crash when provideHelp() is called on an older
+          # help instance whose helpers field was never initialized.
+          guard "Array.isArray(inst.helpers)" \
+            "Array.isArray(inst.helpers) guard in provideHelp/addOutsideHelper" \
+            "Save crash when a help instance has no helpers array"
+
+          if [ "$FAIL" -ne 0 ]; then
+            echo ""
+            echo "❌ One or more token-safety guards are missing."
+            echo "   Live-board tokens WILL be silently removed on the next Firebase poll."
+            echo "   Review recent commits to index.html and restore the missing guards."
+            exit 1
+          fi
+
+      # ── 4. Anti-pattern check ────────────────────────────────────────────
+      # The old bare delete loop (no PROTECTED_KEYS guard) must not exist.
+      # If someone reverts to it, tokens vanish within one poll cycle (15 s).
+      - name: Check for dangerous regressions
+        run: |
+          FAIL=0
+
+          # The old unguarded delete pattern. The fixed version adds
+          # '!PROTECTED_KEYS.has(k) &&' before the 'if (!(k in merged))' check.
+          # If the guarded version is present, we're fine.
+          # If ONLY the bare version exists (no PROTECTED_KEYS.has), flag it.
+          if grep -qF "PROTECTED_KEYS.has(k)" /tmp/dashboard.html; then
+            echo "  ✅  Delete loop is guarded by PROTECTED_KEYS"
+          else
+            # Check if bare delete loop exists at all
+            if grep -qF "if (!(k in merged)) delete S[k]" /tmp/dashboard.html; then
+              echo "  ❌  REGRESSION: bare 'if (!(k in merged)) delete S[k]' found WITHOUT PROTECTED_KEYS guard"
+              echo "       ↳ This will wipe S.live / S.assign on the next Firebase poll."
+              FAIL=1
+            else
+              echo "  ⚠️   Neither PROTECTED_KEYS guard nor bare delete found — check manually"
+            fi
+          fi
+
+          if [ "$FAIL" -ne 0 ]; then
+            echo ""
+            echo "❌ Dangerous regression detected in dashboard JS."
+            exit 1
+          fi
+
+      # ── 5. Summary ───────────────────────────────────────────────────────
+      - name: Health check summary
+        run: |
+          echo ""
+          echo "════════════════════════════════════════"
+          echo "✅  RCM Dashboard — all checks PASSED"
+          echo "    URL  : https://smilehaus.github.io/rcm-dashboard/"
+          echo "    Time : $(date -u '+%Y-%m-%d %H:%M UTC')"
+          echo "════════════════════════════════════════"
