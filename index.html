@@ -2768,12 +2768,27 @@ async function load() {
     } catch(e) { localStorage.removeItem('sh-rcm-v5'); }
   }
 
-  // Pick the most recent source
+  // Firebase is always the source of truth for shared board state.
+  // localStorage is only used when Firebase is unavailable or stale.
+  // We never let localStorage override Firebase for live/assign/staff/columns —
+  // a stale localStorage overriding Firebase was the root cause of assignment board wipes.
   let src = null;
   if (remote && remote._v === DATA_VERSION) {
-    const remoteTime = remote._savedAt || remote._published || '';
-    const localTime  = local ? (local._savedAt || local._published || '') : '';
-    src = (remote && (!local || remoteTime >= localTime)) ? remote : local;
+    src = remote;
+    // Still merge localStorage-only fields (e.g. drafts, personal state) if local is newer
+    if (local) {
+      const remoteTime = remote._savedAt || '';
+      const localTime  = local._savedAt  || '';
+      if (localTime > remoteTime) {
+        // Only take non-board keys from localStorage to avoid overriding shared state
+        const BOARD_KEYS = new Set(['live','assign','staff','offices','columns','off','lunch',
+          'vacationActive','helpLog','checkinLog','perOfficeHistory','ivDates','helpInstances',
+          'kpi','departments','_savedAt','_v','_lastResetDate','_published']);
+        for (const k of Object.keys(local)) {
+          if (!BOARD_KEYS.has(k)) src[k] = local[k];
+        }
+      }
+    }
   } else {
     src = local || remote;
   }
