@@ -38,7 +38,14 @@ function pickOfficeFields(o: any) {
     outstanding: o.outstanding ? deepCopy(o.outstanding) : null,
     patients:    o.patients    ? deepCopy(o.patients)    : null,
     insurance:   o.insurance   ? deepCopy(o.insurance)   : null,
-    unposted:    o.unposted ? { y2025: o.unposted.y2025 ?? null, y2026: o.unposted.y2026 ?? null, total: o.unposted.total ?? null } : null,
+    unposted:    o.unposted ? {
+      y2025: o.unposted.y2025 ?? null,
+      y2026: o.unposted.y2026 ?? null,
+      total: o.unposted.total ?? null,
+      completedThisWeek2026:     o.unposted.completedThisWeek2026     ?? null,
+      completedThisWeekStart:    o.unposted.completedThisWeekStart    ?? null,
+      newTasksAddedThisWeek2026: o.unposted.newTasksAddedThisWeek2026 ?? null,
+    } : null,
     legacy:      o.legacy ? deepCopy(o.legacy) : null,
   };
 }
