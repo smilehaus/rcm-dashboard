@@ -2799,7 +2799,7 @@ function normalizeSArrays() {
   });
   // Also guard each helpInstance's helpers array
   if (S.helpInstances) {
-    Object.values(S.helpInstances).forEach((inst: any) => {
+    Object.values(S.helpInstances).forEach(inst => {
       if (!Array.isArray(inst.helpers)) inst.helpers = [];
     });
   }
