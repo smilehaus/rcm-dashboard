@@ -142,24 +142,15 @@ async function sumOfficeUnposted(code: OfficeCode, lists: { id: string; name: st
       const gt = getCustomField(task, GRAND_TOTAL_FIELD);
       const v = getCurrencyValue(gt);
 
-      // Track 2026 tasks that entered the queue this week — for the organic posting metric.
-      // Primary check : date_created >= Monday  (task was brand-new this week)
-      // Secondary check: date_updated >= Monday AND task is unposted
-      //   — catches ERA tasks whose Grand Total was filled in this week even though
-      //     the ClickUp task itself was created on an earlier date (e.g. a 5/28 ERA
-      //     batch that wasn't entered into ClickUp until 6/2).
-      //   — only applied to unposted tasks so completed tasks don't get double-counted.
-      if (year === 2026 && v > 0) {
-        let addedThisWeek = false;
-        if (task.date_created) {
-          const createdCT = new Date(Number(task.date_created)).toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
-          if (createdCT >= mondayISO_) addedThisWeek = true;
-        }
-        if (!isCompleted && !addedThisWeek && task.date_updated) {
-          const updatedCT = new Date(Number(task.date_updated)).toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
-          if (updatedCT >= mondayISO_) addedThisWeek = true;
-        }
-        if (addedThisWeek) newTasksAddedThisWeek2026 += v;
+      // Track 2026 tasks whose ClickUp task was CREATED this week (Monday CT onward).
+      // Uses date_created only — not date_updated — so that old tasks which are merely
+      // edited this week are not counted. ERA batches entered retroactively (e.g. a
+      // "05/28/26" ERA task entered into ClickUp on 06/02) are correctly caught because
+      // their ClickUp date_created reflects when the task was first made, not the ERA date
+      // in the task name.
+      if (year === 2026 && v > 0 && task.date_created) {
+        const createdCT = new Date(Number(task.date_created)).toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
+        if (createdCT >= mondayISO_) newTasksAddedThisWeek2026 += v;
       }
 
       if (isCompleted) {
