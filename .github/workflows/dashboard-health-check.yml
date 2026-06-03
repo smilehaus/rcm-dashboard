@@ -3,6 +3,15 @@ name: RCM Dashboard — Health Check
 # Runs Tuesday + Friday at ~10 AM CT (15:37 UTC).
 # Also fires on every push to master so every deploy is auto-verified,
 # and can be triggered manually from the Actions tab at any time.
+#
+# On failure: sends an email to saomongmo@gmail.com with the failing
+# step and a direct link to the Actions run log.
+#
+# One-time setup required:
+#   1. Go to https://myaccount.google.com/apppasswords
+#   2. Create an App Password for "GitHub Actions"
+#   3. In smilehaus/rcm-dashboard → Settings → Secrets → Actions:
+#      Add secret  GMAIL_APP_PASSWORD = <the 16-char app password>
 
 on:
   schedule:
@@ -12,6 +21,7 @@ on:
   workflow_dispatch:
 
 jobs:
+  # ══════════════════════════════════════════════════════════════════════════
   health-check:
     name: Fetch & audit dashboard HTML
     runs-on: ubuntu-latest
@@ -32,7 +42,6 @@ jobs:
           FILE_SIZE=$(wc -c < /tmp/dashboard.html)
           echo "✅ HTTP 200 — ${FILE_SIZE} bytes"
 
-          # Blank / broken pages are typically < 50 KB
           if [ "$FILE_SIZE" -lt 50000 ]; then
             echo "❌ FAIL — Page is only ${FILE_SIZE} bytes (threshold: 50000)"
             echo "   The page is likely blank or severely broken."
@@ -41,8 +50,6 @@ jobs:
           echo "✅ File size OK: ${FILE_SIZE} bytes"
 
       # ── 2. Structural landmarks ──────────────────────────────────────────
-      # These IDs / function names must always be present. A missing one means
-      # a section was accidentally wiped during an edit.
       - name: Check structural landmarks
         run: |
           FAIL=0
@@ -70,17 +77,13 @@ jobs:
           check "unpostedWeekArrowsHtml"       "two-arrow posting indicator"
 
           if [ "$FAIL" -ne 0 ]; then
-            echo ""
-            echo "❌ One or more structural sections are missing."
-            echo "   A recent edit likely left an unclosed tag or erased a section."
+            echo "::error::One or more structural sections are missing from the live dashboard."
             exit 1
           fi
 
       # ── 3. Token-safety guards ───────────────────────────────────────────
-      # These exact code patterns protect live-board tokens from being silently
+      # These exact patterns protect live-board tokens from being silently
       # deleted when Firebase RTDB strips empty array/object nodes from its tree.
-      # If ANY of these are missing, tokens (staff placement, off markers, lunch
-      # markers) can disappear the next time the Firebase poll runs.
       - name: Check token-safety guards
         run: |
           FAIL=0
@@ -98,71 +101,50 @@ jobs:
           }
 
           echo "── Token-safety guards ──────────────────────────────────"
-
-          # PROTECTED_KEYS set — prevents Firebase-stripped keys from being
-          # deleted out of S during the poll merge loop.
           guard "PROTECTED_KEYS" \
             "PROTECTED_KEYS set defined" \
             "delete S[k] loop has no guard — ANY key Firebase strips will vanish from S"
 
-          # The actual guard expression inside the delete loop.
           guard "PROTECTED_KEYS.has(k)" \
             "PROTECTED_KEYS.has(k) guard in poll merge loop" \
             "S.live / S.assign will be deleted when Firebase returns empty board state"
 
-          # S.live restoration inside normalizeSArrays — rebuilds per-office
-          # live token arrays if Firebase stripped the entire live object.
           guard "S.live[o.code]" \
             "S.live[o.code] restoration in normalizeSArrays" \
             "Live token cells won't be rebuilt after a Firebase empty-node strip"
 
-          # S.assign restoration — same concept for the assignment column.
           guard "S.assign[o.code]" \
             "S.assign[o.code] restoration in normalizeSArrays" \
             "Assignment rows may disappear if Firebase strips empty assign arrays"
 
-          # inst.helpers guard — prevents 'Cannot read properties of undefined
-          # (reading includes)' crash when provideHelp() is called on an older
-          # help instance whose helpers field was never initialized.
           guard "Array.isArray(inst.helpers)" \
             "Array.isArray(inst.helpers) guard in provideHelp/addOutsideHelper" \
             "Save crash when a help instance has no helpers array"
 
           if [ "$FAIL" -ne 0 ]; then
-            echo ""
-            echo "❌ One or more token-safety guards are missing."
-            echo "   Live-board tokens WILL be silently removed on the next Firebase poll."
-            echo "   Review recent commits to index.html and restore the missing guards."
+            echo "::error::One or more token-safety guards are missing. Live-board tokens WILL be silently removed on the next Firebase poll."
             exit 1
           fi
 
-      # ── 4. Anti-pattern check ────────────────────────────────────────────
-      # The old bare delete loop (no PROTECTED_KEYS guard) must not exist.
-      # If someone reverts to it, tokens vanish within one poll cycle (15 s).
+      # ── 4. Regression check ──────────────────────────────────────────────
       - name: Check for dangerous regressions
         run: |
           FAIL=0
 
-          # The old unguarded delete pattern. The fixed version adds
-          # '!PROTECTED_KEYS.has(k) &&' before the 'if (!(k in merged))' check.
-          # If the guarded version is present, we're fine.
-          # If ONLY the bare version exists (no PROTECTED_KEYS.has), flag it.
           if grep -qF "PROTECTED_KEYS.has(k)" /tmp/dashboard.html; then
             echo "  ✅  Delete loop is guarded by PROTECTED_KEYS"
           else
-            # Check if bare delete loop exists at all
             if grep -qF "if (!(k in merged)) delete S[k]" /tmp/dashboard.html; then
-              echo "  ❌  REGRESSION: bare 'if (!(k in merged)) delete S[k]' found WITHOUT PROTECTED_KEYS guard"
-              echo "       ↳ This will wipe S.live / S.assign on the next Firebase poll."
+              echo "  ❌  REGRESSION: bare delete S[k] found WITHOUT PROTECTED_KEYS guard"
+              echo "       ↳ Tokens will wipe within one Firebase poll cycle (15 s)"
               FAIL=1
             else
-              echo "  ⚠️   Neither PROTECTED_KEYS guard nor bare delete found — check manually"
+              echo "  ⚠️   Neither guard nor bare delete found — review index.html manually"
             fi
           fi
 
           if [ "$FAIL" -ne 0 ]; then
-            echo ""
-            echo "❌ Dangerous regression detected in dashboard JS."
+            echo "::error::Dangerous regression: unguarded delete loop detected."
             exit 1
           fi
 
@@ -175,3 +157,43 @@ jobs:
           echo "    URL  : https://smilehaus.github.io/rcm-dashboard/"
           echo "    Time : $(date -u '+%Y-%m-%d %H:%M UTC')"
           echo "════════════════════════════════════════"
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # Email saomongmo@gmail.com when ANY step above fails.
+  # Uses Gmail SMTP with an App Password stored in repo secrets.
+  notify-failure:
+    name: Email failure alert
+    runs-on: ubuntu-latest
+    needs: health-check
+    if: failure()
+
+    steps:
+      - name: Send failure email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: saomongmo@gmail.com
+          password: ${{ secrets.GMAIL_APP_PASSWORD }}
+          to: saomongmo@gmail.com
+          from: "RCM Dashboard Monitor <saomongmo@gmail.com>"
+          subject: "❌ RCM Dashboard health check FAILED — ${{ github.run_id }}"
+          body: |
+            The RCM Dashboard health check failed.
+
+            Trigger : ${{ github.event_name }}
+            Branch  : ${{ github.ref_name }}
+            Commit  : ${{ github.sha }}
+            Time    : ${{ github.event.head_commit.timestamp }}
+
+            View the full log (including which check failed and why):
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            Common causes:
+            - Structural section wiped during a recent edit (unclosed tag, bad find-replace)
+            - Token-safety guard removed or renamed in index.html
+            - GitHub Pages deploy failed / page returned non-200
+            - Page size dropped below 50 KB (blank page)
+
+            Dashboard URL: https://smilehaus.github.io/rcm-dashboard/
