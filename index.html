@@ -2693,7 +2693,14 @@ function startFbPolling() {
         // still applying everything the remote state has that we didn't touch.
         if (_syncBase) {
           const merged = mergeBoardState(_syncBase, S, remote);
-          Object.keys(S).forEach(k => { if (!(k in merged)) delete S[k]; });
+          // Only delete non-critical keys that Firebase legitimately removed.
+          // PROTECTED_KEYS are never deleted even if Firebase stripped them
+          // (e.g. Firebase removes empty arrays/objects from its tree — that
+          //  must not wipe live board tokens or assignment rows).
+          const PROTECTED_KEYS = new Set(['live','assign','off','lunch','staff','offices','columns','vacationActive','helpLog','checkinLog','perOfficeHistory','ivDates','helpInstances','kpi','departments']);
+          Object.keys(S).forEach(k => {
+            if (!PROTECTED_KEYS.has(k) && !(k in merged)) delete S[k];
+          });
           Object.assign(S, merged);
         } else {
           Object.assign(S, remote);
@@ -2781,6 +2788,21 @@ function normalizeSArrays() {
   // Ensure ivDates is an object
   if (!S.ivDates || typeof S.ivDates !== 'object' || Array.isArray(S.ivDates)) S.ivDates = {};
   if (!S.helpInstances || typeof S.helpInstances !== 'object' || Array.isArray(S.helpInstances)) S.helpInstances = {};
+  // Restore S.live and S.assign if Firebase stripped them (empty object/array nodes
+  // are silently removed by Firebase RTDB — rebuild from offices/columns if missing).
+  if (!S.live || typeof S.live !== 'object' || Array.isArray(S.live)) S.live = {};
+  if (!S.assign || typeof S.assign !== 'object' || Array.isArray(S.assign)) S.assign = {};
+  S.offices.forEach(o => {
+    if (!S.live[o.code] || typeof S.live[o.code] !== 'object') S.live[o.code] = {};
+    S.columns.forEach(c => { if (!Array.isArray(S.live[o.code][c.id])) S.live[o.code][c.id] = []; });
+    if (!Array.isArray(S.assign[o.code])) S.assign[o.code] = [];
+  });
+  // Also guard each helpInstance's helpers array
+  if (S.helpInstances) {
+    Object.values(S.helpInstances).forEach((inst: any) => {
+      if (!Array.isArray(inst.helpers)) inst.helpers = [];
+    });
+  }
 }
 
 function save() {
@@ -3153,6 +3175,7 @@ function provideHelp() {
   const name = getStaff(hid).name;
   const inst = S.helpInstances[activeHelpId];
   if (!inst) return;
+  if (!Array.isArray(inst.helpers)) inst.helpers = [];
   if (!inst.helpers.includes(name)) inst.helpers.push(name);
   inst.status = 'helped';
   save(); renderAll(); renderHelpModal();
@@ -3164,6 +3187,7 @@ function addOutsideHelper() {
   if (!name) return;
   const inst = S.helpInstances[activeHelpId];
   if (!inst) return;
+  if (!Array.isArray(inst.helpers)) inst.helpers = [];
   if (!inst.helpers.includes(name)) inst.helpers.push(name);
   inst.status = 'helped';
   inp.value = '';
