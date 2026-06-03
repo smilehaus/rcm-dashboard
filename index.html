@@ -2179,6 +2179,11 @@ function mergeBoardState(base, local, remote) {
   const J = v => JSON.stringify(v ?? null);
 
   for (const board of ['live', 'assign']) {
+    // Firebase strips empty objects to null — seed merged[board] from local so
+    // the delta loop has a base to write into and data isn't silently discarded.
+    if (!merged[board] || typeof merged[board] !== 'object') {
+      merged[board] = clone(local[board] || {});
+    }
     const baseB = base[board] || {}, locB = local[board] || {};
     const offices = new Set([...Object.keys(baseB), ...Object.keys(locB)]);
     for (const off of offices) {
@@ -2701,7 +2706,33 @@ function startFbPolling() {
           Object.keys(S).forEach(k => {
             if (!PROTECTED_KEYS.has(k) && !(k in merged)) delete S[k];
           });
+          // Snapshot assign and live before overwriting — Firebase strips empty
+          // arrays/objects to null, so merged may have lost them even though we
+          // have valid local data. We restore per-office after the assign.
+          const preAssign = (S.assign && typeof S.assign === 'object') ? clone(S.assign) : {};
+          const preLive   = (S.live   && typeof S.live   === 'object') ? clone(S.live)   : {};
           Object.assign(S, merged);
+          // Restore any office that had data locally but Firebase stripped.
+          // Only fill in missing/empty slots — never overwrite remote data that
+          // genuinely exists (concurrent clears by another user are respected).
+          if (!S.assign || typeof S.assign !== 'object') S.assign = {};
+          for (const off of Object.keys(preAssign)) {
+            const had = Array.isArray(preAssign[off]) && preAssign[off].length > 0;
+            const now = Array.isArray(S.assign[off])  && S.assign[off].length  > 0;
+            if (had && !now) S.assign[off] = preAssign[off];
+          }
+          if (!S.live || typeof S.live !== 'object') S.live = {};
+          for (const off of Object.keys(preLive)) {
+            if (!S.live[off] || typeof S.live[off] !== 'object') {
+              S.live[off] = preLive[off];
+            } else {
+              for (const col of Object.keys(preLive[off])) {
+                const had = Array.isArray(preLive[off][col]) && preLive[off][col].length > 0;
+                const now = Array.isArray(S.live[off][col])  && S.live[off][col].length  > 0;
+                if (had && !now) S.live[off][col] = preLive[off][col];
+              }
+            }
+          }
         } else {
           Object.assign(S, remote);
         }
