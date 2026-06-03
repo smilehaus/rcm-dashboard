@@ -6177,6 +6177,21 @@ function shouldSubtleFlash(target) {
 // Lets the user pick any snapshot date (and optionally a comparison date) and
 // renders the same Per-Office Breakdown table with delta indicators.
 // ════════════════════════════════════════════════
+// Shared helper — renders the two posting-week arrows (▼ posted, ▲ added)
+// for any unposted object that has completedThisWeek2026 + newTasksAddedThisWeek2026.
+function unpostedWeekArrowsHtml(uObj) {
+  if (!uObj || uObj.completedThisWeek2026 == null || uObj.newTasksAddedThisWeek2026 == null) return '';
+  const posted = uObj.completedThisWeek2026;
+  const added  = uObj.newTasksAddedThisWeek2026;
+  const wk     = uObj.completedThisWeekStart || '';
+  const tipP   = `Posted this week (${wk}): ${fmtMoney(posted)}`;
+  const tipA   = `New EOB/ERA scans added this week (${wk}): ${fmtMoney(added)}`;
+  return `<div style="font-size:9px;margin-top:4px;line-height:1.65">` +
+    `<div style="color:#2aa898;font-weight:600" title="${tipP}">▼ ${fmtMoney(posted)}<span style="font-weight:400;font-size:8px;opacity:.8;margin-left:3px">posted</span></div>` +
+    `<div style="color:#a04545;font-weight:600" title="${tipA}">▲ ${fmtMoney(added)}<span style="font-weight:400;font-size:8px;opacity:.8;margin-left:3px">added</span></div>` +
+    `</div>`;
+}
+// ════════════════════════════════════════════════
 function openPerOfficeHistory() {
   const modal  = document.getElementById('arsnap-history-modal');
   const sel    = document.getElementById('arsnap-history-date');
@@ -6321,7 +6336,7 @@ function renderPerOfficeHistory() {
         </td>
         ${row(cOut, pOut, 'Total Outstanding', true)}
         <td rowspan="${rowCount}">${bucketCell(cU.y2025, pU.y2025)}</td>
-        <td rowspan="${rowCount}">${bucketCell(cU.y2026, pU.y2026)}</td>
+        <td rowspan="${rowCount}">${bucketCell(cU.y2026, pU.y2026)}${unpostedWeekArrowsHtml(cU)}</td>
         <td rowspan="${rowCount}"><strong>${bucketCell(cU.total, pU.total)}</strong></td>
       </tr>
       <tr>${row(cPat, pPat, 'Patient Balances', false)}</tr>
@@ -6674,16 +6689,7 @@ function renderArSnapshot() {
     const monDatex = new Date(nowCTx); monDatex.setDate(nowCTx.getDate() - daysToMonx);
     const mondayISOx = monDatex.getFullYear() + '-' + String(monDatex.getMonth()+1).padStart(2,'0') + '-' + String(monDatex.getDate()).padStart(2,'0');
     const weekMatches = u && u.completedThisWeekStart === mondayISOx;
-    const organicPosted = weekMatches && u.completedThisWeek2026 != null && u.newTasksAddedThisWeek2026 != null
-      ? u.completedThisWeek2026 - u.newTasksAddedThisWeek2026
-      : null;
-    const organicHtml = organicPosted != null ? (() => {
-      const isPos = organicPosted >= 0;
-      const arrow = isPos ? '▲' : '▼';
-      const clr   = isPos ? '#2aa898' : '#a04545';
-      const tip   = `Posted this week: ${fmtMoney(u.completedThisWeek2026)} · New scans added: ${fmtMoney(u.newTasksAddedThisWeek2026)} · Net effect on pre-existing backlog: ${isPos ? '+' : ''}${fmtMoney(organicPosted)}`;
-      return `<div style="font-size:9.5px;margin-top:4px;color:${clr};font-weight:600;line-height:1.3" title="${tip}">${arrow} ${fmtMoney(Math.abs(organicPosted))}<div style="font-weight:400;font-size:8.5px;opacity:.75">organic</div></div>`;
-    })() : '';
+    const organicHtml = weekMatches ? unpostedWeekArrowsHtml(u) : '';
 
     const row = (b, lbl, isTotal, extraCls) => {
       const c61Cls = b.d61_90  > 0 ? 'warn' : '';
