@@ -148,7 +148,28 @@ jobs:
             exit 1
           fi
 
-      # ── 5. Summary ───────────────────────────────────────────────────────
+      # ── 5. JS syntax sanity check ────────────────────────────────────────
+      # TypeScript annotations inside a plain <script> block cause a parse
+      # error that silently kills the entire script, making the board appear
+      # wiped even though Firebase data is intact.
+      - name: Check for TypeScript syntax in plain JS
+        run: |
+          FAIL=0
+          # Look for TS-style type annotations in arrow function params: (x: Type)
+          # This pattern is invalid in browser JS and will crash the script block.
+          if grep -qP '\(\w+\s*:\s*\w+\)' /tmp/dashboard.html; then
+            MATCHES=$(grep -oP '\(\w+\s*:\s*\w+\)' /tmp/dashboard.html | head -5)
+            echo "  ❌  TypeScript annotation(s) found in plain JS:"
+            echo "      $MATCHES"
+            echo "       ↳ These crash the script on load — board appears wiped"
+            echo "::error::TypeScript type annotation found in browser JS. Remove the : Type suffix."
+            FAIL=1
+          else
+            echo "  ✅  No TypeScript annotations in plain JS"
+          fi
+          if [ "$FAIL" -ne 0 ]; then exit 1; fi
+
+      # ── 6. Summary ───────────────────────────────────────────────────────
       - name: Health check summary
         run: |
           echo ""
