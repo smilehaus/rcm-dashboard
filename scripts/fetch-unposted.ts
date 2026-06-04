@@ -50,7 +50,9 @@ async function clickupApi(path: string, options: RequestInit = {}): Promise<any>
 async function getAllTasks(listId: string): Promise<any[]> {
   const all: any[] = [];
   for (let page = 0; page < 20; page++) {
-    const data = await clickupApi(`/list/${listId}/task?subtasks=false&page=${page}&limit=100&include_closed=true&archived=false`);
+    // subtasks=true so we get the full task tree in one pass.
+    // Pagination still works: ClickUp counts subtasks toward the page limit.
+    const data = await clickupApi(`/list/${listId}/task?subtasks=true&page=${page}&limit=100&include_closed=true&archived=false`);
     all.push(...data.tasks);
     if (data.tasks.length < 100) break;
   }
@@ -132,27 +134,58 @@ async function sumOfficeUnposted(code: OfficeCode, lists: { id: string; name: st
     if (year == null) { console.warn(`    ⚠️  Could not detect year: "${list.name}" — skipping`); continue; }
     if (!allowedYears.has(year)) continue;
     let listTotal = 0, listTasks = 0;
-    const tasks = await getAllTasks(list.id);
-    for (const task of tasks) {
-      if (task.parent) continue;
+
+    // Fetch full task tree (parents + subtasks + sub-subtasks) in one pass.
+    const allTasks = await getAllTasks(list.id);
+
+    // Build parent-id → children map for tree traversal.
+    const childrenOf = new Map<string, any[]>();
+    const topLevel: any[] = [];
+    for (const task of allTasks) {
+      if (!task.parent) {
+        topLevel.push(task);
+      } else {
+        if (!childrenOf.has(task.parent)) childrenOf.set(task.parent, []);
+        childrenOf.get(task.parent)!.push(task);
+      }
+    }
+
+    // Returns the unposted dollar amount for a task node.
+    // Rules (per user spec):
+    //   • Node is COMPLETED → $0 (fully posted, skip)
+    //   • Node has children → recurse; sum only non-completed children
+    //   • Node is a leaf (no children) → return its Grand Total if not excluded
+    function unpostedAmount(task: any): number {
+      const progressName = getDropdownOptionName(
+        getCustomField(task, POSTING_PROGRESS_FIELD)
+      ).toLowerCase();
+      if (progressName === COMPLETED_OPTION.toLowerCase()) return 0; // posted — skip
+      const children = childrenOf.get(task.id) || [];
+      if (children.length > 0) {
+        // Drill into children: sum their unposted amounts.
+        return children.reduce((sum, child) => sum + unpostedAmount(child), 0);
+      }
+      // Leaf node: count if not an excluded status and Grand Total > 0.
+      if (EXCLUDED_STATUSES.has(progressName)) return 0;
+      return getCurrencyValue(getCustomField(task, GRAND_TOTAL_FIELD));
+    }
+
+    for (const task of topLevel) {
       const progress = getCustomField(task, POSTING_PROGRESS_FIELD);
       const progressName = getDropdownOptionName(progress).toLowerCase();
       const isCompleted = progressName === COMPLETED_OPTION.toLowerCase();
-      const isExcluded  = EXCLUDED_STATUSES.has(progressName);
       const gt = getCustomField(task, GRAND_TOTAL_FIELD);
       const v = getCurrencyValue(gt);
 
-      // Track 2026 tasks whose ClickUp task was CREATED this week (Monday CT onward).
-      // Uses date_created only — not date_updated — so that old tasks which are merely
-      // edited this week are not counted. ERA batches entered retroactively (e.g. a
-      // "05/28/26" ERA task entered into ClickUp on 06/02) are correctly caught because
-      // their ClickUp date_created reflects when the task was first made, not the ERA date
-      // in the task name.
+      // ── Weekly "added" metric: count parent tasks created this week ──────
+      // Uses date_created only — not date_updated — so retroactively-entered
+      // ERA batches are caught by when the task was first created in ClickUp.
       if (year === 2026 && v > 0 && task.date_created) {
         const createdCT = new Date(Number(task.date_created)).toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
         if (createdCT >= mondayISO_) newTasksAddedThisWeek2026 += v;
       }
 
+      // ── Weekly "posted" metric: completed parents with Date Posted this week ─
       if (isCompleted) {
         if (year === 2026 && v > 0) {
           const dp = getCustomField(task, DATE_POSTED_FIELD);
@@ -162,11 +195,25 @@ async function sumOfficeUnposted(code: OfficeCode, lists: { id: string; name: st
             if (dpDate >= mondayISO_) completedThisWeek2026 += v;
           }
         }
-        continue;
+        continue; // completed parent → nothing unposted under it
       }
-      if (isExcluded || v === 0) continue;
-      listTotal += v; listTasks++;
+
+      // ── Unposted amount: traverse subtask tree ────────────────────────────
+      // Parent is not completed → drill into subtasks (and sub-subtasks).
+      // If no subtasks exist, fall back to the parent's own Grand Total.
+      const children = childrenOf.get(task.id) || [];
+      let unposted: number;
+      if (children.length > 0) {
+        unposted = children.reduce((sum, child) => sum + unpostedAmount(child), 0);
+      } else {
+        // No subtasks — use parent Grand Total directly (original behaviour).
+        const isExcluded = EXCLUDED_STATUSES.has(progressName);
+        unposted = (isExcluded || v === 0) ? 0 : v;
+      }
+
+      if (unposted > 0) { listTotal += unposted; listTasks++; }
     }
+
     yearTotals[year] = (yearTotals[year] || 0) + listTotal;
     totalTaskCount += listTasks;
     perList.push({ name: list.name, year, total: listTotal, tasks: listTasks });
