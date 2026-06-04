@@ -338,7 +338,11 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 
 /* ── AR Snapshot tab ───────────────────────────────── */
 .ar-snap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:24px;}
-.ar-snap-summary{display:grid;grid-template-columns:1fr;gap:14px;padding:0 24px 18px;}
+.ar-snap-summary{display:grid;grid-template-columns:auto 1fr;gap:14px;padding:0 24px 18px;align-items:start;}
+.ar-snap-week-card{background:#FBF8F0;border:1px solid rgba(135,119,101,.28);border-radius:6px;padding:20px 24px;}
+.ar-snap-week-row{display:flex;align-items:baseline;gap:14px;margin-top:10px;}
+.ar-snap-week-val{font-family:var(--font-display);font-size:28px;font-weight:400;letter-spacing:.005em;line-height:1;min-width:110px;}
+.ar-snap-week-sub{font-size:11px;font-family:var(--font-body);font-weight:500;color:#5C4F44;opacity:.7;}
 .ar-snap-section-lbl{font-family:var(--font-body);font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#877765;padding:6px 24px 10px;}
 .arsnap-history-btn{font-family:var(--font-body);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#5C4F44;background:#FBF8F0;border:1px solid rgba(135,119,101,.32);border-radius:100px;padding:4px 11px;cursor:pointer;transition:all .15s ease;}
 .arsnap-history-btn:hover{background:#ede4d5;border-color:#877765;color:#2A2E31;}
@@ -6681,6 +6685,21 @@ function renderArSnapshot() {
   const unpostedT    = sumUnposted();
   const unpostedDelta= totalsRaw.unpostedDelta ?? null;
 
+  // ── This Week So Far: sum completedThisWeek + newTasksAdded across all offices ──
+  let weekPosted = 0, weekAdded = 0, weekStart = '';
+  Object.values(offices).forEach(off => {
+    const u = (off || {}).unposted;
+    if (!u) return;
+    if (u.completedThisWeek2026 != null)     weekPosted += Number(u.completedThisWeek2026)     || 0;
+    if (u.newTasksAddedThisWeek2026 != null)  weekAdded  += Number(u.newTasksAddedThisWeek2026) || 0;
+    if (u.completedThisWeekStart && !weekStart) weekStart = u.completedThisWeekStart;
+  });
+  function fmtWeekStart(iso) {
+    if (!iso) return '';
+    const [y,m,d] = iso.split('-').map(Number);
+    return new Date(y, m-1, d).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+  }
+
   if (asOfEl) asOfEl.textContent = asOf ? ('As of: ' + asOf) : 'No data yet';
 
   // "Last updated" pills — shared helper produces a friendly CT timestamp.
@@ -6744,17 +6763,34 @@ function renderArSnapshot() {
       breakdownRow('Total Insurance Balances',   insuranceT, false);
   }
 
-  // ── EOB/EFT Unposted summary card (shows total + 2025/2026 split) ──
+  // ── EOB/EFT Unposted summary card + This Week So Far card ──
   if (summaryEl) {
     const totalVal = unpostedT?.total ?? null;
     const breakdown = (unpostedT?.y2025 != null || unpostedT?.y2026 != null)
       ? `<span style="margin-right:14px">2025: <strong style="color:#5C4F44">${fmtMoney(unpostedT?.y2025)}</strong></span>2026: <strong style="color:#5C4F44">${fmtMoney(unpostedT?.y2026)}</strong>`
       : (unpostedDelta != null ? (unpostedDelta >= 0 ? '+' : '') + fmtMoney(unpostedDelta) + ' vs yesterday' : 'Sum of all offices · daily refresh');
+
+    const weekLabel = weekStart ? `Week of ${fmtWeekStart(weekStart)}` : 'Current week';
+    const hasWeekData = weekPosted > 0 || weekAdded > 0;
+
     summaryEl.innerHTML = `
       <div class="ar-snap-card">
         <div class="ar-snap-card-lbl">EOB / EFT Unposted</div>
         <div class="ar-snap-card-val warn">${fmtMoney(totalVal)}</div>
         <div class="ar-snap-card-meta">${breakdown}</div>
+      </div>
+      <div class="ar-snap-week-card">
+        <div class="ar-snap-card-lbl">This Week So Far</div>
+        <div style="font-size:10px;color:#877765;font-family:var(--font-body);margin-top:4px;letter-spacing:.04em">${escHtml(weekLabel)}</div>
+        ${hasWeekData ? `
+        <div class="ar-snap-week-row">
+          <div class="ar-snap-week-val" style="color:#2aa898">▼ ${fmtMoney(weekPosted)}</div>
+          <div class="ar-snap-week-sub">Total Posted (2026 EOB / ERA)</div>
+        </div>
+        <div class="ar-snap-week-row">
+          <div class="ar-snap-week-val" style="color:#a04545">▲ ${fmtMoney(weekAdded)}</div>
+          <div class="ar-snap-week-sub">Newly Added Payments</div>
+        </div>` : `<div style="font-size:12px;color:#877765;margin-top:14px;font-family:var(--font-body);font-style:italic">No data yet for this week</div>`}
       </div>`;
   }
 
