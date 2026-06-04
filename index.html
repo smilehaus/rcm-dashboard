@@ -2159,6 +2159,35 @@ let _fbSaveInProgress = false; // true from when the async save starts until it 
 // aren't clobbered on the next write. See mergeBoardState().
 let _syncBase = null;
 
+// Tracks live-board moves for 60 s so a stale-remote Firebase poll can't
+// silently undo a drag-and-drop before the next save propagates.
+// Key: tokenId   Value: { fromOff, fromCol, toOff, toCol, ts }
+const _recentMoves = new Map();
+
+function trackLiveMove(tokenId, fromOff, fromCol, toOff, toCol) {
+  _recentMoves.set(tokenId, { fromOff, fromCol, toOff, toCol, ts: Date.now() });
+}
+
+// After every merge, re-apply any recent moves that a stale remote may have undone.
+function enforceRecentMoves() {
+  const now = Date.now();
+  for (const [tokenId, m] of _recentMoves) {
+    if (now - m.ts > 60000) { _recentMoves.delete(tokenId); continue; }
+    // Ensure token is NOT in source cell (remote may have restored it there)
+    if (m.fromOff && m.fromCol && Array.isArray(S.live[m.fromOff]?.[m.fromCol])) {
+      S.live[m.fromOff][m.fromCol] = S.live[m.fromOff][m.fromCol].filter(x => x !== tokenId);
+    }
+    // Ensure token IS in destination cell (remote may have removed it)
+    if (m.toOff && m.toCol) {
+      if (!S.live[m.toOff]) S.live[m.toOff] = {};
+      if (!Array.isArray(S.live[m.toOff][m.toCol])) S.live[m.toOff][m.toCol] = [];
+      if (!S.live[m.toOff][m.toCol].includes(tokenId)) {
+        S.live[m.toOff][m.toCol].push(tokenId);
+      }
+    }
+  }
+}
+
 // ── Per-cell token-set merge ───────────────────────────────────────────────
 // The board is a shared doc. fbWrite used to push the whole local state, so if
 // User B saved between User A's edit and User A's poll, B's write wiped A's
@@ -2285,6 +2314,7 @@ function scheduleFbSave() {
             Object.keys(S).forEach(k => { if (!SAVE_PROTECTED.has(k) && !(k in merged)) delete S[k]; });
             Object.assign(S, merged);
             normalizeSArrays();
+            enforceRecentMoves();
             didMerge = true;
           }
         }
@@ -2744,6 +2774,7 @@ function startFbPolling() {
           Object.assign(S, remote);
         }
         normalizeSArrays();          // guard against Firebase returning null/undefined arrays
+        enforceRecentMoves();        // re-apply any moves a stale remote may have undone
         _syncBase = clone(remote);   // poll-applied remote is our new sync baseline
         renderAll();
       }
@@ -4353,6 +4384,15 @@ function buildGrid(tableEl, boardId) {
             const desc = inst.description ? `"${inst.description}"` : 'A team member needs help!';
             notifyHelp(desc);
           }
+        }
+        // Track live-board moves so enforceRecentMoves() can undo any
+        // stale-remote reversion during the next Firebase poll / save merge.
+        if (isLive && info.srcBoard === 'live' && info.srcZone) {
+          const [srcOff, srcCol] = info.srcZone.split('|');
+          trackLiveMove(info.staffId, srcOff, srcCol, office.code, col.id);
+        } else if (isLive && info.srcBoard === 'roster') {
+          // Fresh drop from roster — track destination only (no source cell to protect)
+          trackLiveMove(info.staffId, null, null, office.code, col.id);
         }
         removeFrom(info.srcBoard, info.srcZone, info.staffId);
         addToGrid(boardId, office.code, col.id, info.staffId);
