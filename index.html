@@ -2279,8 +2279,10 @@ function scheduleFbSave() {
           const colsValid = Array.isArray(remote.columns) && remote.columns[0] && typeof remote.columns[0].id === 'string';
           if (remote._v === DATA_VERSION && colsValid && !__isDragging) {
             const merged = mergeBoardState(_syncBase, S, remote);
-            // Replace S contents in place
-            Object.keys(S).forEach(k => { if (!(k in merged)) delete S[k]; });
+            // Replace S contents in place — same PROTECTED_KEYS guard as the poll loop
+            // so Firebase stripping empty nodes never deletes helpInstances or board data
+            const SAVE_PROTECTED = new Set(['live','assign','off','lunch','staff','offices','columns','vacationActive','helpLog','checkinLog','perOfficeHistory','ivDates','helpInstances','kpi','departments']);
+            Object.keys(S).forEach(k => { if (!SAVE_PROTECTED.has(k) && !(k in merged)) delete S[k]; });
             Object.assign(S, merged);
             normalizeSArrays();
             didMerge = true;
