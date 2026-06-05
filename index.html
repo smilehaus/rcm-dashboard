@@ -6782,6 +6782,7 @@ function renderArSnapshot() {
       <div class="ar-snap-week-card">
         <div class="ar-snap-card-lbl">This Week So Far</div>
         <div style="font-size:10px;color:#877765;font-family:var(--font-body);margin-top:4px;letter-spacing:.04em">${escHtml(weekLabel)}</div>
+        <div style="font-size:10px;color:#b0a090;font-family:var(--font-body);margin-top:2px;font-style:italic">Last updated: ${escHtml(asOf || '—')}</div>
         ${hasWeekData ? `
         <div class="ar-snap-week-row">
           <div class="ar-snap-week-val" style="color:#2aa898">▼ ${fmtMoney(weekPosted)}</div>
