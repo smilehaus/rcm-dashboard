@@ -346,8 +346,16 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 .ar-snap-section-lbl{font-family:var(--font-body);font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#877765;padding:6px 24px 10px;}
 .arsnap-history-btn{font-family:var(--font-body);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#5C4F44;background:#FBF8F0;border:1px solid rgba(135,119,101,.32);border-radius:100px;padding:4px 11px;cursor:pointer;transition:all .15s ease;}
 .arsnap-history-btn:hover{background:#ede4d5;border-color:#877765;color:#2A2E31;}
-#arsnap-history-modal,#arsnap-orgwide-history-modal{position:fixed;inset:0;background:rgba(42,46,49,.55);display:none;align-items:center;justify-content:center;z-index:200;padding:24px;}
-#arsnap-history-modal.open,#arsnap-orgwide-history-modal.open{display:flex;}
+#arsnap-history-modal,#arsnap-orgwide-history-modal,#arsnap-week-history-modal{position:fixed;inset:0;background:rgba(42,46,49,.55);display:none;align-items:center;justify-content:center;z-index:200;padding:24px;}
+#arsnap-history-modal.open,#arsnap-orgwide-history-modal.open,#arsnap-week-history-modal.open{display:flex;}
+.arsnap-week-history-card{background:#FBF8F0;border:1px solid rgba(135,119,101,.3);border-radius:10px;width:min(580px,98vw);max-height:88vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.25);}
+.arsnap-week-hist-tbl{width:100%;border-collapse:collapse;font-family:var(--font-body);font-size:13px;}
+.arsnap-week-hist-tbl th{text-align:left;padding:8px 14px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#877765;border-bottom:2px solid rgba(135,119,101,.28);}
+.arsnap-week-hist-tbl th.num{text-align:right;}
+.arsnap-week-hist-tbl td{padding:11px 14px;border-bottom:1px solid rgba(135,119,101,.10);}
+.arsnap-week-hist-tbl td.num{text-align:right;font-family:var(--font-display);font-size:17px;font-weight:400;}
+.arsnap-week-hist-tbl tr.cur-week{background:rgba(42,168,152,.05);}
+.arsnap-week-hist-tbl tr:last-child td{border-bottom:none;}
 .arsnap-history-card{background:#FBF8F0;border:1px solid rgba(135,119,101,.3);border-radius:10px;width:min(1600px,98vw);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.25);}
 .arsnap-history-card .ar-snap-table th,
 .arsnap-history-card .ar-snap-table td{white-space:nowrap;}
@@ -943,6 +951,20 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
       </div>
     </div>
     <div class="arsnap-history-body" id="arsnap-history-body"></div>
+  </div>
+</div>
+
+<!-- ── WEEK HISTORY MODAL ──────────────────────── -->
+<div id="arsnap-week-history-modal" onclick="if(event.target.id==='arsnap-week-history-modal')closeWeekHistory()">
+  <div class="arsnap-week-history-card">
+    <div class="arsnap-history-head">
+      <div>
+        <h3>Posted This Week — History</h3>
+        <div class="sub">Week-by-week org-wide total posted vs. newly added payments (2026 EOB / ERA).</div>
+      </div>
+      <button class="close" onclick="closeWeekHistory()" title="Close">×</button>
+    </div>
+    <div class="arsnap-history-body" id="arsnap-week-history-body"></div>
   </div>
 </div>
 
@@ -6336,6 +6358,122 @@ function closePerOfficeHistory() {
   document.getElementById('arsnap-history-modal')?.classList.remove('open');
 }
 
+// ════════════════════════════════════════════════
+// Week-by-Week Posted History modal
+// ════════════════════════════════════════════════
+function openWeekHistory() {
+  const modal = document.getElementById('arsnap-week-history-modal');
+  if (!modal) return;
+  modal.classList.add('open');
+  renderWeekHistory();
+}
+function closeWeekHistory() {
+  document.getElementById('arsnap-week-history-modal')?.classList.remove('open');
+}
+function renderWeekHistory() {
+  const body = document.getElementById('arsnap-week-history-body');
+  if (!body) return;
+
+  const history = Array.isArray(_arSnapshot.perOfficeHistory) ? _arSnapshot.perOfficeHistory : [];
+
+  // Find weekStart for a history entry (first office that has it)
+  function entryWeekStart(e) {
+    for (const off of Object.values(e.offices || {})) {
+      if (off?.unposted?.completedThisWeekStart) return off.unposted.completedThisWeekStart;
+    }
+    return null;
+  }
+
+  // Sum posted + added across all offices for one history entry
+  function sumWeekEntry(e) {
+    let posted = 0, added = 0;
+    for (const off of Object.values(e.offices || {})) {
+      posted += Number(off?.unposted?.completedThisWeek2026 ?? 0);
+      added  += Number(off?.unposted?.newTasksAddedThisWeek2026 ?? 0);
+    }
+    return { posted, added };
+  }
+
+  // Group by weekStart, keeping the latest snapshot in that week (highest date, PM > AM)
+  const slotRank = { AM: 0, PM: 1 };
+  const byWeek = new Map();
+  for (const e of history) {
+    if (!e || !e.offices) continue;
+    const weekStart = entryWeekStart(e);
+    if (!weekStart) continue;
+    const prev = byWeek.get(weekStart);
+    if (!prev) { byWeek.set(weekStart, e); continue; }
+    const dateCmp = (e.date || '').localeCompare(prev.date || '');
+    if (dateCmp > 0) { byWeek.set(weekStart, e); continue; }
+    if (dateCmp === 0 && (slotRank[e.slot] ?? 0) > (slotRank[prev.slot] ?? 0)) byWeek.set(weekStart, e);
+  }
+
+  // Live current-week totals from snapshot offices
+  let livePosted = 0, liveAdded = 0, liveWeekStart = '';
+  for (const off of Object.values(_arSnapshot.offices || {})) {
+    const u = off?.unposted;
+    if (!u) continue;
+    livePosted += Number(u.completedThisWeek2026 ?? 0);
+    liveAdded  += Number(u.newTasksAddedThisWeek2026 ?? 0);
+    if (u.completedThisWeekStart && !liveWeekStart) liveWeekStart = u.completedThisWeekStart;
+  }
+
+  // Build rows newest-first (skip historical entry for current live week)
+  const rows = [];
+  if (liveWeekStart) {
+    rows.push({ weekStart: liveWeekStart, posted: livePosted, added: liveAdded, isCurrent: true, asOf: '' });
+  }
+  const sortedWeeks = Array.from(byWeek.keys()).sort((a, b) => b.localeCompare(a));
+  for (const wk of sortedWeeks) {
+    if (wk === liveWeekStart) continue; // already shown as live row
+    const e = byWeek.get(wk);
+    const { posted, added } = sumWeekEntry(e);
+    rows.push({ weekStart: wk, posted, added, isCurrent: false, asOf: e.asOf || '' });
+  }
+
+  if (rows.length === 0) {
+    body.innerHTML = '<div style="padding:40px 20px;text-align:center;color:#877765;font-style:italic">No weekly history yet — data accumulates as the noon/evening routines run.</div>';
+    return;
+  }
+
+  function fmtWeekRange(iso) {
+    if (!iso) return '—';
+    const [y, m, d] = iso.split('-').map(Number);
+    const s = new Date(y, m - 1, d);
+    const e = new Date(y, m - 1, d + 6);
+    return s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) +
+      ' – ' + e.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  let html = `<table class="arsnap-week-hist-tbl">
+    <thead><tr>
+      <th>Week</th>
+      <th class="num" style="color:#2aa898">▼ Posted</th>
+      <th class="num" style="color:#a04545">▲ Added</th>
+      <th class="num">Net</th>
+    </tr></thead><tbody>`;
+
+  for (const row of rows) {
+    const net = row.posted - row.added;
+    const netColor = net >= 0 ? '#2aa898' : '#a04545';
+    const netSign  = net >= 0 ? '▼' : '▲';
+    html += `<tr class="${row.isCurrent ? 'cur-week' : ''}">
+      <td>
+        <div style="font-weight:600;color:#2a2a2a;display:flex;align-items:center;gap:6px">
+          ${row.isCurrent ? '<span style="width:7px;height:7px;border-radius:50%;background:#2aa898;display:inline-block;flex-shrink:0"></span>' : ''}
+          ${escHtml(fmtWeekRange(row.weekStart))}
+        </div>
+        <div style="font-size:10px;color:#b0a090;margin-top:2px;font-style:italic">${row.isCurrent ? 'Current week · in progress' : escHtml(row.asOf)}</div>
+      </td>
+      <td class="num" style="color:#2aa898">${fmtMoney(row.posted)}</td>
+      <td class="num" style="color:#a04545">${fmtMoney(row.added)}</td>
+      <td class="num" style="color:${netColor};font-family:var(--font-body);font-size:13px;font-weight:600">${netSign} ${fmtMoney(Math.abs(net))}</td>
+    </tr>`;
+  }
+  html += '</tbody></table>';
+  body.innerHTML = html;
+}
+
 function formatHistoryDate(iso) {
   if (!iso) return '—';
   const d = new Date(iso + 'T12:00:00');
@@ -6780,7 +6918,10 @@ function renderArSnapshot() {
         <div class="ar-snap-card-meta">${breakdown}</div>
       </div>
       <div class="ar-snap-week-card">
-        <div class="ar-snap-card-lbl">This Week So Far</div>
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+          <div class="ar-snap-card-lbl">This Week So Far</div>
+          <button onclick="openWeekHistory()" style="background:none;border:none;cursor:pointer;font-size:11px;font-weight:600;color:#877765;font-family:var(--font-body);letter-spacing:.04em;padding:0;text-decoration:underline;text-underline-offset:3px;white-space:nowrap" title="View week-by-week history">History ›</button>
+        </div>
         <div style="font-size:10px;color:#877765;font-family:var(--font-body);margin-top:4px;letter-spacing:.04em">${escHtml(weekLabel)}</div>
         <div style="font-size:10px;color:#b0a090;font-family:var(--font-body);margin-top:2px;font-style:italic">Last updated: ${escHtml(asOf || '—')}</div>
         ${hasWeekData ? `
