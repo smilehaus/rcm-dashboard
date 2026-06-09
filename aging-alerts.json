@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-09T08:09:21.474Z",
+  "generated": "2026-06-09T20:29:49.572Z",
   "offices": {
     "SQ": {
       "oryx": {
@@ -88,7 +88,7 @@
       },
       "legacy": {
         "overdue": 0,
-        "priority": 0
+        "priority": 3
       }
     },
     "AM": {
