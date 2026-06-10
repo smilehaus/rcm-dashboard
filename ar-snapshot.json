@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-10T16:16:07.133Z",
-  "asOf": "6/10/2026, 11:16 AM CT",
+  "generated": "2026-06-10T16:28:26.802Z",
+  "asOf": "6/10/2026, 11:28 AM CT",
   "totals": {
     "outstanding": {
       "d0_30": 524014.94,
@@ -279,15 +279,15 @@
       },
       "unposted": {
         "y2025": 23936.9,
-        "y2026": 3682.09,
-        "total": 27618.99,
+        "y2026": 5116.99,
+        "total": 29053.89,
         "mondayBaseline2026": 4963.79,
         "mondayBaselineDate": "2026-06-08",
         "completedToday2026": 0,
         "completedTodayDate": "2026-06-10",
         "completedThisWeek2026": 2446,
         "completedThisWeekStart": "2026-06-08",
-        "newTasksAddedThisWeek2026": 3610.3
+        "newTasksAddedThisWeek2026": 5045.2
       },
       "legacy": [
         {
@@ -18705,8 +18705,8 @@
     },
     {
       "date": "2026-06-10",
-      "unposted": 659695.8500000001,
-      "unposted2026": 126267.64,
+      "unposted": 661130.7500000001,
+      "unposted2026": 127702.54,
       "unposted2025": 533428.2100000001
     }
   ]
