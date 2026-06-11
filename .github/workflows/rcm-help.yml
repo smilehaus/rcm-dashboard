@@ -45,9 +45,8 @@ jobs:
       - name: Run RCM Help Agent
         run: |
           claude --print \
-            --system-prompt "$(cat .claude/agents/rcm-help.md)" \
             --allowedTools "Read,Edit,Write,Bash,Glob,Grep" \
-            "Fix ClickUp task ${{ github.event.inputs.task_id }} (error type: ${{ github.event.inputs.error_type }}). Read the task details from ClickUp, diagnose the issue, apply the appropriate fix from your instructions, and post a comment on the task with what you did."
+            "Read .claude/agents/rcm-help.md for your full instructions. Then fix ClickUp task ${{ github.event.inputs.task_id }} (error type: ${{ github.event.inputs.error_type }}). Use CLICKUP_API_TOKEN env var for ClickUp auth. After fixing, post a comment on the task with what you did and update status to complete."
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
