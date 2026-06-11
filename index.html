@@ -681,6 +681,10 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 textarea.re-input{resize:vertical;min-height:80px;}
 .re-drop-zone{border:1.5px dashed var(--sandstone);border-radius:8px;padding:14px 12px;text-align:center;font-size:11px;color:var(--fg3);cursor:pointer;transition:border-color .15s,background .15s;}
 .re-drop-zone:hover,.re-drop-zone.drag-over{border-color:var(--teal);background:var(--teal-bg);color:var(--teal);}
+.re-preview-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.re-thumb{position:relative;width:72px;height:72px;flex-shrink:0;}
+.re-thumb img{width:72px;height:72px;object-fit:cover;border-radius:6px;border:1px solid var(--sandstone);display:block;}
+.re-thumb-x{position:absolute;top:-5px;right:-5px;background:var(--onyx);color:#fff;border:none;border-radius:50%;width:16px;height:16px;font-size:11px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}
 </style>
 </head>
 <body>
@@ -1703,15 +1707,12 @@ textarea.re-input{resize:vertical;min-height:80px;}
       <input id="re-name" class="re-input" type="text" placeholder="e.g. Maria" maxlength="80">
       <label class="re-label">Description <span style="color:var(--fg3);font-weight:400">(what went wrong?)</span></label>
       <textarea id="re-desc" class="re-input" rows="4" maxlength="2000" placeholder="Describe the issue… (you can also paste a screenshot below)"></textarea>
-      <label class="re-label">Screenshot <span style="color:var(--fg3);font-weight:400;text-transform:none;letter-spacing:0">(optional — paste or upload)</span></label>
+      <label class="re-label">Screenshots <span style="color:var(--fg3);font-weight:400;text-transform:none;letter-spacing:0">(optional — up to 10, paste or upload)</span></label>
       <div id="re-drop-zone" class="re-drop-zone" onclick="document.getElementById('re-file-input').click()">
-        <span id="re-drop-label">Click to upload or paste a screenshot</span>
-        <input id="re-file-input" type="file" accept="image/*" style="display:none" onchange="reHandleFile(this.files[0])">
+        <span id="re-drop-label">Click to upload or paste screenshots</span>
+        <input id="re-file-input" type="file" accept="image/*" multiple style="display:none" onchange="reHandleFiles(this.files)">
       </div>
-      <div id="re-preview-wrap" style="display:none;position:relative;margin-top:2px">
-        <img id="re-preview-img" style="max-width:100%;max-height:180px;border-radius:6px;border:1px solid var(--sandstone);display:block">
-        <button onclick="reClearImage()" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.55);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:13px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center">×</button>
-      </div>
+      <div id="re-preview-grid" class="re-preview-grid"></div>
       <div id="re-feedback" style="font-size:11px;min-height:16px;margin-top:2px"></div>
     </div>
     <div class="report-error-foot">
@@ -8000,14 +8001,16 @@ async function refreshRoutines() {
 // ── Report Error ─────────────────────────────────────────────────────────────
 
 const REPORT_ERROR_WORKER = 'https://sh-da-review-worker.smilehaus.workers.dev/report-error';
-let _reImageData = null; // { base64, mimeType, filename }
+let _reImages = []; // [{ base64, mimeType, filename }] max 10
+const RE_MAX_IMAGES = 10;
 
 function openReportError() {
   document.getElementById('re-feedback').textContent = '';
   document.getElementById('re-desc').value = '';
   document.getElementById('re-submit-btn').disabled = false;
   document.getElementById('re-submit-btn').textContent = 'Submit';
-  reClearImage();
+  _reImages = [];
+  _reRenderPreviews();
   const activeTab = document.querySelector('.tab-btn.active');
   document.getElementById('report-error-modal')._currentTab = activeTab ? activeTab.textContent.trim() : '';
   document.getElementById('report-error-modal').classList.add('open');
@@ -8017,26 +8020,45 @@ function closeReportError() {
   document.getElementById('report-error-modal').classList.remove('open');
 }
 
-function reHandleFile(file) {
+function _reRenderPreviews() {
+  const grid = document.getElementById('re-preview-grid');
+  const lbl  = document.getElementById('re-drop-label');
+  if (!grid) return;
+  grid.innerHTML = _reImages.map((img, i) =>
+    `<div class="re-thumb">
+      <img src="data:${img.mimeType};base64,${img.base64}" alt="screenshot ${i+1}">
+      <button class="re-thumb-x" onclick="reRemoveImage(${i})" title="Remove">×</button>
+    </div>`
+  ).join('');
+  const rem = RE_MAX_IMAGES - _reImages.length;
+  if (lbl) lbl.textContent = _reImages.length === 0
+    ? 'Click to upload or paste screenshots'
+    : `${_reImages.length} / ${RE_MAX_IMAGES} attached${rem > 0 ? ' — add more?' : ' (limit reached)'}`;
+}
+
+function reRemoveImage(i) {
+  _reImages.splice(i, 1);
+  document.getElementById('re-file-input').value = '';
+  _reRenderPreviews();
+}
+
+function reAddFile(file) {
   if (!file || !file.type.startsWith('image/')) return;
+  if (_reImages.length >= RE_MAX_IMAGES) return;
   const reader = new FileReader();
   reader.onload = e => {
     const dataUrl = e.target.result;
-    const base64 = dataUrl.split(',')[1];
-    _reImageData = { base64, mimeType: file.type, filename: file.name || 'screenshot.png' };
-    document.getElementById('re-preview-img').src = dataUrl;
-    document.getElementById('re-preview-wrap').style.display = '';
-    document.getElementById('re-drop-label').textContent = '✓ Image attached';
+    _reImages.push({ base64: dataUrl.split(',')[1], mimeType: file.type, filename: file.name || 'screenshot.png' });
+    _reRenderPreviews();
   };
   reader.readAsDataURL(file);
 }
 
-function reClearImage() {
-  _reImageData = null;
-  document.getElementById('re-preview-wrap').style.display = 'none';
-  document.getElementById('re-preview-img').src = '';
-  document.getElementById('re-drop-label').textContent = 'Click to upload or paste a screenshot';
-  document.getElementById('re-file-input').value = '';
+function reHandleFiles(files) {
+  for (const f of Array.from(files)) {
+    if (_reImages.length >= RE_MAX_IMAGES) break;
+    reAddFile(f);
+  }
 }
 
 // Paste anywhere in the modal
@@ -8045,10 +8067,7 @@ document.addEventListener('paste', e => {
   const items = e.clipboardData && e.clipboardData.items;
   if (!items) return;
   for (const item of items) {
-    if (item.type.startsWith('image/')) {
-      reHandleFile(item.getAsFile());
-      break;
-    }
+    if (item.type.startsWith('image/')) { reAddFile(item.getAsFile()); break; }
   }
 });
 
@@ -8061,8 +8080,7 @@ document.addEventListener('paste', e => {
   dz.addEventListener('drop', e => {
     e.preventDefault();
     dz.classList.remove('drag-over');
-    const file = e.dataTransfer.files[0];
-    if (file) reHandleFile(file);
+    reHandleFiles(e.dataTransfer.files);
   });
 })();
 
@@ -8077,14 +8095,14 @@ async function submitReportError() {
   if (!description) { fb.style.color = 'var(--critical)'; fb.textContent = 'Please describe the issue.'; return; }
 
   btn.disabled = true;
-  btn.textContent = _reImageData ? 'Uploading…' : 'Submitting…';
+  btn.textContent = _reImages.length ? 'Uploading…' : 'Submitting…';
   fb.textContent = '';
 
   try {
     const res = await fetch(REPORT_ERROR_WORKER, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ errorType, description, tab, reporter, image: _reImageData || undefined }),
+      body: JSON.stringify({ errorType, description, tab, reporter, images: _reImages.length ? _reImages : undefined }),
     });
     const data = await res.json();
     if (data.ok) {
