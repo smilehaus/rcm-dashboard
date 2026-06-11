@@ -100,6 +100,30 @@ curl -X POST \
 
 Then update the task status to `complete` (or `needs human` if escalating).
 
+## After Code Fixed — trigger Sage re-grade
+
+When Fix Status is set to **Code Fixed**, immediately re-queue recently completed IV tasks for Sage to re-grade:
+
+1. Pull tasks from Master IV Queue (`901416980281`) with status `complete`, date_updated in the last 48 hours:
+```bash
+curl -s \
+  -H "Authorization: $CLICKUP_API_TOKEN" \
+  "https://api.clickup.com/api/v2/list/901416980281/task?statuses[]=complete&order_by=updated&reverse=true&page=0"
+```
+
+2. For each task returned, update its status to `Ready for Grading`:
+```bash
+curl -X PUT \
+  -H "Authorization: $CLICKUP_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  https://api.clickup.com/api/v2/task/<iv_task_id> \
+  -d '{"status": "Ready for Grading"}'
+```
+
+3. Post a comment on the original RCM Help task listing how many IV tasks were re-queued (e.g., "Re-queued 4 completed IV tasks for Sage re-grade following the code fix.")
+
+If the error was a minor UI fix unrelated to IV data (e.g., a button style), skip the re-grade step and note that in the comment.
+
 ## Escalation
 If you cannot fix it, post:
 - What the error is
