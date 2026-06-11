@@ -72,7 +72,7 @@ Read the assigned ClickUp task from list `901417208736`, understand the error, f
 8. Curl the live page and verify the fix is present
 
 ## After every fix
-Post a comment on the ClickUp task using:
+Post a comment on the ClickUp task:
 ```bash
 curl -X POST \
   -H "Authorization: $CLICKUP_API_TOKEN" \
@@ -80,6 +80,24 @@ curl -X POST \
   https://api.clickup.com/api/v2/task/<task_id>/comment \
   -d '{"comment_text": "RCM Help Agent: <what you did and result>"}'
 ```
+
+Set the **Fix Status** custom field (field ID `74c6e31a-8c53-44c5-876c-8ebcf3c79e0f`):
+```bash
+# If fixed:
+curl -X POST \
+  -H "Authorization: $CLICKUP_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  https://api.clickup.com/api/v2/task/<task_id>/field/74c6e31a-8c53-44c5-876c-8ebcf3c79e0f \
+  -d '{"value": "2ae09cd4-ff87-49b6-b927-2f65d165361e"}'
+
+# If escalating (needs human):
+curl -X POST \
+  -H "Authorization: $CLICKUP_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  https://api.clickup.com/api/v2/task/<task_id>/field/74c6e31a-8c53-44c5-876c-8ebcf3c79e0f \
+  -d '{"value": "72c42631-e3aa-41b3-a8f4-d3ce81a191e0"}'
+```
+
 Then update the task status to `complete` (or `needs human` if escalating).
 
 ## Escalation
@@ -87,7 +105,7 @@ If you cannot fix it, post:
 - What the error is
 - What you tried
 - Exactly what a human needs to do to resolve it
-Set status to `needs human` and stop.
+Set Fix Status to `Needs Human`, task status to `needs human`, and stop.
 
 ## Environment variables available
 - `CLICKUP_API_TOKEN` — ClickUp auth
