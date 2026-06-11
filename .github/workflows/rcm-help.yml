@@ -1,0 +1,55 @@
+name: RCM Help Agent
+
+# Triggered by Cloudflare Worker when a new error report task is created
+# in ClickUp list 901417208736 (RCM Help Queue).
+
+on:
+  workflow_dispatch:
+    inputs:
+      task_id:
+        description: 'ClickUp task ID to fix'
+        required: true
+      error_type:
+        description: 'Error type from the report'
+        required: false
+        default: 'Unknown'
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  fix:
+    name: Fix Error Report
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Configure git
+        run: |
+          git config user.name "rcm-help-agent[bot]"
+          git config user.email "rcm-help-agent[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/smilehaus/rcm-dashboard.git
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code@latest
+
+      - name: Run RCM Help Agent
+        run: |
+          claude --print \
+            --agent-file .claude/agents/rcm-help.md \
+            --allowedTools "Read,Edit,Write,Bash,Glob,Grep" \
+            "Fix ClickUp task ${{ github.event.inputs.task_id }} (error type: ${{ github.event.inputs.error_type }}). Read the task details from ClickUp, diagnose the issue, apply the appropriate fix from your instructions, and post a comment on the task with what you did."
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
+          GITHUB_DISPATCH_TOKEN: ${{ secrets.GITHUB_DISPATCH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
