@@ -679,6 +679,8 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 .re-input{width:100%;border:1px solid var(--sandstone);border-radius:8px;padding:7px 10px;font-family:var(--font-body);font-size:12px;color:var(--onyx);outline:none;box-sizing:border-box;background:#fff;}
 .re-input:focus{border-color:var(--teal);}
 textarea.re-input{resize:vertical;min-height:80px;}
+.re-drop-zone{border:1.5px dashed var(--sandstone);border-radius:8px;padding:14px 12px;text-align:center;font-size:11px;color:var(--fg3);cursor:pointer;transition:border-color .15s,background .15s;}
+.re-drop-zone:hover,.re-drop-zone.drag-over{border-color:var(--teal);background:var(--teal-bg);color:var(--teal);}
 </style>
 </head>
 <body>
@@ -1688,6 +1690,9 @@ textarea.re-input{resize:vertical;min-height:80px;}
     <div class="report-error-body">
       <label class="re-label">Error type</label>
       <select id="re-type" class="re-input">
+        <option>Live Status Board Error</option>
+        <option>User Token Error</option>
+        <option>AR Snapshot</option>
         <option>Routine didn't run</option>
         <option>Wrong data showing</option>
         <option>ClickUp task issue</option>
@@ -1697,7 +1702,16 @@ textarea.re-input{resize:vertical;min-height:80px;}
       <label class="re-label">Your name</label>
       <input id="re-name" class="re-input" type="text" placeholder="e.g. Maria" maxlength="80">
       <label class="re-label">Description <span style="color:var(--fg3);font-weight:400">(what went wrong?)</span></label>
-      <textarea id="re-desc" class="re-input" rows="4" maxlength="2000" placeholder="Describe the issue…"></textarea>
+      <textarea id="re-desc" class="re-input" rows="4" maxlength="2000" placeholder="Describe the issue… (you can also paste a screenshot below)"></textarea>
+      <label class="re-label">Screenshot <span style="color:var(--fg3);font-weight:400;text-transform:none;letter-spacing:0">(optional — paste or upload)</span></label>
+      <div id="re-drop-zone" class="re-drop-zone" onclick="document.getElementById('re-file-input').click()">
+        <span id="re-drop-label">Click to upload or paste a screenshot</span>
+        <input id="re-file-input" type="file" accept="image/*" style="display:none" onchange="reHandleFile(this.files[0])">
+      </div>
+      <div id="re-preview-wrap" style="display:none;position:relative;margin-top:2px">
+        <img id="re-preview-img" style="max-width:100%;max-height:180px;border-radius:6px;border:1px solid var(--sandstone);display:block">
+        <button onclick="reClearImage()" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.55);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:13px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center">×</button>
+      </div>
       <div id="re-feedback" style="font-size:11px;min-height:16px;margin-top:2px"></div>
     </div>
     <div class="report-error-foot">
@@ -7986,15 +8000,15 @@ async function refreshRoutines() {
 // ── Report Error ─────────────────────────────────────────────────────────────
 
 const REPORT_ERROR_WORKER = 'https://sh-da-review-worker.smilehaus.workers.dev/report-error';
+let _reImageData = null; // { base64, mimeType, filename }
 
 function openReportError() {
   document.getElementById('re-feedback').textContent = '';
   document.getElementById('re-desc').value = '';
   document.getElementById('re-submit-btn').disabled = false;
   document.getElementById('re-submit-btn').textContent = 'Submit';
-  // Pre-fill current tab name
+  reClearImage();
   const activeTab = document.querySelector('.tab-btn.active');
-  // store for submit
   document.getElementById('report-error-modal')._currentTab = activeTab ? activeTab.textContent.trim() : '';
   document.getElementById('report-error-modal').classList.add('open');
 }
@@ -8002,6 +8016,55 @@ function openReportError() {
 function closeReportError() {
   document.getElementById('report-error-modal').classList.remove('open');
 }
+
+function reHandleFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const dataUrl = e.target.result;
+    const base64 = dataUrl.split(',')[1];
+    _reImageData = { base64, mimeType: file.type, filename: file.name || 'screenshot.png' };
+    document.getElementById('re-preview-img').src = dataUrl;
+    document.getElementById('re-preview-wrap').style.display = '';
+    document.getElementById('re-drop-label').textContent = '✓ Image attached';
+  };
+  reader.readAsDataURL(file);
+}
+
+function reClearImage() {
+  _reImageData = null;
+  document.getElementById('re-preview-wrap').style.display = 'none';
+  document.getElementById('re-preview-img').src = '';
+  document.getElementById('re-drop-label').textContent = 'Click to upload or paste a screenshot';
+  document.getElementById('re-file-input').value = '';
+}
+
+// Paste anywhere in the modal
+document.addEventListener('paste', e => {
+  if (!document.getElementById('report-error-modal').classList.contains('open')) return;
+  const items = e.clipboardData && e.clipboardData.items;
+  if (!items) return;
+  for (const item of items) {
+    if (item.type.startsWith('image/')) {
+      reHandleFile(item.getAsFile());
+      break;
+    }
+  }
+});
+
+// Drag-and-drop on the drop zone
+(function() {
+  const dz = document.getElementById('re-drop-zone');
+  if (!dz) return;
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault();
+    dz.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) reHandleFile(file);
+  });
+})();
 
 async function submitReportError() {
   const errorType = document.getElementById('re-type').value;
@@ -8014,14 +8077,14 @@ async function submitReportError() {
   if (!description) { fb.style.color = 'var(--critical)'; fb.textContent = 'Please describe the issue.'; return; }
 
   btn.disabled = true;
-  btn.textContent = 'Submitting…';
+  btn.textContent = _reImageData ? 'Uploading…' : 'Submitting…';
   fb.textContent = '';
 
   try {
     const res = await fetch(REPORT_ERROR_WORKER, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ errorType, description, tab, reporter }),
+      body: JSON.stringify({ errorType, description, tab, reporter, image: _reImageData || undefined }),
     });
     const data = await res.json();
     if (data.ok) {
