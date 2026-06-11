@@ -3456,6 +3456,7 @@ function openProfile(staffId) {
   renderWorkList();
   // Load newly assigned items
   _naItems = (s.newlyAssigned || []).map(n => ({ text: n.text, priority: n.priority || 'asap', dueDate: n.dueDate || '', assignedBy: n.assignedBy || '', checked: !!n.checked, resolved: !!n.resolved }));
+  _naOriginalKeys = new Set(_naItems.map(n => n.text + '|' + (n.dueDate || '')));
   renderNewlyAssigned();
 
   // Color swatches
@@ -3610,6 +3611,7 @@ function deleteWorkItem(i) {
 
 // ── Newly Assigned ─────────────────────────────────
 let _naItems = []; // { text, priority:'asap'|'next', dueDate:'', checked:false, resolved:false }
+let _naOriginalKeys = new Set(); // text|dueDate keys present when the profile modal opened
 
 // Shared badge renderer — combines checked work items + checked NA items
 function renderProfileBadges() {
@@ -3802,7 +3804,21 @@ function saveProfile() {
       pin:      document.getElementById('p-pin').value || S.staff[idx].pin || genPin(),
       resp:      currentResp,
       workItems: _workItems.map(w => ({ text: w.text, checked: w.checked, completed: w.completed })),
-      newlyAssigned: _naItems.map(n => ({ text: n.text, priority: n.priority, dueDate: n.dueDate || '', assignedBy: n.assignedBy || '', checked: n.checked, resolved: n.resolved })),
+      newlyAssigned: (() => {
+        // Delta merge: preserve items added by another browser while this modal was open.
+        // _naOriginalKeys = what was in newlyAssigned when the modal opened.
+        // Items in current S.staff that are NOT in _naOriginalKeys were added externally → keep them.
+        // Items in _naOriginalKeys but not in _naItems were explicitly deleted by this admin → drop them.
+        const naKeys = new Set(_naItems.map(n => n.text + '|' + (n.dueDate || '')));
+        const externallyAdded = (S.staff[idx].newlyAssigned || []).filter(n => {
+          const k = n.text + '|' + (n.dueDate || '');
+          return !_naOriginalKeys.has(k) && !naKeys.has(k);
+        });
+        return [
+          ..._naItems.map(n => ({ text: n.text, priority: n.priority, dueDate: n.dueDate || '', assignedBy: n.assignedBy || '', checked: n.checked, resolved: n.resolved })),
+          ...externallyAdded,
+        ];
+      })(),
       vacStart:  document.getElementById('p-vac-start').value,
       vacEnd:    document.getElementById('p-vac-end').value,
     };
