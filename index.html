@@ -8092,8 +8092,6 @@ async function submitReportError() {
   const fb = document.getElementById('re-feedback');
   const btn = document.getElementById('re-submit-btn');
 
-  if (!description) { fb.style.color = 'var(--critical)'; fb.textContent = 'Please describe the issue.'; return; }
-
   btn.disabled = true;
   btn.textContent = _reImages.length ? 'Uploading…' : 'Submitting…';
   fb.textContent = '';
