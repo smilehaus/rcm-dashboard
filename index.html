@@ -8002,6 +8002,7 @@ async function refreshRoutines() {
 
 const REPORT_ERROR_WORKER = 'https://sh-da-review-worker.smilehaus.workers.dev/report-error';
 let _reImages = []; // [{ base64, mimeType, filename }] max 10
+let _rePending = 0; // files currently being read (async)
 const RE_MAX_IMAGES = 10;
 
 function openReportError() {
@@ -8010,6 +8011,7 @@ function openReportError() {
   document.getElementById('re-submit-btn').disabled = false;
   document.getElementById('re-submit-btn').textContent = 'Submit';
   _reImages = [];
+  _rePending = 0;
   _reRenderPreviews();
   const activeTab = document.querySelector('.tab-btn.active');
   document.getElementById('report-error-modal')._currentTab = activeTab ? activeTab.textContent.trim() : '';
@@ -8030,10 +8032,11 @@ function _reRenderPreviews() {
       <button class="re-thumb-x" onclick="reRemoveImage(${i})" title="Remove">×</button>
     </div>`
   ).join('');
-  const rem = RE_MAX_IMAGES - _reImages.length;
-  if (lbl) lbl.textContent = _reImages.length === 0
+  const total = _reImages.length + _rePending;
+  const rem = RE_MAX_IMAGES - total;
+  if (lbl) lbl.textContent = total === 0
     ? 'Click to upload or paste screenshots'
-    : `${_reImages.length} / ${RE_MAX_IMAGES} attached${rem > 0 ? ' — add more?' : ' (limit reached)'}`;
+    : `${total} / ${RE_MAX_IMAGES} attached${rem > 0 ? ' — add more?' : ' (limit reached)'}`;
 }
 
 function reRemoveImage(i) {
@@ -8044,11 +8047,16 @@ function reRemoveImage(i) {
 
 function reAddFile(file) {
   if (!file || !file.type.startsWith('image/')) return;
-  if (_reImages.length >= RE_MAX_IMAGES) return;
+  if (_reImages.length + _rePending >= RE_MAX_IMAGES) return;
+  _rePending++;
+  _reRenderPreviews();
   const reader = new FileReader();
   reader.onload = e => {
-    const dataUrl = e.target.result;
-    _reImages.push({ base64: dataUrl.split(',')[1], mimeType: file.type, filename: file.name || 'screenshot.png' });
+    _rePending--;
+    if (_reImages.length < RE_MAX_IMAGES) {
+      const dataUrl = e.target.result;
+      _reImages.push({ base64: dataUrl.split(',')[1], mimeType: file.type, filename: file.name || 'screenshot.png' });
+    }
     _reRenderPreviews();
   };
   reader.readAsDataURL(file);
@@ -8056,7 +8064,7 @@ function reAddFile(file) {
 
 function reHandleFiles(files) {
   for (const f of Array.from(files)) {
-    if (_reImages.length >= RE_MAX_IMAGES) break;
+    if (_reImages.length + _rePending >= RE_MAX_IMAGES) break;
     reAddFile(f);
   }
 }
@@ -8100,7 +8108,7 @@ async function submitReportError() {
     const res = await fetch(REPORT_ERROR_WORKER, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ errorType, description, tab, reporter, images: _reImages.length ? _reImages : undefined }),
+      body: JSON.stringify({ errorType, description, tab, reporter, images: _reImages.length ? _reImages.slice(0, RE_MAX_IMAGES) : undefined }),
     });
     const data = await res.json();
     if (data.ok) {
