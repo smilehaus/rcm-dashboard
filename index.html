@@ -665,6 +665,20 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 .routine-detail-steps li strong{color:var(--onyx);font-size:10px;font-family:var(--font-chip);background:var(--elevated);padding:1px 5px;border-radius:3px;margin-right:4px;}
 .routine-detail-meta{min-width:200px;max-width:320px;}
 .routine-detail-val{font-size:11px;color:var(--fg2);line-height:1.5;}
+
+/* ── Report Error button + modal ── */
+#report-error-btn{position:fixed;bottom:20px;right:20px;z-index:800;background:var(--onyx);color:#fff;border:none;border-radius:20px;padding:8px 14px;font-size:11px;font-weight:700;font-family:var(--font-body);letter-spacing:.04em;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.22);transition:opacity .15s,transform .15s;}
+#report-error-btn:hover{opacity:.88;transform:translateY(-1px);}
+#report-error-modal{display:none;position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.35);align-items:center;justify-content:center;}
+#report-error-modal.open{display:flex;}
+.report-error-card{background:#fff;border-radius:14px;width:100%;max-width:420px;box-shadow:0 8px 32px rgba(0,0,0,.18);overflow:hidden;}
+.report-error-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 12px;}
+.report-error-body{padding:0 18px 12px;display:flex;flex-direction:column;gap:6px;}
+.report-error-foot{display:flex;justify-content:flex-end;gap:8px;padding:12px 18px;border-top:1px solid var(--sandstone);}
+.re-label{font-size:11px;font-weight:700;color:var(--earth);letter-spacing:.06em;text-transform:uppercase;}
+.re-input{width:100%;border:1px solid var(--sandstone);border-radius:8px;padding:7px 10px;font-family:var(--font-body);font-size:12px;color:var(--onyx);outline:none;box-sizing:border-box;background:#fff;}
+.re-input:focus{border-color:var(--teal);}
+textarea.re-input{resize:vertical;min-height:80px;}
 </style>
 </head>
 <body>
@@ -1661,6 +1675,37 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 </div>
 
 </main>
+
+<!-- ── REPORT ERROR BUTTON + MODAL ───────────────────────────── -->
+<button id="report-error-btn" onclick="openReportError()" title="Report a dashboard error">⚠ Report Error</button>
+
+<div id="report-error-modal" onclick="if(event.target.id==='report-error-modal')closeReportError()">
+  <div class="report-error-card">
+    <div class="report-error-head">
+      <div style="font-size:14px;font-weight:700;color:var(--onyx)">Report an Error</div>
+      <button onclick="closeReportError()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--fg3);line-height:1">×</button>
+    </div>
+    <div class="report-error-body">
+      <label class="re-label">Error type</label>
+      <select id="re-type" class="re-input">
+        <option>Routine didn't run</option>
+        <option>Wrong data showing</option>
+        <option>ClickUp task issue</option>
+        <option>Oryx / agent error</option>
+        <option>Other</option>
+      </select>
+      <label class="re-label">Your name</label>
+      <input id="re-name" class="re-input" type="text" placeholder="e.g. Maria" maxlength="80">
+      <label class="re-label">Description <span style="color:var(--fg3);font-weight:400">(what went wrong?)</span></label>
+      <textarea id="re-desc" class="re-input" rows="4" maxlength="2000" placeholder="Describe the issue…"></textarea>
+      <div id="re-feedback" style="font-size:11px;min-height:16px;margin-top:2px"></div>
+    </div>
+    <div class="report-error-foot">
+      <button class="btn btn-ghost btn-sm" onclick="closeReportError()">Cancel</button>
+      <button class="btn btn-sm" id="re-submit-btn" onclick="submitReportError()" style="background:var(--onyx);color:#fff">Submit</button>
+    </div>
+  </div>
+</div>
 
 <!-- ── CONTEXT MENU ───────────────────────────── -->
 <div id="ctx-menu">
@@ -7936,6 +7981,63 @@ async function refreshRoutines() {
   ROUTINE_GROUPS.forEach(g => _renderRoutineSection(g, null));
   _renderRoutineSummary(null);
   await renderRoutinesTab();
+}
+
+// ── Report Error ─────────────────────────────────────────────────────────────
+
+const REPORT_ERROR_WORKER = 'https://sh-da-review-worker.smilehaus.workers.dev/report-error';
+
+function openReportError() {
+  document.getElementById('re-feedback').textContent = '';
+  document.getElementById('re-desc').value = '';
+  document.getElementById('re-submit-btn').disabled = false;
+  document.getElementById('re-submit-btn').textContent = 'Submit';
+  // Pre-fill current tab name
+  const activeTab = document.querySelector('.tab-btn.active');
+  // store for submit
+  document.getElementById('report-error-modal')._currentTab = activeTab ? activeTab.textContent.trim() : '';
+  document.getElementById('report-error-modal').classList.add('open');
+}
+
+function closeReportError() {
+  document.getElementById('report-error-modal').classList.remove('open');
+}
+
+async function submitReportError() {
+  const errorType = document.getElementById('re-type').value;
+  const description = document.getElementById('re-desc').value.trim();
+  const reporter = (document.getElementById('re-name').value || '').trim() || 'Team member';
+  const tab = document.getElementById('report-error-modal')._currentTab || '';
+  const fb = document.getElementById('re-feedback');
+  const btn = document.getElementById('re-submit-btn');
+
+  if (!description) { fb.style.color = 'var(--critical)'; fb.textContent = 'Please describe the issue.'; return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+  fb.textContent = '';
+
+  try {
+    const res = await fetch(REPORT_ERROR_WORKER, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ errorType, description, tab, reporter }),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      fb.style.color = 'var(--teal)';
+      fb.textContent = 'Reported! Task created in ClickUp.';
+      btn.textContent = '✓ Submitted';
+      setTimeout(closeReportError, 1800);
+    } else {
+      throw new Error(data.error || 'Unknown error');
+    }
+  } catch (e) {
+    fb.style.color = 'var(--critical)';
+    fb.textContent = 'Failed to submit — try again or message Sage directly.';
+    btn.disabled = false;
+    btn.textContent = 'Submit';
+  }
 }
 </script>
 
