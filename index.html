@@ -647,6 +647,8 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 .routine-badge.error{background:var(--critical-bg);color:var(--critical);border:1px solid var(--critical-border);}
 .routine-badge.unknown{background:rgba(0,0,0,.05);color:var(--fg3);border:1px solid var(--border);}
 .routine-badge.loading{background:rgba(0,0,0,.04);color:var(--fg3);border:1px solid var(--border);}
+.routine-badge.external{background:rgba(0,0,0,.04);color:var(--fg3);border:1px solid var(--border);font-style:italic;}
+.routine-dot.external{background:var(--fg3);opacity:.45;}
 .routine-refresh-btn{padding:5px 12px;background:var(--alabaster);border:1px solid var(--sandstone);border-radius:6px;font-size:11px;font-weight:600;color:var(--earth);cursor:pointer;font-family:var(--font-body);transition:background .15s;}
 .routine-refresh-btn:hover{background:var(--sandstone);}
 .routine-fetched-ts{font-size:10px;color:var(--fg3);}
@@ -1644,6 +1646,15 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
       </div>
       <div id="routine-section-body-other">
         <table class="routine-table" id="routine-table-other"><tbody></tbody></table>
+      </div>
+      <!-- Ava section -->
+      <div class="routine-section-hdr" onclick="toggleRoutineSection('ava')">
+        <span class="routine-chevron" id="routine-chevron-ava">▾</span>
+        <span class="routine-section-title">Ava — Aging Agent</span>
+        <span class="routine-section-counts" id="routine-section-counts-ava"></span>
+      </div>
+      <div id="routine-section-body-ava">
+        <table class="routine-table" id="routine-table-ava"><tbody></tbody></table>
       </div>
     </div>
   </div>
@@ -7542,6 +7553,8 @@ const ROUTINE_DEFS = [
   { id: 'routine-weekly-statements.yml', name: 'Weekly Statements',   desc: 'Statement dates merge',            schedule: 'Fri 9:45 PM', freq: 'Weekly',   maxAgeHours: 200,  group: 'other'  },
   { id: 'backup-rcm-dashboard.yml',      name: 'Auto Backup',         desc: 'Firebase state snapshot',          schedule: 'Every 3 hrs', freq: '3-hourly', maxAgeHours: 4.5,  group: 'other'  },
   { id: 'dashboard-health-check.yml',    name: 'Health Check',        desc: 'Dashboard structure & JS audit',   schedule: 'Tue/Fri 10AM',freq: '2×/week',  maxAgeHours: 120,  group: 'other'  },
+  { id: 'ava-outstanding-claims',        name: 'Ava — Outstanding Claims (Oryx)', desc: 'Oryx 61–90 & 90+ claims → ClickUp', schedule: 'Fri 7:00 PM CT', freq: 'Biweekly', maxAgeHours: 0, group: 'ava', external: true },
+  { id: 'ava-legacy-aging',              name: 'Ava — Legacy Aging',  desc: 'Dentrix/OD .txt exports → ClickUp', schedule: 'Manual',      freq: 'As needed', maxAgeHours: 0, group: 'ava', external: true },
 ];
 
 let _routineStatus = null;   // { workflowId -> { latest, latestSuccess, status } }
@@ -7704,6 +7717,24 @@ const ROUTINE_DETAILS = {
     ],
     clickup: 'None — validates the live GitHub Pages HTML only. Acts as a safety net after every deploy.',
   },
+  'ava-outstanding-claims': {
+    agent: 'Ava (Claude Code agent, biweekly — Fridays 7 PM CT)',
+    steps: [
+      { name: 'Login to Oryx (per office)', desc: 'Ava logs into each office\'s Oryx subdomain using agent credentials from the Agent Logins list in ClickUp. Runs across all 9 offices; Pflugerville is merged into Implant Center.' },
+      { name: 'Extract Outstanding Claims', desc: 'Navigates to Claims Management → Outstanding Claims. Pulls only the 61–90 day and 90+ day buckets (active AR). Skips the 0–30 and 31–60 buckets and any self-pay lines.' },
+      { name: 'Sync to ClickUp INS AR list', desc: 'For each extracted claim, checks if a task already exists in the office\'s Master Aging INS AR list (matched by patient name + DOS + amount). Creates new tasks for missing claims; updates existing tasks with refreshed balance and aging bucket.' },
+    ],
+    clickup: '10 per-office Master Aging INS AR lists — one task per outstanding claim. Key fields: Patient Name, DOS, Insurance Balance, Aging Bucket (61–90 or 90+), Carrier. The Ava run date is stamped in the task description.',
+  },
+  'ava-legacy-aging': {
+    agent: 'Ava (manual script mode — `npx tsx agents/ava.ts <file>`)',
+    steps: [
+      { name: 'Read .txt aging export', desc: 'Accepts a Dentrix or Open Dental aging report exported as a tab-delimited .txt file. Parses patient name, guarantor, insurance carrier, DOS, and balance columns. Handles both Dentrix and OD column layouts automatically.' },
+      { name: 'Bucket assignment', desc: 'Assigns each claim to the correct aging bucket (0–30, 31–60, 61–90, 90+) based on DOS age at time of export. Filters out self-pay and In-Haus Membership lines.' },
+      { name: 'Sync to ClickUp INS AR list', desc: 'Same create/update logic as Oryx mode — checks for existing tasks by patient + DOS + amount, creates new tasks, stamps the import date. Used for offices not yet migrated to Oryx.' },
+    ],
+    clickup: 'Same 10 per-office INS AR lists. Legacy offices currently include any office that submits a manual .txt export instead of running Oryx mode.',
+  },
 };
 
 function toggleRoutineDetail(safeId) {
@@ -7717,15 +7748,19 @@ function toggleRoutineDetail(safeId) {
 
 function _buildRoutineRow(def, statusData) {
   const info = statusData && statusData[def.id];
-  const st = info ? info.status : 'loading';
+  // External routines (Ava, etc.) don't run in this repo's GitHub Actions
+  const st = def.external ? 'external' : (info ? info.status : 'loading');
   const latestSuccess = info ? info.latestSuccess : null;
   const latest = info ? info.latest : null;
-  const safeId = def.id.replace(/\./g, '-');
+  const safeId = def.id.replace(/[\.\-]/g, '-');
 
   const rowClass = st === 'error' ? 'row-error' : st === 'late' ? 'row-late' : '';
 
   let lastRunHtml, lastRunTsHtml;
-  if (!info) {
+  if (def.external) {
+    lastRunHtml = '<span style="color:var(--fg3);font-style:italic">Runs outside this repo</span>';
+    lastRunTsHtml = '';
+  } else if (!info) {
     lastRunHtml = '<span style="color:var(--fg3)">Loading…</span>';
     lastRunTsHtml = '';
   } else if (st === 'error' && latest) {
@@ -7743,7 +7778,7 @@ function _buildRoutineRow(def, statusData) {
     lastRunTsHtml = '';
   }
 
-  const badgeLabels = { ok: 'ON TIME', late: 'LATE', error: 'ERROR ✕', unknown: 'UNKNOWN', loading: '…' };
+  const badgeLabels = { ok: 'ON TIME', late: 'LATE', error: 'ERROR ✕', unknown: 'UNKNOWN', loading: '…', external: 'EXTERNAL' };
 
   // ── Detail row ──
   const detail = ROUTINE_DETAILS[def.id];
@@ -7849,22 +7884,23 @@ function toggleRoutineSection(group) {
   if (chevron) chevron.classList.toggle('collapsed', !_routineSectionState[group]);
 }
 
+const ROUTINE_GROUPS = ['daily', 'other', 'ava'];
+
 async function renderRoutinesTab() {
   // Render loading state immediately on first open
   if (!_routineStatus) {
     _renderRoutineSummary(null);
-    _renderRoutineSection('daily', null);
-    _renderRoutineSection('other', null);
+    ROUTINE_GROUPS.forEach(g => _renderRoutineSection(g, null));
   } else {
     _renderRoutineSummary(_routineStatus);
-    _renderRoutineSection('daily', _routineStatus);
-    _renderRoutineSection('other', _routineStatus);
+    ROUTINE_GROUPS.forEach(g => _renderRoutineSection(g, _routineStatus));
   }
 
   // Apply expand/collapse state
-  ['daily','other'].forEach(g => {
+  ROUTINE_GROUPS.forEach(g => {
     const body    = document.getElementById('routine-section-body-' + g);
     const chevron = document.getElementById('routine-chevron-' + g);
+    if (!(g in _routineSectionState)) _routineSectionState[g] = true;
     if (body)    body.style.display = _routineSectionState[g] ? '' : 'none';
     if (chevron) chevron.classList.toggle('collapsed', !_routineSectionState[g]);
   });
@@ -7884,8 +7920,7 @@ async function renderRoutinesTab() {
   if (!_routineStatus || (Date.now() - _routineStatusTs) >= CACHE_MS) {
     const data = await fetchRoutineStatus();
     _renderRoutineSummary(data);
-    _renderRoutineSection('daily', data);
-    _renderRoutineSection('other', data);
+    ROUTINE_GROUPS.forEach(g => _renderRoutineSection(g, data));
     if (tsEl && _routineStatusTs) {
       tsEl.textContent = 'Last fetched: ' + _routineCTString(new Date(_routineStatusTs).toISOString());
     }
@@ -7898,9 +7933,8 @@ async function refreshRoutines() {
   _routineStatusTs = 0;
   const tsEl = document.getElementById('routine-fetched-ts');
   if (tsEl) tsEl.textContent = 'Fetching…';
+  ROUTINE_GROUPS.forEach(g => _renderRoutineSection(g, null));
   _renderRoutineSummary(null);
-  _renderRoutineSection('daily', null);
-  _renderRoutineSection('other', null);
   await renderRoutinesTab();
 }
 </script>
