@@ -606,6 +606,51 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 .pin-input{border:1px solid var(--sandstone);border-radius:7px;padding:10px 14px;font-family:'Jost',sans-serif;font-size:14px;letter-spacing:3px;outline:none;width:100%;transition:border .15s;}
 .pin-input:focus{border-color:var(--earth);}
 .pin-error{color:#dc2626;font-size:11px;font-weight:600;display:none;}
+
+/* ── Routines Tab ───────────────────────────────── */
+@keyframes routineErrorPulse {
+  0%,100%{opacity:1;} 50%{opacity:.35;}
+}
+.routine-panel{background:var(--surface);border-radius:8px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.04);overflow:hidden;}
+.routine-panel-hdr{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.routine-summary-strip{display:flex;gap:18px;padding:10px 20px;border-bottom:1px solid var(--border);background:rgba(0,0,0,.015);font-size:12px;font-weight:600;font-family:var(--font-body);}
+.routine-summary-ok{color:var(--teal);}
+.routine-summary-late{color:var(--warn);}
+.routine-summary-error{color:var(--critical);}
+.routine-summary-unknown{color:var(--fg3);}
+.routine-section-hdr{padding:9px 20px;background:rgba(0,0,0,.025);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;}
+.routine-section-hdr:hover{background:rgba(0,0,0,.04);}
+.routine-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--earth);flex:1;}
+.routine-section-counts{font-size:10px;font-weight:600;color:var(--taupe);}
+.routine-chevron{font-size:11px;color:var(--taupe);transition:transform .2s;}
+.routine-chevron.collapsed{transform:rotate(-90deg);}
+.routine-table{width:100%;border-collapse:collapse;font-family:var(--font-body);}
+.routine-table tr.row-error{background:rgba(201,51,51,.04);}
+.routine-table tr.row-late{background:rgba(184,132,26,.04);}
+.routine-table td{padding:9px 14px;border-bottom:1px solid var(--border-subtle);vertical-align:middle;}
+.routine-table tr:last-child td{border-bottom:none;}
+.routine-dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0;}
+.routine-dot.ok{background:var(--teal);}
+.routine-dot.late{background:var(--warn);}
+.routine-dot.error{background:var(--critical);animation:routineErrorPulse 1.4s ease-in-out infinite;}
+.routine-dot.unknown{background:var(--fg3);}
+.routine-dot.loading{background:var(--fg3);opacity:.5;}
+.routine-name{font-size:12px;font-weight:700;color:var(--onyx);}
+.routine-desc{font-size:10px;color:var(--taupe);margin-top:1px;}
+.routine-sched{font-size:10px;color:var(--earth);font-weight:600;}
+.routine-freq{font-size:10px;color:var(--taupe);}
+.routine-lastrun{font-size:11px;color:var(--fg);font-weight:500;}
+.routine-lastrun-ts{font-size:10px;color:var(--fg3);margin-top:1px;}
+.routine-badge{display:inline-block;padding:2px 8px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:.04em;white-space:nowrap;}
+.routine-badge.ok{background:var(--teal-bg);color:var(--teal);border:1px solid var(--teal-border);}
+.routine-badge.late{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-border);}
+.routine-badge.error{background:var(--critical-bg);color:var(--critical);border:1px solid var(--critical-border);}
+.routine-badge.unknown{background:rgba(0,0,0,.05);color:var(--fg3);border:1px solid var(--border);}
+.routine-badge.loading{background:rgba(0,0,0,.04);color:var(--fg3);border:1px solid var(--border);}
+.routine-refresh-btn{padding:5px 12px;background:var(--alabaster);border:1px solid var(--sandstone);border-radius:6px;font-size:11px;font-weight:600;color:var(--earth);cursor:pointer;font-family:var(--font-body);transition:background .15s;}
+.routine-refresh-btn:hover{background:var(--sandstone);}
+.routine-fetched-ts{font-size:10px;color:var(--fg3);}
+.routine-section-body{transition:none;}
 </style>
 </head>
 <body>
@@ -687,6 +732,7 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
     <button class="tab-btn" id="tab-btn-helplog" onclick="switchTab('helplog')">📋 &nbsp;Records</button>
     <button class="tab-btn" id="tab-btn-guide" onclick="switchTab('guide')">📖 &nbsp;How To Use</button>
     <button class="tab-btn" id="tab-btn-kpi" onclick="switchTab('kpi')">📊 &nbsp;KPIs</button>
+    <button class="tab-btn" id="tab-btn-routines" onclick="switchTab('routines')">⚙ &nbsp;Routines</button>
   </div>
   <div class="legend">
     <div class="legend-item"><div class="ldot" style="background:var(--live);animation:livering 1.9s ease-out infinite"></div>Blinking = active on live board</div>
@@ -1552,6 +1598,42 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
     <div id="kpi-trends" style="padding:18px 24px 4px;border-bottom:1px solid var(--sandstone);position:relative"></div>
     <div id="kpi-office-pills" style="padding:10px 20px;border-bottom:1px solid var(--sandstone);display:flex;gap:6px;flex-wrap:wrap"></div>
     <div id="kpi-body" style="padding:20px 24px"></div>
+  </div>
+</div>
+
+<!-- ── ROUTINES TAB ───────────────────────────── -->
+<div id="content-routines" class="tab-content">
+  <div style="padding:20px 24px;max-width:960px;margin:0 auto;">
+    <div class="routine-panel">
+      <div class="routine-panel-hdr">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--onyx);font-family:var(--font-body);">Scheduled Routines</div>
+          <div class="routine-fetched-ts" id="routine-fetched-ts">Not yet loaded</div>
+        </div>
+        <button class="routine-refresh-btn" onclick="refreshRoutines()">↺ &nbsp;Refresh</button>
+      </div>
+      <div class="routine-summary-strip" id="routine-summary-strip">
+        <span style="color:var(--fg3);">Loading…</span>
+      </div>
+      <!-- Daily Routines section -->
+      <div class="routine-section-hdr" onclick="toggleRoutineSection('daily')">
+        <span class="routine-chevron" id="routine-chevron-daily">▾</span>
+        <span class="routine-section-title">Daily Routines</span>
+        <span class="routine-section-counts" id="routine-section-counts-daily"></span>
+      </div>
+      <div id="routine-section-body-daily">
+        <table class="routine-table" id="routine-table-daily"><tbody></tbody></table>
+      </div>
+      <!-- Other Routines section -->
+      <div class="routine-section-hdr" onclick="toggleRoutineSection('other')">
+        <span class="routine-chevron" id="routine-chevron-other">▾</span>
+        <span class="routine-section-title">Other Routines</span>
+        <span class="routine-section-counts" id="routine-section-counts-other"></span>
+      </div>
+      <div id="routine-section-body-other">
+        <table class="routine-table" id="routine-table-other"><tbody></tbody></table>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -5294,7 +5376,7 @@ function dropBreak(e, area) {
 // ════════════════════════════════════════════════
 
 function switchTab(tab) {
-  ['assign','live','arsnap','roster','helplog','guide','kpi'].forEach(t => {
+  ['assign','live','arsnap','roster','helplog','guide','kpi','routines'].forEach(t => {
     const c = document.getElementById('content-' + t);
     const b = document.getElementById('tab-btn-' + t);
     if (c) c.classList.toggle('active', t === tab);
@@ -5304,6 +5386,7 @@ function switchTab(tab) {
   if (tab === 'helplog') renderHelpLogTab();
   if (tab === 'kpi') renderKpiTab();
   if (tab === 'arsnap') renderArSnapshot();
+  if (tab === 'routines') renderRoutinesTab();
 }
 
 function resetAssign() {
@@ -7433,6 +7516,268 @@ function renderPostingBadges() {
   setInterval(fetchArSnapshot, 15 * 60 * 1000);
   setInterval(fetchKpiSnapshot, 15 * 60 * 1000);
 })();
+
+// ════════════════════════════════════════════════
+// ROUTINES TAB
+// ════════════════════════════════════════════════
+
+const ROUTINE_DEFS = [
+  { id: 'routine-morning.yml',           name: 'Morning KPI',         desc: 'Posting completion %',             schedule: '10:32 AM CT', freq: 'Daily',    maxAgeHours: 26,   group: 'daily'  },
+  { id: 'routine-noon.yml',              name: 'Noon Refresh',        desc: 'Unposted · resubmit · archive',    schedule: '12:10 PM CT', freq: 'Daily',    maxAgeHours: 26,   group: 'daily'  },
+  { id: 'routine-evening.yml',           name: 'Evening Refresh',     desc: 'Unposted · legacy · archive',      schedule: '9:02 PM CT',  freq: 'Daily',    maxAgeHours: 26,   group: 'daily'  },
+  { id: 'routine-evening-late.yml',      name: 'Evening Late',        desc: 'DOS flags · resubmit · watchdog',  schedule: '10:37 PM CT', freq: 'Daily',    maxAgeHours: 26,   group: 'daily'  },
+  { id: 'routine-weekly.yml',            name: 'Weekly KPI Snapshot', desc: 'KPI pull from ClickUp',            schedule: 'Mon 7:08 PM', freq: 'Weekly',   maxAgeHours: 200,  group: 'other'  },
+  { id: 'routine-weekly-statements.yml', name: 'Weekly Statements',   desc: 'Statement dates merge',            schedule: 'Fri 9:45 PM', freq: 'Weekly',   maxAgeHours: 200,  group: 'other'  },
+  { id: 'backup-rcm-dashboard.yml',      name: 'Auto Backup',         desc: 'Firebase state snapshot',          schedule: 'Every 3 hrs', freq: '3-hourly', maxAgeHours: 4.5,  group: 'other'  },
+  { id: 'dashboard-health-check.yml',    name: 'Health Check',        desc: 'Dashboard structure & JS audit',   schedule: 'Tue/Fri 10AM',freq: '2×/week',  maxAgeHours: 120,  group: 'other'  },
+];
+
+let _routineStatus = null;   // { workflowId -> { latest, latestSuccess, status } }
+let _routineStatusTs = 0;    // ms timestamp of last successful fetch
+let _routineSectionState = { daily: true, other: true }; // true = expanded
+
+async function fetchRoutineStatus() {
+  const CACHE_MS = 10 * 60 * 1000;
+  if (_routineStatus && (Date.now() - _routineStatusTs) < CACHE_MS) return _routineStatus;
+  const url = 'https://api.github.com/repos/smilehaus/rcm-dashboard/actions/runs?per_page=100';
+  let runs;
+  try {
+    const resp = await fetch(url, { headers: { Accept: 'application/vnd.github+json' } });
+    if (resp.status === 403 || resp.status === 429) {
+      throw new Error('rate-limited');
+    }
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    runs = data.workflow_runs || [];
+  } catch (e) {
+    return { error: e.message };
+  }
+
+  // Group runs by workflow filename
+  const byWorkflow = {};
+  for (const run of runs) {
+    // path looks like ".github/workflows/routine-noon.yml"
+    const filename = (run.path || '').split('/').pop();
+    if (!filename) continue;
+    if (!byWorkflow[filename]) byWorkflow[filename] = [];
+    byWorkflow[filename].push(run);
+  }
+
+  const result = {};
+  for (const def of ROUTINE_DEFS) {
+    const wRuns = byWorkflow[def.id] || [];
+    // Sort by created_at descending
+    wRuns.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    const latest = wRuns[0] || null;
+    const latestSuccess = wRuns.find(r => r.conclusion === 'success') || null;
+
+    let status;
+    if (!latest) {
+      status = 'unknown';
+    } else if (latest.conclusion === 'failure' || latest.conclusion === 'cancelled') {
+      status = 'error';
+    } else if (latestSuccess) {
+      const ageHours = (Date.now() - new Date(latestSuccess.created_at)) / 3600000;
+      status = ageHours > def.maxAgeHours ? 'late' : 'ok';
+    } else {
+      // latest run in progress / queued / no success ever
+      status = 'unknown';
+    }
+
+    result[def.id] = { latest, latestSuccess, status };
+  }
+
+  _routineStatus = result;
+  _routineStatusTs = Date.now();
+  return result;
+}
+
+function _routineFriendlyAge(isoStr) {
+  if (!isoStr) return null;
+  const ms = Date.now() - new Date(isoStr);
+  const mins  = Math.floor(ms / 60000);
+  const hours = Math.floor(ms / 3600000);
+  const days  = Math.floor(ms / 86400000);
+  if (mins < 60)  return mins + 'm ago';
+  if (hours < 24) {
+    const rem = mins - hours * 60;
+    return hours + 'h' + (rem > 0 ? ' ' + rem + 'm' : '') + ' ago';
+  }
+  return days + ' day' + (days !== 1 ? 's' : '') + ' ago';
+}
+
+function _routineCTString(isoStr) {
+  if (!isoStr) return '';
+  try {
+    return new Date(isoStr).toLocaleString('en-US', {
+      timeZone: 'America/Chicago',
+      month: 'short', day: 'numeric',
+      hour: 'numeric', minute: '2-digit', hour12: true
+    });
+  } catch { return ''; }
+}
+
+function _buildRoutineRow(def, statusData) {
+  const info = statusData && statusData[def.id];
+  const st = info ? info.status : 'loading';
+  const latestSuccess = info ? info.latestSuccess : null;
+  const latest = info ? info.latest : null;
+
+  const rowClass = st === 'error' ? 'row-error' : st === 'late' ? 'row-late' : '';
+
+  let lastRunHtml, lastRunTsHtml;
+  if (!info) {
+    lastRunHtml = '<span style="color:var(--fg3)">Loading…</span>';
+    lastRunTsHtml = '';
+  } else if (st === 'error' && latest) {
+    // Show when it failed
+    const age = _routineFriendlyAge(latest.created_at);
+    const ts  = _routineCTString(latest.created_at);
+    lastRunHtml = `<a href="${latest.html_url}" target="_blank" style="color:var(--critical);font-weight:700;text-decoration:none;">${age} (FAILED)</a>`;
+    lastRunTsHtml = ts;
+  } else if (latestSuccess) {
+    const age = _routineFriendlyAge(latestSuccess.created_at);
+    const ts  = _routineCTString(latestSuccess.created_at);
+    lastRunHtml = `<a href="${latestSuccess.html_url}" target="_blank" style="color:inherit;text-decoration:none;">${age}</a>`;
+    lastRunTsHtml = ts;
+  } else {
+    lastRunHtml = '<span style="color:var(--fg3)">Never</span>';
+    lastRunTsHtml = '';
+  }
+
+  const badgeLabels = { ok: 'ON TIME', late: 'LATE', error: 'ERROR ✕', unknown: 'UNKNOWN', loading: '…' };
+
+  return `<tr class="${rowClass}">
+    <td style="width:22px;text-align:center;padding-left:18px;">
+      <span class="routine-dot ${st}"></span>
+    </td>
+    <td style="min-width:140px;">
+      <div class="routine-name">${def.name}</div>
+      <div class="routine-desc">${def.desc}</div>
+    </td>
+    <td style="min-width:110px;">
+      <div class="routine-sched">${def.schedule}</div>
+      <div class="routine-freq">${def.freq}</div>
+    </td>
+    <td style="min-width:160px;">
+      <div class="routine-lastrun">${lastRunHtml}</div>
+      <div class="routine-lastrun-ts">${lastRunTsHtml}</div>
+    </td>
+    <td style="width:90px;text-align:right;padding-right:18px;">
+      <span class="routine-badge ${st}">${badgeLabels[st] || st}</span>
+    </td>
+  </tr>`;
+}
+
+function _renderRoutineSection(group, statusData) {
+  const defs = ROUTINE_DEFS.filter(d => d.group === group);
+  const tableId = 'routine-table-' + group;
+  const table = document.getElementById(tableId);
+  if (!table) return;
+  const tbody = table.querySelector('tbody');
+  tbody.innerHTML = defs.map(d => _buildRoutineRow(d, statusData)).join('');
+
+  // Section counts
+  const countsEl = document.getElementById('routine-section-counts-' + group);
+  if (countsEl && statusData && !statusData.error) {
+    const statuses = defs.map(d => (statusData[d.id] || {}).status || 'unknown');
+    const ok    = statuses.filter(s => s === 'ok').length;
+    const late  = statuses.filter(s => s === 'late').length;
+    const error = statuses.filter(s => s === 'error').length;
+    const parts = [];
+    if (ok)    parts.push(`<span style="color:var(--teal)">${ok} OK</span>`);
+    if (late)  parts.push(`<span style="color:var(--warn)">${late} Late</span>`);
+    if (error) parts.push(`<span style="color:var(--critical)">${error} Error</span>`);
+    countsEl.innerHTML = parts.join(' · ');
+  } else if (countsEl) {
+    countsEl.innerHTML = '';
+  }
+}
+
+function _renderRoutineSummary(statusData) {
+  const strip = document.getElementById('routine-summary-strip');
+  if (!strip) return;
+  if (!statusData || statusData.error) {
+    const msg = statusData && statusData.error === 'rate-limited'
+      ? '⚠ Rate limited — try again in a minute'
+      : '⚠ Could not load routine data';
+    strip.innerHTML = `<span style="color:var(--warn);font-weight:600;">${msg}</span>`;
+    return;
+  }
+  const statuses = ROUTINE_DEFS.map(d => (statusData[d.id] || {}).status || 'unknown');
+  const ok      = statuses.filter(s => s === 'ok').length;
+  const late    = statuses.filter(s => s === 'late').length;
+  const error   = statuses.filter(s => s === 'error').length;
+  const unknown = statuses.filter(s => s === 'unknown').length;
+  strip.innerHTML =
+    `<span class="routine-summary-ok">${ok} OK</span>` +
+    `<span class="routine-summary-late">${late} Late</span>` +
+    `<span class="routine-summary-error">${error} Error</span>` +
+    (unknown ? `<span class="routine-summary-unknown">${unknown} Unknown</span>` : '');
+}
+
+function toggleRoutineSection(group) {
+  _routineSectionState[group] = !_routineSectionState[group];
+  const body    = document.getElementById('routine-section-body-' + group);
+  const chevron = document.getElementById('routine-chevron-' + group);
+  if (body)    body.style.display = _routineSectionState[group] ? '' : 'none';
+  if (chevron) chevron.classList.toggle('collapsed', !_routineSectionState[group]);
+}
+
+async function renderRoutinesTab() {
+  // Render loading state immediately on first open
+  if (!_routineStatus) {
+    _renderRoutineSummary(null);
+    _renderRoutineSection('daily', null);
+    _renderRoutineSection('other', null);
+  } else {
+    _renderRoutineSummary(_routineStatus);
+    _renderRoutineSection('daily', _routineStatus);
+    _renderRoutineSection('other', _routineStatus);
+  }
+
+  // Apply expand/collapse state
+  ['daily','other'].forEach(g => {
+    const body    = document.getElementById('routine-section-body-' + g);
+    const chevron = document.getElementById('routine-chevron-' + g);
+    if (body)    body.style.display = _routineSectionState[g] ? '' : 'none';
+    if (chevron) chevron.classList.toggle('collapsed', !_routineSectionState[g]);
+  });
+
+  // Update fetched timestamp
+  const tsEl = document.getElementById('routine-fetched-ts');
+  if (tsEl) {
+    if (_routineStatusTs) {
+      tsEl.textContent = 'Last fetched: ' + _routineCTString(new Date(_routineStatusTs).toISOString());
+    } else {
+      tsEl.textContent = 'Fetching…';
+    }
+  }
+
+  // If cache is stale or empty, fetch fresh data
+  const CACHE_MS = 10 * 60 * 1000;
+  if (!_routineStatus || (Date.now() - _routineStatusTs) >= CACHE_MS) {
+    const data = await fetchRoutineStatus();
+    _renderRoutineSummary(data);
+    _renderRoutineSection('daily', data);
+    _renderRoutineSection('other', data);
+    if (tsEl && _routineStatusTs) {
+      tsEl.textContent = 'Last fetched: ' + _routineCTString(new Date(_routineStatusTs).toISOString());
+    }
+  }
+}
+
+async function refreshRoutines() {
+  // Force cache bust
+  _routineStatus = null;
+  _routineStatusTs = 0;
+  const tsEl = document.getElementById('routine-fetched-ts');
+  if (tsEl) tsEl.textContent = 'Fetching…';
+  _renderRoutineSummary(null);
+  _renderRoutineSection('daily', null);
+  _renderRoutineSection('other', null);
+  await renderRoutinesTab();
+}
 </script>
 
 <!-- ── Check-In PIN Modal ─────────────────────────────────────────────────── -->
