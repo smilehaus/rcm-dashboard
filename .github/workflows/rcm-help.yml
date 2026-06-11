@@ -43,10 +43,7 @@ jobs:
         run: npm install -g @anthropic-ai/claude-code@latest
 
       - name: Run RCM Help Agent
-        run: |
-          claude --print \
-            --allowedTools "Read,Edit,Write,Bash,Glob,Grep" \
-            "Read .claude/agents/rcm-help.md for your full instructions. Then fix ClickUp task ${{ github.event.inputs.task_id }} (error type: ${{ github.event.inputs.error_type }}). Use CLICKUP_API_TOKEN env var for ClickUp auth. After fixing, post a comment on the task with what you did and update status to complete."
+        run: claude --print --dangerously-skip-permissions "Read .claude/agents/rcm-help.md for your full instructions. Then fix ClickUp task ${{ github.event.inputs.task_id }} (error type: ${{ github.event.inputs.error_type }}). Use CLICKUP_API_TOKEN env var for ClickUp auth. After fixing, post a comment on the task with what you did and update status to complete."
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
