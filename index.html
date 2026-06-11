@@ -651,6 +651,18 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--fg);min-heigh
 .routine-refresh-btn:hover{background:var(--sandstone);}
 .routine-fetched-ts{font-size:10px;color:var(--fg3);}
 .routine-section-body{transition:none;}
+.routine-expand-btn{background:none;border:none;cursor:pointer;font-size:10px;font-weight:600;color:var(--earth);font-family:var(--font-body);letter-spacing:.04em;padding:3px 7px;border-radius:4px;white-space:nowrap;border:1px solid var(--border-subtle);transition:background .12s;}
+.routine-expand-btn:hover{background:var(--elevated);}
+.routine-detail-row td{padding:0!important;border-bottom:1px solid var(--border-subtle)!important;background:rgba(0,0,0,.018);}
+.routine-detail-inner{padding:14px 20px 16px 44px;display:flex;gap:28px;flex-wrap:wrap;}
+.routine-detail-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--earth);margin-bottom:5px;margin-top:12px;}
+.routine-detail-lbl:first-child{margin-top:0;}
+.routine-detail-steps{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px;flex:1;min-width:280px;}
+.routine-detail-steps li{font-size:11px;color:var(--fg2);line-height:1.45;padding-left:12px;position:relative;}
+.routine-detail-steps li::before{content:"›";position:absolute;left:0;color:var(--earth);font-weight:700;}
+.routine-detail-steps li strong{color:var(--onyx);font-size:10px;font-family:var(--font-chip);background:var(--elevated);padding:1px 5px;border-radius:3px;margin-right:4px;}
+.routine-detail-meta{min-width:200px;max-width:320px;}
+.routine-detail-val{font-size:11px;color:var(--fg2);line-height:1.5;}
 </style>
 </head>
 <body>
@@ -7617,11 +7629,98 @@ function _routineCTString(isoStr) {
   } catch { return ''; }
 }
 
+const ROUTINE_DETAILS = {
+  'routine-morning.yml': {
+    agent: 'GitHub Actions (automated, no human trigger)',
+    steps: [
+      { name: 'fetch-posting-goals', desc: 'Reads the current pay-period parent task from the EOB/ERA Posting Goals list. Pulls Completion % per office via custom field; falls back to collection ÷ production ratio, then doctor-level average. Writes posting-alerts.json.' },
+    ],
+    clickup: 'List 901414704146 (EOB/ERA Posting Goals) — most-recent non-closed parent task = current pay period; one subtask per office holds the Completion % field.',
+  },
+  'routine-noon.yml': {
+    agent: 'GitHub Actions (automated, no human trigger)',
+    steps: [
+      { name: 'flag-resubmit-claims', desc: 'Scans all 10 INS AR lists for tasks where Aging Status = "must resubmit." Marks PRIORITY if DOS age is 358–364 days; OVERDUE if ≥ 365 days. Writes resubmit-alerts.json.' },
+      { name: 'fetch-unposted', desc: 'Walks EOB/ERA Management lists in every office folder, traverses the full parent→subtask→sub-subtask tree, and sums Grand Total where SH Posting Progress ≠ Completed. Also computes posted-today, posted-this-week, and newly-added-this-week for 2026.' },
+      { name: 'flag-recent-dos', desc: 'Re-scans 10 INS AR lists. Sets ClickUp priority = Urgent if DOS age ≥ 358 days; adds an OVERDUE tag if ≥ 365 days and DOS ≥ 2025-01-01. Writes aging-alerts.json.' },
+      { name: 'archive-ar-snapshot (PM slot)', desc: 'Appends a per-office snapshot row to perOfficeHistory in ar-snapshot.json. PM slot = same business day; runs after noon data is fresh.' },
+      { name: 'backup-ar-snapshot-to-clickup', desc: 'Creates or updates a dated task in the AR Snapshot archive list. Attaches all 7 dashboard JSON files; writes org-wide totals + delta vs. prior entry in the task description.' },
+    ],
+    clickup: '10 INS AR lists (one per office) for resubmit and DOS flagging; "SH Revenue Cycle Management" space → office folders → EOB/ERA Management lists (2025 + 2026) for unposted; list 901416373479 for ClickUp archive tasks.',
+  },
+  'routine-evening.yml': {
+    agent: 'GitHub Actions (automated, no human trigger)',
+    steps: [
+      { name: 'fetch-unposted (daily)', desc: 'Same subtask-tree unposted scan as the noon run, capturing end-of-business totals after the team\'s posting day is complete.' },
+      { name: 'fetch-legacy', desc: 'Pulls Dentrix / Open Dental legacy balances from per-office ClickUp view IDs (GT Open Dental, HZ Dentrix, MP Dentrix, FS Dentrix, IC Dentrix, AR Dentrix, SATX Dentrix). Filters out resolved, Oryx-recreated, or pre-migration tasks. Forces all remaining amounts into the 90+ bucket.' },
+      { name: 'archive-ar-snapshot (AM slot)', desc: 'Appends the nightly snapshot to perOfficeHistory as the AM slot, banked to the next business day. Runs after both unposted and legacy data are refreshed.' },
+      { name: 'backup-ar-snapshot-to-clickup', desc: 'Same as noon — attaches JSON files to the dated ClickUp archive task.' },
+    ],
+    clickup: 'Same EOB/ERA Management lists as noon for unposted; legacy ClickUp view IDs per office for Dentrix/Open Dental balances; list 901416373479 for archive tasks.',
+  },
+  'routine-evening-late.yml': {
+    agent: 'GitHub Actions (automated, no human trigger)',
+    steps: [
+      { name: 'flag-recent-dos (evening)', desc: 'Second pass of the DOS age check — re-flags any claims that crossed the 358- or 365-day threshold during the business day.' },
+      { name: 'flag-resubmit-claims (evening)', desc: 'Second pass resubmit scan, catching any Aging Status changes made by the team that afternoon.' },
+      { name: 'scheduler-watchdog', desc: 'Reads the "generated" timestamp from all 5 dashboard JSON files. If any file exceeds its freshness threshold (26 h for daily, 192 h for weekly), creates or updates an alert task in ClickUp list 901416373479 with a recovery checklist.' },
+    ],
+    clickup: '10 INS AR lists (same as noon) for DOS + resubmit; list 901416373479 for watchdog alert tasks — creates/updates a single task per issue with a checklist of recovery steps.',
+  },
+  'routine-weekly.yml': {
+    agent: 'GitHub Actions (automated, runs Monday evenings)',
+    steps: [
+      { name: 'fetch-kpi-snapshot', desc: 'Reads list 901415926262 (Weekly Office KPIs), maps each task to office + week-ending date, and extracts 7 metrics. Keeps the last 12 weeks of history. Writes kpi-snapshot.json.' },
+    ],
+    clickup: 'List 901415926262 (Weekly Office KPIs) — each task = one office\'s weekly submission. Fields: MTD Production, Collection Rate, Hygiene Re-appt Rate, Cancellation Rate, Case Acceptance Rate, AR Days, AR > 30 Days.',
+  },
+  'routine-weekly-statements.yml': {
+    agent: 'Statement Tracker (local browser agent) + GitHub Actions merge step',
+    steps: [
+      { name: 'Statement Tracker — Batch 1 (Fri 7:02 PM CT)', desc: 'Browser agent logs into Oryx for SQ / GT / ATX / MP / IC, opens Aging Report → View Generated Statements, reads last statement date + count, writes to statement-dates.json.' },
+      { name: 'Statement Tracker — Batch 2 (Fri 9:04 PM CT)', desc: 'Same process for AR / PF / NBDA / SATX / AM.' },
+      { name: 'fetch-statements (GitHub Actions, Fri 9:45 PM CT)', desc: 'Reads statement-dates.json (committed by the browser agent) and merges lastStatementSent per office into ar-snapshot.json. Writes null explicitly if no valid batch is found, triggering a red indicator in the dashboard.' },
+    ],
+    clickup: 'No ClickUp reads — data comes directly from the Oryx Aging Report UI via browser automation. GitHub Actions only merges the locally-written JSON.',
+  },
+  'backup-rcm-dashboard.yml': {
+    agent: 'GitHub Actions (automated, every 3 hours)',
+    steps: [
+      { name: 'Fetch Firebase state', desc: 'Calls Firebase RTDB REST endpoint, validates HTTP 200 and file size > 10 bytes, saves to backups/YYYY-MM-DD_HH-MM.json.' },
+      { name: 'Prune old backups', desc: 'Deletes backup files older than 30 days to keep the repo size manageable.' },
+      { name: 'Commit backup', desc: 'Commits only if the file changed since last run (data diff detected). Skips no-op commits.' },
+    ],
+    clickup: 'None — reads Firebase RTDB directly. Serves as the recovery source if Firebase data is ever corrupted or accidentally overwritten.',
+  },
+  'dashboard-health-check.yml': {
+    agent: 'GitHub Actions (runs Tue/Fri + on every push to master)',
+    steps: [
+      { name: 'Fetch live page', desc: 'Curls smilehaus.github.io/rcm-dashboard, verifies HTTP 200 and file size > 50 KB. A blank or broken page will fail here.' },
+      { name: 'Structural landmarks check', desc: 'Greps the live HTML for 10 required IDs and function names (arsnap-cards, mergeBoardState, normalizeSArrays, etc.). Any missing section = automatic failure.' },
+      { name: 'Token-safety guards check', desc: 'Verifies PROTECTED_KEYS and the per-office normalizeSArrays guards are present. These prevent Firebase empty-node stripping from silently wiping live-board tokens.' },
+      { name: 'Regression check', desc: 'Confirms no bare "delete S[k]" loop exists without the PROTECTED_KEYS guard — the #1 cause of token wipes historically.' },
+      { name: 'TypeScript syntax check', desc: 'Scans the browser JS for TypeScript type annotations (x: Type) that crash the script silently on load.' },
+      { name: 'Email failure alert', desc: 'On any step failure, sends a detailed email to saomongmo@gmail.com with the failing step and a link to the Actions log.' },
+    ],
+    clickup: 'None — validates the live GitHub Pages HTML only. Acts as a safety net after every deploy.',
+  },
+};
+
+function toggleRoutineDetail(safeId) {
+  const row = document.getElementById('rd-' + safeId);
+  if (!row) return;
+  const btn = document.getElementById('rdb-' + safeId);
+  const isOpen = row.style.display !== 'none';
+  row.style.display = isOpen ? 'none' : 'table-row';
+  if (btn) btn.textContent = isOpen ? '▸ Details' : '▾ Details';
+}
+
 function _buildRoutineRow(def, statusData) {
   const info = statusData && statusData[def.id];
   const st = info ? info.status : 'loading';
   const latestSuccess = info ? info.latestSuccess : null;
   const latest = info ? info.latest : null;
+  const safeId = def.id.replace(/\./g, '-');
 
   const rowClass = st === 'error' ? 'row-error' : st === 'late' ? 'row-late' : '';
 
@@ -7630,7 +7729,6 @@ function _buildRoutineRow(def, statusData) {
     lastRunHtml = '<span style="color:var(--fg3)">Loading…</span>';
     lastRunTsHtml = '';
   } else if (st === 'error' && latest) {
-    // Show when it failed
     const age = _routineFriendlyAge(latest.created_at);
     const ts  = _routineCTString(latest.created_at);
     lastRunHtml = `<a href="${latest.html_url}" target="_blank" style="color:var(--critical);font-weight:700;text-decoration:none;">${age} (FAILED)</a>`;
@@ -7647,7 +7745,33 @@ function _buildRoutineRow(def, statusData) {
 
   const badgeLabels = { ok: 'ON TIME', late: 'LATE', error: 'ERROR ✕', unknown: 'UNKNOWN', loading: '…' };
 
-  return `<tr class="${rowClass}">
+  // ── Detail row ──
+  const detail = ROUTINE_DETAILS[def.id];
+  let detailHtml = '';
+  if (detail) {
+    const stepsHtml = detail.steps.map(s =>
+      `<li><strong>${escHtml(s.name)}</strong> ${escHtml(s.desc)}</li>`
+    ).join('');
+    detailHtml = `
+  <tr id="rd-${safeId}" class="routine-detail-row" style="display:none">
+    <td colspan="5">
+      <div class="routine-detail-inner">
+        <div style="flex:1;min-width:280px">
+          <div class="routine-detail-lbl">Steps</div>
+          <ul class="routine-detail-steps">${stepsHtml}</ul>
+        </div>
+        <div class="routine-detail-meta">
+          <div class="routine-detail-lbl">Agent / System</div>
+          <div class="routine-detail-val">${escHtml(detail.agent)}</div>
+          <div class="routine-detail-lbl">ClickUp Logic</div>
+          <div class="routine-detail-val">${escHtml(detail.clickup)}</div>
+        </div>
+      </div>
+    </td>
+  </tr>`;
+  }
+
+  return `<tr class="${rowClass}" style="cursor:pointer" onclick="toggleRoutineDetail('${safeId}')">
     <td style="width:22px;text-align:center;padding-left:18px;">
       <span class="routine-dot ${st}"></span>
     </td>
@@ -7663,10 +7787,11 @@ function _buildRoutineRow(def, statusData) {
       <div class="routine-lastrun">${lastRunHtml}</div>
       <div class="routine-lastrun-ts">${lastRunTsHtml}</div>
     </td>
-    <td style="width:90px;text-align:right;padding-right:18px;">
-      <span class="routine-badge ${st}">${badgeLabels[st] || st}</span>
+    <td style="width:120px;text-align:right;padding-right:14px;">
+      <span class="routine-badge ${st}" style="margin-right:6px">${badgeLabels[st] || st}</span>
+      <button id="rdb-${safeId}" class="routine-expand-btn" onclick="event.stopPropagation();toggleRoutineDetail('${safeId}')">▸ Details</button>
     </td>
-  </tr>`;
+  </tr>${detailHtml}`;
 }
 
 function _renderRoutineSection(group, statusData) {
