@@ -19940,8 +19940,8 @@
     {
       "date": "2026-06-14",
       "slot": "PM",
-      "asOf": "6/14/2026, 2:29 AM CT",
-      "generated": "2026-06-14T07:29:54.884Z",
+      "asOf": "6/14/2026, 3:01 PM CT",
+      "generated": "2026-06-14T20:01:43.554Z",
       "offices": {
         "SQ": {
           "outstanding": {
@@ -20318,9 +20318,9 @@
             "total": 69557.03
           },
           "unposted": {
-            "y2025": 63633.34,
+            "y2025": 62655.14,
             "y2026": 16733.87,
-            "total": 80367.21,
+            "total": 79389.01,
             "completedThisWeek2026": 8357.1,
             "completedThisWeekStart": "2026-06-08",
             "newTasksAddedThisWeek2026": 3920.4
