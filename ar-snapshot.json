@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-20T07:06:05.166Z",
+  "generated": "2026-06-20T07:06:39.438Z",
   "asOf": "6/20/2026, 2:06 AM CT",
   "totals": {
     "outstanding": {
@@ -119,7 +119,7 @@
           "total": 1572,
           "taskCount": 4,
           "excludedCount": 3,
-          "asOf": "2026-06-19T08:38:24.665Z"
+          "asOf": "2026-06-20T07:06:39.437Z"
         },
         {
           "label": "HZ Dentrix",
@@ -132,7 +132,7 @@
           "total": 6009,
           "taskCount": 5,
           "excludedCount": 0,
-          "asOf": "2026-06-19T08:38:24.665Z"
+          "asOf": "2026-06-20T07:06:39.438Z"
         }
       ],
       "lastStatementSent": {
@@ -231,7 +231,7 @@
           "total": 11724.87,
           "taskCount": 31,
           "excludedCount": 0,
-          "asOf": "2026-06-19T08:38:24.665Z"
+          "asOf": "2026-06-20T07:06:39.438Z"
         },
         {
           "label": "FS Dentrix",
@@ -244,7 +244,7 @@
           "total": 14805,
           "taskCount": 36,
           "excludedCount": 0,
-          "asOf": "2026-06-19T08:38:24.665Z"
+          "asOf": "2026-06-20T07:06:39.438Z"
         }
       ],
       "lastStatementSent": {
@@ -301,7 +301,7 @@
           "total": 2875,
           "taskCount": 3,
           "excludedCount": 0,
-          "asOf": "2026-06-19T08:38:24.665Z"
+          "asOf": "2026-06-20T07:06:39.438Z"
         }
       ],
       "lastStatementSent": {
@@ -358,7 +358,7 @@
           "total": 11711.25,
           "taskCount": 5,
           "excludedCount": 0,
-          "asOf": "2026-06-19T08:38:24.665Z"
+          "asOf": "2026-06-20T07:06:39.438Z"
         }
       ],
       "lastStatementSent": {
@@ -415,7 +415,7 @@
           "total": 1561,
           "taskCount": 6,
           "excludedCount": 0,
-          "asOf": "2026-06-19T08:38:24.665Z"
+          "asOf": "2026-06-20T07:06:39.438Z"
         }
       ],
       "lastStatementSent": {
@@ -510,11 +510,11 @@
           "d0_30": 0,
           "d31_60": 0,
           "d61_90": 0,
-          "d90plus": 12473,
-          "total": 12473,
+          "d90plus": 12609,
+          "total": 12609,
           "taskCount": 20,
           "excludedCount": 0,
-          "asOf": "2026-06-19T08:38:24.665Z"
+          "asOf": "2026-06-20T07:06:39.438Z"
         }
       ],
       "lastStatementSent": {
