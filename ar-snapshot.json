@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-23T15:18:54.040Z",
-  "asOf": "6/23/2026, 10:18 AM CT",
+  "generated": "2026-06-23T15:23:50.754Z",
+  "asOf": "6/23/2026, 10:23 AM CT",
   "totals": {
     "outstanding": {
       "d0_30": 524014.94,
@@ -101,9 +101,9 @@
         "total": 242462.78,
         "mondayBaseline2026": 14808.3,
         "mondayBaselineDate": "2026-06-22",
-        "completedToday2026": 2738,
+        "completedToday2026": 7084.15,
         "completedTodayDate": "2026-06-23",
-        "completedThisWeek2026": 5738.7,
+        "completedThisWeek2026": 10084.85,
         "completedThisWeekStart": "2026-06-22",
         "newTasksAddedThisWeek2026": 7841.41
       },
