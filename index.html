@@ -7785,7 +7785,7 @@ const ROUTINE_DETAILS = {
       { name: 'Structural landmarks check', desc: 'Greps the live HTML for 10 required IDs and function names (arsnap-cards, mergeBoardState, normalizeSArrays, etc.). Any missing section = automatic failure.' },
       { name: 'Token-safety guards check', desc: 'Verifies PROTECTED_KEYS and the per-office normalizeSArrays guards are present. These prevent Firebase empty-node stripping from silently wiping live-board tokens.' },
       { name: 'Regression check', desc: 'Confirms no bare "delete S[k]" loop exists without the PROTECTED_KEYS guard — the #1 cause of token wipes historically.' },
-      { name: 'TypeScript syntax check', desc: 'Scans the browser JS for TypeScript type annotations (x: Type) that crash the script silently on load.' },
+      { name: 'TypeScript syntax check', desc: 'Scans the browser JS for TypeScript-style type annotations that crash the script silently on load.' },
       { name: 'Email failure alert', desc: 'On any step failure, sends a detailed email to saomongmo@gmail.com with the failing step and a link to the Actions log.' },
     ],
     clickup: 'None — validates the live GitHub Pages HTML only. Acts as a safety net after every deploy.',
