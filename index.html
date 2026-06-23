@@ -3069,14 +3069,23 @@ function normalizeSArrays() {
   if (!S.assign || typeof S.assign !== 'object' || Array.isArray(S.assign)) S.assign = {};
   S.offices.forEach(o => {
     if (!S.live[o.code] || typeof S.live[o.code] !== 'object') S.live[o.code] = {};
-    S.columns.forEach(c => { if (!Array.isArray(S.live[o.code][c.id])) S.live[o.code][c.id] = []; });
+    S.columns.forEach(c => {
+      if (!Array.isArray(S.live[o.code][c.id])) S.live[o.code][c.id] = [];
+      // Strip null/empty/non-string token ids — a bad entry here crashes makeTok()
+      // (staffId.startsWith) and breaks the whole board render ("User Token Error").
+      else S.live[o.code][c.id] = S.live[o.code][c.id].filter(id => typeof id === 'string' && id.length > 0);
+    });
     // assign[office] is an OBJECT keyed by column id (not an array).
     // Only reset to {} if it's genuinely missing or wrong type.
     if (!S.assign[o.code] || typeof S.assign[o.code] !== 'object' || Array.isArray(S.assign[o.code])) {
       S.assign[o.code] = {};
     }
     // Initialize any column slot that is missing (existing non-empty arrays are left untouched).
-    S.columns.forEach(c => { if (!Array.isArray(S.assign[o.code][c.id])) S.assign[o.code][c.id] = []; });
+    S.columns.forEach(c => {
+      if (!Array.isArray(S.assign[o.code][c.id])) S.assign[o.code][c.id] = [];
+      // Same sanitization as live: a bad id crashes the ghost filter (sid.startsWith).
+      else S.assign[o.code][c.id] = S.assign[o.code][c.id].filter(id => typeof id === 'string' && id.length > 0);
+    });
   });
   // Also guard each helpInstance's helpers array
   if (S.helpInstances) {
@@ -4255,6 +4264,10 @@ function removeFrom(srcBoard, srcZone, staffId) {
 function makeTok(staffId, opts) {
   // opts: { isLive, srcBoard, srcZone, isAssign, showRemove, small }
   const {isLive, srcBoard, srcZone, showRemove} = opts || {};
+
+  // Guard: a null/empty/non-string id (stale merge, manual Firebase edit, legacy
+  // record) must never reach .startsWith below — that throws and breaks the board.
+  if (typeof staffId !== 'string' || staffId.length === 0) return document.createDocumentFragment();
 
   if (staffId.startsWith('help_')) return makeHelpTokEl(staffId, srcBoard, srcZone);
 
