@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-16T17:10:58.888Z",
-  "asOf": "6/16/26, 12:10 PM CT",
+  "generated": "2026-06-23T05:13:21.098Z",
+  "asOf": "6/23/26, 12:13 AM CT",
   "listId": "901415926262",
   "metrics": [
     "monthlyProduction",
@@ -559,6 +559,93 @@
         "caseAcceptance": null,
         "arDays": 34.875,
         "arOver30": 871177.44
+      }
+    },
+    {
+      "weekEnding": "2026-06-14",
+      "weekLabel": "6/8 – 6/14",
+      "offices": {
+        "AM": {
+          "monthlyProduction": 47011.75,
+          "collectionRate": null,
+          "hygReappt": null,
+          "cancellationRate": 12,
+          "caseAcceptance": null,
+          "arDays": 36,
+          "arOver30": 83833.72
+        },
+        "IC": {
+          "monthlyProduction": 47479.88,
+          "collectionRate": null,
+          "hygReappt": null,
+          "cancellationRate": 3,
+          "caseAcceptance": null,
+          "arDays": 40,
+          "arOver30": 153960.13
+        },
+        "NBDA": {
+          "monthlyProduction": 55454.81,
+          "collectionRate": null,
+          "hygReappt": null,
+          "cancellationRate": 23,
+          "caseAcceptance": null,
+          "arDays": 36,
+          "arOver30": 170011.5
+        },
+        "PF": {
+          "monthlyProduction": 174121.3,
+          "collectionRate": null,
+          "hygReappt": null,
+          "cancellationRate": 14,
+          "caseAcceptance": null,
+          "arDays": 45,
+          "arOver30": 252445.07
+        },
+        "AR": {
+          "monthlyProduction": 80510.21,
+          "collectionRate": null,
+          "hygReappt": null,
+          "cancellationRate": 12,
+          "caseAcceptance": null,
+          "arDays": 36,
+          "arOver30": 194603.28
+        },
+        "GT": {
+          "monthlyProduction": 25946,
+          "collectionRate": null,
+          "hygReappt": null,
+          "cancellationRate": 2,
+          "caseAcceptance": null,
+          "arDays": 18,
+          "arOver30": 34222.93
+        },
+        "MP": {
+          "monthlyProduction": 46756.7,
+          "collectionRate": null,
+          "hygReappt": null,
+          "cancellationRate": 11,
+          "caseAcceptance": null,
+          "arDays": 25,
+          "arOver30": 64642.4
+        },
+        "ATX": {
+          "monthlyProduction": 89010.4,
+          "collectionRate": null,
+          "hygReappt": null,
+          "cancellationRate": 10,
+          "caseAcceptance": null,
+          "arDays": 35,
+          "arOver30": 316936.73
+        }
+      },
+      "totals": {
+        "monthlyProduction": 566291.05,
+        "collectionRate": null,
+        "hygReappt": null,
+        "cancellationRate": 10.875,
+        "caseAcceptance": null,
+        "arDays": 33.875,
+        "arOver30": 1270655.76
       }
     }
   ]
