@@ -1,10 +1,10 @@
 {
-  "generated": "2026-06-23T08:05:47.735Z",
+  "generated": "2026-06-23T17:22:52.813Z",
   "offices": {
     "SQ": {
       "oryx": {
         "overdue": 0,
-        "priority": 1
+        "priority": 0
       },
       "legacy": {
         "overdue": 0,
@@ -13,8 +13,8 @@
     },
     "GT": {
       "oryx": {
-        "overdue": 1,
-        "priority": 0
+        "overdue": 3,
+        "priority": 1
       },
       "legacy": {
         "overdue": 0,
@@ -84,11 +84,11 @@
     "SATX": {
       "oryx": {
         "overdue": 0,
-        "priority": 0
+        "priority": 1
       },
       "legacy": {
         "overdue": 0,
-        "priority": 0
+        "priority": 1
       }
     },
     "AM": {
