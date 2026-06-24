@@ -26212,70 +26212,77 @@
     {
       "date": "2026-06-24",
       "slot": "PM",
-      "asOf": "6/24/2026, 1:57 AM CT",
-      "generated": "2026-06-24T06:57:40.681Z",
+      "asOf": "6/24/2026, 12:33 PM CT",
+      "generated": "2026-06-24T17:33:04.121Z",
       "offices": {
         "SQ": {
           "outstanding": {
-            "d0_30": 21921.45,
-            "d31_60": 3048.4,
-            "d61_90": 2699.45,
-            "d90plus": 25961.5,
-            "total": 53630.8
+            "d0_30": 15967.45,
+            "d31_60": 8884.63,
+            "d61_90": 931.2,
+            "d90plus": 27381.27,
+            "total": 53164.55
           },
           "patients": {
-            "d0_30": 5512.2,
-            "d31_60": 1831.4,
-            "d61_90": 944.4,
-            "d90plus": 21256.75,
-            "total": 29544.75
+            "d0_30": 2561.7,
+            "d31_60": 5308.83,
+            "d61_90": 660.6,
+            "d90plus": 21809.52,
+            "total": 30340.65
           },
           "insurance": {
-            "d0_30": 16409.25,
-            "d31_60": 1217,
-            "d61_90": 1755.05,
-            "d90plus": 4704.75,
-            "total": 24086.05
+            "d0_30": 13405.75,
+            "d31_60": 3575.8,
+            "d61_90": 270.6,
+            "d90plus": 5571.75,
+            "total": 22823.9
           },
           "unposted": {
             "y2025": 1838.2,
-            "y2026": 3094.7,
-            "total": 4932.9,
+            "y2026": 4705.1,
+            "total": 6543.3,
             "completedThisWeek2026": 930.1,
             "completedThisWeekStart": "2026-06-22",
-            "newTasksAddedThisWeek2026": 3519.8
+            "newTasksAddedThisWeek2026": 5130.2
           },
-          "legacy": null
+          "legacy": null,
+          "lastStatementSent": {
+            "date": null,
+            "eStatementsSent": null,
+            "manualNoPrint": 0,
+            "manualWithEmail": 0,
+            "asOf": "2026-05-20T00:39:54.450Z"
+          }
         },
         "GT": {
           "outstanding": {
-            "d0_30": 84405.1,
-            "d31_60": 22150.73,
-            "d61_90": 33570.4,
-            "d90plus": 293691.07,
-            "total": 433817.3
+            "d0_30": 57125.82,
+            "d31_60": 28521.21,
+            "d61_90": 12304.39,
+            "d90plus": 322894.19,
+            "total": 420845.61
           },
           "patients": {
-            "d0_30": 15570.55,
-            "d31_60": 7094.9,
-            "d61_90": 13566.4,
-            "d90plus": 144181.06,
-            "total": 180412.91
+            "d0_30": 12496.77,
+            "d31_60": 17228.36,
+            "d61_90": 8631.09,
+            "d90plus": 197858.58,
+            "total": 236214.8
           },
           "insurance": {
-            "d0_30": 68834.55,
-            "d31_60": 15055.83,
-            "d61_90": 20004,
-            "d90plus": 149510.01,
-            "total": 253404.39
+            "d0_30": 44629.05,
+            "d31_60": 11292.85,
+            "d61_90": 3673.3,
+            "d90plus": 125035.61,
+            "total": 184630.81
           },
           "unposted": {
             "y2025": 232217.43,
-            "y2026": 11891.75,
-            "total": 244109.18,
+            "y2026": 16458.15,
+            "total": 248675.58,
             "completedThisWeek2026": 10084.85,
             "completedThisWeekStart": "2026-06-22",
-            "newTasksAddedThisWeek2026": 9487.81
+            "newTasksAddedThisWeek2026": 14054.21
           },
           "legacy": [
             {
@@ -26289,7 +26296,7 @@
               "total": 1572,
               "taskCount": 4,
               "excludedCount": 3,
-              "asOf": "2026-06-24T06:57:39.031Z"
+              "asOf": "2026-06-24T14:37:30.531Z"
             },
             {
               "label": "HZ Dentrix",
@@ -26302,71 +26309,85 @@
               "total": 6009,
               "taskCount": 5,
               "excludedCount": 0,
-              "asOf": "2026-06-24T06:57:39.031Z"
+              "asOf": "2026-06-24T14:37:30.532Z"
             }
-          ]
+          ],
+          "lastStatementSent": {
+            "date": null,
+            "eStatementsSent": null,
+            "manualNoPrint": 0,
+            "manualWithEmail": 0,
+            "asOf": "2026-05-20T00:39:54.450Z"
+          }
         },
         "ATX": {
           "outstanding": {
-            "d0_30": 37209.87,
-            "d31_60": 9474.16,
-            "d61_90": 12393.72,
-            "d90plus": 49659.66,
-            "total": 108737.41
+            "d0_30": 45584.85,
+            "d31_60": 10474.58,
+            "d61_90": 5489.14,
+            "d90plus": 45633.98,
+            "total": 107182.55
           },
           "patients": {
-            "d0_30": 7023.2,
-            "d31_60": 4297.66,
-            "d61_90": 2105.87,
-            "d90plus": 35913.29,
-            "total": 49340.02
+            "d0_30": 12269.45,
+            "d31_60": 6875.08,
+            "d61_90": 3336.74,
+            "d90plus": 29619.96,
+            "total": 52101.23
           },
           "insurance": {
-            "d0_30": 30186.67,
-            "d31_60": 5176.5,
-            "d61_90": 10287.85,
-            "d90plus": 13746.37,
-            "total": 59397.39
+            "d0_30": 33315.4,
+            "d31_60": 3599.5,
+            "d61_90": 2152.4,
+            "d90plus": 16014.02,
+            "total": 55081.32
           },
           "unposted": {
             "y2025": 27665.09,
-            "y2026": 2431.78,
-            "total": 30096.87,
+            "y2026": 4478.18,
+            "total": 32143.27,
             "completedThisWeek2026": 0,
             "completedThisWeekStart": "2026-06-22",
-            "newTasksAddedThisWeek2026": 2198.78
+            "newTasksAddedThisWeek2026": 4245.18
           },
-          "legacy": null
+          "legacy": null,
+          "lastStatementSent": {
+            "date": "05/18/2026",
+            "eStatementsSent": 59,
+            "manualNoPrint": 10,
+            "manualWithEmail": 5,
+            "asOf": "2026-05-20T00:42:56.071Z"
+          }
         },
         "MP": {
           "outstanding": {
-            "d0_30": 75259.69,
-            "d31_60": 24101.04,
-            "d61_90": 28844.59,
-            "d90plus": 120941.99,
-            "total": 249147.31
+            "d0_30": 74349.73,
+            "d31_60": 17171.34,
+            "d61_90": 12472.14,
+            "d90plus": 129442.83,
+            "total": 233436.04
           },
           "patients": {
-            "d0_30": 6109.19,
-            "d31_60": 10021.03,
-            "d61_90": 15123.9,
-            "d90plus": 75502.47,
-            "total": 106756.59
+            "d0_30": 9998.64,
+            "d31_60": 9331.47,
+            "d61_90": 9712.19,
+            "d90plus": 84647.22,
+            "total": 113689.52
           },
           "insurance": {
-            "d0_30": 69150.5,
-            "d31_60": 14080.01,
-            "d61_90": 13720.69,
-            "d90plus": 45439.52,
-            "total": 142390.72
+            "d0_30": 64351.09,
+            "d31_60": 7839.87,
+            "d61_90": 2759.95,
+            "d90plus": 44795.61,
+            "total": 119746.52
           },
           "unposted": {
             "y2025": 25320.52,
-            "y2026": 19442.42,
-            "total": 44762.94,
+            "y2026": 20614.75,
+            "total": 45935.27,
             "completedThisWeek2026": 4259.7,
             "completedThisWeekStart": "2026-06-22",
-            "newTasksAddedThisWeek2026": 7199.7
+            "newTasksAddedThisWeek2026": 8372.03
           },
           "legacy": [
             {
@@ -26376,11 +26397,11 @@
               "d0_30": 0,
               "d31_60": 0,
               "d61_90": 0,
-              "d90plus": 11724.87,
-              "total": 11724.87,
-              "taskCount": 31,
+              "d90plus": 2436.16,
+              "total": 2436.16,
+              "taskCount": 17,
               "excludedCount": 0,
-              "asOf": "2026-06-24T06:57:39.031Z"
+              "asOf": "2026-06-24T14:37:30.532Z"
             },
             {
               "label": "FS Dentrix",
@@ -26393,39 +26414,46 @@
               "total": 14805,
               "taskCount": 36,
               "excludedCount": 0,
-              "asOf": "2026-06-24T06:57:39.031Z"
+              "asOf": "2026-06-24T14:37:30.532Z"
             }
-          ]
+          ],
+          "lastStatementSent": {
+            "date": "10/23/2025",
+            "eStatementsSent": 475,
+            "manualNoPrint": 42,
+            "manualWithEmail": 80,
+            "asOf": "2026-05-20T01:10:27.600Z"
+          }
         },
         "NBDA": {
           "outstanding": {
-            "d0_30": 47663,
-            "d31_60": 12115.3,
-            "d61_90": 13798.2,
-            "d90plus": 124703.04,
-            "total": 198279.54
+            "d0_30": 36366.4,
+            "d31_60": 10929,
+            "d61_90": 5253.1,
+            "d90plus": 132890.85,
+            "total": 185439.35
           },
           "patients": {
-            "d0_30": 12522.3,
-            "d31_60": 4814.1,
-            "d61_90": 8964.7,
-            "d90plus": 94630.19,
-            "total": 120931.29
+            "d0_30": 9037.5,
+            "d31_60": 8763.1,
+            "d61_90": 3411.7,
+            "d90plus": 99045.55,
+            "total": 120257.85
           },
           "insurance": {
-            "d0_30": 35140.7,
-            "d31_60": 7301.2,
-            "d61_90": 4833.5,
-            "d90plus": 30072.85,
-            "total": 77348.25
+            "d0_30": 27328.9,
+            "d31_60": 2165.9,
+            "d61_90": 1841.4,
+            "d90plus": 33845.3,
+            "total": 65181.5
           },
           "unposted": {
             "y2025": 23936.9,
-            "y2026": 4642.1,
-            "total": 28579,
+            "y2026": 6562.9,
+            "total": 30499.8,
             "completedThisWeek2026": 0,
             "completedThisWeekStart": "2026-06-22",
-            "newTasksAddedThisWeek2026": 5812.3
+            "newTasksAddedThisWeek2026": 7733.1
           },
           "legacy": [
             {
@@ -26439,39 +26467,46 @@
               "total": 2875,
               "taskCount": 3,
               "excludedCount": 0,
-              "asOf": "2026-06-24T06:57:39.031Z"
+              "asOf": "2026-06-24T14:37:30.532Z"
             }
-          ]
+          ],
+          "lastStatementSent": {
+            "date": null,
+            "eStatementsSent": null,
+            "manualNoPrint": 0,
+            "manualWithEmail": 0,
+            "asOf": "2026-05-20T01:13:06.137Z"
+          }
         },
         "IC": {
           "outstanding": {
-            "d0_30": 59266.19,
-            "d31_60": 17790.91,
-            "d61_90": 4715.1,
-            "d90plus": 60206.19,
-            "total": 141978.39
+            "d0_30": 65462.98,
+            "d31_60": 47287.32,
+            "d61_90": 37680.79,
+            "d90plus": 120206.14,
+            "total": 270637.23
           },
           "patients": {
-            "d0_30": 28477.19,
-            "d31_60": 15378.51,
-            "d61_90": 4119.3,
-            "d90plus": 45678.11,
-            "total": 93653.11
+            "d0_30": 22261.23,
+            "d31_60": 23108.72,
+            "d61_90": 29671.45,
+            "d90plus": 92234.83,
+            "total": 167276.23
           },
           "insurance": {
-            "d0_30": 30789,
-            "d31_60": 2412.4,
-            "d61_90": 595.8,
-            "d90plus": 14528.08,
-            "total": 48325.28
+            "d0_30": 43201.75,
+            "d31_60": 24178.6,
+            "d61_90": 8009.34,
+            "d90plus": 27971.31,
+            "total": 103361
           },
           "unposted": {
             "y2025": 9608.84,
-            "y2026": 15836.7,
-            "total": 25445.54,
+            "y2026": 22555.2,
+            "total": 32164.04,
             "completedThisWeek2026": 0,
             "completedThisWeekStart": "2026-06-22",
-            "newTasksAddedThisWeek2026": 2645.5
+            "newTasksAddedThisWeek2026": 10379
           },
           "legacy": [
             {
@@ -26485,39 +26520,46 @@
               "total": 11711.25,
               "taskCount": 5,
               "excludedCount": 0,
-              "asOf": "2026-06-24T06:57:39.031Z"
+              "asOf": "2026-06-24T14:37:30.532Z"
             }
-          ]
+          ],
+          "lastStatementSent": {
+            "date": null,
+            "eStatementsSent": null,
+            "manualNoPrint": 0,
+            "manualWithEmail": 0,
+            "asOf": "2026-05-20T01:10:27.600Z"
+          }
         },
         "AR": {
           "outstanding": {
-            "d0_30": 70962.05,
-            "d31_60": 52259.94,
-            "d61_90": 23507.2,
-            "d90plus": 154325.27,
-            "total": 301054.46
+            "d0_30": 83232,
+            "d31_60": 20685.7,
+            "d61_90": 60850.6,
+            "d90plus": 171947.1,
+            "total": 336715.4
           },
           "patients": {
-            "d0_30": 35607.2,
-            "d31_60": 39990.84,
-            "d61_90": 15152.8,
-            "d90plus": 81974.97,
-            "total": 172725.81
+            "d0_30": 47723.8,
+            "d31_60": 9428.5,
+            "d61_90": 50742.1,
+            "d90plus": 97278.4,
+            "total": 205172.8
           },
           "insurance": {
-            "d0_30": 35354.85,
-            "d31_60": 12269.1,
-            "d61_90": 8354.4,
-            "d90plus": 72350.3,
-            "total": 128328.65
+            "d0_30": 35508.2,
+            "d31_60": 11257.2,
+            "d61_90": 10108.5,
+            "d90plus": 74668.7,
+            "total": 131542.6
           },
           "unposted": {
             "y2025": 127696.13,
-            "y2026": 3504.03,
-            "total": 131200.16,
+            "y2026": 5390.51,
+            "total": 133086.64,
             "completedThisWeek2026": 0,
             "completedThisWeekStart": "2026-06-22",
-            "newTasksAddedThisWeek2026": 1559.5
+            "newTasksAddedThisWeek2026": 3445.98
           },
           "legacy": [
             {
@@ -26531,9 +26573,16 @@
               "total": 1561,
               "taskCount": 6,
               "excludedCount": 0,
-              "asOf": "2026-06-24T06:57:39.031Z"
+              "asOf": "2026-06-24T14:37:30.532Z"
             }
-          ]
+          ],
+          "lastStatementSent": {
+            "date": null,
+            "eStatementsSent": null,
+            "manualNoPrint": 0,
+            "manualWithEmail": 0,
+            "asOf": "2026-05-20T01:10:27.600Z"
+          }
         },
         "PF": {
           "outstanding": {
@@ -26565,7 +26614,14 @@
             "completedThisWeekStart": "2026-06-22",
             "newTasksAddedThisWeek2026": 0
           },
-          "legacy": null
+          "legacy": null,
+          "lastStatementSent": {
+            "date": "09/11/2025",
+            "eStatementsSent": 43,
+            "manualNoPrint": 14,
+            "manualWithEmail": 12,
+            "asOf": "2026-05-20T01:10:27.600Z"
+          }
         },
         "SATX": {
           "outstanding": {
@@ -26591,11 +26647,11 @@
           },
           "unposted": {
             "y2025": 62655.14,
-            "y2026": 3766.5,
-            "total": 66421.64,
+            "y2026": 4261.23,
+            "total": 66916.37,
             "completedThisWeek2026": 0,
             "completedThisWeekStart": "2026-06-22",
-            "newTasksAddedThisWeek2026": 3239.5
+            "newTasksAddedThisWeek2026": 3734.23
           },
           "legacy": [
             {
@@ -26609,9 +26665,16 @@
               "total": 12609,
               "taskCount": 20,
               "excludedCount": 0,
-              "asOf": "2026-06-24T06:57:39.031Z"
+              "asOf": "2026-06-24T14:37:30.532Z"
             }
-          ]
+          ],
+          "lastStatementSent": {
+            "date": null,
+            "eStatementsSent": null,
+            "manualNoPrint": 0,
+            "manualWithEmail": 0,
+            "asOf": "2026-05-20T01:13:06.137Z"
+          }
         },
         "AM": {
           "outstanding": {
@@ -26637,13 +26700,20 @@
           },
           "unposted": {
             "y2025": 0,
-            "y2026": 984,
-            "total": 984,
+            "y2026": 1244,
+            "total": 1244,
             "completedThisWeek2026": 0,
             "completedThisWeekStart": "2026-06-22",
-            "newTasksAddedThisWeek2026": 542
+            "newTasksAddedThisWeek2026": 802
           },
-          "legacy": null
+          "legacy": null,
+          "lastStatementSent": {
+            "date": null,
+            "eStatementsSent": null,
+            "manualNoPrint": 0,
+            "manualWithEmail": 0,
+            "asOf": "2026-05-20T01:13:06.137Z"
+          }
         }
       }
     },
