@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-24T17:32:26.563Z",
-  "asOf": "6/24/2026, 12:32 PM CT",
+  "generated": "2026-06-24T20:10:02.541Z",
+  "asOf": "6/24/2026, 3:10 PM CT",
   "totals": {
     "outstanding": {
       "d0_30": 524014.94,
@@ -55,13 +55,13 @@
       },
       "unposted": {
         "y2025": 1838.2,
-        "y2026": 4705.1,
-        "total": 6543.3,
+        "y2026": 1661.4,
+        "total": 3499.6,
         "mondayBaseline2026": 3094.7,
         "mondayBaselineDate": "2026-06-22",
-        "completedToday2026": 0,
+        "completedToday2026": 3043.7,
         "completedTodayDate": "2026-06-24",
-        "completedThisWeek2026": 930.1,
+        "completedThisWeek2026": 3973.8,
         "completedThisWeekStart": "2026-06-22",
         "newTasksAddedThisWeek2026": 5130.2
       },
@@ -279,13 +279,13 @@
       },
       "unposted": {
         "y2025": 23936.9,
-        "y2026": 6562.9,
-        "total": 30499.8,
+        "y2026": 4259,
+        "total": 28195.9,
         "mondayBaseline2026": 4642.1,
         "mondayBaselineDate": "2026-06-22",
-        "completedToday2026": 0,
+        "completedToday2026": 2329.6,
         "completedTodayDate": "2026-06-24",
-        "completedThisWeek2026": 0,
+        "completedThisWeek2026": 2329.6,
         "completedThisWeekStart": "2026-06-22",
         "newTasksAddedThisWeek2026": 7733.1
       },
@@ -336,8 +336,8 @@
       },
       "unposted": {
         "y2025": 9608.84,
-        "y2026": 22555.2,
-        "total": 32164.04,
+        "y2026": 19162.2,
+        "total": 28771.04,
         "mondayBaseline2026": 15836.7,
         "mondayBaselineDate": "2026-06-22",
         "completedToday2026": 0,
@@ -393,15 +393,15 @@
       },
       "unposted": {
         "y2025": 127696.13,
-        "y2026": 5390.51,
-        "total": 133086.64,
+        "y2026": 12398.65,
+        "total": 140094.78,
         "mondayBaseline2026": 3504.03,
         "mondayBaselineDate": "2026-06-22",
         "completedToday2026": 0,
         "completedTodayDate": "2026-06-24",
         "completedThisWeek2026": 0,
         "completedThisWeekStart": "2026-06-22",
-        "newTasksAddedThisWeek2026": 3445.98
+        "newTasksAddedThisWeek2026": 10454.12
       },
       "legacy": [
         {
@@ -27307,8 +27307,8 @@
     },
     {
       "date": "2026-06-24",
-      "unposted": 617876.6299999999,
-      "unposted2026": 90458.68,
+      "unposted": 616144.17,
+      "unposted2026": 88726.22,
       "unposted2025": 527417.9500000001
     }
   ]
