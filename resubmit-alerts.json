@@ -1,9 +1,5 @@
 {
-<<<<<<< Updated upstream
-  "generated": "2026-06-24T08:02:11.246Z",
-=======
-  "generated": "2026-06-24T14:33:01.107Z",
->>>>>>> Stashed changes
+  "generated": "2026-06-24T17:24:49.200Z",
   "offices": {
     "SQ": {
       "oryx": {
@@ -42,7 +38,7 @@
       },
       "legacy": {
         "priority": 0,
-        "overdue": 9
+        "overdue": 6
       }
     },
     "NBDA": {
@@ -68,7 +64,7 @@
     "AR": {
       "oryx": {
         "priority": 0,
-        "overdue": 1
+        "overdue": 0
       },
       "legacy": {
         "priority": 0,
