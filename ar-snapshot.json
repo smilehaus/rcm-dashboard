@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-25T06:54:34.515Z",
+  "generated": "2026-06-25T06:55:13.330Z",
   "asOf": "6/25/2026, 1:54 AM CT",
   "totals": {
     "outstanding": {
@@ -115,11 +115,11 @@
           "d0_30": 0,
           "d31_60": 0,
           "d61_90": 0,
-          "d90plus": 1572,
-          "total": 1572,
-          "taskCount": 4,
+          "d90plus": 317,
+          "total": 317,
+          "taskCount": 1,
           "excludedCount": 3,
-          "asOf": "2026-06-24T14:37:30.531Z"
+          "asOf": "2026-06-25T06:55:13.330Z"
         },
         {
           "label": "HZ Dentrix",
@@ -128,11 +128,11 @@
           "d0_30": 0,
           "d31_60": 0,
           "d61_90": 0,
-          "d90plus": 6009,
-          "total": 6009,
-          "taskCount": 5,
+          "d90plus": 4409,
+          "total": 4409,
+          "taskCount": 4,
           "excludedCount": 0,
-          "asOf": "2026-06-24T14:37:30.532Z"
+          "asOf": "2026-06-25T06:55:13.330Z"
         }
       ],
       "lastStatementSent": {
@@ -231,7 +231,7 @@
           "total": 2436.16,
           "taskCount": 17,
           "excludedCount": 0,
-          "asOf": "2026-06-24T14:37:30.532Z"
+          "asOf": "2026-06-25T06:55:13.330Z"
         },
         {
           "label": "FS Dentrix",
@@ -240,11 +240,11 @@
           "d0_30": 0,
           "d31_60": 0,
           "d61_90": 0,
-          "d90plus": 14805,
-          "total": 14805,
-          "taskCount": 36,
+          "d90plus": 13941,
+          "total": 13941,
+          "taskCount": 31,
           "excludedCount": 0,
-          "asOf": "2026-06-24T14:37:30.532Z"
+          "asOf": "2026-06-25T06:55:13.330Z"
         }
       ],
       "lastStatementSent": {
@@ -301,7 +301,7 @@
           "total": 2875,
           "taskCount": 3,
           "excludedCount": 0,
-          "asOf": "2026-06-24T14:37:30.532Z"
+          "asOf": "2026-06-25T06:55:13.330Z"
         }
       ],
       "lastStatementSent": {
@@ -354,11 +354,11 @@
           "d0_30": 0,
           "d31_60": 0,
           "d61_90": 0,
-          "d90plus": 11711.25,
-          "total": 11711.25,
-          "taskCount": 5,
+          "d90plus": 10135.25,
+          "total": 10135.25,
+          "taskCount": 4,
           "excludedCount": 0,
-          "asOf": "2026-06-24T14:37:30.532Z"
+          "asOf": "2026-06-25T06:55:13.330Z"
         }
       ],
       "lastStatementSent": {
@@ -415,7 +415,7 @@
           "total": 1561,
           "taskCount": 6,
           "excludedCount": 0,
-          "asOf": "2026-06-24T14:37:30.532Z"
+          "asOf": "2026-06-25T06:55:13.330Z"
         }
       ],
       "lastStatementSent": {
@@ -514,7 +514,7 @@
           "total": 12609,
           "taskCount": 20,
           "excludedCount": 0,
-          "asOf": "2026-06-24T14:37:30.532Z"
+          "asOf": "2026-06-25T06:55:13.330Z"
         }
       ],
       "lastStatementSent": {
