@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-29T17:42:39.350Z",
-  "asOf": "6/29/2026, 12:42 PM CT",
+  "generated": "2026-06-29T20:19:55.449Z",
+  "asOf": "6/29/2026, 3:19 PM CT",
   "totals": {
     "outstanding": {
       "d0_30": 524014.94,
@@ -59,11 +59,11 @@
         "total": 1838.2,
         "mondayBaseline2026": 0,
         "mondayBaselineDate": "2026-06-29",
-        "completedToday2026": 506.8,
+        "completedToday2026": 827.27,
         "completedTodayDate": "2026-06-29",
-        "completedThisWeek2026": 506.8,
+        "completedThisWeek2026": 827.27,
         "completedThisWeekStart": "2026-06-29",
-        "newTasksAddedThisWeek2026": 506.8
+        "newTasksAddedThisWeek2026": 827.27
       },
       "lastStatementSent": {
         "date": null,
@@ -167,15 +167,15 @@
       },
       "unposted": {
         "y2025": 27665.09,
-        "y2026": 8602.58,
-        "total": 36267.67,
+        "y2026": 9979.68,
+        "total": 37644.77,
         "mondayBaseline2026": 8602.58,
         "mondayBaselineDate": "2026-06-29",
         "completedToday2026": 0,
         "completedTodayDate": "2026-06-29",
         "completedThisWeek2026": 0,
         "completedThisWeekStart": "2026-06-29",
-        "newTasksAddedThisWeek2026": 0
+        "newTasksAddedThisWeek2026": 1377.1
       },
       "lastStatementSent": {
         "date": "05/18/2026",
@@ -336,8 +336,8 @@
       },
       "unposted": {
         "y2025": 9608.84,
-        "y2026": 21323.7,
-        "total": 30932.54,
+        "y2026": 20917.7,
+        "total": 30526.54,
         "mondayBaseline2026": 21323.7,
         "mondayBaselineDate": "2026-06-29",
         "completedToday2026": 0,
@@ -393,8 +393,8 @@
       },
       "unposted": {
         "y2025": 127696.13,
-        "y2026": 17100.55,
-        "total": 144796.68,
+        "y2026": 12345.05,
+        "total": 140041.18,
         "mondayBaseline2026": 17100.55,
         "mondayBaselineDate": "2026-06-29",
         "completedToday2026": 0,
@@ -29427,8 +29427,8 @@
     },
     {
       "date": "2026-06-29",
-      "unposted": 607708.98,
-      "unposted2026": 79492.59000000001,
+      "unposted": 603924.58,
+      "unposted2026": 75708.19,
       "unposted2025": 528216.39
     }
   ]
