@@ -88,7 +88,13 @@ async function sumLegacyBucket(cfg: LegacyBucketConfig): Promise<LegacyResult> {
     // Skip resolved/closed tasks — balance is preserved for history but must not
     // be counted toward active AR totals. Status is the source of truth; do NOT
     // rely on $0 balance to exclude resolved tasks (that destroys historical data).
-    if (t.status?.status === "resolved per report" || t.status?.type === "closed") continue;
+    // Also skip In-Haus Membership tasks — these are internal membership plans,
+    // not insurance AR, and must not inflate the aging totals.
+    if (
+      t.status?.status === "resolved per report" ||
+      t.status?.type === "closed" ||
+      t.status?.status?.toLowerCase() === "in-haus membership"
+    ) continue;
 
     // Skip recreated claims — if "Recreated Claim?" was checked, ClickUp automation
     // flips PMS to Oryx. This task is now tracked by the Oryx aging report. Counting
