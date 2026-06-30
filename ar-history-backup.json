@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-30T07:02:41.781Z",
+  "updated": "2026-06-30T17:33:24.370Z",
   "perOfficeHistory": [
     {
       "date": "2026-05-12",
@@ -28780,8 +28780,8 @@
     {
       "date": "2026-06-30",
       "slot": "PM",
-      "asOf": "6/30/2026, 2:02 AM CT",
-      "generated": "2026-06-30T07:02:41.769Z",
+      "asOf": "6/30/2026, 12:33 PM CT",
+      "generated": "2026-06-30T17:33:24.356Z",
       "offices": {
         "SQ": {
           "outstanding": {
@@ -28807,13 +28807,20 @@
           },
           "unposted": {
             "y2025": 1838.2,
-            "y2026": 0,
-            "total": 1838.2,
-            "completedThisWeek2026": 827.27,
+            "y2026": 1134,
+            "total": 2972.2,
+            "completedThisWeek2026": 999.27,
             "completedThisWeekStart": "2026-06-29",
-            "newTasksAddedThisWeek2026": 827.27
+            "newTasksAddedThisWeek2026": 2850.27
           },
-          "legacy": null
+          "legacy": null,
+          "lastStatementSent": {
+            "date": null,
+            "eStatementsSent": null,
+            "manualNoPrint": 0,
+            "manualWithEmail": 0,
+            "asOf": "2026-05-20T00:39:54.450Z"
+          }
         },
         "GT": {
           "outstanding": {
@@ -28872,7 +28879,14 @@
               "excludedCount": 0,
               "asOf": "2026-06-30T07:02:39.996Z"
             }
-          ]
+          ],
+          "lastStatementSent": {
+            "date": null,
+            "eStatementsSent": null,
+            "manualNoPrint": 0,
+            "manualWithEmail": 0,
+            "asOf": "2026-05-20T00:39:54.450Z"
+          }
         },
         "ATX": {
           "outstanding": {
@@ -28898,13 +28912,20 @@
           },
           "unposted": {
             "y2025": 27665.09,
-            "y2026": 9979.68,
-            "total": 37644.77,
+            "y2026": 15005.28,
+            "total": 42670.37,
             "completedThisWeek2026": 0,
             "completedThisWeekStart": "2026-06-29",
-            "newTasksAddedThisWeek2026": 1377.1
+            "newTasksAddedThisWeek2026": 6402.7
           },
-          "legacy": null
+          "legacy": null,
+          "lastStatementSent": {
+            "date": "05/18/2026",
+            "eStatementsSent": 59,
+            "manualNoPrint": 10,
+            "manualWithEmail": 5,
+            "asOf": "2026-05-20T00:42:56.071Z"
+          }
         },
         "MP": {
           "outstanding": {
@@ -28930,11 +28951,11 @@
           },
           "unposted": {
             "y2025": 26118.96,
-            "y2026": 10013.97,
-            "total": 36132.93,
+            "y2026": 15367.35,
+            "total": 41486.31,
             "completedThisWeek2026": 0,
             "completedThisWeekStart": "2026-06-29",
-            "newTasksAddedThisWeek2026": 2264.35
+            "newTasksAddedThisWeek2026": 7617.73
           },
           "legacy": [
             {
@@ -28963,7 +28984,14 @@
               "excludedCount": 0,
               "asOf": "2026-06-30T07:02:39.996Z"
             }
-          ]
+          ],
+          "lastStatementSent": {
+            "date": "10/23/2025",
+            "eStatementsSent": 475,
+            "manualNoPrint": 42,
+            "manualWithEmail": 80,
+            "asOf": "2026-05-20T01:10:27.600Z"
+          }
         },
         "NBDA": {
           "outstanding": {
@@ -28989,11 +29017,11 @@
           },
           "unposted": {
             "y2025": 23936.9,
-            "y2026": 2205.4,
-            "total": 26142.3,
+            "y2026": 3854.1,
+            "total": 27791,
             "completedThisWeek2026": 903.1,
             "completedThisWeekStart": "2026-06-29",
-            "newTasksAddedThisWeek2026": 903.1
+            "newTasksAddedThisWeek2026": 2551.8
           },
           "legacy": [
             {
@@ -29009,7 +29037,14 @@
               "excludedCount": 0,
               "asOf": "2026-06-30T07:02:39.996Z"
             }
-          ]
+          ],
+          "lastStatementSent": {
+            "date": null,
+            "eStatementsSent": null,
+            "manualNoPrint": 0,
+            "manualWithEmail": 0,
+            "asOf": "2026-05-20T01:13:06.137Z"
+          }
         },
         "IC": {
           "outstanding": {
@@ -29035,9 +29070,9 @@
           },
           "unposted": {
             "y2025": 9608.84,
-            "y2026": 19509.8,
-            "total": 29118.64,
-            "completedThisWeek2026": 0,
+            "y2026": 17809.6,
+            "total": 27418.44,
+            "completedThisWeek2026": 1860.6,
             "completedThisWeekStart": "2026-06-29",
             "newTasksAddedThisWeek2026": 0
           },
@@ -29055,7 +29090,14 @@
               "excludedCount": 0,
               "asOf": "2026-06-30T07:02:39.996Z"
             }
-          ]
+          ],
+          "lastStatementSent": {
+            "date": null,
+            "eStatementsSent": null,
+            "manualNoPrint": 0,
+            "manualWithEmail": 0,
+            "asOf": "2026-05-20T01:10:27.600Z"
+          }
         },
         "AR": {
           "outstanding": {
@@ -29101,7 +29143,14 @@
               "excludedCount": 0,
               "asOf": "2026-06-30T07:02:39.996Z"
             }
-          ]
+          ],
+          "lastStatementSent": {
+            "date": null,
+            "eStatementsSent": null,
+            "manualNoPrint": 0,
+            "manualWithEmail": 0,
+            "asOf": "2026-05-20T01:10:27.600Z"
+          }
         },
         "PF": {
           "outstanding": {
@@ -29133,7 +29182,14 @@
             "completedThisWeekStart": "2026-06-29",
             "newTasksAddedThisWeek2026": 0
           },
-          "legacy": null
+          "legacy": null,
+          "lastStatementSent": {
+            "date": "09/11/2025",
+            "eStatementsSent": 43,
+            "manualNoPrint": 14,
+            "manualWithEmail": 12,
+            "asOf": "2026-05-20T01:10:27.600Z"
+          }
         },
         "SATX": {
           "outstanding": {
@@ -29179,7 +29235,14 @@
               "excludedCount": 0,
               "asOf": "2026-06-30T07:02:39.996Z"
             }
-          ]
+          ],
+          "lastStatementSent": {
+            "date": null,
+            "eStatementsSent": null,
+            "manualNoPrint": 0,
+            "manualWithEmail": 0,
+            "asOf": "2026-05-20T01:13:06.137Z"
+          }
         },
         "AM": {
           "outstanding": {
@@ -29211,7 +29274,14 @@
             "completedThisWeekStart": "2026-06-29",
             "newTasksAddedThisWeek2026": 0
           },
-          "legacy": null
+          "legacy": null,
+          "lastStatementSent": {
+            "date": null,
+            "eStatementsSent": null,
+            "manualNoPrint": 0,
+            "manualWithEmail": 0,
+            "asOf": "2026-05-20T01:13:06.137Z"
+          }
         }
       }
     }
