@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-01T08:40:37.755Z",
+  "generated": "2026-07-01T20:18:54.774Z",
   "offices": {
     "SQ": {
       "oryx": {
@@ -7,7 +7,7 @@
         "priority": 0
       },
       "legacy": {
-        "overdue": 1,
+        "overdue": 0,
         "priority": 0
       }
     },
@@ -17,14 +17,14 @@
         "priority": 0
       },
       "legacy": {
-        "overdue": 22,
-        "priority": 160
+        "overdue": 23,
+        "priority": 158
       }
     },
     "ATX": {
       "oryx": {
         "overdue": 0,
-        "priority": 2
+        "priority": 1
       },
       "legacy": {
         "overdue": 0,
@@ -33,11 +33,11 @@
     },
     "MP": {
       "oryx": {
-        "overdue": 2,
+        "overdue": 1,
         "priority": 0
       },
       "legacy": {
-        "overdue": 17,
+        "overdue": 12,
         "priority": 0
       }
     },
@@ -53,7 +53,7 @@
     },
     "IC": {
       "oryx": {
-        "overdue": 4,
+        "overdue": 0,
         "priority": 0
       },
       "legacy": {
@@ -63,7 +63,7 @@
     },
     "AR": {
       "oryx": {
-        "overdue": 1,
+        "overdue": 0,
         "priority": 0
       },
       "legacy": {
@@ -87,8 +87,8 @@
         "priority": 0
       },
       "legacy": {
-        "overdue": 16,
-        "priority": 1
+        "overdue": 17,
+        "priority": 0
       }
     },
     "AM": {
