@@ -1,30 +1,30 @@
 {
-  "generated": "2026-07-06T18:25:39.309Z",
+  "generated": "2026-07-07T18:27:54.525Z",
   "payPeriod": "Pay Period #",
   "offices": {
     "SQ": {
-      "pct": 89.5,
-      "label": "89.5%"
+      "pct": 92.7,
+      "label": "92.7%"
     },
     "GT": {
-      "pct": 84.9,
-      "label": "84.9%"
+      "pct": 86.3,
+      "label": "86.3%"
     },
     "ATX": {
-      "pct": 114.4,
-      "label": "114.4%"
+      "pct": 103.7,
+      "label": "103.7%"
     },
     "MP": {
-      "pct": 60.6,
-      "label": "60.6%"
+      "pct": 64.4,
+      "label": "64.4%"
     },
     "NBDA": {
-      "pct": 90,
-      "label": "90%"
+      "pct": 78.4,
+      "label": "78.4%"
     },
     "IC": {
-      "pct": 135.2,
-      "label": "135.2%"
+      "pct": 138.3,
+      "label": "138.3%"
     },
     "AR": {
       "pct": 99.9,
