@@ -33798,8 +33798,8 @@
     {
       "date": "2026-07-10",
       "slot": "PM",
-      "asOf": "7/10/2026, 1:52 AM CT",
-      "generated": "2026-07-10T06:52:20.035Z",
+      "asOf": "7/10/2026, 2:55 PM CT",
+      "generated": "2026-07-10T19:55:43.954Z",
       "offices": {
         "SQ": {
           "outstanding": {
@@ -33857,9 +33857,9 @@
           },
           "unposted": {
             "y2025": 224610.71,
-            "y2026": 18922,
-            "total": 243532.71,
-            "completedThisWeek2026": 4387.21,
+            "y2026": 15301.95,
+            "total": 239912.66,
+            "completedThisWeek2026": 5466.31,
             "completedThisWeekStart": "2026-07-06",
             "newTasksAddedThisWeek2026": 13812.61
           },
@@ -33948,9 +33948,9 @@
           },
           "unposted": {
             "y2025": 26118.96,
-            "y2026": 12935.15,
-            "total": 39054.11,
-            "completedThisWeek2026": 8077.17,
+            "y2026": 7715.15,
+            "total": 33834.11,
+            "completedThisWeek2026": 12393.97,
             "completedThisWeekStart": "2026-07-06",
             "newTasksAddedThisWeek2026": 14207.2
           },
@@ -34011,7 +34011,7 @@
             "total": 26246.3,
             "completedThisWeek2026": 8705.1,
             "completedThisWeekStart": "2026-07-06",
-            "newTasksAddedThisWeek2026": 8931.7
+            "newTasksAddedThisWeek2026": 9176.7
           },
           "legacy": [
             {
