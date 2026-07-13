@@ -35112,8 +35112,8 @@
     {
       "date": "2026-07-13",
       "slot": "PM",
-      "asOf": "7/13/2026, 1:27 AM CT",
-      "generated": "2026-07-13T06:27:45.725Z",
+      "asOf": "7/13/2026, 2:51 PM CT",
+      "generated": "2026-07-13T19:51:13.096Z",
       "offices": {
         "SQ": {
           "outstanding": {
@@ -35141,9 +35141,9 @@
             "y2025": 1838.2,
             "y2026": 126,
             "total": 1964.2,
-            "completedThisWeek2026": 0,
+            "completedThisWeek2026": 495,
             "completedThisWeekStart": "2026-07-13",
-            "newTasksAddedThisWeek2026": 0
+            "newTasksAddedThisWeek2026": 495
           },
           "legacy": null
         },
@@ -35171,11 +35171,11 @@
           },
           "unposted": {
             "y2025": 224610.71,
-            "y2026": 15301.95,
-            "total": 239912.66,
+            "y2026": 15325.95,
+            "total": 239936.66,
             "completedThisWeek2026": 0,
             "completedThisWeekStart": "2026-07-13",
-            "newTasksAddedThisWeek2026": 0
+            "newTasksAddedThisWeek2026": 24
           },
           "legacy": [
             {
@@ -35262,9 +35262,9 @@
           },
           "unposted": {
             "y2025": 26118.96,
-            "y2026": 7715.15,
-            "total": 33834.11,
-            "completedThisWeek2026": 0,
+            "y2026": 4756.67,
+            "total": 30875.63,
+            "completedThisWeek2026": 1015.28,
             "completedThisWeekStart": "2026-07-13",
             "newTasksAddedThisWeek2026": 0
           },
@@ -35413,9 +35413,9 @@
           },
           "unposted": {
             "y2025": 127696.13,
-            "y2026": 11317.3,
-            "total": 139013.43,
-            "completedThisWeek2026": 0,
+            "y2026": 5086.33,
+            "total": 132782.46,
+            "completedThisWeek2026": 6230.97,
             "completedThisWeekStart": "2026-07-13",
             "newTasksAddedThisWeek2026": 0
           },
