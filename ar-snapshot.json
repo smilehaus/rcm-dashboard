@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-14T05:37:24.688Z",
-  "asOf": "7/14/2026, 12:36 AM CT",
+  "generated": "2026-07-14T19:44:53.475Z",
+  "asOf": "7/14/2026, 2:44 PM CT",
   "totals": {
     "outstanding": {
       "d0_30": 524014.94,
@@ -55,15 +55,15 @@
       },
       "unposted": {
         "y2025": 1838.2,
-        "y2026": 126,
-        "total": 1964.2,
+        "y2026": 3432.4,
+        "total": 5270.6,
         "mondayBaseline2026": 126,
         "mondayBaselineDate": "2026-07-13",
         "completedToday2026": 0,
         "completedTodayDate": "2026-07-14",
         "completedThisWeek2026": 495,
         "completedThisWeekStart": "2026-07-13",
-        "newTasksAddedThisWeek2026": 495
+        "newTasksAddedThisWeek2026": 3849.4
       },
       "lastStatementSent": {
         "date": null,
@@ -97,15 +97,15 @@
       },
       "unposted": {
         "y2025": 224610.71,
-        "y2026": 15325.95,
-        "total": 239936.66,
+        "y2026": 21035.25,
+        "total": 245645.96,
         "mondayBaseline2026": 15325.95,
         "mondayBaselineDate": "2026-07-13",
         "completedToday2026": 0,
         "completedTodayDate": "2026-07-14",
         "completedThisWeek2026": 0,
         "completedThisWeekStart": "2026-07-13",
-        "newTasksAddedThisWeek2026": 24
+        "newTasksAddedThisWeek2026": 6200.9
       },
       "legacy": [
         {
@@ -167,15 +167,15 @@
       },
       "unposted": {
         "y2025": 27665.09,
-        "y2026": 7730.76,
-        "total": 35395.85,
+        "y2026": 10047.1,
+        "total": 37712.19,
         "mondayBaseline2026": 7730.76,
         "mondayBaselineDate": "2026-07-13",
         "completedToday2026": 0,
         "completedTodayDate": "2026-07-14",
         "completedThisWeek2026": 0,
         "completedThisWeekStart": "2026-07-13",
-        "newTasksAddedThisWeek2026": 0
+        "newTasksAddedThisWeek2026": 2900.3
       },
       "lastStatementSent": {
         "date": "05/18/2026",
@@ -209,15 +209,15 @@
       },
       "unposted": {
         "y2025": 26118.96,
-        "y2026": 4756.67,
-        "total": 30875.63,
+        "y2026": 13590.93,
+        "total": 39709.89,
         "mondayBaseline2026": 4756.67,
         "mondayBaselineDate": "2026-07-13",
         "completedToday2026": 0,
         "completedTodayDate": "2026-07-14",
         "completedThisWeek2026": 1015.28,
         "completedThisWeekStart": "2026-07-13",
-        "newTasksAddedThisWeek2026": 0
+        "newTasksAddedThisWeek2026": 8834.26
       },
       "legacy": [
         {
@@ -279,15 +279,15 @@
       },
       "unposted": {
         "y2025": 23936.9,
-        "y2026": 2309.4,
-        "total": 26246.3,
+        "y2026": 4227.5,
+        "total": 28164.4,
         "mondayBaseline2026": 2309.4,
         "mondayBaselineDate": "2026-07-13",
         "completedToday2026": 0,
         "completedTodayDate": "2026-07-14",
         "completedThisWeek2026": 0,
         "completedThisWeekStart": "2026-07-13",
-        "newTasksAddedThisWeek2026": 0
+        "newTasksAddedThisWeek2026": 3902.55
       },
       "legacy": [
         {
@@ -336,15 +336,15 @@
       },
       "unposted": {
         "y2025": 9608.84,
-        "y2026": 16099.2,
-        "total": 25708.04,
+        "y2026": 20714.4,
+        "total": 30323.24,
         "mondayBaseline2026": 16099.2,
         "mondayBaselineDate": "2026-07-13",
         "completedToday2026": 0,
         "completedTodayDate": "2026-07-14",
         "completedThisWeek2026": 0,
         "completedThisWeekStart": "2026-07-13",
-        "newTasksAddedThisWeek2026": 0
+        "newTasksAddedThisWeek2026": 4615.2
       },
       "legacy": [
         {
@@ -393,15 +393,15 @@
       },
       "unposted": {
         "y2025": 127696.13,
-        "y2026": 5086.33,
-        "total": 132782.46,
+        "y2026": 8013.33,
+        "total": 135709.46,
         "mondayBaseline2026": 5086.33,
         "mondayBaselineDate": "2026-07-13",
         "completedToday2026": 0,
         "completedTodayDate": "2026-07-14",
         "completedThisWeek2026": 6230.97,
         "completedThisWeekStart": "2026-07-13",
-        "newTasksAddedThisWeek2026": 0
+        "newTasksAddedThisWeek2026": 2927
       },
       "legacy": [
         {
@@ -492,15 +492,15 @@
       },
       "unposted": {
         "y2025": 62655.14,
-        "y2026": 4553.76,
-        "total": 67208.9,
+        "y2026": 6264.96,
+        "total": 68920.1,
         "mondayBaseline2026": 4553.76,
         "mondayBaselineDate": "2026-07-13",
         "completedToday2026": 0,
         "completedTodayDate": "2026-07-14",
         "completedThisWeek2026": 0,
         "completedThisWeekStart": "2026-07-13",
-        "newTasksAddedThisWeek2026": 0
+        "newTasksAddedThisWeek2026": 1711.2
       },
       "legacy": [
         {
@@ -549,15 +549,15 @@
       },
       "unposted": {
         "y2025": 0,
-        "y2026": 7964.1,
-        "total": 7964.1,
+        "y2026": 9018.43,
+        "total": 9018.43,
         "mondayBaseline2026": 7964.1,
         "mondayBaselineDate": "2026-07-13",
         "completedToday2026": 0,
         "completedTodayDate": "2026-07-14",
         "completedThisWeek2026": 0,
         "completedThisWeekStart": "2026-07-13",
-        "newTasksAddedThisWeek2026": 0
+        "newTasksAddedThisWeek2026": 1054.33
       },
       "lastStatementSent": {
         "date": null,
@@ -36067,8 +36067,8 @@
     },
     {
       "date": "2026-07-14",
-      "unposted": 589538.34,
-      "unposted2026": 68928.67,
+      "unposted": 621930.47,
+      "unposted2026": 101320.80000000002,
       "unposted2025": 520609.6700000001
     }
   ]
