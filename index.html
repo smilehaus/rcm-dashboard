@@ -2449,10 +2449,35 @@ function mergeBoardState(base, local, remote) {
     merged[arr] = result;
   }
 
-  // Other top-level keys (staff, helpInstances, kpi, …): coarse
+  // Staff — per-member delta merge: prevents last-writer-wins from wiping one
+  // admin's ASAP task additions when another admin concurrently edits a different
+  // staff member. For each member we check if WE locally changed them; if so,
+  // use our version. Otherwise keep the remote version (which may have other
+  // users' changes to that member). Members we newly created are appended.
+  {
+    const baseArr   = Array.isArray(base.staff)   ? base.staff   : [];
+    const localArr  = Array.isArray(local.staff)  ? local.staff  : [];
+    const remoteArr = Array.isArray(merged.staff) ? merged.staff : [];
+    const baseById  = Object.fromEntries(baseArr.map(s => [s.id, s]));
+    const localById = Object.fromEntries(localArr.map(s => [s.id, s]));
+    const staffResult = remoteArr.map(rs => {
+      const ls = localById[rs.id];
+      const bs = baseById[rs.id];
+      // We changed this member locally — prefer our version
+      return ls && J(bs ?? null) !== J(ls) ? ls : rs;
+    });
+    // Append members we added locally that aren't in remote yet
+    const remoteIds = new Set(remoteArr.map(s => s.id));
+    for (const ls of localArr) {
+      if (!remoteIds.has(ls.id) && !baseById[ls.id]) staffResult.push(ls);
+    }
+    merged.staff = staffResult;
+  }
+
+  // Other top-level keys (helpInstances, kpi, …): coarse
   // last-writer-wins, but only if WE actually changed the key.
   for (const k of Object.keys(local)) {
-    if (k === 'live' || k === 'assign' || k === 'lunch' || k === 'off' || k.startsWith('_')) continue;
+    if (k === 'live' || k === 'assign' || k === 'lunch' || k === 'off' || k === 'staff' || k.startsWith('_')) continue;
     if (J(base[k]) !== J(local[k])) merged[k] = local[k];
   }
   return merged;
