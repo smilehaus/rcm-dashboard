@@ -2530,6 +2530,18 @@ function scheduleFbSave() {
           const colsValid = Array.isArray(remote.columns) && remote.columns[0] && typeof remote.columns[0].id === 'string';
           if (remote._v === DATA_VERSION && colsValid && !__isDragging) {
             const merged = mergeBoardState(_syncBase, S, remote);
+            // Staff-drop guard: if this merge would reduce the roster by more than 2
+            // members, require explicit confirmation before applying — prevents silent
+            // wipes from a sync conflict or Firebase data issue.
+            if (Array.isArray(merged.staff) && Array.isArray(S.staff) && S.staff.length - merged.staff.length > 2) {
+              const keep = confirm(
+                '⚠ Sync Warning\n\n' +
+                'This sync would reduce your staff roster from ' + S.staff.length + ' to ' + merged.staff.length + ' members.\n\n' +
+                'This may indicate a sync conflict or corrupted remote data.\n\n' +
+                'Click OK to accept the reduced roster, or Cancel to keep all current staff.'
+              );
+              if (!keep) merged.staff = clone(S.staff);
+            }
             // Replace S contents in place — same PROTECTED_KEYS guard as the poll loop
             // so Firebase stripping empty nodes never deletes helpInstances or board data
             const SAVE_PROTECTED = new Set(['live','assign','off','lunch','staff','offices','columns','vacationActive','helpLog','checkinLog','perOfficeHistory','ivDates','helpInstances','kpi','departments']);
@@ -2952,6 +2964,13 @@ function startFbPolling() {
         // still applying everything the remote state has that we didn't touch.
         if (_syncBase) {
           const merged = mergeBoardState(_syncBase, S, remote);
+          // Staff-drop guard: if the background poll would reduce the roster by
+          // more than 2 members, silently preserve local staff instead of applying
+          // the remote wipe — shows a console warning so it's diagnosable.
+          if (Array.isArray(merged.staff) && Array.isArray(S.staff) && S.staff.length - merged.staff.length > 2) {
+            console.warn('[RCM Guard] Staff-drop blocked by poll guard: remote=' + merged.staff.length + ' vs local=' + S.staff.length + ' — keeping local roster');
+            merged.staff = clone(S.staff);
+          }
           // Only delete non-critical keys that Firebase legitimately removed.
           // PROTECTED_KEYS are never deleted even if Firebase stripped them
           // (e.g. Firebase removes empty arrays/objects from its tree — that
