@@ -8375,6 +8375,7 @@ function zelisToggleFlagFilter() {
 
 function closeZelisLookup() {
   document.getElementById('zelis-modal').classList.remove('open');
+  _zelisShowFlagged = false;
 }
 
 function zelisToggleAdd() {
@@ -8440,7 +8441,7 @@ function zelisSearch() {
       '<div class="zelis-conf-row" style="margin-top:8px;font-weight:700;color:#1a8c5a">→ Mark as INN in Oryx. Portal lag only — Zelis network membership is confirmed.</div>' +
       '<div style="margin-top:8px;border-top:1px solid #c6f0d9;padding-top:7px">' +
         '<button class="btn btn-ghost btn-sm" onclick="zelisToggleFlag(\'' + flagId + '\')" style="font-size:10px;color:var(--fg3);padding:2px 9px">🚩 Flag for deletion / edit</button>' +
-        '<div id="' + flagId + '" style="display:none;margin-top:8px;display:flex;flex-direction:column;gap:6px">' +
+        '<div id="' + flagId + '" style="display:none;margin-top:8px;flex-direction:column;gap:6px">' +
           '<input id="' + flagId + 'n" class="zelis-inp" placeholder="Your name *" style="font-size:12px"/>' +
           '<textarea id="' + flagId + 'c" class="zelis-inp" placeholder="Reason (e.g. plan is now OON, incorrect group #, needs edit)…" rows="2" style="resize:vertical;font-size:12px;font-family:inherit"></textarea>' +
           '<div style="display:flex;gap:6px;justify-content:flex-end">' +
@@ -8559,7 +8560,7 @@ async function zelisDismissFlag(groupNumber, flaggedAtFull) {
 function zelisToggleFlag(fid) {
   const el = document.getElementById(fid);
   if (!el) return;
-  el.style.display = el.style.display === 'none' ? '' : 'none';
+  el.style.display = el.style.display === 'none' ? 'flex' : 'none';
 }
 
 async function zelisSubmitFlag(groupNumber, fid) {
@@ -8582,6 +8583,7 @@ async function zelisSubmitFlag(groupNumber, fid) {
   const ok = await _zelisWrite(current);
   if (ok) {
     _zelisData = current;
+    _zelisUpdateFlagIndicator();
     if (flagEl) flagEl.innerHTML = '<div style="color:#c0392b;font-size:11px;font-weight:600;padding:4px 0">✓ Flag submitted — an admin will review and update this entry.</div>';
   } else {
     if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit Flag'; }
