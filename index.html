@@ -1181,7 +1181,14 @@ textarea.re-input{resize:vertical;min-height:80px;}
         <div class="bph-date" style="color:var(--taupe)">Quick reference guide for the RCM Dashboard</div>
       </div>
     </div>
-    <div style="padding:24px 28px;display:flex;flex-direction:column;gap:28px;max-width:860px">
+    <!-- Guide sub-tab nav -->
+    <div style="padding:16px 28px 0;border-bottom:1px solid var(--sandstone);display:flex;gap:8px">
+      <button id="gtab-general" onclick="switchGuideTab('general')" style="padding:7px 16px;border-radius:8px 8px 0 0;border:1px solid var(--sandstone);border-bottom:none;font-family:'Jost',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:white;color:var(--onyx);margin-bottom:-1px">📖 General</button>
+      <button id="gtab-zelis" onclick="switchGuideTab('zelis')" style="padding:7px 16px;border-radius:8px 8px 0 0;border:1px solid transparent;border-bottom:none;font-family:'Jost',sans-serif;font-size:12px;font-weight:700;cursor:pointer;background:var(--alabaster);color:var(--taupe);margin-bottom:-1px">⚡ Zelis INN</button>
+    </div>
+
+    <!-- General guide content -->
+    <div id="guide-tab-general" style="padding:24px 28px;display:flex;flex-direction:column;gap:28px;max-width:860px">
 
       <!-- Check In As -->
       <div>
@@ -1639,7 +1646,219 @@ textarea.re-input{resize:vertical;min-height:80px;}
         </div>
       </div>
 
-    </div>
+    </div><!-- /guide-tab-general -->
+
+    <!-- Zelis INN guide content -->
+    <div id="guide-tab-zelis" style="padding:24px 28px;display:none;flex-direction:column;gap:28px;max-width:860px">
+
+      <!-- What is Zelis INN -->
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <span style="font-size:20px">⚡</span>
+          <span style="font-family:var(--font-display);font-size:17px;color:var(--onyx)">What is Zelis INN?</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>The <strong>⚡ Zelis INN</strong> button (bottom-right corner of the dashboard) is a searchable database of confirmed in-network plans from the Zelis/Mavarest 2026 network roster.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Use it during insurance verification to quickly check if a patient's plan is confirmed INN — without logging into a portal. Plans are matched by <strong>Group #</strong>.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>The database is shared across all offices and updates in real time — entries added at any office are immediately visible everywhere.</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:1px;background:var(--sandstone)"></div>
+
+      <!-- Looking up a plan -->
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <span style="font-size:20px">🔍</span>
+          <span style="font-family:var(--font-display);font-size:17px;color:var(--onyx)">Looking Up a Plan</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;padding-left:30px">
+          <div style="display:flex;flex-direction:column;gap:6px;padding-left:4px">
+            <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+              <span style="background:var(--onyx);color:white;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0;margin-top:1px">1</span>
+              <span>Click the <strong>⚡ Zelis INN</strong> button in the bottom-right corner. The lookup modal opens.</span>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+              <span style="background:var(--onyx);color:white;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0;margin-top:1px">2</span>
+              <span>Type the patient's <strong>Group #</strong> (found on their insurance card or in the Oryx insurance module) into the search box.</span>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+              <span style="background:var(--onyx);color:white;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0;margin-top:1px">3</span>
+              <span>Click <strong>Search</strong> or press Enter. Results appear showing Group #, Group Name, Employer Name, Payer Name, and Payer ID.</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx);background:#fefce8;border:1px solid #fef08a;border-radius:8px;padding:10px 12px;margin-top:4px">
+            <span style="font-size:15px;flex-shrink:0">💡</span>
+            <span>The search normalizes spacing and dashes — <code style="font-size:11px;background:#f0f0f0;padding:1px 4px;border-radius:4px">AB-1234</code> and <code style="font-size:11px;background:#f0f0f0;padding:1px 4px;border-radius:4px">AB1234</code> will both match. If no result appears, try searching a partial group # prefix.</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:1px;background:var(--sandstone)"></div>
+
+      <!-- Interpreting results -->
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <span style="font-size:20px">📊</span>
+          <span style="font-family:var(--font-display);font-size:17px;color:var(--onyx)">Interpreting Results</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;gap:12px;align-items:flex-start;font-size:13px;color:var(--onyx);background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px">
+              <span style="font-size:16px;flex-shrink:0">✅</span>
+              <div>
+                <div style="font-weight:700;margin-bottom:3px">INN Confirmed</div>
+                <span>This plan is in the Zelis 2026 network roster. Treat as <strong>In-Network</strong>. No portal verification needed for INN status — benefits still need to be pulled.</span>
+              </div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;font-size:13px;color:var(--onyx);background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 14px">
+              <span style="font-size:16px;flex-shrink:0">⚠️</span>
+              <div>
+                <div style="font-weight:700;margin-bottom:3px">Possible OON</div>
+                <span>This plan is in the database but flagged as likely Out-of-Network. <strong>Verify through the carrier portal</strong> before quoting INN benefits to the patient.</span>
+              </div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;font-size:13px;color:var(--onyx);background:var(--alabaster);border:1px solid var(--sandstone);border-radius:8px;padding:10px 14px">
+              <span style="font-size:16px;flex-shrink:0">🔍</span>
+              <div>
+                <div style="font-weight:700;margin-bottom:3px">No Match Found</div>
+                <span>This group # isn't in the database yet. Verify through the carrier portal. If confirmed INN, add the entry so the team benefits going forward (see below).</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:1px;background:var(--sandstone)"></div>
+
+      <!-- Adding an entry -->
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <span style="font-size:20px">➕</span>
+          <span style="font-family:var(--font-display);font-size:17px;color:var(--onyx)">Adding a New Entry</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Click <strong>+ Add Entry</strong> in the modal header. A form expands below.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Fill in: <strong>Group #</strong> (required), Group Name / Plan Name, Employer Name, Payer / Carrier, Payer ID Code, which offices confirmed it, INN or OON status, your name, and any notes.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Click <strong>Save Entry</strong>. The entry is immediately available across all offices.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx);background:#fefce8;border:1px solid #fef08a;border-radius:8px;padding:10px 12px">
+            <span style="font-size:15px;flex-shrink:0">💡</span>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <span>If the exact same Group # already exists, the save will be blocked with a duplicate warning. This prevents accidental double entries.</span>
+              <span>If a plan has multiple sub-plans with the same base Group # but different suffixes (e.g. <code style="font-size:11px;background:#f0f0f0;padding:1px 4px;border-radius:4px">169543</code> and <code style="font-size:11px;background:#f0f0f0;padding:1px 4px;border-radius:4px">169543-015</code>), you can add both — the extra digits make them distinct.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:1px;background:var(--sandstone)"></div>
+
+      <!-- Flagging an entry -->
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <span style="font-size:20px">🚩</span>
+          <span style="font-family:var(--font-display);font-size:17px;color:var(--onyx)">Flagging an Entry for Review</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>If you find an INN result that looks incorrect — wrong network status, outdated plan, or should be removed — click <strong>🚩 Flag</strong> on that result card.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>A small inline form appears — enter <strong>your name</strong> and a <strong>comment</strong> describing the issue (e.g. "Plan changed to OON as of June 2026"). Click <strong>Submit Flag</strong>.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>The flag is saved and an admin will review it. The entry remains visible until an admin approves its removal.</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:1px;background:var(--sandstone)"></div>
+
+      <!-- Admin: reviewing flags -->
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <span style="font-size:20px">🛡</span>
+          <span style="font-family:var(--font-display);font-size:17px;color:var(--onyx)">Admin: Reviewing Flags</span>
+          <span style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:100px;padding:2px 10px;font-size:10px;font-weight:700">Admin Action</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;padding-left:30px">
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>When flags are pending, the <strong>⚡ Zelis INN</strong> button shows a <strong>flashing 🚩</strong> indicator. This means at least one entry has been flagged for review.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Open the Zelis modal — a <strong>🚩 Flagged (N)</strong> filter button appears in the modal header showing how many flags are pending. Click it to enter flag review mode.</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Each flag card shows the Group #, who flagged it, when, and their comment. Two action buttons are available:</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;padding-left:22px;margin-top:2px">
+            <div style="display:flex;gap:10px;align-items:flex-start;font-size:12px;color:var(--onyx)">
+              <span style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:6px;padding:2px 9px;font-weight:700;white-space:nowrap">✓ Approve</span>
+              <span>Removes the flagged database entry entirely AND clears the flag. Use when the entry is confirmed wrong and should be deleted.</span>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start;font-size:12px;color:var(--onyx)">
+              <span style="background:#f8fafc;color:var(--taupe);border:1px solid var(--sandstone);border-radius:6px;padding:2px 9px;font-weight:700;white-space:nowrap">✕ Dismiss</span>
+              <span>Clears the flag but keeps the entry. Use when the flag was raised in error or the entry is actually correct.</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--onyx)">
+            <span style="color:var(--earth);font-weight:700;min-width:22px">→</span>
+            <span>Click <strong>🚩 Flagged</strong> again (or close and reopen the modal) to return to the normal entries view.</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /guide-tab-zelis -->
+
+    <script>
+    (function(){
+      var active = 'general';
+      window.switchGuideTab = function(t) {
+        active = t;
+        var tabs = ['general','zelis'];
+        tabs.forEach(function(id){
+          var btn = document.getElementById('gtab-'+id);
+          var content = document.getElementById('guide-tab-'+id);
+          if(id === t){
+            btn.style.background = 'white';
+            btn.style.color = 'var(--onyx)';
+            btn.style.borderColor = 'var(--sandstone)';
+            btn.style.borderBottomColor = 'transparent';
+            content.style.display = 'flex';
+          } else {
+            btn.style.background = 'var(--alabaster)';
+            btn.style.color = 'var(--taupe)';
+            btn.style.borderColor = 'transparent';
+            content.style.display = 'none';
+          }
+        });
+      };
+    })();
+    </script>
   </div>
 </div>
 
