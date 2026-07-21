@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-20T15:56:30.841Z",
-  "asOf": "7/20/26, 10:56 AM CT",
+  "generated": "2026-07-21T04:27:57.622Z",
+  "asOf": "7/20/26, 11:27 PM CT",
   "listId": "901415926262",
   "metrics": [
     "monthlyProduction",
@@ -994,6 +994,39 @@
         "caseAcceptance": null,
         "arDays": 32.375,
         "arOver30": 1325846.8
+      }
+    },
+    {
+      "weekEnding": "2026-07-19",
+      "weekLabel": "7/13 – 7/19",
+      "offices": {
+        "ATX": {
+          "monthlyProduction": 158668.9,
+          "collectionRate": null,
+          "hygReappt": null,
+          "cancellationRate": 9,
+          "caseAcceptance": null,
+          "arDays": 37,
+          "arOver30": 351442.75
+        },
+        "GT": {
+          "monthlyProduction": 40960.2,
+          "collectionRate": null,
+          "hygReappt": null,
+          "cancellationRate": 4,
+          "caseAcceptance": null,
+          "arDays": 16,
+          "arOver30": 34889.08
+        }
+      },
+      "totals": {
+        "monthlyProduction": 199629.09999999998,
+        "collectionRate": null,
+        "hygReappt": null,
+        "cancellationRate": 6.5,
+        "caseAcceptance": null,
+        "arDays": 26.5,
+        "arOver30": 386331.83
       }
     }
   ]
