@@ -689,6 +689,8 @@ textarea.re-input{resize:vertical;min-height:80px;}
 /* ── Zelis Network Lookup ── */
 #zelis-btn{position:fixed;bottom:60px;right:20px;z-index:800;background:#1a6b5a;color:#fff;border:none;border-radius:20px;padding:8px 14px;font-size:11px;font-weight:700;font-family:var(--font-body);letter-spacing:.04em;cursor:pointer;box-shadow:0 2px 10px rgba(26,107,90,.35);transition:opacity .15s,transform .15s;}
 #zelis-btn:hover{opacity:.88;transform:translateY(-1px);}
+@keyframes zelis-flag-flash{0%,100%{opacity:1}50%{opacity:.2}}
+.zelis-flag-flash{display:inline-block;animation:zelis-flag-flash 1s ease-in-out infinite;margin-left:4px;}
 #zelis-modal{display:none;position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.38);align-items:center;justify-content:center;padding:16px;}
 #zelis-modal.open{display:flex;}
 .zelis-card{background:#fff;border-radius:14px;width:100%;max-width:500px;box-shadow:0 8px 36px rgba(0,0,0,.2);overflow:hidden;max-height:90vh;display:flex;flex-direction:column;}
@@ -1793,7 +1795,10 @@ textarea.re-input{resize:vertical;min-height:80px;}
       <div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
           <span style="font-size:11px;font-weight:700;color:var(--fg2);text-transform:uppercase;letter-spacing:.06em">Confirmed Zelis INN Plans</span>
-          <button onclick="zelisToggleAdd()" id="zelis-add-toggle" class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 9px">+ Add Entry</button>
+          <div style="display:flex;gap:6px;align-items:center">
+            <button id="zelis-flag-filter-btn" onclick="zelisToggleFlagFilter()" class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 9px;display:none">🚩 Flagged</button>
+            <button onclick="zelisToggleAdd()" id="zelis-add-toggle" class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 9px">+ Add Entry</button>
+          </div>
         </div>
 
         <!-- Add form (hidden by default) -->
@@ -8306,6 +8311,7 @@ async function submitReportError() {
 // ── Zelis Network Lookup ─────────────────────────────────────────────────────
 const ZELIS_FB = 'https://smilehaus-rcm-default-rtdb.firebaseio.com/zelis.json';
 let _zelisData = null;
+let _zelisShowFlagged = false;
 
 function _zEsc(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -8332,8 +8338,39 @@ function openZelisLookup() {
   document.getElementById('zelis-carrier-input').value = '';
   document.getElementById('zelis-result-area').style.display = 'none';
   _renderZelisEntries();
-  _zelisRead().then(d => { _zelisData = d; _renderZelisEntries(); });
+  _zelisRead().then(d => { _zelisData = d; _zelisUpdateFlagIndicator(); _renderZelisEntries(); });
   setTimeout(() => document.getElementById('zelis-group-input').focus(), 80);
+}
+
+function _zelisUpdateFlagIndicator() {
+  const flags = (_zelisData && Array.isArray(_zelisData.flags)) ? _zelisData.flags : [];
+  const filterBtn = document.getElementById('zelis-flag-filter-btn');
+  const mainBtn = document.getElementById('zelis-btn');
+  if (filterBtn) {
+    if (flags.length) {
+      filterBtn.style.display = '';
+      filterBtn.innerHTML = '🚩 Flagged (' + flags.length + ')';
+      filterBtn.style.background = _zelisShowFlagged ? '#fef3c7' : '';
+      filterBtn.style.borderColor = _zelisShowFlagged ? '#f59e0b' : '';
+      filterBtn.style.color = _zelisShowFlagged ? '#92400e' : '';
+    } else {
+      filterBtn.style.display = 'none';
+      _zelisShowFlagged = false;
+    }
+  }
+  if (mainBtn) {
+    if (flags.length) {
+      mainBtn.innerHTML = '⚡ Zelis INN<span class="zelis-flag-flash">🚩</span>';
+    } else {
+      mainBtn.textContent = '⚡ Zelis INN';
+    }
+  }
+}
+
+function zelisToggleFlagFilter() {
+  _zelisShowFlagged = !_zelisShowFlagged;
+  _zelisUpdateFlagIndicator();
+  _renderZelisEntries();
 }
 
 function closeZelisLookup() {
@@ -8435,11 +8472,46 @@ function zelisSearch() {
 function _renderZelisEntries() {
   const el = document.getElementById('zelis-entries-list');
   if (!el) return;
-  const entries = (_zelisData && Array.isArray(_zelisData.entries)) ? _zelisData.entries : [];
   if (!_zelisData) {
     el.innerHTML = '<div style="text-align:center;padding:14px;font-size:11px;color:var(--fg3)">Loading…</div>';
     return;
   }
+  const entries = Array.isArray(_zelisData.entries) ? _zelisData.entries : [];
+  const flags   = Array.isArray(_zelisData.flags)   ? _zelisData.flags   : [];
+
+  if (_zelisShowFlagged) {
+    if (!flags.length) {
+      el.innerHTML = '<div style="text-align:center;padding:16px;font-size:11px;color:var(--fg3)">No pending flags.</div>';
+      return;
+    }
+    const norm = s => String(s||'').replace(/[\s-]/g,'').toLowerCase();
+    el.innerHTML = '<div class="zelis-entries">' + flags.map((f, fi) => {
+      const matchingEntries = entries.filter(e => norm(e.groupNumber) === norm(f.groupNumber));
+      const jsG = f.groupNumber.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      const jsT = (f.flaggedAtFull||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      return '<div class="zelis-entry" style="flex-direction:column;gap:6px;align-items:stretch">' +
+        '<div style="display:flex;align-items:flex-start;gap:8px">' +
+          '<span style="font-size:14px;flex-shrink:0;margin-top:1px">🚩</span>' +
+          '<div style="flex:1;min-width:0">' +
+            '<div style="font-weight:700;color:var(--onyx);font-size:12px">' + _zEsc(f.groupNumber) +
+              (matchingEntries[0]?.carrier ? ' <span style="font-weight:400;color:var(--fg2)">— ' + _zEsc(matchingEntries[0].carrier) + '</span>' : '') + '</div>' +
+            (matchingEntries[0]?.planName ? '<div style="color:var(--fg3);font-size:11px">' + _zEsc(matchingEntries[0].planName) + '</div>' : '') +
+            (matchingEntries[0]?.employerName ? '<div style="color:var(--fg3);font-size:11px">' + _zEsc(matchingEntries[0].employerName) + '</div>' : '') +
+          '</div>' +
+        '</div>' +
+        '<div style="background:#fff8f0;border:1px solid #fcd9a8;border-radius:7px;padding:7px 10px;font-size:11px">' +
+          '<div style="font-weight:700;color:var(--onyx)">' + _zEsc(f.name) + ' <span style="font-weight:400;color:var(--fg3)">' + _zEsc(f.flaggedAt||'') + '</span></div>' +
+          (f.comment ? '<div style="color:var(--fg2);margin-top:2px">' + _zEsc(f.comment) + '</div>' : '') +
+        '</div>' +
+        '<div style="display:flex;gap:6px;justify-content:flex-end">' +
+          '<button class="btn btn-ghost btn-sm" onclick="zelisDismissFlag(\'' + jsG + '\',\'' + jsT + '\')" style="font-size:10px;color:var(--fg3)">Dismiss flag</button>' +
+          '<button class="btn btn-sm" onclick="zelisApproveFlag(\'' + jsG + '\',\'' + jsT + '\')" style="font-size:10px;background:#c0392b;color:#fff;border-radius:6px">✓ Remove entry</button>' +
+        '</div>' +
+      '</div>';
+    }).join('') + '</div>';
+    return;
+  }
+
   if (!entries.length) {
     el.innerHTML = '<div style="text-align:center;padding:16px;font-size:11px;color:var(--fg3)">No entries yet.<br>Be the first to add a confirmed Zelis INN plan.</div>';
     return;
@@ -8463,6 +8535,25 @@ function _renderZelisEntries() {
       '<div style="flex-shrink:0;font-size:9px;font-weight:800;letter-spacing:.05em;color:' + (cls==='inn'?'#1a8c5a':'#c0392b') + ';padding-top:1px">' + lbl + '</div>' +
       '</div>';
   }).join('') + '</div>';
+}
+
+async function zelisApproveFlag(groupNumber, flaggedAtFull) {
+  if (!confirm('Remove all entries for group # ' + groupNumber + ' from the Zelis INN database?')) return;
+  const current = await _zelisRead();
+  const norm = s => String(s||'').replace(/[\s-]/g,'').toLowerCase();
+  current.entries = (current.entries||[]).filter(e => norm(e.groupNumber) !== norm(groupNumber));
+  current.flags   = (current.flags||[]).filter(f => !(f.groupNumber === groupNumber && f.flaggedAtFull === flaggedAtFull));
+  const ok = await _zelisWrite(current);
+  if (ok) { _zelisData = current; _zelisUpdateFlagIndicator(); _renderZelisEntries(); }
+  else alert('Failed to update. Please try again.');
+}
+
+async function zelisDismissFlag(groupNumber, flaggedAtFull) {
+  const current = await _zelisRead();
+  current.flags = (current.flags||[]).filter(f => !(f.groupNumber === groupNumber && f.flaggedAtFull === flaggedAtFull));
+  const ok = await _zelisWrite(current);
+  if (ok) { _zelisData = current; _zelisUpdateFlagIndicator(); _renderZelisEntries(); }
+  else alert('Failed to dismiss flag. Please try again.');
 }
 
 function zelisToggleFlag(fid) {
