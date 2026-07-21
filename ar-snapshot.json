@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-21T05:57:53.581Z",
-  "asOf": "7/21/2026, 12:57 AM CT",
+  "generated": "2026-07-21T19:53:05.528Z",
+  "asOf": "7/21/2026, 2:53 PM CT",
   "totals": {
     "outstanding": {
       "d0_30": 524014.94,
@@ -59,11 +59,11 @@
         "total": 1964.2,
         "mondayBaseline2026": 2204.3,
         "mondayBaselineDate": "2026-07-20",
-        "completedToday2026": 0,
+        "completedToday2026": 239.8,
         "completedTodayDate": "2026-07-21",
-        "completedThisWeek2026": 4646.7,
+        "completedThisWeek2026": 4886.5,
         "completedThisWeekStart": "2026-07-20",
-        "newTasksAddedThisWeek2026": 2461.1
+        "newTasksAddedThisWeek2026": 2700.9
       },
       "lastStatementSent": {
         "date": null,
@@ -97,15 +97,15 @@
       },
       "unposted": {
         "y2025": 224610.71,
-        "y2026": 22196.24,
-        "total": 246806.95,
+        "y2026": 19357.54,
+        "total": 243968.25,
         "mondayBaseline2026": 14980.5,
         "mondayBaselineDate": "2026-07-20",
-        "completedToday2026": 0,
+        "completedToday2026": 4636.75,
         "completedTodayDate": "2026-07-21",
-        "completedThisWeek2026": 813.6,
+        "completedThisWeek2026": 5450.35,
         "completedThisWeekStart": "2026-07-20",
-        "newTasksAddedThisWeek2026": 10704.59
+        "newTasksAddedThisWeek2026": 12196.69
       },
       "legacy": [
         {
@@ -279,15 +279,15 @@
       },
       "unposted": {
         "y2025": 23936.9,
-        "y2026": 5738.69,
-        "total": 29675.59,
+        "y2026": 6338,
+        "total": 30274.9,
         "mondayBaseline2026": 11167.39,
         "mondayBaselineDate": "2026-07-20",
         "completedToday2026": 0,
         "completedTodayDate": "2026-07-21",
         "completedThisWeek2026": 6011.1,
         "completedThisWeekStart": "2026-07-20",
-        "newTasksAddedThisWeek2026": 1707.4
+        "newTasksAddedThisWeek2026": 4028.6
       },
       "legacy": [
         {
@@ -39133,8 +39133,8 @@
     },
     {
       "date": "2026-07-21",
-      "unposted": 627448.33,
-      "unposted2026": 106838.66,
+      "unposted": 625208.94,
+      "unposted2026": 104599.27,
       "unposted2025": 520609.6700000001
     }
   ]
