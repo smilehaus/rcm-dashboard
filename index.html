@@ -8369,10 +8369,11 @@ function zelisSearch() {
   });
 
   if (!matches.length) {
-    ra.innerHTML = '<div class="zelis-result unknown">' +
-      '<div class="zelis-badge unknown">NO DATA ON FILE</div>' +
-      '<div class="zelis-conf-row">Group # <strong>' + _zEsc(rawGroup) + '</strong> hasn\'t been logged yet.' +
-      ' If you\'ve confirmed this plan is INN with Zelis at any office, click "+ Add Entry" to share it with the team.</div>' +
+    ra.innerHTML = '<div class="zelis-result oon">' +
+      '<div class="zelis-badge oon">⚠ POSSIBLE OON</div>' +
+      '<div class="zelis-conf-row">Group # <strong>' + _zEsc(rawGroup) + '</strong> is not on the confirmed Zelis INN list.' +
+      ' Verify via the carrier portal before marking OON in Oryx.' +
+      ' If you confirm this plan is INN with Zelis, click "+ Add Entry" to share it with the team.</div>' +
       '</div>';
     return;
   }
