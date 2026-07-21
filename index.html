@@ -8747,6 +8747,7 @@ function _renderZelisEntries() {
         '<div style="font-weight:700;color:var(--onyx)">' + _zEsc(e.groupNumber) +
           (e.carrier ? ' <span style="font-weight:400;color:var(--fg2)">— ' + _zEsc(e.carrier) + '</span>' : '') + '</div>' +
         (e.planName ? '<div style="color:var(--fg3);margin-top:1px">' + _zEsc(e.planName) + '</div>' : '') +
+        (e.payerIdCode && !(e.notes||'').includes('Payer ID') ? '<div style="color:var(--fg2);margin-top:2px">Payer ID: ' + _zEsc(e.payerIdCode) + '</div>' : '') +
         (e.notes ? '<div style="color:var(--fg2);font-style:italic;margin-top:2px">' + _zEsc(e.notes) + '</div>' : '') +
         '<div style="color:var(--fg3);margin-top:2px">' +
           (e.offices ? _zEsc(e.offices) + ' · ' : '') +
