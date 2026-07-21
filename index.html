@@ -685,6 +685,35 @@ textarea.re-input{resize:vertical;min-height:80px;}
 .re-thumb{position:relative;width:72px;height:72px;flex-shrink:0;}
 .re-thumb img{width:72px;height:72px;object-fit:cover;border-radius:6px;border:1px solid var(--sandstone);display:block;}
 .re-thumb-x{position:absolute;top:-5px;right:-5px;background:var(--onyx);color:#fff;border:none;border-radius:50%;width:16px;height:16px;font-size:11px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}
+
+/* ── Zelis Network Lookup ── */
+#zelis-btn{position:fixed;bottom:60px;right:20px;z-index:800;background:#1a6b5a;color:#fff;border:none;border-radius:20px;padding:8px 14px;font-size:11px;font-weight:700;font-family:var(--font-body);letter-spacing:.04em;cursor:pointer;box-shadow:0 2px 10px rgba(26,107,90,.35);transition:opacity .15s,transform .15s;}
+#zelis-btn:hover{opacity:.88;transform:translateY(-1px);}
+#zelis-modal{display:none;position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.38);align-items:center;justify-content:center;padding:16px;}
+#zelis-modal.open{display:flex;}
+.zelis-card{background:#fff;border-radius:14px;width:100%;max-width:500px;box-shadow:0 8px 36px rgba(0,0,0,.2);overflow:hidden;max-height:90vh;display:flex;flex-direction:column;}
+.zelis-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 12px;background:#1a6b5a;flex-shrink:0;}
+.zelis-body{padding:14px 18px 10px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;}
+.zelis-lbl{font-size:10px;font-weight:700;color:var(--earth);letter-spacing:.07em;text-transform:uppercase;margin-bottom:3px;}
+.zelis-inp{border:1px solid var(--sandstone);border-radius:8px;padding:7px 10px;font-family:var(--font-body);font-size:13px;color:var(--onyx);outline:none;box-sizing:border-box;background:#fff;width:100%;}
+.zelis-inp:focus{border-color:#1a6b5a;box-shadow:0 0 0 2px rgba(26,107,90,.12);}
+.zelis-result{border-radius:10px;padding:12px 14px;}
+.zelis-result.inn{background:#eafaf3;border:1.5px solid #34c785;}
+.zelis-result.oon{background:#fff1f1;border:1.5px solid #e57373;}
+.zelis-result.unknown{background:#f6f5f2;border:1.5px solid var(--sandstone);}
+.zelis-badge{font-size:13px;font-weight:800;letter-spacing:.05em;margin-bottom:5px;}
+.zelis-badge.inn{color:#1a8c5a;}
+.zelis-badge.oon{color:#c0392b;}
+.zelis-badge.unknown{color:var(--fg3);}
+.zelis-conf-row{font-size:11px;color:var(--fg2);line-height:1.55;margin-top:1px;}
+.zelis-entries{border:1px solid var(--sandstone);border-radius:8px;overflow:hidden;}
+.zelis-entry{padding:8px 12px;border-top:1px solid #f0ede8;display:flex;align-items:flex-start;gap:8px;font-size:11px;}
+.zelis-entry:first-child{border-top:none;}
+.zelis-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:3px;}
+.zelis-dot.inn{background:#34c785;}
+.zelis-dot.oon{background:#e57373;}
+.zelis-add-form{border:1.5px dashed var(--sandstone);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px;background:#fcfaf8;}
+.zelis-row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 </style>
 </head>
 <body>
@@ -1724,6 +1753,71 @@ textarea.re-input{resize:vertical;min-height:80px;}
     <div class="report-error-foot">
       <button class="btn btn-ghost btn-sm" onclick="closeReportError()">Cancel</button>
       <button class="btn btn-sm" id="re-submit-btn" onclick="submitReportError()" style="background:var(--onyx);color:#fff">Submit</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── ZELIS NETWORK LOOKUP ───────────────────────────────────────────────── -->
+<button id="zelis-btn" onclick="openZelisLookup()" title="Zelis INN Network Lookup">⚡ Zelis INN</button>
+
+<div id="zelis-modal" onclick="if(event.target.id==='zelis-modal')closeZelisLookup()">
+  <div class="zelis-card">
+    <div class="zelis-head">
+      <div>
+        <div style="font-size:14px;font-weight:800;color:#fff;letter-spacing:.01em">⚡ Zelis Network Lookup</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.72);margin-top:2px">Portal shows OON? Check if the plan is confirmed INN via Zelis at another office.</div>
+      </div>
+      <button onclick="closeZelisLookup()" style="background:rgba(255,255,255,.18);border:none;cursor:pointer;font-size:16px;color:#fff;line-height:1;border-radius:6px;width:26px;height:26px;display:flex;align-items:center;justify-content:center">×</button>
+    </div>
+    <div class="zelis-body">
+
+      <!-- Search -->
+      <div>
+        <div class="zelis-lbl">Group #</div>
+        <div style="display:flex;gap:6px">
+          <input id="zelis-group-input" class="zelis-inp" placeholder="Enter group number (e.g. 00123456)" onkeydown="if(event.key==='Enter')zelisSearch()" style="flex:1"/>
+          <button class="btn btn-sm" onclick="zelisSearch()" style="background:#1a6b5a;color:#fff;white-space:nowrap;flex-shrink:0;border-radius:8px">Look up</button>
+        </div>
+      </div>
+      <div>
+        <div class="zelis-lbl">Carrier / Plan <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional — narrows results)</span></div>
+        <input id="zelis-carrier-input" class="zelis-inp" placeholder="e.g. Delta Dental, Aetna, BCBS…" onkeydown="if(event.key==='Enter')zelisSearch()"/>
+      </div>
+
+      <!-- Result -->
+      <div id="zelis-result-area" style="display:none"></div>
+
+      <div style="border-top:1px solid var(--sandstone)"></div>
+
+      <!-- Entries list -->
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:11px;font-weight:700;color:var(--fg2);text-transform:uppercase;letter-spacing:.06em">Confirmed Zelis INN Plans</span>
+          <button onclick="zelisToggleAdd()" id="zelis-add-toggle" class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 9px">+ Add Entry</button>
+        </div>
+
+        <!-- Add form (hidden by default) -->
+        <div id="zelis-add-form" style="display:none" class="zelis-add-form">
+          <div class="zelis-row2">
+            <div><div class="zelis-lbl">Group # <span style="color:var(--critical)">*</span></div><input id="za-group" class="zelis-inp" placeholder="Required"/></div>
+            <div><div class="zelis-lbl">Carrier</div><input id="za-carrier" class="zelis-inp" placeholder="e.g. Delta Dental"/></div>
+          </div>
+          <div><div class="zelis-lbl">Plan Name (optional)</div><input id="za-plan" class="zelis-inp" placeholder="e.g. Premier Plus"/></div>
+          <div class="zelis-row2">
+            <div><div class="zelis-lbl">Confirmed at office(s)</div><input id="za-offices" class="zelis-inp" placeholder="GT, SQ…"/></div>
+            <div><div class="zelis-lbl">Your name</div><input id="za-name" class="zelis-inp" placeholder="Your name"/></div>
+          </div>
+          <div><div class="zelis-lbl">Notes</div><input id="za-notes" class="zelis-inp" placeholder="e.g. Portal shows OON but confirmed INN via Zelis rep 7/20"/></div>
+          <div style="display:flex;justify-content:flex-end;gap:6px;margin-top:2px">
+            <button class="btn btn-ghost btn-sm" onclick="zelisToggleAdd()">Cancel</button>
+            <button class="btn btn-sm" onclick="zelisSaveEntry()" style="background:#1a6b5a;color:#fff">Save Entry</button>
+          </div>
+        </div>
+
+        <div id="zelis-entries-list">
+          <div style="text-align:center;padding:18px;font-size:11px;color:var(--fg3)">Loading…</div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -8206,6 +8300,175 @@ async function submitReportError() {
     fb.textContent = 'Failed to submit — try again or message Sage directly.';
     btn.disabled = false;
     btn.textContent = 'Submit';
+  }
+}
+
+// ── Zelis Network Lookup ─────────────────────────────────────────────────────
+const ZELIS_FB = 'https://smilehaus-rcm-default-rtdb.firebaseio.com/zelis.json';
+let _zelisData = null;
+
+function _zEsc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function _zelisRead() {
+  try {
+    const r = await fetchWithTimeout(ZELIS_FB + '?t=' + Date.now(), {}, 12000);
+    if (r.ok) { const d = await r.json(); return d || {}; }
+  } catch(e) {}
+  return {};
+}
+
+async function _zelisWrite(data) {
+  try {
+    const r = await fetchWithTimeout(ZELIS_FB, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) }, 12000);
+    return r.ok;
+  } catch(e) { return false; }
+}
+
+function openZelisLookup() {
+  document.getElementById('zelis-modal').classList.add('open');
+  document.getElementById('zelis-group-input').value = '';
+  document.getElementById('zelis-carrier-input').value = '';
+  document.getElementById('zelis-result-area').style.display = 'none';
+  _renderZelisEntries();
+  _zelisRead().then(d => { _zelisData = d; _renderZelisEntries(); });
+  setTimeout(() => document.getElementById('zelis-group-input').focus(), 80);
+}
+
+function closeZelisLookup() {
+  document.getElementById('zelis-modal').classList.remove('open');
+}
+
+function zelisToggleAdd() {
+  const f = document.getElementById('zelis-add-form');
+  const btn = document.getElementById('zelis-add-toggle');
+  const opening = f.style.display === 'none';
+  f.style.display = opening ? '' : 'none';
+  btn.textContent = opening ? '✕ Close' : '+ Add Entry';
+  if (opening) {
+    document.getElementById('za-group').value = document.getElementById('zelis-group-input').value.trim();
+    document.getElementById('za-carrier').value = document.getElementById('zelis-carrier-input').value.trim();
+    setTimeout(() => document.getElementById('za-group').focus(), 60);
+  }
+}
+
+function zelisSearch() {
+  const rawGroup = document.getElementById('zelis-group-input').value.trim();
+  const rawCarrier = document.getElementById('zelis-carrier-input').value.trim().toLowerCase();
+  const ra = document.getElementById('zelis-result-area');
+  if (!rawGroup) { ra.style.display = 'none'; return; }
+  ra.style.display = '';
+
+  const entries = (_zelisData && Array.isArray(_zelisData.entries)) ? _zelisData.entries : [];
+  const norm = s => String(s || '').replace(/[\s-]/g,'').toLowerCase();
+  const matches = entries.filter(e => {
+    const gOk = norm(e.groupNumber) === norm(rawGroup);
+    const cOk = !rawCarrier || norm(e.carrier).includes(rawCarrier) || rawCarrier.includes(norm(e.carrier).slice(0,4));
+    return gOk && cOk;
+  });
+
+  if (!matches.length) {
+    ra.innerHTML = '<div class="zelis-result unknown">' +
+      '<div class="zelis-badge unknown">NO DATA ON FILE</div>' +
+      '<div class="zelis-conf-row">Group # <strong>' + _zEsc(rawGroup) + '</strong> hasn\'t been logged yet.' +
+      ' If you\'ve confirmed this plan is INN with Zelis at any office, click "+ Add Entry" to share it with the team.</div>' +
+      '</div>';
+    return;
+  }
+
+  const inn = matches.filter(e => e.confirmedINN !== false);
+  const oon = matches.filter(e => e.confirmedINN === false);
+  let html = '';
+
+  if (inn.length) {
+    const allOffices = [...new Set(inn.flatMap(e => (e.offices||'').split(',').map(s=>s.trim()).filter(Boolean)))].join(', ');
+    const latest = inn.slice().sort((a,b) => (b.confirmedAt||'') > (a.confirmedAt||'') ? 1 : -1)[0];
+    html += '<div class="zelis-result inn">' +
+      '<div class="zelis-badge inn">✓ IN NETWORK — Zelis</div>' +
+      (allOffices ? '<div class="zelis-conf-row">Confirmed at: <strong>' + _zEsc(allOffices) + '</strong></div>' : '') +
+      (latest.carrier ? '<div class="zelis-conf-row">Carrier: ' + _zEsc(latest.carrier) + (latest.planName ? ' · ' + _zEsc(latest.planName) : '') + '</div>' : '') +
+      (latest.confirmedAt ? '<div class="zelis-conf-row">Date: ' + _zEsc(latest.confirmedAt) + (latest.confirmedBy ? ' · by ' + _zEsc(latest.confirmedBy) : '') + '</div>' : '') +
+      (latest.notes ? '<div class="zelis-conf-row" style="font-style:italic;margin-top:4px">"' + _zEsc(latest.notes) + '"</div>' : '') +
+      '<div class="zelis-conf-row" style="margin-top:8px;font-weight:700;color:#1a8c5a">→ Mark as INN in Oryx. Portal lag only — Zelis network membership is confirmed.</div>' +
+      '</div>';
+  }
+  if (oon.length) {
+    const latest = oon[0];
+    html += '<div class="zelis-result oon" style="margin-top:6px">' +
+      '<div class="zelis-badge oon">✗ OUT OF NETWORK</div>' +
+      (latest.offices ? '<div class="zelis-conf-row">Confirmed OON at: <strong>' + _zEsc(latest.offices) + '</strong></div>' : '') +
+      (latest.notes ? '<div class="zelis-conf-row" style="font-style:italic">"' + _zEsc(latest.notes) + '"</div>' : '') +
+      '</div>';
+  }
+  ra.innerHTML = html;
+}
+
+function _renderZelisEntries() {
+  const el = document.getElementById('zelis-entries-list');
+  if (!el) return;
+  const entries = (_zelisData && Array.isArray(_zelisData.entries)) ? _zelisData.entries : [];
+  if (!_zelisData) {
+    el.innerHTML = '<div style="text-align:center;padding:14px;font-size:11px;color:var(--fg3)">Loading…</div>';
+    return;
+  }
+  if (!entries.length) {
+    el.innerHTML = '<div style="text-align:center;padding:16px;font-size:11px;color:var(--fg3)">No entries yet.<br>Be the first to add a confirmed Zelis INN plan.</div>';
+    return;
+  }
+  const sorted = entries.slice().sort((a,b) => (b.confirmedAt||'') > (a.confirmedAt||'') ? 1 : -1);
+  el.innerHTML = '<div class="zelis-entries">' + sorted.map(e => {
+    const cls = e.confirmedINN === false ? 'oon' : 'inn';
+    const lbl = e.confirmedINN === false ? 'OON' : 'INN';
+    return '<div class="zelis-entry">' +
+      '<div class="zelis-dot ' + cls + '"></div>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="font-weight:700;color:var(--onyx)">' + _zEsc(e.groupNumber) +
+          (e.carrier ? ' <span style="font-weight:400;color:var(--fg2)">— ' + _zEsc(e.carrier) + '</span>' : '') + '</div>' +
+        (e.planName ? '<div style="color:var(--fg3);margin-top:1px">' + _zEsc(e.planName) + '</div>' : '') +
+        '<div style="color:var(--fg3);margin-top:2px">' +
+          (e.offices ? _zEsc(e.offices) + ' · ' : '') +
+          (e.confirmedAt || '') + (e.confirmedBy ? ' · ' + _zEsc(e.confirmedBy) : '') +
+        '</div>' +
+        (e.notes ? '<div style="color:var(--fg2);font-style:italic;margin-top:2px">' + _zEsc(e.notes) + '</div>' : '') +
+      '</div>' +
+      '<div style="flex-shrink:0;font-size:9px;font-weight:800;letter-spacing:.05em;color:' + (cls==='inn'?'#1a8c5a':'#c0392b') + ';padding-top:1px">' + lbl + '</div>' +
+      '</div>';
+  }).join('') + '</div>';
+}
+
+async function zelisSaveEntry() {
+  const group = document.getElementById('za-group').value.trim();
+  if (!group) { alert('Group # is required.'); return; }
+  const btn = document.querySelector('#zelis-add-form .btn[onclick="zelisSaveEntry()"]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+
+  const entry = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+    groupNumber: group,
+    carrier: document.getElementById('za-carrier').value.trim(),
+    planName: document.getElementById('za-plan').value.trim(),
+    confirmedINN: true,
+    offices: document.getElementById('za-offices').value.trim(),
+    confirmedBy: document.getElementById('za-name').value.trim(),
+    confirmedAt: new Date().toISOString().slice(0,10),
+    notes: document.getElementById('za-notes').value.trim()
+  };
+
+  const current = await _zelisRead();
+  if (!Array.isArray(current.entries)) current.entries = [];
+  current.entries.push(entry);
+
+  const ok = await _zelisWrite(current);
+  if (btn) { btn.disabled = false; btn.textContent = 'Save Entry'; }
+  if (ok) {
+    _zelisData = current;
+    _renderZelisEntries();
+    zelisToggleAdd();
+    ['za-group','za-carrier','za-plan','za-offices','za-name','za-notes'].forEach(id => { document.getElementById(id).value = ''; });
+    zelisSearch();
+  } else {
+    alert('Save failed — check your connection and try again.');
   }
 }
 </script>
