@@ -8747,11 +8747,11 @@ function _renderZelisEntries() {
         '<div style="font-weight:700;color:var(--onyx)">' + _zEsc(e.groupNumber) +
           (e.carrier ? ' <span style="font-weight:400;color:var(--fg2)">— ' + _zEsc(e.carrier) + '</span>' : '') + '</div>' +
         (e.planName ? '<div style="color:var(--fg3);margin-top:1px">' + _zEsc(e.planName) + '</div>' : '') +
+        (e.notes ? '<div style="color:var(--fg2);font-style:italic;margin-top:2px">' + _zEsc(e.notes) + '</div>' : '') +
         '<div style="color:var(--fg3);margin-top:2px">' +
           (e.offices ? _zEsc(e.offices) + ' · ' : '') +
           (e.confirmedAt || '') + (e.confirmedBy ? ' · ' + _zEsc(e.confirmedBy) : '') +
         '</div>' +
-        (e.notes ? '<div style="color:var(--fg2);font-style:italic;margin-top:2px">' + _zEsc(e.notes) + '</div>' : '') +
       '</div>' +
       '<div style="flex-shrink:0;font-size:9px;font-weight:800;letter-spacing:.05em;color:' + (cls==='inn'?'#1a8c5a':'#c0392b') + ';padding-top:1px">' + lbl + '</div>' +
       '</div>';
