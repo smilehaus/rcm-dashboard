@@ -8387,18 +8387,31 @@ function zelisSearch() {
     const latest = inn.slice().sort((a,b) => (b.confirmedAt||'') > (a.confirmedAt||'') ? 1 : -1)[0];
     const allPlans = [...new Set(inn.map(e => e.planName).filter(Boolean))];
     const allEmployers = [...new Set(inn.map(e => e.employerName).filter(Boolean))];
+    const flagId = 'zf' + rawGroup.replace(/[^a-zA-Z0-9]/g,'');
+    const jsGroup = rawGroup.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     html += '<div class="zelis-result inn">' +
       '<div class="zelis-badge inn">✓ IN NETWORK — Zelis</div>' +
       '<table style="width:100%;border-collapse:collapse;margin:6px 0 2px;font-size:11px">' +
         '<tr><td style="color:var(--fg2);padding:1px 8px 1px 0;white-space:nowrap;vertical-align:top">Group #</td><td style="font-weight:600;color:var(--onyx)">' + _zEsc(rawGroup) + '</td></tr>' +
-        (allEmployers.length ? '<tr><td style="color:var(--fg2);padding:1px 8px 1px 0;white-space:nowrap;vertical-align:top">Group Name</td><td style="color:var(--onyx)">' + allEmployers.map(_zEsc).join('<br>') + '</td></tr>' : '') +
-        (latest.carrier ? '<tr><td style="color:var(--fg2);padding:1px 8px 1px 0;white-space:nowrap;vertical-align:top">Payer</td><td style="color:var(--onyx)">' + _zEsc(latest.carrier) + '</td></tr>' : '') +
-        (latest.payerIdCode ? '<tr><td style="color:var(--fg2);padding:1px 8px 1px 0;white-space:nowrap;vertical-align:top">Payer ID</td><td style="color:var(--onyx)">' + _zEsc(latest.payerIdCode) + '</td></tr>' : '') +
-        (allPlans.length ? '<tr><td style="color:var(--fg2);padding:1px 8px 1px 0;white-space:nowrap;vertical-align:top">Plan Name(s)</td><td style="color:var(--onyx)">' + allPlans.map(_zEsc).join('<br>') + '</td></tr>' : '') +
+        (allPlans.length ? '<tr><td style="color:var(--fg2);padding:1px 8px 1px 0;white-space:nowrap;vertical-align:top">Group Name</td><td style="color:var(--onyx)">' + allPlans.map(_zEsc).join('<br>') + '</td></tr>' : '') +
+        (allEmployers.length ? '<tr><td style="color:var(--fg2);padding:1px 8px 1px 0;white-space:nowrap;vertical-align:top">Employer Name</td><td style="color:var(--onyx)">' + allEmployers.map(_zEsc).join('<br>') + '</td></tr>' : '') +
+        (latest.carrier ? '<tr><td style="color:var(--fg2);padding:1px 8px 1px 0;white-space:nowrap;vertical-align:top">Payer Name</td><td style="color:var(--onyx)">' + _zEsc(latest.carrier) + '</td></tr>' : '') +
+        (latest.payerIdCode ? '<tr><td style="color:var(--fg2);padding:1px 8px 1px 0;white-space:nowrap;vertical-align:top">Payer ID Code</td><td style="color:var(--onyx)">' + _zEsc(latest.payerIdCode) + '</td></tr>' : '') +
         (allOffices ? '<tr><td style="color:var(--fg2);padding:1px 8px 1px 0;white-space:nowrap;vertical-align:top">Source</td><td style="color:var(--onyx)">' + _zEsc(allOffices) + '</td></tr>' : '') +
         (latest.confirmedAt ? '<tr><td style="color:var(--fg2);padding:1px 8px 1px 0;white-space:nowrap">As of</td><td style="color:var(--onyx)">' + _zEsc(latest.confirmedAt) + '</td></tr>' : '') +
       '</table>' +
       '<div class="zelis-conf-row" style="margin-top:8px;font-weight:700;color:#1a8c5a">→ Mark as INN in Oryx. Portal lag only — Zelis network membership is confirmed.</div>' +
+      '<div style="margin-top:8px;border-top:1px solid #c6f0d9;padding-top:7px">' +
+        '<button class="btn btn-ghost btn-sm" onclick="zelisToggleFlag(\'' + flagId + '\')" style="font-size:10px;color:var(--fg3);padding:2px 9px">🚩 Flag for deletion / edit</button>' +
+        '<div id="' + flagId + '" style="display:none;margin-top:8px;display:flex;flex-direction:column;gap:6px">' +
+          '<input id="' + flagId + 'n" class="zelis-inp" placeholder="Your name *" style="font-size:12px"/>' +
+          '<textarea id="' + flagId + 'c" class="zelis-inp" placeholder="Reason (e.g. plan is now OON, incorrect group #, needs edit)…" rows="2" style="resize:vertical;font-size:12px;font-family:inherit"></textarea>' +
+          '<div style="display:flex;gap:6px;justify-content:flex-end">' +
+            '<button class="btn btn-ghost btn-sm" onclick="zelisToggleFlag(\'' + flagId + '\')">Cancel</button>' +
+            '<button class="btn btn-sm" onclick="zelisSubmitFlag(\'' + jsGroup + '\',\'' + flagId + '\')" style="background:#c0392b;color:#fff;border-radius:6px;font-size:11px">Submit Flag</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
       '</div>';
   }
   if (oon.length) {
@@ -8407,10 +8420,10 @@ function zelisSearch() {
       '<div class="zelis-badge oon">✗ OUT OF NETWORK</div>' +
       '<table style="width:100%;border-collapse:collapse;margin:6px 0 2px;font-size:11px">' +
         '<tr><td style="color:var(--fg2);padding:1px 8px 1px 0;white-space:nowrap;vertical-align:top">Group #</td><td style="font-weight:600;color:var(--onyx)">' + _zEsc(rawGroup) + '</td></tr>' +
-        (latest.employerName ? '<tr><td style="color:var(--fg2);padding:1px 8px 1px 0;white-space:nowrap;vertical-align:top">Group Name</td><td style="color:var(--onyx)">' + _zEsc(latest.employerName) + '</td></tr>' : '') +
-        (latest.carrier ? '<tr><td style="color:var(--fg2);padding:1px 8px 1px 0;white-space:nowrap;vertical-align:top">Payer</td><td style="color:var(--onyx)">' + _zEsc(latest.carrier) + '</td></tr>' : '') +
-        (latest.payerIdCode ? '<tr><td style="color:var(--fg2);padding:1px 8px 1px 0;white-space:nowrap;vertical-align:top">Payer ID</td><td style="color:var(--onyx)">' + _zEsc(latest.payerIdCode) + '</td></tr>' : '') +
-        (latest.planName ? '<tr><td style="color:var(--fg2);padding:1px 8px 1px 0;white-space:nowrap;vertical-align:top">Plan Name</td><td style="color:var(--onyx)">' + _zEsc(latest.planName) + '</td></tr>' : '') +
+        (latest.planName ? '<tr><td style="color:var(--fg2);padding:1px 8px 1px 0;white-space:nowrap;vertical-align:top">Group Name</td><td style="color:var(--onyx)">' + _zEsc(latest.planName) + '</td></tr>' : '') +
+        (latest.employerName ? '<tr><td style="color:var(--fg2);padding:1px 8px 1px 0;white-space:nowrap;vertical-align:top">Employer Name</td><td style="color:var(--onyx)">' + _zEsc(latest.employerName) + '</td></tr>' : '') +
+        (latest.carrier ? '<tr><td style="color:var(--fg2);padding:1px 8px 1px 0;white-space:nowrap;vertical-align:top">Payer Name</td><td style="color:var(--onyx)">' + _zEsc(latest.carrier) + '</td></tr>' : '') +
+        (latest.payerIdCode ? '<tr><td style="color:var(--fg2);padding:1px 8px 1px 0;white-space:nowrap;vertical-align:top">Payer ID Code</td><td style="color:var(--onyx)">' + _zEsc(latest.payerIdCode) + '</td></tr>' : '') +
         (latest.offices ? '<tr><td style="color:var(--fg2);padding:1px 8px 1px 0;white-space:nowrap;vertical-align:top">Source</td><td style="color:var(--onyx)">' + _zEsc(latest.offices) + '</td></tr>' : '') +
       '</table>' +
       (latest.notes ? '<div class="zelis-conf-row" style="font-style:italic">"' + _zEsc(latest.notes) + '"</div>' : '') +
@@ -8452,6 +8465,39 @@ function _renderZelisEntries() {
   }).join('') + '</div>';
 }
 
+function zelisToggleFlag(fid) {
+  const el = document.getElementById(fid);
+  if (!el) return;
+  el.style.display = el.style.display === 'none' ? '' : 'none';
+}
+
+async function zelisSubmitFlag(groupNumber, fid) {
+  const name = (document.getElementById(fid + 'n') || {}).value?.trim();
+  const comment = (document.getElementById(fid + 'c') || {}).value?.trim();
+  if (!name) { alert('Please enter your name before submitting.'); return; }
+  const flagEl = document.getElementById(fid);
+  const submitBtn = flagEl ? flagEl.querySelector('button:last-child') : null;
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Submitting…'; }
+  const flag = {
+    groupNumber,
+    name,
+    comment: comment || '',
+    flaggedAt: new Date().toISOString().slice(0,10),
+    flaggedAtFull: new Date().toISOString()
+  };
+  const current = await _zelisRead();
+  if (!Array.isArray(current.flags)) current.flags = [];
+  current.flags.push(flag);
+  const ok = await _zelisWrite(current);
+  if (ok) {
+    _zelisData = current;
+    if (flagEl) flagEl.innerHTML = '<div style="color:#c0392b;font-size:11px;font-weight:600;padding:4px 0">✓ Flag submitted — an admin will review and update this entry.</div>';
+  } else {
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit Flag'; }
+    alert('Failed to submit flag. Please check your connection and try again.');
+  }
+}
+
 async function zelisSaveEntry() {
   const group = document.getElementById('za-group').value.trim();
   if (!group) { alert('Group # is required.'); return; }
@@ -8472,6 +8518,13 @@ async function zelisSaveEntry() {
 
   const current = await _zelisRead();
   if (!Array.isArray(current.entries)) current.entries = [];
+  const normG = s => String(s||'').replace(/[\s-]/g,'').toLowerCase();
+  const exactDup = current.entries.some(e => normG(e.groupNumber) === normG(group));
+  if (exactDup) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Save Entry'; }
+    alert('Group # ' + group + ' already exists in the database.\n\nIf this is a variation with a different suffix, include all digits in the group # field.');
+    return;
+  }
   current.entries.push(entry);
 
   const ok = await _zelisWrite(current);
