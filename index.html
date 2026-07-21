@@ -2016,6 +2016,7 @@ textarea.re-input{resize:vertical;min-height:80px;}
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
           <span style="font-size:11px;font-weight:700;color:var(--fg2);text-transform:uppercase;letter-spacing:.06em">Confirmed Zelis INN Plans</span>
           <div style="display:flex;gap:6px;align-items:center">
+            <button id="zelis-hist-btn" onclick="zelisToggleHistory()" class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 9px;display:none">🕐 History</button>
             <button id="zelis-flag-filter-btn" onclick="zelisToggleFlagFilter()" class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 9px;display:none">🚩 Flagged</button>
             <button onclick="zelisToggleAdd()" id="zelis-add-toggle" class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 9px">+ Add Entry</button>
           </div>
@@ -8532,6 +8533,7 @@ async function submitReportError() {
 const ZELIS_FB = 'https://smilehaus-rcm-default-rtdb.firebaseio.com/zelis.json';
 let _zelisData = null;
 let _zelisShowFlagged = false;
+let _zelisShowHistory = false;
 
 function _zEsc(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -8564,6 +8566,13 @@ function openZelisLookup() {
 
 function _zelisUpdateFlagIndicator() {
   const flags = (_zelisData && Array.isArray(_zelisData.flags)) ? _zelisData.flags : [];
+  const removed = (_zelisData && Array.isArray(_zelisData.removed)) ? _zelisData.removed : [];
+  const histBtn = document.getElementById('zelis-hist-btn');
+  if (histBtn) {
+    histBtn.style.display = removed.length ? '' : 'none';
+    histBtn.style.background = _zelisShowHistory ? '#2A2E31' : '';
+    histBtn.style.color = _zelisShowHistory ? '#fff' : '';
+  }
   const filterBtn = document.getElementById('zelis-flag-filter-btn');
   const mainBtn = document.getElementById('zelis-btn');
   if (filterBtn) {
@@ -8589,6 +8598,14 @@ function _zelisUpdateFlagIndicator() {
 
 function zelisToggleFlagFilter() {
   _zelisShowFlagged = !_zelisShowFlagged;
+  if (_zelisShowFlagged) _zelisShowHistory = false;
+  _zelisUpdateFlagIndicator();
+  _renderZelisEntries();
+}
+
+function zelisToggleHistory() {
+  _zelisShowHistory = !_zelisShowHistory;
+  if (_zelisShowHistory) _zelisShowFlagged = false;
   _zelisUpdateFlagIndicator();
   _renderZelisEntries();
 }
@@ -8596,6 +8613,7 @@ function zelisToggleFlagFilter() {
 function closeZelisLookup() {
   document.getElementById('zelis-modal').classList.remove('open');
   _zelisShowFlagged = false;
+  _zelisShowHistory = false;
 }
 
 function zelisToggleAdd() {
@@ -8700,6 +8718,39 @@ function _renderZelisEntries() {
   const entries = Array.isArray(_zelisData.entries) ? _zelisData.entries : [];
   const flags   = Array.isArray(_zelisData.flags)   ? _zelisData.flags   : [];
 
+  if (_zelisShowHistory) {
+    const removed = Array.isArray(_zelisData.removed) ? _zelisData.removed : [];
+    if (!removed.length) {
+      el.innerHTML = '<div style="text-align:center;padding:16px;font-size:11px;color:var(--fg3)">No removed entries yet.</div>';
+      return;
+    }
+    const sorted = removed.slice().sort((a,b) => (b.removedAt||'') > (a.removedAt||'') ? 1 : -1);
+    el.innerHTML = '<div class="zelis-entries">' + sorted.map(r => {
+      const e = r.entry || {};
+      const jsT = (r.removedAt||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      const dateStr = r.removedAt ? r.removedAt.slice(0,10) : '';
+      return '<div class="zelis-entry" style="flex-direction:column;gap:5px;align-items:stretch;opacity:.85">' +
+        '<div style="display:flex;align-items:flex-start;gap:8px">' +
+          '<span style="font-size:14px;flex-shrink:0;margin-top:1px">🗑</span>' +
+          '<div style="flex:1;min-width:0">' +
+            '<div style="font-weight:700;color:var(--onyx)">' + _zEsc(e.groupNumber||'') +
+              (e.carrier ? ' <span style="font-weight:400;color:var(--fg2)">— ' + _zEsc(e.carrier) + '</span>' : '') + '</div>' +
+            (e.planName ? '<div style="color:var(--fg3);margin-top:1px">' + _zEsc(e.planName) + '</div>' : '') +
+            (e.payerIdCode && !(e.notes||'').includes('Payer ID') ? '<div style="color:var(--fg2);margin-top:1px">Payer ID: ' + _zEsc(e.payerIdCode) + '</div>' : '') +
+            (e.notes ? '<div style="color:var(--fg2);font-style:italic;margin-top:1px">' + _zEsc(e.notes) + '</div>' : '') +
+          '</div>' +
+        '</div>' +
+        '<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:6px 10px;font-size:11px;color:#7f1d1d">' +
+          _zEsc(r.reason||'Removed') + ' &nbsp;·&nbsp; ' + dateStr +
+        '</div>' +
+        '<div style="display:flex;justify-content:flex-end">' +
+          '<button class="btn btn-sm" onclick="zelisRestoreEntry(\'' + jsT + '\')" style="font-size:10px;background:#1a6b5a;color:#fff;border-radius:6px">↩ Restore</button>' +
+        '</div>' +
+      '</div>';
+    }).join('') + '</div>';
+    return;
+  }
+
   if (_zelisShowFlagged) {
     if (!flags.length) {
       el.innerHTML = '<div style="text-align:center;padding:16px;font-size:11px;color:var(--fg3)">No pending flags.</div>';
@@ -8760,14 +8811,38 @@ function _renderZelisEntries() {
 }
 
 async function zelisApproveFlag(groupNumber, flaggedAtFull) {
-  if (!confirm('Remove all entries for group # ' + groupNumber + ' from the Zelis INN database?')) return;
+  if (!confirm('Remove all entries for group # ' + groupNumber + ' from the Zelis INN database?\n\nThe entry will be saved to History so it can be restored if needed.')) return;
   const current = await _zelisRead();
   const norm = s => String(s||'').replace(/[\s-]/g,'').toLowerCase();
+  const theFlag = (current.flags||[]).find(f => f.groupNumber === groupNumber && f.flaggedAtFull === flaggedAtFull);
+  const toRemove = (current.entries||[]).filter(e => norm(e.groupNumber) === norm(groupNumber));
+  if (toRemove.length) {
+    if (!current.removed) current.removed = [];
+    const removedAt = new Date().toISOString();
+    const reason = theFlag ? 'Flagged by ' + (theFlag.name||'?') + (theFlag.comment ? ': ' + theFlag.comment : '') : 'Admin removed';
+    toRemove.forEach(entry => current.removed.push({ removedAt, reason, entry }));
+  }
   current.entries = (current.entries||[]).filter(e => norm(e.groupNumber) !== norm(groupNumber));
   current.flags   = (current.flags||[]).filter(f => !(f.groupNumber === groupNumber && f.flaggedAtFull === flaggedAtFull));
   const ok = await _zelisWrite(current);
   if (ok) { _zelisData = current; _zelisUpdateFlagIndicator(); _renderZelisEntries(); }
   else alert('Failed to update. Please try again.');
+}
+
+async function zelisRestoreEntry(removedAt) {
+  const current = await _zelisRead();
+  const rec = (current.removed||[]).find(r => r.removedAt === removedAt);
+  if (!rec) { alert('Entry not found in history.'); return; }
+  if (!current.entries) current.entries = [];
+  current.entries.push(rec.entry);
+  current.removed = (current.removed||[]).filter(r => r.removedAt !== removedAt);
+  const ok = await _zelisWrite(current);
+  if (ok) {
+    _zelisData = current;
+    _zelisUpdateFlagIndicator();
+    _renderZelisEntries();
+    alert('Restored: ' + rec.entry.groupNumber);
+  } else alert('Failed to restore. Please try again.');
 }
 
 async function zelisDismissFlag(groupNumber, flaggedAtFull) {
