@@ -30,12 +30,11 @@ jobs:
 
           echo "Polling RCM Help Queue (list 901417208736)..."
 
-          # Pull open tasks — exclude closed/complete/needs-human
           RESPONSE=$(curl -s \
             -H "Authorization: $CLICKUP_API_TOKEN" \
             "https://api.clickup.com/api/v2/list/901417208736/task?include_closed=false&page=0")
 
-          TASK_COUNT=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d.get('tasks',[])))" 2>/dev/null || echo 0)
+          TASK_COUNT=$(echo "$RESPONSE" | jq '.tasks | length')
           echo "Found $TASK_COUNT open task(s)."
 
           if [ "$TASK_COUNT" -eq 0 ]; then
@@ -43,54 +42,38 @@ jobs:
             exit 0
           fi
 
-          # Iterate and dispatch rcm-help.yml for each task
-          echo "$RESPONSE" | python3 - <<'PYEOF'
-          import sys, json, os, urllib.request, urllib.error
+          # Iterate and dispatch rcm-help.yml for each open task
+          echo "$RESPONSE" | jq -c '.tasks[]' | while read -r TASK; do
+            TASK_ID=$(echo "$TASK" | jq -r '.id')
+            TASK_NAME=$(echo "$TASK" | jq -r '.name')
+            STATUS=$(echo "$TASK" | jq -r '.status.status // ""')
 
-          data = json.load(sys.stdin)
-          tasks = data.get('tasks', [])
+            # Skip already-terminal tasks
+            if [[ "$STATUS" == "complete" || "$STATUS" == "needs human" || "$STATUS" == "closed" ]]; then
+              echo "  SKIP $TASK_ID ($STATUS): $TASK_NAME"
+              continue
+            fi
 
-          token = os.environ['GITHUB_DISPATCH_TOKEN']
-          repo  = 'smilehaus/rcm-dashboard'
+            echo "  DISPATCH $TASK_ID ($STATUS): $TASK_NAME"
 
-          for task in tasks:
-              task_id    = task.get('id', '')
-              task_name  = task.get('name', 'Unknown')
-              status     = (task.get('status') or {}).get('status', '')
+            # Escape the task name for JSON
+            SAFE_NAME=$(echo "$TASK_NAME" | jq -Rs '.')
 
-              # Skip already-terminal tasks
-              if status in ('complete', 'needs human', 'closed'):
-                  print(f'  SKIP {task_id} ({status}): {task_name}')
-                  continue
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+              -X POST \
+              -H "Authorization: Bearer $GITHUB_DISPATCH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              -H "Content-Type: application/json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/smilehaus/rcm-dashboard/actions/workflows/rcm-help.yml/dispatches" \
+              -d "{\"ref\":\"master\",\"inputs\":{\"task_id\":\"$TASK_ID\",\"error_type\":$SAFE_NAME}}")
 
-              print(f'  DISPATCH {task_id} ({status}): {task_name}')
+            if [ "$HTTP_CODE" -eq 204 ]; then
+              echo "    -> dispatched OK"
+            else
+              echo "    -> ERROR HTTP $HTTP_CODE (check GITHUB_DISPATCH_TOKEN secret)"
+              exit 1
+            fi
+          done
 
-              payload = json.dumps({
-                  'ref': 'master',
-                  'inputs': {
-                      'task_id':    task_id,
-                      'error_type': task_name,
-                  }
-              }).encode()
-
-              req = urllib.request.Request(
-                  f'https://api.github.com/repos/{repo}/actions/workflows/rcm-help.yml/dispatches',
-                  data=payload,
-                  headers={
-                      'Authorization':        f'Bearer {token}',
-                      'Accept':               'application/vnd.github+json',
-                      'Content-Type':         'application/json',
-                      'X-GitHub-Api-Version': '2022-11-28',
-                  },
-                  method='POST',
-              )
-              try:
-                  with urllib.request.urlopen(req) as resp:
-                      print(f'    -> dispatched (HTTP {resp.status})')
-              except urllib.error.HTTPError as e:
-                  body = e.read().decode()
-                  print(f'    -> ERROR {e.code}: {body}')
-                  sys.exit(1)
-
-          print('Done.')
-          PYEOF
+          echo "Done."
