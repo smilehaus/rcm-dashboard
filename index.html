@@ -2529,6 +2529,7 @@ const OFFICE_DEF = [
   {code:'AR',   lbl:'AR',   name:'Arboretum'},
   {code:'PF',   lbl:'PF',   name:'Pflugerville'},
   {code:'SATX', lbl:'S.ATX',name:'South Austin'},
+  {code:'AM',   lbl:'AM',   name:'Anderson Mill'},
 ];
 
 // AR Snapshot region grouping — Per-Office Breakdown is split North / South,
@@ -3896,6 +3897,7 @@ function addHelpChat() {
 }
 
 function deleteHelpChat(i) {
+  if (!confirm('Delete this message?')) return;
   const inst = S.helpInstances[activeHelpId];
   if (!inst || !inst.chat) return;
   inst.chat.splice(i, 1);
@@ -4149,6 +4151,7 @@ function reopenWorkItem(i) {
 }
 
 function deleteWorkItem(i) {
+  if (!confirm('Delete this work item?')) return;
   _workItems.splice(i, 1);
   renderWorkList();
 }
@@ -4314,6 +4317,7 @@ function reopenNewlyAssigned(i) {
 
 function deleteNewlyAssigned(i) {
   if (!__rosterUnlocked) { rosterGated(() => deleteNewlyAssigned(i)); return; }
+  if (!confirm('Delete this assignment?')) return;
   _naItems.splice(i, 1);
   renderNewlyAssigned();
 }
@@ -5962,6 +5966,7 @@ function clearHelpLogAll() {
 
 function deleteHelpEntry(i) {
   rosterGated(() => {
+    if (!confirm('Delete this help record? This cannot be undone.')) return;
     S.helpLog.splice(i, 1);
     save(); renderHelpLog(); renderHelpLogTab();
   });
@@ -6480,6 +6485,7 @@ function confirmAddDept() {
 }
 
 function removeDept(i) {
+  if (!confirm('Delete this department?')) return;
   S.departments.splice(i, 1);
   save(); renderRosterTab(); openAddDept();
 }
