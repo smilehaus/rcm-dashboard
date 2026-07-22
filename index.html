@@ -3408,6 +3408,12 @@ async function load() {
   // Ensure ivDates map exists (added in DATA_VERSION 6+)
   if (!S.ivDates) S.ivDates = {};
 
+  // Ensure all OFFICE_DEF offices are present — prevents a stale client PUT from wiping
+  // an office that was added to OFFICE_DEF after the client last loaded.
+  OFFICE_DEF.forEach(def => {
+    if (!S.offices.find(o => o.code === def.code)) S.offices.push({ ...def });
+  });
+
   // Ensure live board has all current offices/cols
   S.offices.forEach(o => {
     if (!S.live[o.code]) S.live[o.code] = {};
