@@ -1,5 +1,9 @@
 {
+<<<<<<< Updated upstream
   "generated": "2026-07-23T07:09:57.236Z",
+=======
+  "generated": "2026-07-23T17:22:15.104Z",
+>>>>>>> Stashed changes
   "offices": {
     "SQ": {
       "oryx": {
@@ -17,8 +21,8 @@
         "priority": 0
       },
       "legacy": {
-        "overdue": 22,
-        "priority": 168
+        "overdue": 23,
+        "priority": 160
       }
     },
     "ATX": {
@@ -88,7 +92,7 @@
       },
       "legacy": {
         "overdue": 1,
-        "priority": 1
+        "priority": 2
       }
     },
     "AM": {
