@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-24T05:56:20.218Z",
+  "updated": "2026-07-24T19:57:46.327Z",
   "perOfficeHistory": [
     {
       "date": "2026-05-12",
@@ -40010,8 +40010,8 @@
     {
       "date": "2026-07-24",
       "slot": "PM",
-      "asOf": "7/24/2026, 12:56 AM CT",
-      "generated": "2026-07-24T05:56:20.203Z",
+      "asOf": "7/24/2026, 2:57 PM CT",
+      "generated": "2026-07-24T19:57:46.304Z",
       "offices": {
         "SQ": {
           "outstanding": {
@@ -40039,9 +40039,9 @@
             "y2025": 1838.2,
             "y2026": 126,
             "total": 1964.2,
-            "completedThisWeek2026": 8750.85,
+            "completedThisWeek2026": 9509.65,
             "completedThisWeekStart": "2026-07-20",
-            "newTasksAddedThisWeek2026": 6565.25
+            "newTasksAddedThisWeek2026": 7324.05
           },
           "legacy": null
         },
@@ -40069,8 +40069,8 @@
           },
           "unposted": {
             "y2025": 224610.71,
-            "y2026": 23603.07,
-            "total": 248213.78,
+            "y2026": 22790.95,
+            "total": 247401.66,
             "completedThisWeek2026": 15341.34,
             "completedThisWeekStart": "2026-07-20",
             "newTasksAddedThisWeek2026": 28793.21
@@ -40219,9 +40219,9 @@
           },
           "unposted": {
             "y2025": 23936.9,
-            "y2026": 6601,
-            "total": 30537.9,
-            "completedThisWeek2026": 6011.1,
+            "y2026": 2309.4,
+            "total": 26246.3,
+            "completedThisWeek2026": 9064.7,
             "completedThisWeekStart": "2026-07-20",
             "newTasksAddedThisWeek2026": 6612.8
           },
@@ -40389,9 +40389,9 @@
           },
           "unposted": {
             "y2025": 62655.14,
-            "y2026": 8051.03,
-            "total": 70706.17,
-            "completedThisWeek2026": 791.8,
+            "y2026": 5907.46,
+            "total": 68562.6,
+            "completedThisWeek2026": 2303.17,
             "completedThisWeekStart": "2026-07-20",
             "newTasksAddedThisWeek2026": 5851.53
           },
