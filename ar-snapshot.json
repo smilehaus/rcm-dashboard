@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-30T05:45:46.784Z",
+  "generated": "2026-07-30T05:46:18.026Z",
   "asOf": "7/30/2026, 12:45 AM CT",
   "totals": {
     "outstanding": {
@@ -115,11 +115,11 @@
           "d0_30": 0,
           "d31_60": 0,
           "d61_90": 0,
-          "d90plus": 61,
-          "total": 61,
-          "taskCount": 1,
+          "d90plus": 0,
+          "total": 0,
+          "taskCount": 0,
           "excludedCount": 0,
-          "asOf": "2026-07-29T05:57:41.319Z"
+          "asOf": "2026-07-30T05:46:18.026Z"
         },
         {
           "label": "HZ Dentrix",
@@ -128,11 +128,11 @@
           "d0_30": 0,
           "d31_60": 0,
           "d61_90": 0,
-          "d90plus": 104924.18,
-          "total": 104924.18,
-          "taskCount": 114,
+          "d90plus": 99244.6,
+          "total": 99244.6,
+          "taskCount": 109,
           "excludedCount": 1,
-          "asOf": "2026-07-29T05:57:41.319Z"
+          "asOf": "2026-07-30T05:46:18.026Z"
         }
       ],
       "lastStatementSent": {
@@ -231,7 +231,7 @@
           "total": 0,
           "taskCount": 0,
           "excludedCount": 0,
-          "asOf": "2026-07-29T05:57:41.319Z"
+          "asOf": "2026-07-30T05:46:18.026Z"
         },
         {
           "label": "FS Dentrix",
@@ -244,7 +244,7 @@
           "total": 0,
           "taskCount": 0,
           "excludedCount": 0,
-          "asOf": "2026-07-29T05:57:41.319Z"
+          "asOf": "2026-07-30T05:46:18.026Z"
         }
       ],
       "lastStatementSent": {
@@ -301,7 +301,7 @@
           "total": 4296,
           "taskCount": 8,
           "excludedCount": 0,
-          "asOf": "2026-07-29T05:57:41.319Z"
+          "asOf": "2026-07-30T05:46:18.026Z"
         }
       ],
       "lastStatementSent": {
@@ -358,7 +358,7 @@
           "total": 15945.25,
           "taskCount": 8,
           "excludedCount": 0,
-          "asOf": "2026-07-29T05:57:41.319Z"
+          "asOf": "2026-07-30T05:46:18.026Z"
         }
       ],
       "lastStatementSent": {
@@ -415,7 +415,7 @@
           "total": 19646,
           "taskCount": 20,
           "excludedCount": 0,
-          "asOf": "2026-07-29T05:57:41.319Z"
+          "asOf": "2026-07-30T05:46:18.026Z"
         }
       ],
       "lastStatementSent": {
@@ -514,7 +514,7 @@
           "total": 12960,
           "taskCount": 32,
           "excludedCount": 0,
-          "asOf": "2026-07-29T05:57:41.319Z"
+          "asOf": "2026-07-30T05:46:18.026Z"
         }
       ],
       "lastStatementSent": {
