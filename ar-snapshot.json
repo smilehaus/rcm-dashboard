@@ -43644,8 +43644,8 @@
     {
       "date": "2026-07-31",
       "slot": "PM",
-      "asOf": "7/31/2026, 1:19 AM CT",
-      "generated": "2026-07-31T06:19:22.470Z",
+      "asOf": "7/31/2026, 2:53 PM CT",
+      "generated": "2026-07-31T19:53:50.909Z",
       "offices": {
         "SQ": {
           "outstanding": {
@@ -43705,7 +43705,7 @@
             "y2025": 224610.71,
             "y2026": 8917.45,
             "total": 233528.16,
-            "completedThisWeek2026": 27397.34,
+            "completedThisWeek2026": 30716.17,
             "completedThisWeekStart": "2026-07-27",
             "newTasksAddedThisWeek2026": 18586.43
           },
@@ -43794,8 +43794,8 @@
           },
           "unposted": {
             "y2025": 23473.96,
-            "y2026": 12148.3,
-            "total": 35622.26,
+            "y2026": 9484.01,
+            "total": 32957.97,
             "completedThisWeek2026": 3018.4,
             "completedThisWeekStart": "2026-07-27",
             "newTasksAddedThisWeek2026": 23969.72
@@ -44023,9 +44023,9 @@
           },
           "unposted": {
             "y2025": 62655.14,
-            "y2026": 10842.26,
-            "total": 73497.4,
-            "completedThisWeek2026": 0,
+            "y2026": 6161.65,
+            "total": 68816.79,
+            "completedThisWeek2026": 4008.21,
             "completedThisWeekStart": "2026-07-27",
             "newTasksAddedThisWeek2026": 7306.36
           },
