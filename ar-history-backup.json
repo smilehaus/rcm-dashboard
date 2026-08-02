@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-02T06:08:40.585Z",
+  "updated": "2026-08-02T19:29:29.511Z",
   "perOfficeHistory": [
     {
       "date": "2026-05-12",
@@ -43952,8 +43952,8 @@
     {
       "date": "2026-08-02",
       "slot": "PM",
-      "asOf": "8/2/2026, 1:08 AM CT",
-      "generated": "2026-08-02T06:08:40.569Z",
+      "asOf": "8/2/2026, 2:29 PM CT",
+      "generated": "2026-08-02T19:29:29.490Z",
       "offices": {
         "SQ": {
           "outstanding": {
@@ -44252,9 +44252,9 @@
             "total": 131542.6
           },
           "unposted": {
-            "y2025": 127696.13,
+            "y2025": 126420.83,
             "y2026": 10606.83,
-            "total": 138302.96,
+            "total": 137027.66,
             "completedThisWeek2026": 16503.1,
             "completedThisWeekStart": "2026-07-27",
             "newTasksAddedThisWeek2026": 10840.3
@@ -44299,9 +44299,9 @@
           },
           "unposted": {
             "y2025": 16479.7,
-            "y2026": 4922.04,
-            "total": 21401.74,
-            "completedThisWeek2026": 0,
+            "y2026": 4530.04,
+            "total": 21009.74,
+            "completedThisWeek2026": 213.6,
             "completedThisWeekStart": "2026-07-27",
             "newTasksAddedThisWeek2026": 676.84
           },
@@ -44377,9 +44377,9 @@
           },
           "unposted": {
             "y2025": 0,
-            "y2026": 18378.9,
-            "total": 18378.9,
-            "completedThisWeek2026": 0,
+            "y2026": 14015.87,
+            "total": 14015.87,
+            "completedThisWeek2026": 4363.03,
             "completedThisWeekStart": "2026-07-27",
             "newTasksAddedThisWeek2026": 5899.57
           },
