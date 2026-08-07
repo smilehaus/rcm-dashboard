@@ -46706,6 +46706,444 @@
           "legacy": null
         }
       }
+    },
+    {
+      "date": "2026-08-07",
+      "slot": "AM",
+      "asOf": "8/6/2026, 7:17 PM CT",
+      "generated": "2026-08-07T00:17:30.263Z",
+      "offices": {
+        "SQ": {
+          "outstanding": {
+            "d0_30": 15967.45,
+            "d31_60": 8884.63,
+            "d61_90": 931.2,
+            "d90plus": 27381.27,
+            "total": 53164.55
+          },
+          "patients": {
+            "d0_30": 2561.7,
+            "d31_60": 5308.83,
+            "d61_90": 660.6,
+            "d90plus": 21809.52,
+            "total": 30340.65
+          },
+          "insurance": {
+            "d0_30": 13405.75,
+            "d31_60": 3575.8,
+            "d61_90": 270.6,
+            "d90plus": 5571.75,
+            "total": 22823.9
+          },
+          "unposted": {
+            "y2025": 1838.2,
+            "y2026": 126,
+            "total": 1964.2,
+            "completedThisWeek2026": 4676.2,
+            "completedThisWeekStart": "2026-08-03",
+            "newTasksAddedThisWeek2026": 4676.2
+          },
+          "legacy": null
+        },
+        "GT": {
+          "outstanding": {
+            "d0_30": 57125.82,
+            "d31_60": 28521.21,
+            "d61_90": 12304.39,
+            "d90plus": 322894.19,
+            "total": 420845.61
+          },
+          "patients": {
+            "d0_30": 12496.77,
+            "d31_60": 17228.36,
+            "d61_90": 8631.09,
+            "d90plus": 197858.58,
+            "total": 236214.8
+          },
+          "insurance": {
+            "d0_30": 44629.05,
+            "d31_60": 11292.85,
+            "d61_90": 3673.3,
+            "d90plus": 125035.61,
+            "total": 184630.81
+          },
+          "unposted": {
+            "y2025": 224610.71,
+            "y2026": 6463.88,
+            "total": 231074.59,
+            "completedThisWeek2026": 3250.3,
+            "completedThisWeekStart": "2026-08-03",
+            "newTasksAddedThisWeek2026": 10473.18
+          },
+          "legacy": [
+            {
+              "label": "GT Open Dental",
+              "source": "Open Dental",
+              "closingDate": "2019-09-05",
+              "d0_30": 0,
+              "d31_60": 0,
+              "d61_90": 0,
+              "d90plus": 0,
+              "total": 0,
+              "taskCount": 0,
+              "excludedCount": 0,
+              "asOf": "2026-08-06T05:54:02.986Z"
+            },
+            {
+              "label": "HZ Dentrix",
+              "source": "Dentrix",
+              "closingDate": "2024-12-20",
+              "d0_30": 0,
+              "d31_60": 0,
+              "d61_90": 0,
+              "d90plus": 85845.7,
+              "total": 85845.7,
+              "taskCount": 88,
+              "excludedCount": 1,
+              "asOf": "2026-08-06T05:54:02.987Z"
+            }
+          ]
+        },
+        "ATX": {
+          "outstanding": {
+            "d0_30": 45584.85,
+            "d31_60": 10474.58,
+            "d61_90": 5489.14,
+            "d90plus": 45633.98,
+            "total": 107182.55
+          },
+          "patients": {
+            "d0_30": 12269.45,
+            "d31_60": 6875.08,
+            "d61_90": 3336.74,
+            "d90plus": 29619.96,
+            "total": 52101.23
+          },
+          "insurance": {
+            "d0_30": 33315.4,
+            "d31_60": 3599.5,
+            "d61_90": 2152.4,
+            "d90plus": 16014.02,
+            "total": 55081.32
+          },
+          "unposted": {
+            "y2025": 27665.09,
+            "y2026": 12972.14,
+            "total": 40637.23,
+            "completedThisWeek2026": 0,
+            "completedThisWeekStart": "2026-08-03",
+            "newTasksAddedThisWeek2026": 5041.94
+          },
+          "legacy": null
+        },
+        "MP": {
+          "outstanding": {
+            "d0_30": 74349.73,
+            "d31_60": 17171.34,
+            "d61_90": 12472.14,
+            "d90plus": 129442.83,
+            "total": 233436.04
+          },
+          "patients": {
+            "d0_30": 9998.64,
+            "d31_60": 9331.47,
+            "d61_90": 9712.19,
+            "d90plus": 84647.22,
+            "total": 113689.52
+          },
+          "insurance": {
+            "d0_30": 64351.09,
+            "d31_60": 7839.87,
+            "d61_90": 2759.95,
+            "d90plus": 44795.61,
+            "total": 119746.52
+          },
+          "unposted": {
+            "y2025": 23473.96,
+            "y2026": 7036.04,
+            "total": 30510,
+            "completedThisWeek2026": 733,
+            "completedThisWeekStart": "2026-08-03",
+            "newTasksAddedThisWeek2026": 15188.89
+          },
+          "legacy": [
+            {
+              "label": "MP Dentrix",
+              "source": "Dentrix",
+              "closingDate": "2020-12-07",
+              "d0_30": 0,
+              "d31_60": 0,
+              "d61_90": 0,
+              "d90plus": 0,
+              "total": 0,
+              "taskCount": 0,
+              "excludedCount": 0,
+              "asOf": "2026-08-06T05:54:02.987Z"
+            },
+            {
+              "label": "FS Dentrix",
+              "source": "Dentrix",
+              "closingDate": "2025-04-30",
+              "d0_30": 0,
+              "d31_60": 0,
+              "d61_90": 0,
+              "d90plus": 0,
+              "total": 0,
+              "taskCount": 0,
+              "excludedCount": 0,
+              "asOf": "2026-08-06T05:54:02.987Z"
+            }
+          ]
+        },
+        "NBDA": {
+          "outstanding": {
+            "d0_30": 36366.4,
+            "d31_60": 10929,
+            "d61_90": 5253.1,
+            "d90plus": 132890.85,
+            "total": 185439.35
+          },
+          "patients": {
+            "d0_30": 9037.5,
+            "d31_60": 8763.1,
+            "d61_90": 3411.7,
+            "d90plus": 99045.55,
+            "total": 120257.85
+          },
+          "insurance": {
+            "d0_30": 27328.9,
+            "d31_60": 2165.9,
+            "d61_90": 1841.4,
+            "d90plus": 33845.3,
+            "total": 65181.5
+          },
+          "unposted": {
+            "y2025": 23936.9,
+            "y2026": 2453.6,
+            "total": 26390.5,
+            "completedThisWeek2026": 4526.45,
+            "completedThisWeekStart": "2026-08-03",
+            "newTasksAddedThisWeek2026": 5157.7
+          },
+          "legacy": [
+            {
+              "label": "NBDA Dentrix",
+              "source": "Dentrix",
+              "closingDate": "2021-12-22",
+              "d0_30": 0,
+              "d31_60": 0,
+              "d61_90": 0,
+              "d90plus": 4296,
+              "total": 4296,
+              "taskCount": 8,
+              "excludedCount": 0,
+              "asOf": "2026-08-06T05:54:02.987Z"
+            }
+          ]
+        },
+        "IC": {
+          "outstanding": {
+            "d0_30": 65462.98,
+            "d31_60": 47287.32,
+            "d61_90": 37680.79,
+            "d90plus": 120206.14,
+            "total": 270637.23
+          },
+          "patients": {
+            "d0_30": 22261.23,
+            "d31_60": 23108.72,
+            "d61_90": 29671.45,
+            "d90plus": 92234.83,
+            "total": 167276.23
+          },
+          "insurance": {
+            "d0_30": 43201.75,
+            "d31_60": 24178.6,
+            "d61_90": 8009.34,
+            "d90plus": 27971.31,
+            "total": 103361
+          },
+          "unposted": {
+            "y2025": 9608.84,
+            "y2026": 16643.75,
+            "total": 26252.59,
+            "completedThisWeek2026": 14278.35,
+            "completedThisWeekStart": "2026-08-03",
+            "newTasksAddedThisWeek2026": 7241.8
+          },
+          "legacy": [
+            {
+              "label": "IC Open Dental",
+              "source": "Open Dental",
+              "closingDate": "2023-05-03",
+              "d0_30": 0,
+              "d31_60": 0,
+              "d61_90": 0,
+              "d90plus": 15945.25,
+              "total": 15945.25,
+              "taskCount": 8,
+              "excludedCount": 0,
+              "asOf": "2026-08-06T05:54:02.987Z"
+            }
+          ]
+        },
+        "AR": {
+          "outstanding": {
+            "d0_30": 83232,
+            "d31_60": 20685.7,
+            "d61_90": 60850.6,
+            "d90plus": 171947.1,
+            "total": 336715.4
+          },
+          "patients": {
+            "d0_30": 47723.8,
+            "d31_60": 9428.5,
+            "d61_90": 50742.1,
+            "d90plus": 97278.4,
+            "total": 205172.8
+          },
+          "insurance": {
+            "d0_30": 35508.2,
+            "d31_60": 11257.2,
+            "d61_90": 10108.5,
+            "d90plus": 74668.7,
+            "total": 131542.6
+          },
+          "unposted": {
+            "y2025": 126420.83,
+            "y2026": 9909.33,
+            "total": 136330.16,
+            "completedThisWeek2026": 4457.3,
+            "completedThisWeekStart": "2026-08-03",
+            "newTasksAddedThisWeek2026": 8694.6
+          },
+          "legacy": [
+            {
+              "label": "AR Dentrix",
+              "source": "Dentrix",
+              "closingDate": "2022-08-01",
+              "d0_30": 0,
+              "d31_60": 0,
+              "d61_90": 0,
+              "d90plus": 19646,
+              "total": 19646,
+              "taskCount": 20,
+              "excludedCount": 0,
+              "asOf": "2026-08-06T05:54:02.987Z"
+            }
+          ]
+        },
+        "PF": {
+          "outstanding": {
+            "d0_30": 16443.96,
+            "d31_60": 20884.66,
+            "d61_90": 22664.52,
+            "d90plus": 54017.8,
+            "total": 114010.94
+          },
+          "patients": {
+            "d0_30": 5226.31,
+            "d31_60": 13426.12,
+            "d61_90": 16065.52,
+            "d90plus": 44564.57,
+            "total": 79282.52
+          },
+          "insurance": {
+            "d0_30": 11217.65,
+            "d31_60": 7458.54,
+            "d61_90": 6599,
+            "d90plus": 9453.23,
+            "total": 34728.42
+          },
+          "unposted": {
+            "y2025": 16479.7,
+            "y2026": 2472.6,
+            "total": 18952.3,
+            "completedThisWeek2026": 2541.84,
+            "completedThisWeekStart": "2026-08-03",
+            "newTasksAddedThisWeek2026": 0
+          },
+          "legacy": null
+        },
+        "SATX": {
+          "outstanding": {
+            "d0_30": 27976.98,
+            "d31_60": 15318.68,
+            "d61_90": 11782.5,
+            "d90plus": 60140.59,
+            "total": 115218.75
+          },
+          "patients": {
+            "d0_30": 4264.92,
+            "d31_60": 2827.18,
+            "d61_90": 8756.4,
+            "d90plus": 29813.22,
+            "total": 45661.72
+          },
+          "insurance": {
+            "d0_30": 23712.06,
+            "d31_60": 12491.5,
+            "d61_90": 3026.1,
+            "d90plus": 30327.37,
+            "total": 69557.03
+          },
+          "unposted": {
+            "y2025": 62655.14,
+            "y2026": 3825.5,
+            "total": 66480.64,
+            "completedThisWeek2026": 0,
+            "completedThisWeekStart": "2026-08-03",
+            "newTasksAddedThisWeek2026": 5775.13
+          },
+          "legacy": [
+            {
+              "label": "SATX Open Dental",
+              "source": "Open Dental",
+              "closingDate": "2025-04-30",
+              "d0_30": 0,
+              "d31_60": 0,
+              "d61_90": 0,
+              "d90plus": 12656,
+              "total": 12656,
+              "taskCount": 31,
+              "excludedCount": 0,
+              "asOf": "2026-08-06T05:54:02.987Z"
+            }
+          ]
+        },
+        "AM": {
+          "outstanding": {
+            "d0_30": 49063.93,
+            "d31_60": 30983.91,
+            "d61_90": 10996.9,
+            "d90plus": 0,
+            "total": 91044.74
+          },
+          "patients": {
+            "d0_30": 4130.7,
+            "d31_60": 1886.31,
+            "d61_90": 615.3,
+            "d90plus": 0,
+            "total": 6632.31
+          },
+          "insurance": {
+            "d0_30": 44933.23,
+            "d31_60": 29097.6,
+            "d61_90": 10381.6,
+            "d90plus": 0,
+            "total": 84412.43
+          },
+          "unposted": {
+            "y2025": 0,
+            "y2026": 455,
+            "total": 455,
+            "completedThisWeek2026": 6020.55,
+            "completedThisWeekStart": "2026-08-03",
+            "newTasksAddedThisWeek2026": 2131.1
+          },
+          "legacy": null
+        }
+      }
     }
   ],
   "history": [
