@@ -46710,8 +46710,8 @@
     {
       "date": "2026-08-07",
       "slot": "AM",
-      "asOf": "8/6/2026, 7:17 PM CT",
-      "generated": "2026-08-07T00:17:30.263Z",
+      "asOf": "8/6/2026, 11:59 PM CT",
+      "generated": "2026-08-07T04:59:02.166Z",
       "offices": {
         "SQ": {
           "outstanding": {
@@ -46736,12 +46736,12 @@
             "total": 22823.9
           },
           "unposted": {
-            "y2025": 1838.2,
-            "y2026": 126,
-            "total": 1964.2,
-            "completedThisWeek2026": 4676.2,
+            "y2025": 0,
+            "y2026": 0,
+            "total": 0,
+            "completedThisWeek2026": 0,
             "completedThisWeekStart": "2026-08-03",
-            "newTasksAddedThisWeek2026": 4676.2
+            "newTasksAddedThisWeek2026": 0
           },
           "legacy": null
         },
@@ -46768,12 +46768,12 @@
             "total": 184630.81
           },
           "unposted": {
-            "y2025": 224610.71,
-            "y2026": 6463.88,
-            "total": 231074.59,
-            "completedThisWeek2026": 3250.3,
+            "y2025": 0,
+            "y2026": 0,
+            "total": 0,
+            "completedThisWeek2026": 0,
             "completedThisWeekStart": "2026-08-03",
-            "newTasksAddedThisWeek2026": 10473.18
+            "newTasksAddedThisWeek2026": 0
           },
           "legacy": [
             {
@@ -46787,7 +46787,7 @@
               "total": 0,
               "taskCount": 0,
               "excludedCount": 0,
-              "asOf": "2026-08-06T05:54:02.986Z"
+              "asOf": "2026-08-07T04:59:00.423Z"
             },
             {
               "label": "HZ Dentrix",
@@ -46796,11 +46796,11 @@
               "d0_30": 0,
               "d31_60": 0,
               "d61_90": 0,
-              "d90plus": 85845.7,
-              "total": 85845.7,
-              "taskCount": 88,
+              "d90plus": 85755.7,
+              "total": 85755.7,
+              "taskCount": 87,
               "excludedCount": 1,
-              "asOf": "2026-08-06T05:54:02.987Z"
+              "asOf": "2026-08-07T04:59:00.423Z"
             }
           ]
         },
@@ -46827,12 +46827,12 @@
             "total": 55081.32
           },
           "unposted": {
-            "y2025": 27665.09,
-            "y2026": 12972.14,
-            "total": 40637.23,
+            "y2025": 0,
+            "y2026": 0,
+            "total": 0,
             "completedThisWeek2026": 0,
             "completedThisWeekStart": "2026-08-03",
-            "newTasksAddedThisWeek2026": 5041.94
+            "newTasksAddedThisWeek2026": 0
           },
           "legacy": null
         },
@@ -46859,12 +46859,12 @@
             "total": 119746.52
           },
           "unposted": {
-            "y2025": 23473.96,
-            "y2026": 7036.04,
-            "total": 30510,
-            "completedThisWeek2026": 733,
+            "y2025": 0,
+            "y2026": 0,
+            "total": 0,
+            "completedThisWeek2026": 0,
             "completedThisWeekStart": "2026-08-03",
-            "newTasksAddedThisWeek2026": 15188.89
+            "newTasksAddedThisWeek2026": 0
           },
           "legacy": [
             {
@@ -46878,7 +46878,7 @@
               "total": 0,
               "taskCount": 0,
               "excludedCount": 0,
-              "asOf": "2026-08-06T05:54:02.987Z"
+              "asOf": "2026-08-07T04:59:00.423Z"
             },
             {
               "label": "FS Dentrix",
@@ -46891,7 +46891,7 @@
               "total": 0,
               "taskCount": 0,
               "excludedCount": 0,
-              "asOf": "2026-08-06T05:54:02.987Z"
+              "asOf": "2026-08-07T04:59:00.424Z"
             }
           ]
         },
@@ -46918,12 +46918,12 @@
             "total": 65181.5
           },
           "unposted": {
-            "y2025": 23936.9,
-            "y2026": 2453.6,
-            "total": 26390.5,
-            "completedThisWeek2026": 4526.45,
+            "y2025": 0,
+            "y2026": 0,
+            "total": 0,
+            "completedThisWeek2026": 0,
             "completedThisWeekStart": "2026-08-03",
-            "newTasksAddedThisWeek2026": 5157.7
+            "newTasksAddedThisWeek2026": 0
           },
           "legacy": [
             {
@@ -46937,7 +46937,7 @@
               "total": 4296,
               "taskCount": 8,
               "excludedCount": 0,
-              "asOf": "2026-08-06T05:54:02.987Z"
+              "asOf": "2026-08-07T04:59:00.424Z"
             }
           ]
         },
@@ -46964,12 +46964,12 @@
             "total": 103361
           },
           "unposted": {
-            "y2025": 9608.84,
-            "y2026": 16643.75,
-            "total": 26252.59,
-            "completedThisWeek2026": 14278.35,
+            "y2025": 0,
+            "y2026": 0,
+            "total": 0,
+            "completedThisWeek2026": 0,
             "completedThisWeekStart": "2026-08-03",
-            "newTasksAddedThisWeek2026": 7241.8
+            "newTasksAddedThisWeek2026": 0
           },
           "legacy": [
             {
@@ -46983,7 +46983,7 @@
               "total": 15945.25,
               "taskCount": 8,
               "excludedCount": 0,
-              "asOf": "2026-08-06T05:54:02.987Z"
+              "asOf": "2026-08-07T04:59:00.424Z"
             }
           ]
         },
@@ -47010,12 +47010,12 @@
             "total": 131542.6
           },
           "unposted": {
-            "y2025": 126420.83,
-            "y2026": 9909.33,
-            "total": 136330.16,
-            "completedThisWeek2026": 4457.3,
+            "y2025": 0,
+            "y2026": 0,
+            "total": 0,
+            "completedThisWeek2026": 0,
             "completedThisWeekStart": "2026-08-03",
-            "newTasksAddedThisWeek2026": 8694.6
+            "newTasksAddedThisWeek2026": 0
           },
           "legacy": [
             {
@@ -47029,7 +47029,7 @@
               "total": 19646,
               "taskCount": 20,
               "excludedCount": 0,
-              "asOf": "2026-08-06T05:54:02.987Z"
+              "asOf": "2026-08-07T04:59:00.424Z"
             }
           ]
         },
@@ -47056,10 +47056,10 @@
             "total": 34728.42
           },
           "unposted": {
-            "y2025": 16479.7,
-            "y2026": 2472.6,
-            "total": 18952.3,
-            "completedThisWeek2026": 2541.84,
+            "y2025": 0,
+            "y2026": 0,
+            "total": 0,
+            "completedThisWeek2026": 0,
             "completedThisWeekStart": "2026-08-03",
             "newTasksAddedThisWeek2026": 0
           },
@@ -47088,12 +47088,12 @@
             "total": 69557.03
           },
           "unposted": {
-            "y2025": 62655.14,
-            "y2026": 3825.5,
-            "total": 66480.64,
+            "y2025": 0,
+            "y2026": 0,
+            "total": 0,
             "completedThisWeek2026": 0,
             "completedThisWeekStart": "2026-08-03",
-            "newTasksAddedThisWeek2026": 5775.13
+            "newTasksAddedThisWeek2026": 0
           },
           "legacy": [
             {
@@ -47107,7 +47107,7 @@
               "total": 12656,
               "taskCount": 31,
               "excludedCount": 0,
-              "asOf": "2026-08-06T05:54:02.987Z"
+              "asOf": "2026-08-07T04:59:00.424Z"
             }
           ]
         },
@@ -47135,11 +47135,11 @@
           },
           "unposted": {
             "y2025": 0,
-            "y2026": 455,
-            "total": 455,
-            "completedThisWeek2026": 6020.55,
+            "y2026": 0,
+            "total": 0,
+            "completedThisWeek2026": 0,
             "completedThisWeekStart": "2026-08-03",
-            "newTasksAddedThisWeek2026": 2131.1
+            "newTasksAddedThisWeek2026": 0
           },
           "legacy": null
         }
