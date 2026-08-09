@@ -1,6 +1,6 @@
 {
-  "generated": "2026-08-08T18:56:06.271Z",
-  "asOf": "8/8/2026, 1:56 PM CT",
+  "generated": "2026-08-09T04:20:49.062Z",
+  "asOf": "8/8/2026, 11:20 PM CT",
   "totals": {
     "outstanding": {
       "d0_30": 524014.94,
@@ -284,7 +284,7 @@
         "mondayBaseline2026": 2280,
         "mondayBaselineDate": "2026-08-03",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-08-07",
+        "completedTodayDate": "2026-08-08",
         "completedThisWeek2026": 0,
         "completedThisWeekStart": "2026-08-03",
         "newTasksAddedThisWeek2026": 0
