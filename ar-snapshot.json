@@ -1,6 +1,6 @@
 {
-  "generated": "2026-08-29T01:46:14.453Z",
-  "asOf": "8/28/2026, 8:46 PM CT",
+  "generated": "2026-08-29T09:50:46.995Z",
+  "asOf": "8/29/2026, 4:50 AM CT",
   "totals": {
     "outstanding": {
       "d0_30": 524014.94,
@@ -60,7 +60,7 @@
         "mondayBaseline2026": 0,
         "mondayBaselineDate": "2026-08-24",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-08-28",
+        "completedTodayDate": "2026-08-29",
         "completedThisWeek2026": 0,
         "completedThisWeekStart": "2026-08-24",
         "newTasksAddedThisWeek2026": 0
@@ -102,7 +102,7 @@
         "mondayBaseline2026": 0,
         "mondayBaselineDate": "2026-08-24",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-08-28",
+        "completedTodayDate": "2026-08-29",
         "completedThisWeek2026": 0,
         "completedThisWeekStart": "2026-08-24",
         "newTasksAddedThisWeek2026": 0
@@ -172,7 +172,7 @@
         "mondayBaseline2026": 0,
         "mondayBaselineDate": "2026-08-24",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-08-28",
+        "completedTodayDate": "2026-08-29",
         "completedThisWeek2026": 0,
         "completedThisWeekStart": "2026-08-24",
         "newTasksAddedThisWeek2026": 0
@@ -214,7 +214,7 @@
         "mondayBaseline2026": 0,
         "mondayBaselineDate": "2026-08-24",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-08-28",
+        "completedTodayDate": "2026-08-29",
         "completedThisWeek2026": 0,
         "completedThisWeekStart": "2026-08-24",
         "newTasksAddedThisWeek2026": 0
@@ -284,7 +284,7 @@
         "mondayBaseline2026": 0,
         "mondayBaselineDate": "2026-08-24",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-08-28",
+        "completedTodayDate": "2026-08-29",
         "completedThisWeek2026": 0,
         "completedThisWeekStart": "2026-08-24",
         "newTasksAddedThisWeek2026": 0
@@ -341,7 +341,7 @@
         "mondayBaseline2026": 0,
         "mondayBaselineDate": "2026-08-24",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-08-28",
+        "completedTodayDate": "2026-08-29",
         "completedThisWeek2026": 0,
         "completedThisWeekStart": "2026-08-24",
         "newTasksAddedThisWeek2026": 0
@@ -398,7 +398,7 @@
         "mondayBaseline2026": 0,
         "mondayBaselineDate": "2026-08-24",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-08-28",
+        "completedTodayDate": "2026-08-29",
         "completedThisWeek2026": 0,
         "completedThisWeekStart": "2026-08-24",
         "newTasksAddedThisWeek2026": 0
@@ -455,7 +455,7 @@
         "mondayBaseline2026": 0,
         "mondayBaselineDate": "2026-08-24",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-08-28",
+        "completedTodayDate": "2026-08-29",
         "completedThisWeek2026": 0,
         "completedThisWeekStart": "2026-08-24",
         "newTasksAddedThisWeek2026": 0
@@ -497,7 +497,7 @@
         "mondayBaseline2026": 0,
         "mondayBaselineDate": "2026-08-24",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-08-28",
+        "completedTodayDate": "2026-08-29",
         "completedThisWeek2026": 0,
         "completedThisWeekStart": "2026-08-24",
         "newTasksAddedThisWeek2026": 0
@@ -554,7 +554,7 @@
         "mondayBaseline2026": 0,
         "mondayBaselineDate": "2026-08-24",
         "completedToday2026": 0,
-        "completedTodayDate": "2026-08-28",
+        "completedTodayDate": "2026-08-29",
         "completedThisWeek2026": 0,
         "completedThisWeekStart": "2026-08-24",
         "newTasksAddedThisWeek2026": 0
@@ -65614,12 +65614,6 @@
   ],
   "history": [
     {
-      "date": "2026-08-15",
-      "unposted": 0,
-      "unposted2026": 0,
-      "unposted2025": 0
-    },
-    {
       "date": "2026-08-16",
       "unposted": 0,
       "unposted2026": 0,
@@ -65693,6 +65687,12 @@
     },
     {
       "date": "2026-08-28",
+      "unposted": 0,
+      "unposted2026": 0,
+      "unposted2025": 0
+    },
+    {
+      "date": "2026-08-29",
       "unposted": 0,
       "unposted2026": 0,
       "unposted2025": 0
