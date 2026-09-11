@@ -2784,8 +2784,13 @@ function mergeBoardState(base, local, remote) {
     const staffResult = remoteArr.map(rs => {
       const ls = localById[rs.id];
       const bs = baseById[rs.id];
-      // We changed this member locally — prefer our version
-      return ls && J(bs ?? null) !== J(ls) ? ls : rs;
+      if (!ls) return rs;
+      if (J(bs ?? null) === J(ls)) return rs; // no local change — use remote
+      // Remote marked inactive but local hasn't yet — preserve inactive status
+      if (rs.dept === 'Inactive' && (ls.dept || '') !== 'Inactive') {
+        return { ...ls, dept: rs.dept, inactiveReason: rs.inactiveReason || '', inactiveDate: rs.inactiveDate || '' };
+      }
+      return ls;
     });
     // Append members we added locally that aren't in remote yet
     const remoteIds = new Set(remoteArr.map(s => s.id));
