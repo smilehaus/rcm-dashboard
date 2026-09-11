@@ -2880,11 +2880,19 @@ function scheduleFbSave() {
         }
       } catch (_) {}
 
-      S._savedAt = new Date().toISOString();
       S._v = DATA_VERSION;
-      _lastFbWrite = S._savedAt;
-      const ok = await fbWrite({ ...S });
-      if (ok) _syncBase = clone(S);   // new sync baseline
+      // Compute the write timestamp locally so we can pass it in the payload
+      // WITHOUT advancing S._savedAt until after we confirm the write succeeded.
+      // If fbWrite fails, S._savedAt and _lastFbWrite stay at their old values,
+      // which lets the poll correctly detect that Firebase may be ahead of us
+      // and re-sync rather than freezing the client in a "I'm already newest" state.
+      const writeTs = new Date().toISOString();
+      const ok = await fbWrite({ ...S, _savedAt: writeTs });
+      if (ok) {
+        S._savedAt = writeTs;
+        _lastFbWrite = writeTs;
+        _syncBase = clone(S);         // new sync baseline
+      }
       if (didMerge) renderAll();      // reflect merged-in changes from other users
 
       if (el) {
@@ -3338,7 +3346,10 @@ function startFbPolling() {
             }
           }
         } else {
-          Object.assign(S, remote);
+          // _syncBase null (edge case — shouldn't happen since load() sets it before
+          // polling starts). Don't raw-overwrite S; just initialize the baseline so
+          // the next poll can do a proper three-way merge.
+          _syncBase = clone(remote);
         }
         normalizeSArrays();          // guard against Firebase returning null/undefined arrays
         enforceRecentMoves();        // re-apply any moves a stale remote may have undone
@@ -3479,9 +3490,10 @@ function normalizeSArrays() {
 
 function save() {
   S._v = DATA_VERSION;
-  S._savedAt = new Date().toISOString();
-  // Keep a local cache for offline resilience
-  try { localStorage.setItem('sh-rcm-v5', JSON.stringify(S)); } catch(e) {}
+  // Keep a local cache for offline resilience — use a temp timestamp so the
+  // localStorage entry has a usable timestamp without advancing S._savedAt
+  // prematurely (S._savedAt is only updated after the Firebase write succeeds).
+  try { localStorage.setItem('sh-rcm-v5', JSON.stringify({ ...S, _savedAt: new Date().toISOString() })); } catch(e) {}
   // Push to Firebase (debounced)
   scheduleFbSave();
   const el = document.getElementById('last-updated');
@@ -3570,11 +3582,15 @@ async function publishState() {
   const origText = publishBtn ? publishBtn.textContent : '';
   if (publishBtn) { publishBtn.textContent = '⏳ Syncing…'; publishBtn.disabled = true; }
 
-  S._savedAt = new Date().toISOString();
-  _lastFbWrite = S._savedAt;
-  try { localStorage.setItem('sh-rcm-v5', JSON.stringify(S)); } catch(e) {}
-  const ok = await fbWrite({ ...S });
-  if (ok) _syncBase = clone(S);   // publish establishes a new sync baseline
+  S._v = DATA_VERSION;
+  const writeTs = new Date().toISOString();
+  try { localStorage.setItem('sh-rcm-v5', JSON.stringify({ ...S, _savedAt: writeTs })); } catch(e) {}
+  const ok = await fbWrite({ ...S, _savedAt: writeTs });
+  if (ok) {
+    S._savedAt = writeTs;
+    _lastFbWrite = writeTs;
+    _syncBase = clone(S);         // publish establishes a new sync baseline
+  }
 
   if (publishBtn) {
     publishBtn.textContent = ok ? '✓ Synced!' : '⚠ Failed';
