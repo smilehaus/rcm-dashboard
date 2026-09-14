@@ -4862,7 +4862,9 @@ function makeRosterTok(staffId) {
 function renderRoster() {
   const c = document.getElementById('roster-tokens');
   c.innerHTML = '';
-  const sorted = [...S.staff].sort((a, b) => a.name.localeCompare(b.name));
+  const sorted = [...S.staff]
+    .filter(s => s.dept !== 'Inactive')
+    .sort((a, b) => a.name.localeCompare(b.name));
   sorted.forEach(s => c.appendChild(makeRosterTok(s.id)));
   // NEED HELP token at end
   c.appendChild(makeRosterHelpTok());
