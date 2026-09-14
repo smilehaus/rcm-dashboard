@@ -6537,6 +6537,21 @@ function confirmInactive() {
   s.dept = 'Inactive';
   s.inactiveReason = reason;
   s.inactiveDate = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+  // Remove this staff member from every live board and assignment board cell so
+  // their token doesn't linger as a ghost after they're marked inactive.
+  const sid = s.id;
+  (S.offices || []).forEach(o => {
+    (S.columns || []).forEach(c => {
+      if (Array.isArray(S.live?.[o.code]?.[c.id]))
+        S.live[o.code][c.id] = S.live[o.code][c.id].filter(id => id !== sid);
+      if (Array.isArray(S.assign?.[o.code]?.[c.id]))
+        S.assign[o.code][c.id] = S.assign[o.code][c.id].filter(id => id !== sid);
+    });
+  });
+  S.off    = (S.off    || []).filter(id => id !== sid);
+  S.lunch  = (S.lunch  || []).filter(id => id !== sid);
+
   __pendingInactiveId = null;
   closeModal('inactive-modal');
   closeModal('profile-modal');
