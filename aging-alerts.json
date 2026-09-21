@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-21T10:11:22.625Z",
+  "generated": "2026-09-21T22:00:19.217Z",
   "offices": {
     "SQ": {
       "oryx": {
@@ -43,7 +43,7 @@
     },
     "NBDA": {
       "oryx": {
-        "overdue": 1,
+        "overdue": 0,
         "priority": 0
       },
       "legacy": {
