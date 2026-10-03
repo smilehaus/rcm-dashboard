@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-02T20:51:29.329Z",
+  "generated": "2026-10-03T19:19:24.378Z",
   "payPeriod": "Pay Period #",
   "offices": {
     "SQ": {
@@ -11,8 +11,8 @@
       "label": "96.5%"
     },
     "ATX": {
-      "pct": 64.6,
-      "label": "64.6%"
+      "pct": 74.4,
+      "label": "74.4%"
     },
     "MP": {
       "pct": 138.4,
