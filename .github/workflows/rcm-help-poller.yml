@@ -5,9 +5,6 @@ name: RCM Help — Error Auto-Fix
 # This workflow does NO git operations — all fixing happens in rcm-help.yml.
 
 on:
-  schedule:
-    # Every 30 minutes
-    - cron: '*/30 * * * *'
   workflow_dispatch:
 
 env:

@@ -1,9 +1,6 @@
 name: Routine — Weekly KPI Snapshot (Mon 7:08 PM CT)
 
 on:
-  schedule:
-    # Monday 7:08 PM CST = Tuesday 01:08 UTC  |  shifts to 00:08 UTC in summer (CDT)
-    - cron: '8 1 * * 2'
   workflow_dispatch:
 
 env:

@@ -13,9 +13,6 @@ name: Routine — Weekly Statements (Fri 9:45 PM CT)
 # hasn't been pushed yet.
 
 on:
-  schedule:
-    # 9:45 PM CST = 03:45 UTC Saturday  |  02:45 UTC in summer (CDT)
-    - cron: '45 3 * * 6'
   workflow_dispatch:
 
 env:

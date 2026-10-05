@@ -4,9 +4,6 @@ name: Routine — Evening (9:02–9:35 PM CT)
 # sequentially in one job — unposted and legacy both write ar-snapshot.json.
 
 on:
-  schedule:
-    # 9:02 PM CST = 03:02 UTC — quiet window, avoids midnight UTC congestion
-    - cron: '2 3 * * *'
   workflow_dispatch:
 
 env:
