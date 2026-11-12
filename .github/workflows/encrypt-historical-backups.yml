@@ -1,0 +1,76 @@
+name: Encrypt historical backups
+
+# One-time. Run this after BACKUP_ENCRYPTION_KEY is set.
+# Encrypts every plaintext file in backups/, checks that each file decrypts
+# to the same bytes, and only then deletes the plaintext and commits the
+# ciphertext. A failed check leaves the plaintext in place and commits nothing.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  encrypt:
+    name: Encrypt, verify, then delete plaintext
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Encrypt and verify every backup
+        env:
+          BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${BACKUP_ENCRYPTION_KEY}" ]; then
+            echo "BACKUP_ENCRYPTION_KEY is not set. Nothing was encrypted or deleted."
+            exit 1
+          fi
+          shopt -s nullglob
+          files=(backups/*.json)
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No plaintext backups/*.json files. Nothing to do."
+            exit 0
+          fi
+          mkdir -p backups-encrypted "$RUNNER_TEMP/verify"
+          for f in "${files[@]}"; do
+            base=$(basename "$f" .json)
+            enc="backups-encrypted/${base}.json.enc"
+            openssl enc -aes-256-cbc -pbkdf2 -salt \
+              -in "$f" -out "$enc" -pass env:BACKUP_ENCRYPTION_KEY
+            openssl enc -d -aes-256-cbc -pbkdf2 \
+              -in "$enc" -out "$RUNNER_TEMP/verify/plain.json" -pass env:BACKUP_ENCRYPTION_KEY
+            if ! cmp -s "$f" "$RUNNER_TEMP/verify/plain.json"; then
+              echo "Decrypt check failed for ${base}. Plaintext was not deleted and nothing was committed."
+              exit 1
+            fi
+            rm -f "$RUNNER_TEMP/verify/plain.json"
+          done
+          echo "Verified ${#files[@]} encrypted backup(s)."
+
+      - name: Commit ciphertext and remove plaintext
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          files=(backups/*.json)
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No plaintext left to remove."
+            exit 0
+          fi
+          enc=(backups-encrypted/*.json.enc)
+          if [ "${#enc[@]}" -lt "${#files[@]}" ]; then
+            echo "Ciphertext count is lower than plaintext count. Refusing to delete plaintext."
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add backups-encrypted
+          git rm -r --quiet backups
+          if ! grep -qxF 'backups/' .gitignore; then
+            printf '\nbackups/\n' >> .gitignore
+          fi
+          git add .gitignore
+          git commit -m "chore: store historical roster backups as ciphertext"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+          echo "Plaintext backups removed from this commit. Older git history still has them until a history purge."

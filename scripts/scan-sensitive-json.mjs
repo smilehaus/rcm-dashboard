@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 /**
  * Fail if any committed JSON file contains an email address or a filled-in
- * PIN / password / token field. Prints the path and the kind of hit only.
+ * PIN / password / token field outside backups/. The plaintext files in
+ * backups/ are the legacy snapshots. They stay until the
+ * encrypt-historical-backups workflow replaces them with ciphertext.
+ * Prints the path and the kind of hit only.
  *
  * Usage: node scripts/scan-sensitive-json.mjs
  */
