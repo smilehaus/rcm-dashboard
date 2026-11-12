@@ -4,14 +4,15 @@ name: RCM Dashboard — Health Check
 # Also fires on every push to master so every deploy is auto-verified,
 # and can be triggered manually from the Actions tab at any time.
 #
-# On failure: sends an email to saomongmo@gmail.com with the failing
-# step and a direct link to the Actions run log.
+# On failure: sends an email to the address in the ALERT_EMAIL secret
+# with the failing step and a direct link to the Actions run log.
 #
 # One-time setup required:
 #   1. Go to https://myaccount.google.com/apppasswords
-#   2. Create an App Password for "GitHub Actions"
-#   3. In smilehaus/rcm-dashboard → Settings → Secrets → Actions:
-#      Add secret  GMAIL_APP_PASSWORD = <the 16-char app password>
+#   2. Create an App Password for "GitHub Actions" on the alert mailbox
+#   3. In smilehaus/rcm-dashboard → Settings → Secrets and variables → Actions:
+#      Add secret GMAIL_APP_PASSWORD = <the 16-char app password>
+#      Add secret ALERT_EMAIL = <that same mailbox address>
 
 on:
   schedule:
@@ -180,13 +181,13 @@ jobs:
           echo "════════════════════════════════════════"
 
   # ══════════════════════════════════════════════════════════════════════════
-  # Email saomongmo@gmail.com when ANY step above fails.
+  # Email the ALERT_EMAIL secret when ANY step above fails.
   # Uses Gmail SMTP with an App Password stored in repo secrets.
   notify-failure:
     name: Email failure alert
     runs-on: ubuntu-latest
     needs: health-check
-    if: failure()
+    if: failure() && secrets.ALERT_EMAIL != ''
 
     steps:
       - name: Send failure email
@@ -195,10 +196,10 @@ jobs:
           server_address: smtp.gmail.com
           server_port: 465
           secure: true
-          username: saomongmo@gmail.com
+          username: ${{ secrets.ALERT_EMAIL }}
           password: ${{ secrets.GMAIL_APP_PASSWORD }}
-          to: saomongmo@gmail.com
-          from: "RCM Dashboard Monitor <saomongmo@gmail.com>"
+          to: ${{ secrets.ALERT_EMAIL }}
+          from: "RCM Dashboard Monitor <${{ secrets.ALERT_EMAIL }}>"
           subject: "❌ RCM Dashboard health check FAILED — ${{ github.run_id }}"
           body: |
             The RCM Dashboard health check failed.

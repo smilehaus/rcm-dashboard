@@ -1,0 +1,27 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "board": {
+      ".read": "auth != null && auth.token.email_verified == true && auth.token.email.matches(/^[A-Za-z0-9._%+-]+@smilehaus\\.com$/)",
+      ".write": "auth != null && auth.token.email_verified == true && auth.token.email.matches(/^[A-Za-z0-9._%+-]+@smilehaus\\.com$/) && newData.exists()",
+      ".validate": "newData.hasChildren(['staff', 'offices', '_v', '_savedAt', '_clientBuild']) && newData.child('_v').isNumber() && newData.child('_savedAt').isString() && newData.child('_savedAt').val().length > 0 && newData.child('_clientBuild').isNumber() && newData.child('staff').hasChildren() && newData.child('offices').hasChildren()"
+    },
+
+    "state": {
+      ".read": "auth != null && auth.token.email_verified == true && auth.token.email.matches(/^[A-Za-z0-9._%+-]+@smilehaus\\.com$/)",
+      ".write": false
+    },
+
+    "zelis": {
+      ".read": "auth != null && auth.token.email_verified == true && auth.token.email.matches(/^[A-Za-z0-9._%+-]+@smilehaus\\.com$/)",
+      ".write": "auth != null && auth.token.email_verified == true && auth.token.email.matches(/^[A-Za-z0-9._%+-]+@smilehaus\\.com$/) && newData.exists()"
+    },
+
+    "adminBackups": {
+      ".read": false,
+      ".write": false
+    }
+  }
+}

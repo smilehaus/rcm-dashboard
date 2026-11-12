@@ -2498,6 +2498,7 @@ textarea.re-input{resize:vertical;min-height:80px;}
   </div>
 </div>
 
+<script src="firebase-config.js?v=2026111201"></script>
 <script src="board-sync.js?v=2026111201"></script>
 <script>
 // ════════════════════════════════════════════════
@@ -2682,6 +2683,7 @@ const NOCACHE = new URLSearchParams(location.search).has('nocache');
 let _haveBoard = false;       // true only after a real roster is loaded (never the starter seed)
 let _writesDisabled = false;  // old build, readonly, or offline preview
 let _fbEtag = null;
+let _fbIdToken = '';
 let _fbSaveTimer = null;
 let _fbPollTimer = null;
 let _lastFbWrite = '';        // ISO string of last write we pushed
@@ -2752,12 +2754,67 @@ async function fetchWithTimeout(url, opts, ms) {
   }
 }
 
+function fbAuthedUrl(url) {
+  if (!_fbIdToken) return url;
+  const join = url.indexOf('?') >= 0 ? '&' : '?';
+  return url + join + 'auth=' + encodeURIComponent(_fbIdToken);
+}
+
+// Signs in only when firebase-config.js has an apiKey. Until then the open
+// database rules still accept this page. See firebase/SECURITY.md for the
+// order: ship the key, enable Anonymous Auth, confirm the board loads, then
+// paste the rules.
+async function ensureFirebaseAuth() {
+  const cfg = window.FIREBASE_WEB_CONFIG || {};
+  if (!cfg.apiKey) return false;
+  try {
+    const exp = Number(sessionStorage.getItem('sh-fb-exp') || 0);
+    const cached = sessionStorage.getItem('sh-fb-token') || '';
+    if (cached && Date.now() < exp - 60000) {
+      _fbIdToken = cached;
+      return true;
+    }
+    const refresh = sessionStorage.getItem('sh-fb-refresh') || '';
+    let data = null;
+    if (refresh) {
+      const r = await fetch('https://securetoken.googleapis.com/v1/token?key=' + encodeURIComponent(cfg.apiKey), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(refresh)
+      });
+      if (r.ok) {
+        const j = await r.json();
+        data = { idToken: j.id_token, refreshToken: j.refresh_token, expiresIn: j.expires_in };
+      }
+    }
+    if (!data || !data.idToken) {
+      const r = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + encodeURIComponent(cfg.apiKey), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ returnSecureToken: true })
+      });
+      if (!r.ok) return false;
+      const j = await r.json();
+      data = { idToken: j.idToken, refreshToken: j.refreshToken, expiresIn: j.expiresIn };
+    }
+    if (!data.idToken) return false;
+    _fbIdToken = data.idToken;
+    sessionStorage.setItem('sh-fb-token', data.idToken);
+    if (data.refreshToken) sessionStorage.setItem('sh-fb-refresh', data.refreshToken);
+    sessionStorage.setItem('sh-fb-exp', String(Date.now() + (Number(data.expiresIn) || 3600) * 1000));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 async function fbRequest(url, opts) {
   opts = opts || {};
   const method = opts.method || 'GET';
   const headers = Object.assign({ 'X-Firebase-ETag': 'true' }, opts.headers || {});
   let full = url;
   if (method === 'GET') full += (url.indexOf('?') >= 0 ? '&' : '?') + 't=' + Date.now();
+  full = fbAuthedUrl(full);
   try {
     const r = await fetchWithTimeout(full, { method, headers, body: opts.body }, 15000);
     const raw = await r.text();
@@ -3420,6 +3477,7 @@ function blankBoard() {
 
 async function load() {
   if (READONLY) _writesDisabled = true;
+  await ensureFirebaseAuth();
   const board = await fbRequest(FB_URL, { method: 'GET' });
   let src = null;
 
@@ -8263,11 +8321,10 @@ const ROUTINE_DETAILS = {
   'backup-rcm-dashboard.yml': {
     agent: 'GitHub Actions (automated, every 3 hours)',
     steps: [
-      { name: 'Fetch Firebase state', desc: 'Calls Firebase RTDB REST endpoint, validates HTTP 200 and file size > 10 bytes, saves to backups/YYYY-MM-DD_HH-MM.json.' },
-      { name: 'Prune old backups', desc: 'Deletes backup files older than 30 days to keep the repo size manageable.' },
-      { name: 'Commit backup', desc: 'Commits only if the file changed since last run (data diff detected). Skips no-op commits.' },
+      { name: 'Fetch Firebase state', desc: 'Reads the live board from Firebase. The snapshot is encrypted with the BACKUP_ENCRYPTION_KEY secret and uploaded as an Actions artifact. It is not committed.' },
+      { name: 'Encrypt and upload', desc: 'Stores ciphertext for 30 days on the Actions run. Restore with the encryption key from repository secrets. Plaintext backups are not written to the repo.' },
     ],
-    clickup: 'None — reads Firebase RTDB directly. Serves as the recovery source if Firebase data is ever corrupted or accidentally overwritten.',
+    clickup: 'None — reads Firebase directly. Recovery copies are encrypted Actions artifacts, not files in this repo.',
   },
   'dashboard-health-check.yml': {
     agent: 'GitHub Actions (runs Tue/Fri + on every push to master)',
@@ -8277,7 +8334,7 @@ const ROUTINE_DETAILS = {
       { name: 'Token-safety guards check', desc: 'Verifies PROTECTED_KEYS and the per-office normalizeSArrays guards are present. These prevent Firebase empty-node stripping from silently wiping live-board tokens.' },
       { name: 'Regression check', desc: 'Confirms no bare "delete S[k]" loop exists without the PROTECTED_KEYS guard — the #1 cause of token wipes historically.' },
       { name: 'TypeScript syntax check', desc: 'Scans the browser JS for TypeScript-style type annotations that crash the script silently on load.' },
-      { name: 'Email failure alert', desc: 'On any step failure, sends a detailed email to saomongmo@gmail.com with the failing step and a link to the Actions log.' },
+      { name: 'Email failure alert', desc: 'On any step failure, sends a detailed email to the ALERT_EMAIL repository secret with the failing step and a link to the Actions log.' },
     ],
     clickup: 'None — validates the live GitHub Pages HTML only. Acts as a safety net after every deploy.',
   },
@@ -8662,7 +8719,8 @@ function _zEsc(s) {
 
 async function _zelisRead() {
   try {
-    const r = await fetchWithTimeout(ZELIS_FB + '?t=' + Date.now(), {}, 12000);
+    await ensureFirebaseAuth();
+    const r = await fetchWithTimeout(fbAuthedUrl(ZELIS_FB + '?t=' + Date.now()), {}, 12000);
     if (r.ok) { const d = await r.json(); return d || {}; }
   } catch(e) {}
   return {};
@@ -8670,7 +8728,8 @@ async function _zelisRead() {
 
 async function _zelisWrite(data) {
   try {
-    const r = await fetchWithTimeout(ZELIS_FB, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) }, 12000);
+    await ensureFirebaseAuth();
+    const r = await fetchWithTimeout(fbAuthedUrl(ZELIS_FB), { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) }, 12000);
     return r.ok;
   } catch(e) { return false; }
 }

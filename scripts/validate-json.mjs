@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Walk every JSON file in the repo (including backups/) and fail if any
- * file is unreadable or still contains git conflict markers. Known
- * dashboard feeds also have to match their schema.
+ * Walk every JSON file in the repo and fail if any file is unreadable or
+ * still contains git conflict markers. Known dashboard feeds also have to
+ * match their schema. backups/ is ignored; those snapshots are not committed.
  *
  * Usage: node scripts/validate-json.mjs [files...]
  */
@@ -11,7 +11,7 @@ import { join, relative } from "path";
 import { findConflictMarkers, parseDashboardJson, assertPublishable, SCHEMAS } from "./lib/json-guard.mjs";
 
 const root = new URL("..", import.meta.url).pathname;
-const skipDirs = new Set(["node_modules", ".git"]);
+const skipDirs = new Set(["node_modules", ".git", "backups"]);
 
 function walk(dir, out) {
   for (const name of readdirSync(dir)) {
