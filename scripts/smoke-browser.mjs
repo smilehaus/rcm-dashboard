@@ -9,7 +9,7 @@
  */
 import { spawn } from "child_process";
 import { createServer } from "http";
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "fs";
+import { existsSync, mkdtempSync, openSync, readFileSync, rmSync } from "fs";
 import { tmpdir } from "os";
 import { extname, join, normalize } from "path";
 import { fileURLToPath } from "url";
@@ -106,13 +106,31 @@ function seedBoard() {
 
 function startChrome(port) {
   const profile = mkdtempSync(join(tmpdir(), "rcm-chrome-"));
+  const errPath = join(profile, "chrome-err.txt");
   const proc = spawn(chrome, [
     "--headless=new", "--disable-gpu", "--no-sandbox", "--disable-dev-shm-usage",
     "--remote-allow-origins=*",
     `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`,
     "about:blank"
-  ], { stdio: "ignore" });
-  return { proc, profile };
+  ], { stdio: ["ignore", "ignore", openSync(errPath, "w")] });
+  return { proc, profile, errPath };
+}
+
+async function launchChrome(port) {
+  let detail = "";
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    const launched = startChrome(port);
+    try {
+      await waitForDebug(port);
+      return launched;
+    } catch (error) {
+      try { detail = readFileSync(launched.errPath, "utf8").trim().slice(-500); } catch { detail = ""; }
+      try { launched.proc.kill("SIGKILL"); } catch { /* already gone */ }
+      await new Promise(r => setTimeout(r, 300));
+      try { rmSync(launched.profile, { recursive: true, force: true }); } catch { /* temp profile */ }
+      if (attempt === 3) throw new Error(error.message + (detail ? "\n" + detail : ""));
+    }
+  }
 }
 
 async function waitForDebug(port) {
@@ -248,7 +266,7 @@ function check(name, cond, detail) {
 const server = await startStatic();
 const staticPort = server.address().port;
 const debugPort = 9333;
-const chromeProc = startChrome(debugPort);
+const chromeProc = await launchChrome(debugPort);
 
 try {
   const happy = await runPage({
