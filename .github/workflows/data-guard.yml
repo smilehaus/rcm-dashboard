@@ -24,8 +24,11 @@ jobs:
       - name: Validate JSON files
         run: node scripts/validate-json.mjs
 
+      - name: Reject emails and PIN fields in JSON
+        run: node scripts/scan-sensitive-json.mjs
+
       - name: Unit tests
-        run: node --test scripts/board-sync.test.mjs scripts/json-guard.test.mjs scripts/git-publish.test.mjs
+        run: node --test scripts/board-sync.test.mjs scripts/json-guard.test.mjs scripts/git-publish.test.mjs scripts/sensitive-json.test.mjs scripts/editor-pin-seed.test.mjs workers/editor-auth/policy.test.mjs
 
       - name: Install Chrome
         run: |

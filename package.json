@@ -12,7 +12,7 @@
     "backup":   "tsx scripts/backup-ar-snapshot-to-clickup.ts",
     "watchdog": "tsx scripts/scheduler-watchdog.ts",
     "kpi":      "tsx scripts/fetch-kpi-snapshot.ts",
-    "validate": "node scripts/validate-json.mjs",
+    "validate": "node scripts/validate-json.mjs && node scripts/scan-sensitive-json.mjs",
     "test":     "node --test scripts/board-sync.test.mjs scripts/json-guard.test.mjs scripts/git-publish.test.mjs",
     "smoke":    "node scripts/smoke-browser.mjs"
   },

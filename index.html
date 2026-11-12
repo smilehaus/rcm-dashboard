@@ -754,7 +754,7 @@ textarea.re-input{resize:vertical;min-height:80px;}
         <option value="">— Sign Out —</option>
       </select>
     </div>
-    <div id="admin-lock-badge" class="admin-lock-badge locked" onclick="adminBadgeClick()" title="Management staff: check in to unlock admin features">
+    <button id="editor-sign-in" type="button" onclick="unlockEditing()" style="display:none;background:#1f4b3a;border:1px solid rgba(0,0,0,.10);color:#fff;font-family:'Jost',sans-serif;font-size:12px;font-weight:600;letter-spacing:.04em;padding:5px 12px;border-radius:4px;cursor:pointer;">Unlock editing</button>
       🔒 <span id="admin-lock-text">LOCKED</span>
     </div>
     <div class="live-pill"><div class="live-dot"></div>LIVE</div>
@@ -2498,6 +2498,7 @@ textarea.re-input{resize:vertical;min-height:80px;}
   </div>
 </div>
 
+<script src="firebase-config.js?v=2026111201"></script>
 <script src="board-sync.js?v=2026111201"></script>
 <script>
 // ════════════════════════════════════════════════
@@ -2682,6 +2683,7 @@ const NOCACHE = new URLSearchParams(location.search).has('nocache');
 let _haveBoard = false;       // true only after a real roster is loaded (never the starter seed)
 let _writesDisabled = false;  // old build, readonly, or offline preview
 let _fbEtag = null;
+let _fbIdToken = '';
 let _fbSaveTimer = null;
 let _fbPollTimer = null;
 let _lastFbWrite = '';        // ISO string of last write we pushed
@@ -2752,12 +2754,167 @@ async function fetchWithTimeout(url, opts, ms) {
   }
 }
 
+function fbAuthedUrl(url) {
+  if (!_fbIdToken) return url;
+  const join = url.indexOf('?') >= 0 ? '&' : '?';
+  return url + join + 'auth=' + encodeURIComponent(_fbIdToken);
+}
+
+let _isEditor = false;
+let _editorRole = '';
+let _editorUid = '';
+
+function authConfigured() {
+  return !!((window.FIREBASE_WEB_CONFIG || {}).apiKey);
+}
+
+function editorGateConfigured() {
+  const cfg = window.FIREBASE_WEB_CONFIG || {};
+  return !!(cfg.apiKey && cfg.editorAuthUrl);
+}
+
+function canEditBoard() {
+  if (READONLY || _writesDisabled) return false;
+  if (!editorGateConfigured()) return true;
+  return _isEditor;
+}
+
+function updateEditorButton() {
+  const btn = document.getElementById('editor-sign-in');
+  if (!btn) return;
+  if (!editorGateConfigured()) { btn.style.display = 'none'; return; }
+  btn.style.display = '';
+  btn.textContent = _isEditor ? ('Editing · ' + (_editorRole || 'Editor')) : 'Unlock editing';
+}
+
+async function anonymousSignIn() {
+  const cfg = window.FIREBASE_WEB_CONFIG || {};
+  if (!cfg.apiKey) return false;
+  const exp = Number(sessionStorage.getItem('sh-fb-exp') || 0);
+  const cached = sessionStorage.getItem('sh-fb-token') || '';
+  if (cached && Date.now() < exp - 60000 && !_isEditor) {
+    _fbIdToken = cached;
+    return true;
+  }
+  const refresh = sessionStorage.getItem('sh-fb-refresh') || '';
+  let data = null;
+  if (refresh) {
+    const r = await fetch('https://securetoken.googleapis.com/v1/token?key=' + encodeURIComponent(cfg.apiKey), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(refresh)
+    });
+    if (r.ok) {
+      const j = await r.json();
+      data = { idToken: j.id_token, refreshToken: j.refresh_token, expiresIn: j.expires_in };
+    }
+  }
+  if (!data || !data.idToken) {
+    const r = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + encodeURIComponent(cfg.apiKey), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ returnSecureToken: true })
+    });
+    if (!r.ok) return false;
+    const j = await r.json();
+    data = { idToken: j.idToken, refreshToken: j.refreshToken, expiresIn: j.expiresIn };
+  }
+  if (!data.idToken) return false;
+  _fbIdToken = data.idToken;
+  sessionStorage.setItem('sh-fb-token', data.idToken);
+  if (data.refreshToken) sessionStorage.setItem('sh-fb-refresh', data.refreshToken);
+  sessionStorage.setItem('sh-fb-exp', String(Date.now() + (Number(data.expiresIn) || 3600) * 1000));
+  return true;
+}
+
+async function refreshEditorStatus() {}
+
+async function unlockEditing() {
+  const cfg = window.FIREBASE_WEB_CONFIG || {};
+  if (!editorGateConfigured()) {
+    alert('Editor unlock is not turned on yet.');
+    return;
+  }
+  const name = window.prompt('Your name as it appears on the roster');
+  if (!name) return;
+  const staff = (S.staff || []).find(s => (s.name || '').toLowerCase() === name.trim().toLowerCase() && s.dept !== 'Inactive');
+  if (!staff) {
+    alert('That name is not on the active roster.');
+    return;
+  }
+  const pin = window.prompt('Editor PIN');
+  if (!pin) return;
+  let response;
+  try {
+    response = await fetch(String(cfg.editorAuthUrl).replace(/\/$/, '') + '/session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ staffId: staff.id, pin })
+    });
+  } catch (e) {
+    alert('Could not reach the editor check.');
+    return;
+  }
+  if (response.status === 429) {
+    alert('Too many attempts. Try again later.');
+    return;
+  }
+  if (!response.ok) {
+    alert('Could not unlock editing.');
+    return;
+  }
+  const issued = await response.json();
+  const exchange = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=' + encodeURIComponent(cfg.apiKey), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token: issued.token, returnSecureToken: true })
+  });
+  if (!exchange.ok) {
+    alert('Could not unlock editing.');
+    return;
+  }
+  const tok = await exchange.json();
+  _fbIdToken = tok.idToken;
+  _isEditor = true;
+  _editorRole = issued.role || 'Editor';
+  __rosterUnlocked = true;
+  sessionStorage.setItem('sh-fb-token', _fbIdToken);
+  sessionStorage.setItem('sh-fb-editor', '1');
+  sessionStorage.setItem('sh-fb-exp', String(Date.now() + (Number(tok.expiresIn) || 3600) * 1000));
+  sessionStorage.removeItem('sh-fb-refresh');
+  updateEditorButton();
+  updateAdminBadge();
+  updateRosterLockUI();
+  if (_haveBoard) scheduleFbSave();
+}
+
+// Anonymous sign-in is for viewing. Editing uses a short-lived editor token
+// from the Cloudflare Worker. Until editorAuthUrl is set, the page keeps the
+// old editing behavior. See firebase/SECURITY.md.
+async function ensureFirebaseAuth() {
+  const cfg = window.FIREBASE_WEB_CONFIG || {};
+  if (!cfg.apiKey) return false;
+  const exp = Number(sessionStorage.getItem('sh-fb-exp') || 0);
+  const cached = sessionStorage.getItem('sh-fb-token') || '';
+  if (cached && Date.now() < exp - 60000) {
+    _fbIdToken = cached;
+    _isEditor = sessionStorage.getItem('sh-fb-editor') === '1';
+    if (_isEditor) __rosterUnlocked = true;
+    updateEditorButton();
+    return true;
+  }
+  sessionStorage.removeItem('sh-fb-editor');
+  _isEditor = false;
+  return anonymousSignIn();
+}
+
 async function fbRequest(url, opts) {
   opts = opts || {};
   const method = opts.method || 'GET';
   const headers = Object.assign({ 'X-Firebase-ETag': 'true' }, opts.headers || {});
   let full = url;
   if (method === 'GET') full += (url.indexOf('?') >= 0 ? '&' : '?') + 't=' + Date.now();
+  full = fbAuthedUrl(full);
   try {
     const r = await fetchWithTimeout(full, { method, headers, body: opts.body }, 15000);
     const raw = await r.text();
@@ -2791,7 +2948,7 @@ function applyMergedBoard(merged) {
 // Conditional put. A 412 means someone else wrote first: re-read, merge, try again.
 // Never falls back to a blind PUT, and never writes the starter roster over a real one.
 async function fbWrite() {
-  if (READONLY || _writesDisabled || !_haveBoard) return false;
+  if (READONLY || _writesDisabled || !_haveBoard || !canEditBoard()) return false;
   for (let attempt = 0; attempt < 4; attempt++) {
     const remoteRead = await fbRequest(FB_URL, { method: 'GET' });
     if (!remoteRead.ok) return false;
@@ -2802,7 +2959,7 @@ async function fbWrite() {
       showStaleBuildBanner();
       return false;
     }
-    if (remote && RCMBoard.shouldIgnoreRemote(S, remote)) return false;
+    if (remote && RCMBoard.shouldIgnoreRemote(S, remote) && !(_isEditor && RCMBoard.looksLikeSeedRoster(remote))) return false;
     let didMerge = false;
     if (remote && _syncBase && remote._savedAt && remote._savedAt > (_syncBase._savedAt || '')) {
       const colsValid = Array.isArray(remote.columns) && remote.columns[0] && typeof remote.columns[0].id === 'string';
@@ -2843,7 +3000,7 @@ function scheduleFbSave() {
     _fbSaveInProgress = true;  // guards poll from overwriting S during the async write
     const el = document.getElementById('last-updated');
     try {
-      if (READONLY || _writesDisabled || !_haveBoard) {
+      if (READONLY || _writesDisabled || !_haveBoard || !canEditBoard()) {
         if (el) { el.textContent = 'Edits off'; el.style.color = '#f87171'; }
         return;
       }
@@ -2925,7 +3082,7 @@ function onCheckInChange(id) {
       if (so) {
         if (!S.checkinLog) S.checkinLog = [];
         S.checkinLog.unshift({ staffId: so.id, staffName: so.name, action: 'out', ts: ctNow() });
-        save();
+        recordStaffCheckin(S.checkinLog[0]);
       }
     }
     _checkinId = '';
@@ -2968,9 +3125,9 @@ function submitCheckinPin() {
     // Log check-in to Records
     if (!S.checkinLog) S.checkinLog = [];
     S.checkinLog.unshift({ staffId: s.id, staffName: s.name, action: 'in', ts: ctNow() });
-    save();
-    // If Management dept — auto-unlock admin features
-    if ((s.dept || '').toLowerCase().includes('management')) {
+    recordStaffCheckin(S.checkinLog[0]);
+    // Check-in does not grant edit rights once Firebase auth is configured.
+    if (!editorGateConfigured() && (s.dept || '').toLowerCase().includes('management')) {
       _adminCheckedIn  = true;
       __rosterUnlocked = true;
       updateRosterLockUI();
@@ -2993,6 +3150,50 @@ function submitCheckinPin() {
   }
 }
 
+function recordStaffCheckin(entry) {
+  if (canEditBoard()) { save(); return; }
+  postCheckinEvent(entry);
+}
+
+async function postCheckinEvent(entry) {
+  await ensureFirebaseAuth();
+  try {
+    await fetch(fbAuthedUrl(FB_BASE + '/checkins.json'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        staffId: entry.staffId,
+        staffName: entry.staffName || '',
+        action: entry.action === 'out' ? 'out' : 'in',
+        ts: entry.ts
+      })
+    });
+  } catch (e) {}
+}
+
+async function fetchCheckins() {
+  if (!authConfigured()) return;
+  await ensureFirebaseAuth();
+  try {
+    const r = await fetch(fbAuthedUrl(FB_BASE + '/checkins.json?t=' + Date.now()));
+    if (!r.ok) return;
+    const data = await r.json();
+    if (!data || typeof data !== 'object') return;
+    if (!S.checkinLog) S.checkinLog = [];
+    const seen = new Set(S.checkinLog.map(e => (e.staffId || '') + '|' + (e.action || '') + '|' + (e.ts || '')));
+    let added = false;
+    Object.values(data).forEach(e => {
+      if (!e || !e.staffId || !e.ts) return;
+      const key = e.staffId + '|' + (e.action || '') + '|' + e.ts;
+      if (seen.has(key)) return;
+      seen.add(key);
+      S.checkinLog.unshift({ staffId: e.staffId, staffName: e.staffName || e.staffId, action: e.action, ts: e.ts });
+      added = true;
+    });
+    if (added && typeof renderRecordsTab === 'function') renderRecordsTab();
+  } catch (e) {}
+}
+
 function cancelCheckin() {
   closeModal('checkin-pin-modal');
   _pendingCheckinId = '';
@@ -3006,7 +3207,14 @@ function updateAdminBadge() {
   const badge = document.getElementById('admin-lock-badge');
   const text  = document.getElementById('admin-lock-text');
   if (!badge || !text) return;
-  if (_adminCheckedIn || __rosterUnlocked) {
+  if (editorGateConfigured() && _isEditor) {
+    badge.className = 'admin-lock-badge unlocked';
+    text.textContent = '🔓 ' + (_editorRole || 'EDITOR').toUpperCase();
+    badge.title = 'Signed in as an editor';
+    badge.onclick = () => {};
+    return;
+  }
+  if (!editorGateConfigured() && (_adminCheckedIn || __rosterUnlocked)) {
     const who = _adminCheckedIn ? getStaff(_checkinId).name.split(' ')[0] : 'Admin';
     badge.className = 'admin-lock-badge unlocked';
     text.textContent = '🔓 ' + who.toUpperCase();
@@ -3015,13 +3223,18 @@ function updateAdminBadge() {
   } else {
     badge.className = 'admin-lock-badge locked';
     text.textContent = 'LOCKED';
-    badge.title = 'Check in as Management to unlock admin features';
+    badge.title = editorGateConfigured()
+      ? 'Unlock editing as an RCM manager, office manager, ops manager, regional manager, or executive'
+      : 'Check in as Management to unlock admin features';
     badge.onclick = adminBadgeClick;
   }
 }
 
 function adminBadgeClick() {
-  // If no management staff is checked in, prompt to check in
+  if (editorGateConfigured()) {
+    if (!_isEditor) unlockEditing();
+    return;
+  }
   if (!_adminCheckedIn && !__rosterUnlocked) {
     alert('Check in as a Management staff member using the CHECK IN AS dropdown to unlock admin features.');
   }
@@ -3420,6 +3633,7 @@ function blankBoard() {
 
 async function load() {
   if (READONLY) _writesDisabled = true;
+  await ensureFirebaseAuth();
   const board = await fbRequest(FB_URL, { method: 'GET' });
   let src = null;
 
@@ -3446,7 +3660,7 @@ async function load() {
     if (legacy.ok && legacy.data && !RCMBoard.looksLikeSeedRoster(legacy.data)) src = legacy.data;
     else src = await fetchBaseline();
     if (src) await ensureStaffPins(src.staff);
-    if (src && !READONLY) {
+    if (src && !READONLY && canEditBoard()) {
       const writeTs = new Date().toISOString();
       const body = clone(src);
       body._savedAt = writeTs;
@@ -3485,7 +3699,8 @@ async function load() {
   hideBoardError();
   await enforceBuildFloor();
   startFbPolling();
-  if (!READONLY && !_writesDisabled && (pinStatus.generated || pinStatus.filled || flags.addedOffice)) scheduleFbSave();
+  updateEditorButton();
+  if (!READONLY && !_writesDisabled && canEditBoard() && (pinStatus.generated || pinStatus.filled || flags.addedOffice)) scheduleFbSave();
 }
 
 // ── Defensive normalizer — always call after Object.assign(S, …) from Firebase ──
@@ -3534,7 +3749,7 @@ function normalizeSArrays() {
 }
 
 function save() {
-  if (!_haveBoard || _writesDisabled || READONLY) return;
+  if (!canEditBoard()) return;
   S._v = DATA_VERSION;
   rememberBoardCache();
   scheduleFbSave();
@@ -6334,6 +6549,12 @@ function rosterLockToggle() {
 }
 
 function rosterGated(fn) {
+  if (editorGateConfigured()) {
+    if (_isEditor) { __rosterUnlocked = true; updateRosterLockUI(); fn(); return; }
+    alert('Enter your staff PIN to edit. Only the RCM manager, office managers, the ops manager, regional managers, and executives can unlock the board.');
+    unlockEditing();
+    return;
+  }
   if (__rosterUnlocked) { fn(); return; }
   if (_adminCheckedIn) {
     __rosterUnlocked = true;
@@ -6358,6 +6579,11 @@ function closePinModal() {
 }
 
 function pinSubmit() {
+  if (editorGateConfigured()) {
+    closeModal('pin-modal');
+    alert('Unlock editing as an RCM manager, office manager, ops manager, regional manager, or executive.');
+    return;
+  }
   const pin = document.getElementById('pin-input').value.trim();
   const stored = S.rosterPin || ROSTER_DEFAULT_PIN;
   if (pin === stored) {
@@ -6710,6 +6936,7 @@ function ctDateStr() {
 
 function midnightReset() {
   if (!_haveBoard || _writesDisabled || READONLY) return;
+  if (editorGateConfigured() && !_isEditor) return;
   const today = ctDateStr();
   // Only reset once per calendar day CT
   if (S._lastResetDate === today) return;
@@ -8094,8 +8321,9 @@ function renderPostingBadges() {
   fetchArSnapshot();
   fetchKpiSnapshot();
   checkSchedulerHealth();
-  // Re-check every 15 minutes so the banner clears once a refresh lands.
+  fetchCheckins();
   setInterval(checkSchedulerHealth, 15 * 60 * 1000);
+  setInterval(fetchCheckins, 15000);
   // Refresh every 15 minutes
   setInterval(fetchAgingAlerts, 15 * 60 * 1000);
   setInterval(fetchPostingAlerts, 15 * 60 * 1000);
@@ -8263,11 +8491,10 @@ const ROUTINE_DETAILS = {
   'backup-rcm-dashboard.yml': {
     agent: 'GitHub Actions (automated, every 3 hours)',
     steps: [
-      { name: 'Fetch Firebase state', desc: 'Calls Firebase RTDB REST endpoint, validates HTTP 200 and file size > 10 bytes, saves to backups/YYYY-MM-DD_HH-MM.json.' },
-      { name: 'Prune old backups', desc: 'Deletes backup files older than 30 days to keep the repo size manageable.' },
-      { name: 'Commit backup', desc: 'Commits only if the file changed since last run (data diff detected). Skips no-op commits.' },
+      { name: 'Fetch Firebase state', desc: 'Reads the live board from Firebase. The snapshot is encrypted with the BACKUP_ENCRYPTION_KEY secret and uploaded as an Actions artifact. It is not committed.' },
+      { name: 'Encrypt and upload', desc: 'Stores ciphertext for 30 days on the Actions run. Restore with the encryption key from repository secrets. Plaintext backups are not written to the repo.' },
     ],
-    clickup: 'None — reads Firebase RTDB directly. Serves as the recovery source if Firebase data is ever corrupted or accidentally overwritten.',
+    clickup: 'None — reads Firebase directly. Recovery copies are encrypted Actions artifacts, not files in this repo.',
   },
   'dashboard-health-check.yml': {
     agent: 'GitHub Actions (runs Tue/Fri + on every push to master)',
@@ -8277,7 +8504,7 @@ const ROUTINE_DETAILS = {
       { name: 'Token-safety guards check', desc: 'Verifies PROTECTED_KEYS and the per-office normalizeSArrays guards are present. These prevent Firebase empty-node stripping from silently wiping live-board tokens.' },
       { name: 'Regression check', desc: 'Confirms no bare "delete S[k]" loop exists without the PROTECTED_KEYS guard — the #1 cause of token wipes historically.' },
       { name: 'TypeScript syntax check', desc: 'Scans the browser JS for TypeScript-style type annotations that crash the script silently on load.' },
-      { name: 'Email failure alert', desc: 'On any step failure, sends a detailed email to saomongmo@gmail.com with the failing step and a link to the Actions log.' },
+      { name: 'Email failure alert', desc: 'On any step failure, sends a detailed email to the ALERT_EMAIL repository secret with the failing step and a link to the Actions log.' },
     ],
     clickup: 'None — validates the live GitHub Pages HTML only. Acts as a safety net after every deploy.',
   },
@@ -8662,7 +8889,8 @@ function _zEsc(s) {
 
 async function _zelisRead() {
   try {
-    const r = await fetchWithTimeout(ZELIS_FB + '?t=' + Date.now(), {}, 12000);
+    await ensureFirebaseAuth();
+    const r = await fetchWithTimeout(fbAuthedUrl(ZELIS_FB + '?t=' + Date.now()), {}, 12000);
     if (r.ok) { const d = await r.json(); return d || {}; }
   } catch(e) {}
   return {};
@@ -8670,7 +8898,8 @@ async function _zelisRead() {
 
 async function _zelisWrite(data) {
   try {
-    const r = await fetchWithTimeout(ZELIS_FB, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) }, 12000);
+    await ensureFirebaseAuth();
+    const r = await fetchWithTimeout(fbAuthedUrl(ZELIS_FB), { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) }, 12000);
     return r.ok;
   } catch(e) { return false; }
 }

@@ -1,84 +1,91 @@
 name: RCM Dashboard — Auto Backup
 
-concurrency:
-  group: rcm-master-publish
-  cancel-in-progress: false
+# Saves an encrypted copy of the live board every 3 hours.
+# The ciphertext is a workflow artifact, not a file in this public repo.
+# Anyone with a GitHub token can download artifacts from a public repo,
+# so the snapshot is AES-256 encrypted with BACKUP_ENCRYPTION_KEY.
+# The key never leaves Actions secrets.
 
 on:
   schedule:
     # Every 3 hours on the hour (UTC). Runs even if no one has the tab open.
     - cron: '0 */3 * * *'
-  workflow_dispatch:  # also triggerable manually from GitHub Actions tab
+  workflow_dispatch:
 
 permissions:
-  contents: write   # needed to commit backup files back to the repo
+  contents: read
+  actions: write
 
 jobs:
   backup:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Fetch Firebase state
+      - name: Require encryption key
+        env:
+          BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
         run: |
-          TIMESTAMP=$(date -u +%Y-%m-%d_%H-%M)
-          mkdir -p backups
-          HTTP_STATUS=$(curl -s -o "backups/${TIMESTAMP}.json" \
-            -w "%{http_code}" \
-            "https://smilehaus-rcm-default-rtdb.firebaseio.com/state.json")
-          if [ "$HTTP_STATUS" != "200" ]; then
-            echo "❌ Firebase fetch failed with HTTP $HTTP_STATUS"
+          if [ -z "$BACKUP_ENCRYPTION_KEY" ]; then
+            echo "BACKUP_ENCRYPTION_KEY is not set. Refusing to store a roster snapshot in the clear."
             exit 1
           fi
-          FILE_SIZE=$(wc -c < "backups/${TIMESTAMP}.json")
-          if [ "$FILE_SIZE" -lt 10 ]; then
-            echo "❌ Backup appears empty (${FILE_SIZE} bytes) — aborting"
-            exit 1
-          fi
-          echo "✅ Backup saved: ${TIMESTAMP}.json (${FILE_SIZE} bytes)"
 
-      - name: Prune backups older than 30 days
+      - name: Fetch and encrypt snapshot
+        env:
+          BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
+          FIREBASE_DB_SECRET: ${{ secrets.FIREBASE_DB_SECRET }}
         run: |
-          find backups -name "*.json" -mtime +30 -delete
-          echo "🗑️  Pruned files older than 30 days"
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/backup"
+          STAMP=$(date -u +%Y-%m-%d_%H-%M)
+          PLAIN="$RUNNER_TEMP/backup/plain.json"
+          ENC="$RUNNER_TEMP/backup/rcm-${STAMP}.json.enc"
+          BASE="https://smilehaus-rcm-default-rtdb.firebaseio.com"
 
-      - name: Commit backup
-        run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          # Don't commit a non-JSON body (Firebase error pages look like backups).
-          python3 - << 'PY'
-          import json, pathlib, sys
-          bad = 0
-          for p in pathlib.Path("backups").glob("*.json"):
-              text = p.read_text()
-              if text.startswith("<<<<<<<") or "<<<<<<< " in text:
-                  print("conflict markers", p)
-                  bad += 1
-                  continue
-              try:
-                  json.loads(text)
-              except Exception as e:
-                  print("invalid", p, type(e).__name__)
-                  bad += 1
-          sys.exit(bad)
-          PY
-          git add backups/
-          if git diff --staged --quiet; then
-            echo "⚪ No changes — data unchanged since last backup, skipping commit"
+          fetch_fb() {
+            local path="$1"
+            if [ -n "${FIREBASE_DB_SECRET:-}" ]; then
+              curl -sS -o "$PLAIN" -w "%{http_code}" --get "${BASE}/${path}" --data-urlencode "auth=${FIREBASE_DB_SECRET}"
+            else
+              curl -sS -o "$PLAIN" -w "%{http_code}" "${BASE}/${path}"
+            fi
+          }
+
+          usable() {
+            python3 -c 'import json,sys
+raw=open(sys.argv[1],encoding="utf-8").read().strip()
+if not raw or raw=="null": sys.exit(2)
+try:
+    data=json.loads(raw)
+except Exception:
+    sys.exit(3)
+if not isinstance(data, dict) or "error" in data: sys.exit(3)
+if not data.get("staff") and not data.get("offices"): sys.exit(2)' "$PLAIN"
+          }
+
+          code=$(fetch_fb "board.json")
+          if [ "$code" = "200" ] && usable; then
+            echo "Using board.json"
           else
-            TIMESTAMP=$(date -u "+%Y-%m-%d %H:%M UTC")
-            git commit -m "backup: RCM snapshot ${TIMESTAMP}"
-            for attempt in 1 2 3 4 5; do
-              if git push origin HEAD:master; then
-                echo "✅ Committed and pushed"
-                exit 0
-              fi
-              git fetch origin master
-              git rebase origin/master || { git rebase --abort || true; exit 1; }
-            done
-            echo "push failed"
-            exit 1
+            code=$(fetch_fb "state.json")
+            if [ "$code" != "200" ] || ! usable; then
+              echo "Firebase read failed with HTTP ${code}. After the database rules are locked, set the FIREBASE_DB_SECRET secret."
+              rm -f "$PLAIN"
+              exit 1
+            fi
+            echo "Using state.json"
           fi
+
+          openssl enc -aes-256-cbc -pbkdf2 -salt \
+            -in "$PLAIN" -out "$ENC" -pass env:BACKUP_ENCRYPTION_KEY
+          rm -f "$PLAIN"
+          echo "Encrypted snapshot written (ciphertext only)."
+
+      - name: Upload encrypted artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rcm-backup-${{ github.run_id }}
+          path: ${{ runner.temp }}/backup/*.json.enc
+          retention-days: 30
+          if-no-files-found: error
+          compression-level: 0
