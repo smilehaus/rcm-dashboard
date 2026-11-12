@@ -2492,8 +2492,8 @@ textarea.re-input{resize:vertical;min-height:80px;}
   </div>
 </div>
 
-<script src="firebase-config.js?v=2026111201"></script>
-<script src="board-sync.js?v=2026111201"></script>
+<script src="firebase-config.js?v=2026111202"></script>
+<script src="board-sync.js?v=2026111202"></script>
 <script>
 // ════════════════════════════════════════════════
 // DATA DEFAULTS
@@ -2781,44 +2781,56 @@ function updateEditorButton() {
   btn.textContent = _isEditor ? ('Editing · ' + (_editorRole || 'Editor')) : 'Unlock editing';
 }
 
+async function authFetch(url, opts) {
+  try {
+    return await fetch(url, Object.assign({}, opts, { signal: AbortSignal.timeout(8000) }));
+  } catch (e) {
+    return null;
+  }
+}
+
 async function anonymousSignIn() {
   const cfg = window.FIREBASE_WEB_CONFIG || {};
   if (!cfg.apiKey) return false;
-  const exp = Number(sessionStorage.getItem('sh-fb-exp') || 0);
-  const cached = sessionStorage.getItem('sh-fb-token') || '';
-  if (cached && Date.now() < exp - 60000 && !_isEditor) {
-    _fbIdToken = cached;
-    return true;
-  }
-  const refresh = sessionStorage.getItem('sh-fb-refresh') || '';
-  let data = null;
-  if (refresh) {
-    const r = await fetch('https://securetoken.googleapis.com/v1/token?key=' + encodeURIComponent(cfg.apiKey), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(refresh)
-    });
-    if (r.ok) {
-      const j = await r.json();
-      data = { idToken: j.id_token, refreshToken: j.refresh_token, expiresIn: j.expires_in };
+  try {
+    const exp = Number(sessionStorage.getItem('sh-fb-exp') || 0);
+    const cached = sessionStorage.getItem('sh-fb-token') || '';
+    if (cached && Date.now() < exp - 60000 && !_isEditor) {
+      _fbIdToken = cached;
+      return true;
     }
+    const refresh = sessionStorage.getItem('sh-fb-refresh') || '';
+    let data = null;
+    if (refresh) {
+      const r = await authFetch('https://securetoken.googleapis.com/v1/token?key=' + encodeURIComponent(cfg.apiKey), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(refresh)
+      });
+      if (r && r.ok) {
+        const j = await r.json();
+        data = { idToken: j.id_token, refreshToken: j.refresh_token, expiresIn: j.expires_in };
+      }
+    }
+    if (!data || !data.idToken) {
+      const r = await authFetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + encodeURIComponent(cfg.apiKey), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ returnSecureToken: true })
+      });
+      if (!r || !r.ok) return false;
+      const j = await r.json();
+      data = { idToken: j.idToken, refreshToken: j.refreshToken, expiresIn: j.expiresIn };
+    }
+    if (!data.idToken) return false;
+    _fbIdToken = data.idToken;
+    sessionStorage.setItem('sh-fb-token', data.idToken);
+    if (data.refreshToken) sessionStorage.setItem('sh-fb-refresh', data.refreshToken);
+    sessionStorage.setItem('sh-fb-exp', String(Date.now() + (Number(data.expiresIn) || 3600) * 1000));
+    return true;
+  } catch (e) {
+    return false;
   }
-  if (!data || !data.idToken) {
-    const r = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + encodeURIComponent(cfg.apiKey), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ returnSecureToken: true })
-    });
-    if (!r.ok) return false;
-    const j = await r.json();
-    data = { idToken: j.idToken, refreshToken: j.refreshToken, expiresIn: j.expiresIn };
-  }
-  if (!data.idToken) return false;
-  _fbIdToken = data.idToken;
-  sessionStorage.setItem('sh-fb-token', data.idToken);
-  if (data.refreshToken) sessionStorage.setItem('sh-fb-refresh', data.refreshToken);
-  sessionStorage.setItem('sh-fb-exp', String(Date.now() + (Number(data.expiresIn) || 3600) * 1000));
-  return true;
 }
 
 async function refreshEditorStatus() {}
@@ -2888,18 +2900,22 @@ async function unlockEditing() {
 async function ensureFirebaseAuth() {
   const cfg = window.FIREBASE_WEB_CONFIG || {};
   if (!cfg.apiKey) return false;
-  const exp = Number(sessionStorage.getItem('sh-fb-exp') || 0);
-  const cached = sessionStorage.getItem('sh-fb-token') || '';
-  if (cached && Date.now() < exp - 60000) {
-    _fbIdToken = cached;
-    _isEditor = sessionStorage.getItem('sh-fb-editor') === '1';
-    if (_isEditor) __rosterUnlocked = true;
-    updateEditorButton();
-    return true;
+  try {
+    const exp = Number(sessionStorage.getItem('sh-fb-exp') || 0);
+    const cached = sessionStorage.getItem('sh-fb-token') || '';
+    if (cached && Date.now() < exp - 60000) {
+      _fbIdToken = cached;
+      _isEditor = sessionStorage.getItem('sh-fb-editor') === '1';
+      if (_isEditor) __rosterUnlocked = true;
+      updateEditorButton();
+      return true;
+    }
+    sessionStorage.removeItem('sh-fb-editor');
+    _isEditor = false;
+    return await anonymousSignIn();
+  } catch (e) {
+    return false;
   }
-  sessionStorage.removeItem('sh-fb-editor');
-  _isEditor = false;
-  return anonymousSignIn();
 }
 
 async function fbRequest(url, opts) {
