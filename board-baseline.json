@@ -392,7 +392,7 @@
           "text": "sdfsf"
         }
       ],
-      "role": "Office Manager",
+      "role": "Aging team",
       "vacEnd": "",
       "vacStart": ""
     },
@@ -1332,5 +1332,5 @@
   "lastAutoClear": "Wed Oct 21 2026",
   "_lastResetDate": "2026-10-21",
   "_baselineSavedAt": "2026-10-21T15:59:26.700Z",
-  "_baselineNote": "Newest genuine roster before the starter-roster overwrite. Gianna is inactive per owner decision on Nov 12, 2026. Aby stays active. Pins and emails are not stored in this file."
+  "_baselineNote": "Newest genuine roster before the starter-roster overwrite. Gianna is inactive per owner decision on Nov 12, 2026. Aby stays active. Yasmine's role is Aging team, not Office Manager. Pins and emails are not stored in this file."
 }
