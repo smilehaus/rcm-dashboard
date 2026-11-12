@@ -52,15 +52,14 @@ jobs:
           }
 
           usable() {
-            python3 -c 'import json,sys
-raw=open(sys.argv[1],encoding="utf-8").read().strip()
-if not raw or raw=="null": sys.exit(2)
-try:
-    data=json.loads(raw)
-except Exception:
-    sys.exit(3)
-if not isinstance(data, dict) or "error" in data: sys.exit(3)
-if not data.get("staff") and not data.get("offices"): sys.exit(2)' "$PLAIN"
+            python3 -c 'import json,sys; raw=open(sys.argv[1],encoding="utf-8").read().strip();
+          if not raw or raw=="null": sys.exit(2)
+          try:
+           data=json.loads(raw)
+          except Exception:
+           sys.exit(3)
+          if not isinstance(data, dict) or "error" in data: sys.exit(3)
+          if not data.get("staff") and not data.get("offices"): sys.exit(2)' "$PLAIN"
           }
 
           code=$(fetch_fb "board.json")
