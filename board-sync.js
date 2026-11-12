@@ -11,7 +11,7 @@
 (function (root, factory) {
   root.RCMBoard = factory();
 })(typeof globalThis !== "undefined" ? globalThis : this, function () {
-  var CLIENT_BUILD = 2026111201;
+  var CLIENT_BUILD = 2026111202;
   var EMPTY_CELL = "__rcm_empty__";
   var SEED_STAFF_IDS = [
     "adela", "vanessa", "valerie", "becky", "brittani", "lovely", "princess",

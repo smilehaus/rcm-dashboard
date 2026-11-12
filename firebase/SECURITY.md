@@ -18,7 +18,7 @@ Everyone else can view the board and check in. Check-in writes only a staff id, 
 
 1. Merge the roster pull request, then this one. Open the live dashboard once before you encrypt or purge anything. That first open copies check-in PINs from `backups/2026-10-22_11-33.json` into Firebase. Editors keep those same PINs.
 
-2. Confirm the page still loads. `apiKey` and `editorAuthUrl` are empty, so the office can still edit as they do today.
+2. Confirm the page still loads. Until `apiKey` and `editorAuthUrl` are both filled in, the office can still edit as they do today. Both are filled in now. Editing unlocks only with an editor PIN. Viewing and check-in keep working even if anonymous sign-in fails, because the database rules are still open.
 
 3. Create a Cloudflare Worker from `workers/editor-auth` and a KV namespace bound as `PINS`. Set secrets `FIREBASE_SERVICE_ACCOUNT` (a Firebase service account JSON that can mint custom tokens) and `EDITOR_ADMIN_SECRET` (a long random string). Deploy the Worker. You already have Cloudflare. You also need that Firebase service account from Project settings → Service accounts. This repo does not deploy the Worker for you.
 
@@ -38,11 +38,11 @@ Everyone else can view the board and check in. Check-in writes only a staff id, 
 
     Do not seed from Firebase before that copy. The live database still has the starter roster until then. Five wrong PIN attempts lock that staff id for 15 minutes.
 
-5. Firebase → Authentication → Sign-in method → enable Anonymous, so viewers can read. Project settings → Your apps → copy the web `apiKey` into `firebase-config.js`, and set `editorAuthUrl` to the Worker URL. Commit that file. Do not put PINs, the admin secret, or the service account in git.
+5. Firebase → Authentication → Sign-in method → enable Anonymous, so viewers can read. The web `apiKey`, `projectId`, `appId`, and `editorAuthUrl` are in `firebase-config.js`. Do not put PINs, the admin secret, or the service account in git.
 
 6. Hard-refresh. Click **Unlock editing**, enter an editor's roster name and their existing check-in PIN, and confirm a board change syncs. Another person's PIN fails with the same message as a wrong PIN.
 
-7. Realtime Database → Rules. Paste `firebase/database.rules.json` and publish. Do this only after step 6.
+7. Realtime Database → Rules. Paste `firebase/database.rules.json` and publish. Do this only after step 6. An editor must have unlocked once while the rules are still open, and a board change must have synced. Publishing earlier blocks board writes for everyone who is not signed in with an editor token.
 
 8. Set Actions secrets `ALERT_EMAIL`, `BACKUP_ENCRYPTION_KEY`, and `FIREBASE_DB_SECRET` if they are not set. Run **Encrypt historical backups** only after step 1. It encrypts every plaintext backup, checks that each file decrypts to the same bytes, and only then deletes the plaintext and commits `backups-encrypted/*.json.enc`.
 

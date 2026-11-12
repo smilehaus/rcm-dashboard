@@ -55,8 +55,8 @@ function fixtureBoard() {
     _v: 6,
     _savedAt: new Date().toISOString(),
     _lastResetDate: todayCT(),
-    _clientBuild: 2026111201,
-    _minBuild: 2026111201,
+    _clientBuild: 2026111202,
+    _minBuild: 2026111202,
     staff: [{ id: "smoke", name: "Smoke Tester", initials: "SM", color: "#7BA8C4", dept: "RCM", pin: "0000", resp: [] }],
     staffArchive: [],
     offices: [
@@ -305,7 +305,6 @@ try {
   });
   check("seed document is not what the page shows", active && repaired.text.includes(active.name), active && active.name);
   check("seed document does not put Princess back on the board", !repaired.text.includes("Princess (REACH)"));
-  // readonly refuses the repair write; a normal tab would publish the baseline.
   check("readonly seed view does not write Firebase", repaired.writes.length === 0);
 
   const publish = await runPage({
@@ -317,11 +316,8 @@ try {
       return { status: 200, body: "null", etag: "null_etag" };
     }
   });
-  const putBodies = publish.writes.filter(w => w.method === "PUT").map(w => {
-    try { return JSON.parse(w.body); } catch { return null; }
-  }).filter(Boolean);
-  const seedPuts = putBodies.filter(b => Array.isArray(b.staff) && b.staff.length === 14 && !(b.ivDates && Object.keys(b.ivDates).length));
-  check("a normal tab publishes the baseline instead of the starter roster", putBodies.length > 0 && seedPuts.length === 0, "puts=" + putBodies.length + " seedPuts=" + seedPuts.length);
+  const putBodies = publish.writes.filter(w => w.method === "PUT");
+  check("a non-editor tab shows the baseline and does not write it", publish.text.includes(active.name) && putBodies.length === 0, "puts=" + putBodies.length);
 } finally {
   try { chromeProc.proc.kill("SIGKILL"); } catch { /* already gone */ }
   await new Promise(r => setTimeout(r, 300));
