@@ -1,8 +1,7 @@
 /**
  * Shared checks for generated dashboard JSON.
  * A file that does not parse, or that still contains git conflict markers,
- * must never be committed — that is what turns into the red
- * "Scheduler missed a refresh" banner.
+ * must never be committed.
  */
 
 const CONFLICT_MARKER = /^(<{7})( |$)|^(={7})$|^(>{7})( |$)/m;

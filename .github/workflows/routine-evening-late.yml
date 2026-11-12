@@ -4,9 +4,6 @@ name: Routine — Evening Late (10:37 PM – 11:33 PM CT)
 # Watchdog is last so it verifies ALL earlier scripts fired successfully today.
 
 on:
-  schedule:
-    # 10:37 PM America/Chicago standard time = 04:37 UTC.
-    - cron: '37 4 * * *'
   workflow_dispatch:
 
 concurrency:
