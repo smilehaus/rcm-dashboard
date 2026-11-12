@@ -115,6 +115,21 @@ test("empty cells round-trip through the firebase placeholder", () => {
   assert.deepEqual(state.off, ["aby"]);
 });
 
+test("existing pins are kept and only blank staff are filled or reported", () => {
+  const staff = [
+    { id: "a", pin: "1111" },
+    { id: "b", pin: "" },
+    { id: "c" }
+  ];
+  const result = B.applyStaffPins(staff, { a: "9999", b: "2222" });
+  assert.equal(staff[0].pin, "1111");
+  assert.equal(staff[1].pin, "2222");
+  assert.equal(staff[2].pin, undefined);
+  assert.deepEqual(result.missing, ["c"]);
+  assert.deepEqual(result.keptExisting, ["a"]);
+  assert.deepEqual(result.filledFromOverlay, ["b"]);
+});
+
 test("concurrent token adds to the same cell both survive", () => {
   const base = { staff: [], offices: [], ivDates: {}, assign: { SQ: { ins_verif: ["a"] } }, live: {} };
   const local = { staff: [], offices: [], ivDates: {}, assign: { SQ: { ins_verif: ["a", "b"] } }, live: {} };

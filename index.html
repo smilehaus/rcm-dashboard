@@ -3312,6 +3312,47 @@ function rememberBoardCache() {
   } catch (e) {}
 }
 
+const PIN_OVERLAY_URLS = [
+  './staff-pins.json',
+  './backups/2026-10-22_11-33.json',
+  // Same snapshot on master. Still reachable after this folder is removed from
+  // the latest commit, until someone purges git history.
+  'https://raw.githubusercontent.com/smilehaus/rcm-dashboard/ef8a8ad6543c64a844e6a00ef50a9802499dd814/backups/2026-10-22_11-33.json'
+];
+
+async function loadPinOverlay() {
+  for (const url of PIN_OVERLAY_URLS) {
+    try {
+      const r = await fetch(url, { cache: 'no-store' });
+      if (!r.ok) continue;
+      const data = await r.json();
+      const map = {};
+      if (data && data.pins && typeof data.pins === 'object' && !Array.isArray(data.pins)) {
+        Object.keys(data.pins).forEach(id => {
+          if (data.pins[id]) map[id] = String(data.pins[id]);
+        });
+      }
+      const list = Array.isArray(data) ? data : (data && data.staff) || [];
+      list.forEach(s => {
+        if (s && s.id && s.pin && !map[s.id]) map[s.id] = String(s.pin);
+      });
+      if (Object.keys(map).length) return map;
+    } catch (e) {}
+  }
+  return {};
+}
+
+async function ensureStaffPins(staff) {
+  if (!RCMBoard.staffMissingPins(staff)) return { generated: 0 };
+  const overlay = await loadPinOverlay();
+  const result = RCMBoard.applyStaffPins(staff, overlay);
+  result.missing.forEach(id => {
+    const s = (staff || []).find(x => x && x.id === id);
+    if (s && !s.pin) s.pin = genPin();
+  });
+  return { generated: result.missing.length, filled: result.filledFromOverlay.length };
+}
+
 async function fetchBaseline() {
   try {
     const r = await fetch('./board-baseline.json?t=' + Date.now(), { cache: 'no-cache' });
@@ -3361,12 +3402,10 @@ function acceptBoard(src) {
   _haveBoard = true;
   _syncBase = clone(S);
   _lastFbWrite = S._savedAt || '';
-  let pinBackfilled = false;
-  S.staff.forEach(s => { if (!s.pin) { s.pin = genPin(); pinBackfilled = true; } });
   checkVacations();
   _naSnapshot = getNaSnapshot(_checkinId);
   rememberBoardCache();
-  return { pinBackfilled, addedOffice };
+  return { addedOffice };
 }
 
 function blankBoard() {
@@ -3406,6 +3445,7 @@ async function load() {
     const legacy = await fbRequest(FB_LEGACY_URL, { method: 'GET' });
     if (legacy.ok && legacy.data && !RCMBoard.looksLikeSeedRoster(legacy.data)) src = legacy.data;
     else src = await fetchBaseline();
+    if (src) await ensureStaffPins(src.staff);
     if (src && !READONLY) {
       const writeTs = new Date().toISOString();
       const body = clone(src);
@@ -3440,11 +3480,12 @@ async function load() {
     return;
   }
 
+  const pinStatus = await ensureStaffPins(src.staff);
   const flags = acceptBoard(src);
   hideBoardError();
   await enforceBuildFloor();
   startFbPolling();
-  if (!READONLY && !_writesDisabled && (flags.pinBackfilled || flags.addedOffice)) scheduleFbSave();
+  if (!READONLY && !_writesDisabled && (pinStatus.generated || pinStatus.filled || flags.addedOffice)) scheduleFbSave();
 }
 
 // ── Defensive normalizer — always call after Object.assign(S, …) from Firebase ──

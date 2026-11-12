@@ -335,6 +335,35 @@
     return state;
   }
 
+  function staffMissingPins(staff) {
+    return asArray(staff).some(function (s) { return s && s.id && !s.pin; });
+  }
+
+  // Keep a pin already on the person. Fill a blank only from the overlay.
+  // People still blank are returned so the page can mint a pin just for them.
+  function applyStaffPins(staff, overlay) {
+    var missing = [];
+    var keptExisting = [];
+    var filledFromOverlay = [];
+    overlay = overlay || {};
+    asArray(staff).forEach(function (s) {
+      if (!s || !s.id) return;
+      if (s.pin) {
+        keptExisting.push(s.id);
+        return;
+      }
+      var fromOverlay = overlay[s.id];
+      if (typeof fromOverlay === "number") fromOverlay = String(fromOverlay);
+      if (typeof fromOverlay === "string" && fromOverlay.trim()) {
+        s.pin = fromOverlay.trim();
+        filledFromOverlay.push(s.id);
+        return;
+      }
+      missing.push(s.id);
+    });
+    return { missing: missing, keptExisting: keptExisting, filledFromOverlay: filledFromOverlay };
+  }
+
   return {
     CLIENT_BUILD: CLIENT_BUILD,
     EMPTY_CELL: EMPTY_CELL,
@@ -347,6 +376,8 @@
     stripInactiveTokens: stripInactiveTokens,
     encodeEmpties: encodeEmpties,
     decodeEmpties: decodeEmpties,
-    archiveEntries: archiveEntries
+    archiveEntries: archiveEntries,
+    staffMissingPins: staffMissingPins,
+    applyStaffPins: applyStaffPins
   };
 });
