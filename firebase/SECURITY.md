@@ -8,9 +8,9 @@ Editor PINs and the role records live in Cloudflare KV, not in this repo.
 
 Editing is unlocked with a staff PIN. A Cloudflare Worker checks that PIN against a hash it stores with the person's role. The page never decides this by itself.
 
-A stored role can edit when it is RCM manager, REACH manager, office manager, operations manager, or executive. A record can also set an explicit editor flag. REACH Manager is included so the current REACH Manager can be the first editor if you confirm that.
+A stored role can edit when it is RCM manager, REACH manager, office manager, operations manager, regional manager (any region), or executive. A record can also set an explicit editor flag.
 
-Start with one editor. Add the RCM manager, office managers, executives, and the ops manager later with the same admin call. No code change.
+The confirmed editors are Aby (REACH Manager), Becky (RCM Manager), Kelly Rodriguez (Office Manager), Lacy (Operations Manager), Yasmine (Office Manager), Adela (Regional Manager - North), and Karina (Regional Manager - South). Set a new PIN for each of them with the admin call below. The page does not list these names. The Worker matches the role title.
 
 Everyone else can view the board and check in. Check-in writes only a staff id, in or out, and a time. It does not unlock editing. After `editorAuthUrl` is set, the shared roster PIN and a Management check-in no longer unlock the board.
 
@@ -22,7 +22,7 @@ Everyone else can view the board and check in. Check-in writes only a staff id, 
 
 3. Create a Cloudflare Worker from `workers/editor-auth` and a KV namespace bound as `PINS`. Set secrets `FIREBASE_SERVICE_ACCOUNT` (a Firebase service account JSON that can mint custom tokens) and `EDITOR_ADMIN_SECRET` (a long random string). Deploy the Worker. You already have Cloudflare. You also need that Firebase service account from Project settings → Service accounts. This repo does not deploy the Worker for you.
 
-4. Set the editor's new PIN from your machine. Do not commit the command with a real PIN filled in:
+4. Set a new PIN for each confirmed editor from your machine. Do not commit the command with a real PIN filled in:
 
     ```bash
     curl -X POST "$EDITOR_AUTH_URL/admin/pin" \

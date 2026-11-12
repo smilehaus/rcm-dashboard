@@ -5,6 +5,7 @@ export function isEditorRole(role) {
   if (text.includes("office manager")) return true;
   if (text.includes("operations manager") || text.includes("ops manager")) return true;
   if (text.includes("rcm manager") || text.includes("reach manager")) return true;
+  if (text.includes("regional manager")) return true;
   if (text === "executive" || text.includes("executive")) return true;
   return false;
 }

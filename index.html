@@ -3224,7 +3224,7 @@ function updateAdminBadge() {
     badge.className = 'admin-lock-badge locked';
     text.textContent = 'LOCKED';
     badge.title = editorGateConfigured()
-      ? 'Sign in as an RCM manager, office manager, ops manager, or executive to edit'
+      ? 'Unlock editing as an RCM manager, office manager, ops manager, regional manager, or executive'
       : 'Check in as Management to unlock admin features';
     badge.onclick = adminBadgeClick;
   }
@@ -6551,7 +6551,7 @@ function rosterLockToggle() {
 function rosterGated(fn) {
   if (editorGateConfigured()) {
     if (_isEditor) { __rosterUnlocked = true; updateRosterLockUI(); fn(); return; }
-    alert('Enter your staff PIN to edit. Only the RCM manager, office managers, the ops manager, and executives can unlock the board.');
+    alert('Enter your staff PIN to edit. Only the RCM manager, office managers, the ops manager, regional managers, and executives can unlock the board.');
     unlockEditing();
     return;
   }
@@ -6581,7 +6581,7 @@ function closePinModal() {
 function pinSubmit() {
   if (editorGateConfigured()) {
     closeModal('pin-modal');
-    alert('Sign in as an RCM manager, office manager, ops manager, or executive to edit.');
+    alert('Unlock editing as an RCM manager, office manager, ops manager, regional manager, or executive.');
     return;
   }
   const pin = document.getElementById('pin-input').value.trim();
