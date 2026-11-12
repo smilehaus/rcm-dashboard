@@ -210,14 +210,16 @@
     },
     {
       "color": "rgb(90, 170, 165)",
-      "dept": "Management",
+      "dept": "Inactive",
       "id": "gianna",
       "initials": "GI",
       "manager": "Karina",
       "name": "Gianna",
       "role": "Office Manager",
       "vacEnd": "",
-      "vacStart": ""
+      "vacStart": "",
+      "inactiveReason": "Inactive",
+      "inactiveDate": "Nov 12, 2026"
     },
     {
       "color": "rgb(196, 112, 138)",
@@ -849,6 +851,12 @@
       "name": "Jill Beduya",
       "inactiveReason": "Inactive",
       "inactiveDate": "Oct 9, 2026"
+    },
+    {
+      "id": "gianna",
+      "name": "Gianna",
+      "inactiveReason": "Inactive",
+      "inactiveDate": "Nov 12, 2026"
     }
   ],
   "offices": [
@@ -991,9 +999,7 @@
       "ins_verif": [
         "own_team"
       ],
-      "posting_oryx": [
-        "gianna"
-      ]
+      "posting_oryx": []
     },
     "AR": {
       "aging_old": [
@@ -1013,12 +1019,8 @@
         "staff_1776360707641",
         "staff_1776360721244"
       ],
-      "collect_old": [
-        "gianna"
-      ],
-      "collect_oryx": [
-        "gianna"
-      ],
+      "collect_old": [],
+      "collect_oryx": [],
       "ins_verif": [
         "own_team",
         "staff_1778184912252",
@@ -1330,5 +1332,5 @@
   "lastAutoClear": "Wed Oct 21 2026",
   "_lastResetDate": "2026-10-21",
   "_baselineSavedAt": "2026-10-21T15:59:26.700Z",
-  "_baselineNote": "Newest genuine roster before the starter-roster overwrite. Owner Reach list checked; no active Reach record needed a status change. Pins and emails are not stored in this file."
+  "_baselineNote": "Newest genuine roster before the starter-roster overwrite. Gianna is inactive per owner decision on Nov 12, 2026. Aby stays active. Pins and emails are not stored in this file."
 }
