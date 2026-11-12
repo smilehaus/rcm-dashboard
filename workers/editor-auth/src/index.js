@@ -1,5 +1,5 @@
 import { isEditorRole, isLocked, registerFailure } from "./policy.js";
-import { hashPin, pinMatches } from "./pin-hash.js";
+import { hashPin, isStoredSecret, pinMatches } from "./pin-hash.js";
 import { signCustomToken } from "./custom-token.js";
 
 const ALLOWED_ORIGINS = new Set([
@@ -35,6 +35,7 @@ export default {
     const url = new URL(request.url);
     if (request.method === "POST" && url.pathname === "/session") return session(request, env);
     if (request.method === "POST" && url.pathname === "/admin/pin") return setPin(request, env);
+    if (request.method === "POST" && url.pathname === "/admin/seed") return seedPins(request, env);
     return json(request, 404, { error: "not_found" });
   }
 };
@@ -65,9 +66,7 @@ async function session(request, env) {
 }
 
 async function setPin(request, env) {
-  const expected = env.EDITOR_ADMIN_SECRET || "";
-  const header = request.headers.get("Authorization") || "";
-  if (!expected || header !== "Bearer " + expected) return json(request, 401, { error: "denied" });
+  if (!authorized(request, env)) return json(request, 401, { error: "denied" });
   const body = await readJson(request);
   const staffId = body && typeof body.staffId === "string" ? body.staffId.trim() : "";
   const pin = body && typeof body.pin === "string" ? body.pin.trim() : "";
@@ -82,6 +81,38 @@ async function setPin(request, env) {
     editor: true
   }));
   return json(request, 200, { ok: true });
+}
+
+function authorized(request, env) {
+  const expected = env.EDITOR_ADMIN_SECRET || "";
+  const header = request.headers.get("Authorization") || "";
+  return !!(expected && header === "Bearer " + expected);
+}
+
+async function seedPins(request, env) {
+  if (!authorized(request, env)) return json(request, 401, { error: "denied" });
+  const body = await readJson(request);
+  const rows = body && Array.isArray(body.records) ? body.records : null;
+  if (!rows || rows.length < 1 || rows.length > 30) return json(request, 400, { error: "bad_request" });
+  const clean = [];
+  for (const row of rows) {
+    const staffId = row && typeof row.staffId === "string" ? row.staffId.trim() : "";
+    const role = row && typeof row.role === "string" ? row.role.trim() : "";
+    if (!staffId || staffId.length > 128 || !isStoredSecret(row && row.hash) || !isStoredSecret(row && row.salt)) {
+      return json(request, 400, { error: "bad_request" });
+    }
+    if (!isEditorRole(role)) return json(request, 400, { error: "not_editor_role" });
+    clean.push({ staffId, role, hash: row.hash, salt: row.salt });
+  }
+  for (const row of clean) {
+    await env.PINS.put("pin:" + row.staffId, JSON.stringify({
+      hash: row.hash,
+      salt: row.salt,
+      role: row.role,
+      editor: true
+    }));
+  }
+  return json(request, 200, { ok: true, count: clean.length });
 }
 
 async function readState(env, key) {

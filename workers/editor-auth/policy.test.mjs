@@ -13,6 +13,7 @@ test("editor roles match titles, not names", () => {
   assert.equal(isEditorRole("Regional Manager"), true);
   assert.equal(isEditorRole("Regional Manager - North"), true);
   assert.equal(isEditorRole("Regional Manager - South"), true);
+  assert.equal(isEditorRole("Aging team"), false);
   assert.equal(isEditorRole("Ins Verifier"), false);
   assert.equal(isEditorRole(""), false);
 });

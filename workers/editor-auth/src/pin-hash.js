@@ -1,3 +1,7 @@
+export function isStoredSecret(value) {
+  return typeof value === "string" && value.length >= 8 && value.length <= 200 && /^[A-Za-z0-9+/]+=*$/.test(value);
+}
+
 export async function hashPin(pin, saltBytes) {
   const salt = saltBytes || crypto.getRandomValues(new Uint8Array(16));
   const data = new Uint8Array(salt.length + pin.length);

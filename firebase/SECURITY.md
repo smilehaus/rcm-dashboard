@@ -10,32 +10,37 @@ Editing is unlocked with a staff PIN. A Cloudflare Worker checks that PIN agains
 
 A stored role can edit when it is RCM manager, REACH manager, office manager, operations manager, regional manager (any region), or executive. A record can also set an explicit editor flag.
 
-The confirmed editors are Aby (REACH Manager), Becky (RCM Manager), Kelly Rodriguez (Office Manager), Lacy (Operations Manager), Yasmine (Office Manager), Adela (Regional Manager - North), and Karina (Regional Manager - South). Set a new PIN for each of them with the admin call below. The page does not list these names. The Worker matches the role title.
+The confirmed editors are Aby (REACH Manager), Becky (RCM Manager), Kelly Rodriguez (Office Manager), Lacy (Operations Manager), Adela (Regional Manager - North), and Karina (Regional Manager - South). Yasmine is Aging team, so she is not an editor. They keep their existing check-in PINs. The page does not list these names. The Worker matches the role title on the current roster.
 
 Everyone else can view the board and check in. Check-in writes only a staff id, in or out, and a time. It does not unlock editing. After `editorAuthUrl` is set, the shared roster PIN and a Management check-in no longer unlock the board.
 
 ## Do these steps in this order
 
-1. Merge the roster pull request, then this one. Open the live dashboard once before you encrypt or purge anything. That first open copies check-in PINs from `backups/2026-10-22_11-33.json` into Firebase. Those PINs were in the public repo. The editor PIN you create in step 4 should be a new one.
+1. Merge the roster pull request, then this one. Open the live dashboard once before you encrypt or purge anything. That first open copies check-in PINs from `backups/2026-10-22_11-33.json` into Firebase. Editors keep those same PINs.
 
 2. Confirm the page still loads. `apiKey` and `editorAuthUrl` are empty, so the office can still edit as they do today.
 
 3. Create a Cloudflare Worker from `workers/editor-auth` and a KV namespace bound as `PINS`. Set secrets `FIREBASE_SERVICE_ACCOUNT` (a Firebase service account JSON that can mint custom tokens) and `EDITOR_ADMIN_SECRET` (a long random string). Deploy the Worker. You already have Cloudflare. You also need that Firebase service account from Project settings → Service accounts. This repo does not deploy the Worker for you.
 
-4. Set a new PIN for each confirmed editor from your machine. Do not commit the command with a real PIN filled in:
+4. Hash the editors' existing check-in PINs into Cloudflare. From your machine, while `backups/2026-10-22_11-33.json` is still on disk:
 
     ```bash
-    curl -X POST "$EDITOR_AUTH_URL/admin/pin" \
-      -H "Authorization: Bearer $EDITOR_ADMIN_SECRET" \
-      -H "Content-Type: application/json" \
-      -d '{"staffId":"STAFF_ID","pin":"NEW_PIN","role":"REACH Manager"}'
+    EDITOR_AUTH_URL="https://YOUR-WORKER" EDITOR_ADMIN_SECRET="..." \
+      node scripts/seed-editor-pins.mjs --pins backups/2026-10-22_11-33.json
     ```
 
-    Use the staff id from the roster. Repeat the call for each later editor, with their role title. Five wrong PINs lock that staff id for 15 minutes.
+    Roles come from `board-baseline.json`. PINs come from that backup. The script uploads hashes only and prints names, not PINs. A dry run adds `--dry-run` and uploads nothing. If the backup file is already gone, use Firebase only after step 1 has copied the restored PINs there:
+
+    ```bash
+    FIREBASE_DB_SECRET="..." EDITOR_AUTH_URL="https://YOUR-WORKER" EDITOR_ADMIN_SECRET="..." \
+      node scripts/seed-editor-pins.mjs --firebase
+    ```
+
+    Do not seed from Firebase before that copy. The live database still has the starter roster until then. Five wrong PIN attempts lock that staff id for 15 minutes.
 
 5. Firebase → Authentication → Sign-in method → enable Anonymous, so viewers can read. Project settings → Your apps → copy the web `apiKey` into `firebase-config.js`, and set `editorAuthUrl` to the Worker URL. Commit that file. Do not put PINs, the admin secret, or the service account in git.
 
-6. Hard-refresh. Click **Unlock editing**, enter the editor's roster name and new PIN, and confirm a board change syncs. Another person's PIN fails with the same message as a wrong PIN.
+6. Hard-refresh. Click **Unlock editing**, enter an editor's roster name and their existing check-in PIN, and confirm a board change syncs. Another person's PIN fails with the same message as a wrong PIN.
 
 7. Realtime Database → Rules. Paste `firebase/database.rules.json` and publish. Do this only after step 6.
 
@@ -49,7 +54,11 @@ Everyone else can view the board and check in. Check-in writes only a staff id, 
 
 ## PIN restore and history
 
-The restore reads `backups/2026-10-22_11-33.json` on the site first, then the same file in commit `ef8a8ad`. Open the dashboard (step 1) before the encrypt workflow. After that workflow the site copy is gone, but the commit URL works until a history purge. Purge only after Firebase already has the restored board and its check-in PINs. Editor PINs in Cloudflare are separate and should be the new ones. Deleting plaintext from the latest commit does not remove it from older commits.
+The restore reads `backups/2026-10-22_11-33.json` on the site first, then the same file in commit `ef8a8ad`. Open the dashboard (step 1) and run the seed (step 4) before the encrypt workflow. After that workflow the site copy is gone, but the commit URL works until a history purge. Purge only after Firebase already has the restored board and its check-in PINs, and Cloudflare has the hashes. Deleting plaintext from the latest commit does not remove it from older commits.
+
+## Optional later: change an editor PIN
+
+Not required. The check-in PINs were in the public repo, so you can replace one later if you want. `POST /admin/pin` with the admin secret stores a new hash for that staff id and role. Change the check-in PIN on the board as well if check-in and editing should stay the same PIN. Do not commit the new PIN.
 
 ## If the board goes blank
 
