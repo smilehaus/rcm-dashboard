@@ -1,7 +1,14 @@
 name: Routine — Weekly KPI Snapshot (Mon 7:08 PM CT)
 
 on:
+  schedule:
+    # Monday 7:08 PM America/Chicago standard time = 01:08 UTC Tuesday.
+    - cron: '8 1 * * 2'
   workflow_dispatch:
+
+concurrency:
+  group: rcm-master-publish
+  cancel-in-progress: false
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true

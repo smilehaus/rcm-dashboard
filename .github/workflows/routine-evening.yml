@@ -4,7 +4,14 @@ name: Routine — Evening (9:02–9:35 PM CT)
 # sequentially in one job — unposted and legacy both write ar-snapshot.json.
 
 on:
+  schedule:
+    # 9:02 PM America/Chicago standard time = 03:02 UTC.
+    - cron: '2 3 * * *'
   workflow_dispatch:
+
+concurrency:
+  group: rcm-master-publish
+  cancel-in-progress: false
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -37,8 +44,8 @@ jobs:
         env:
           CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
 
-      # Must run after fetch-unposted — both write ar-snapshot.json.
-      # fetch-legacy uses pull --rebase to incorporate unposted's commit before pushing.
+      # Must run after fetch-unposted — both patch ar-snapshot.json.
+      # Each script republishes onto the latest master and only writes its own fields.
       - name: fetch-legacy (daily)
         run: npx tsx scripts/fetch-legacy.ts
         env:

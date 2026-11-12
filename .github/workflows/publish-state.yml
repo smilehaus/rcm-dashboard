@@ -4,6 +4,10 @@ on:
   repository_dispatch:
     types: [publish-state]
 
+concurrency:
+  group: rcm-master-publish
+  cancel-in-progress: false
+
 jobs:
   commit-state:
     runs-on: ubuntu-latest
@@ -15,11 +19,18 @@ jobs:
       - name: Write state.json
         run: |
           echo '${{ toJson(github.event.client_payload.state) }}' > state.json
+          node scripts/validate-json.mjs state.json
 
       - name: Commit state.json
         run: |
           git config user.name "RCM Dashboard"
           git config user.email "dashboard@smilehaus.com"
           git add state.json
-          git diff --cached --quiet || git commit -m "Publish dashboard state [skip ci]"
-          git push
+          git diff --cached --quiet && exit 0
+          git commit -m "Publish dashboard state [skip ci]"
+          for attempt in 1 2 3 4 5; do
+            git push origin HEAD:master && exit 0
+            git fetch origin master
+            git rebase origin/master || { git rebase --abort || true; exit 1; }
+          done
+          exit 1

@@ -1,0 +1,70 @@
+name: Data guard
+
+# Fails the build when generated JSON is broken, and loads the dashboard
+# in headless Chrome against the repo's data files. A console error or a
+# blank-board failure that still shows the starter roster fails the job.
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: JSON, unit tests, browser smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Validate JSON files
+        run: node scripts/validate-json.mjs
+
+      - name: Unit tests
+        run: node --test scripts/board-sync.test.mjs scripts/json-guard.test.mjs scripts/git-publish.test.mjs
+
+      - name: Install Chrome
+        run: |
+          if ! command -v google-chrome >/dev/null 2>&1 && ! command -v google-chrome-stable >/dev/null 2>&1; then
+            npx --yes @puppeteer/browsers install chrome@stable --path "$RUNNER_TEMP/chrome"
+            CHROME="$(find "$RUNNER_TEMP/chrome" -type f -name chrome -o -name google-chrome | head -1)"
+            echo "CHROME_PATH=$CHROME" >> "$GITHUB_ENV"
+          fi
+
+      - name: Browser smoke
+        run: node scripts/smoke-browser.mjs
+
+      - name: Sync guards are still in the page
+        run: |
+          set -e
+          grep -q "mergeBoardState" index.html
+          grep -q "looksLikeSeedRoster" index.html
+          grep -q "if-match" index.html
+          grep -q "staffArchive" index.html
+          grep -q "_haveBoard" index.html
+          grep -q "board-sync.js" index.html
+          grep -q "PROTECTED_KEYS.has(k)" index.html
+
+  repair:
+    name: Repair conflict markers on master
+    needs: validate
+    if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: rcm-master-publish
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Repair and push
+        run: node scripts/repair-conflict-json.mjs

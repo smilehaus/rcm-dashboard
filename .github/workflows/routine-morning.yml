@@ -1,7 +1,15 @@
 name: Routine — Morning (10:32 AM CT)
 
 on:
+  schedule:
+    # 10:32 America/Chicago standard time (UTC-6). Daylight time shifts this by an hour.
+    - cron: '32 16 * * *'
   workflow_dispatch:
+
+# One publisher at a time. Backup, routines, and the help agent all push master.
+concurrency:
+  group: rcm-master-publish
+  cancel-in-progress: false
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true

@@ -3,9 +3,9 @@
 // tasks actually fired. Creates a ClickUp alert task if something is stale.
 
 import { readFileSync } from "fs";
-import { dirname, join } from "path";
-import { fileURLToPath } from "url";
+import { join } from "path";
 import { getClickUpToken } from "../lib/clickup-oauth.js";
+import { resolveDashboardRoot } from "./lib/dashboard-root.mjs";
 
 const ALERT_LIST_ID = "901416373479";
 const DRY_RUN = process.argv.includes("--dry-run");
@@ -27,10 +27,7 @@ function ctNowFriendly(): string {
 
 function main() {
   console.log(`\n🩺 Scheduler health check — ${ctNowFriendly()}`);
-  const scriptDir    = dirname(fileURLToPath(import.meta.url));
-  const dashboardDir = process.env.CI
-    ? join(scriptDir, "..")
-    : join(scriptDir, "..", "apps", "rcm-dashboard");
+  const dashboardDir = resolveDashboardRoot(import.meta.url);
 
   const stale: { label: string; reason: string }[] = [];
   const now = Date.now();

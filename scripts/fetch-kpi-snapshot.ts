@@ -4,18 +4,15 @@
  */
 
 import { getClickUpToken } from "../lib/clickup-oauth.js";
-import { writeFileSync, readFileSync } from "fs";
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
-import { execSync } from "child_process";
+import { writeFileSync } from "fs";
+import { join } from "path";
+import { publishFiles } from "./lib/git-publish.mjs";
+import { resolveDashboardRoot } from "./lib/dashboard-root.mjs";
 
 const CLICKUP_BASE = "https://api.clickup.com/api/v2";
 const KPI_LIST_ID = "901415926262";
 const MAX_WEEKS = 12;
 const DRY_RUN = process.argv.includes("--dry-run");
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname  = dirname(__filename);
 
 const OFFICE_BY_INDEX: Record<number, string> = {
   0: "SQ", 1: "GT", 2: "ATX", 3: "MP", 4: "NBDA",
@@ -151,28 +148,17 @@ async function main() {
 
   if (DRY_RUN) { console.log("(dry-run — no write)"); return; }
 
-  const dashboardDir = process.env.CI
-    ? join(__dirname, "..")
-    : join(__dirname, "..", "apps", "rcm-dashboard");
-  const SNAP_PATH = join(dashboardDir, "kpi-snapshot.json");
-
-  writeFileSync(SNAP_PATH, JSON.stringify(out, null, 2));
-  console.log(`✔ wrote ${SNAP_PATH}`);
-
-  try {
-    console.log("\n📤 Pushing to GitHub Pages…");
-    const freshFile = readFileSync(SNAP_PATH, "utf8");
-    execSync(`git fetch origin master`, { cwd: dashboardDir, stdio: "pipe" });
-    execSync(`git reset --hard origin/master`, { cwd: dashboardDir, stdio: "pipe" });
-    writeFileSync(SNAP_PATH, freshFile);
-    execSync(`git add kpi-snapshot.json`, { cwd: dashboardDir, stdio: "pipe" });
-    execSync(`git commit -m "chore: update KPI snapshot ${new Date().toLocaleDateString("en-US")}"`, { cwd: dashboardDir, stdio: "pipe" });
-    execSync(`git push origin master`, { cwd: dashboardDir, stdio: "pipe" });
-    console.log("✅ Pushed.");
-  } catch (e: any) {
-    if (e.message?.includes("nothing to commit")) console.log("ℹ️  No changes");
-    else console.warn(`⚠️  Git push skipped — ${e.message?.split("\n")[0] || e}`);
-  }
+  const dashboardDir = resolveDashboardRoot(import.meta.url);
+  const payload = JSON.stringify(out, null, 2);
+  console.log(`✔ prepared kpi-snapshot.json`);
+  console.log("\n📤 Pushing to GitHub Pages…");
+  publishFiles({
+    cwd: dashboardDir,
+    message: `chore: update KPI snapshot ${new Date().toLocaleDateString("en-US")}`,
+    paths: ["kpi-snapshot.json"],
+    stage(dir) { writeFileSync(join(dir, "kpi-snapshot.json"), payload); }
+  });
+  console.log("✅ Pushed.");
 }
 
 main().catch(e => { console.error("FATAL:", e); process.exit(1); });

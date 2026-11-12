@@ -14,6 +14,10 @@ on:
         required: false
         default: 'Unknown'
 
+concurrency:
+  group: rcm-master-publish
+  cancel-in-progress: false
+
 permissions:
   contents: write
   actions: write

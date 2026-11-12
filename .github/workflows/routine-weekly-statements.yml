@@ -13,7 +13,14 @@ name: Routine — Weekly Statements (Fri 9:45 PM CT)
 # hasn't been pushed yet.
 
 on:
+  schedule:
+    # Friday 9:45 PM America/Chicago standard time = 03:45 UTC Saturday.
+    - cron: '45 3 * * 6'
   workflow_dispatch:
+
+concurrency:
+  group: rcm-master-publish
+  cancel-in-progress: false
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true

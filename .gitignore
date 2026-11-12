@@ -1,3 +1,4 @@
 node_modules/
 .clickup-oauth.json
 .env
+staff-pins.json

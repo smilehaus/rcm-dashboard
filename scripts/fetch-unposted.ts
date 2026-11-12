@@ -10,9 +10,9 @@
 
 import { getClickUpToken } from "../lib/clickup-oauth.js";
 import { writeFileSync, readFileSync } from "fs";
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
-import { execSync } from "child_process";
+import { join } from "path";
+import { publishFiles } from "./lib/git-publish.mjs";
+import { resolveDashboardRoot } from "./lib/dashboard-root.mjs";
 
 const CLICKUP_BASE = "https://api.clickup.com/api/v2";
 const TEAM_ID = "9014079163";
@@ -235,11 +235,7 @@ async function main() {
   if (DRY_RUN) console.log(`🧪 DRY RUN — no JSON write or push`);
   if (ONLY_OFFICE) console.log(`🎯 Single office: ${ONLY_OFFICE}`);
 
-  const scriptDir = dirname(fileURLToPath(import.meta.url));
-  const dashboardDir = process.env.CI
-    ? join(scriptDir, "..")
-    : join(scriptDir, "..", "apps", "rcm-dashboard");
-  const snapshotPath = join(dashboardDir, "ar-snapshot.json");
+  const dashboardDir = resolveDashboardRoot(import.meta.url);
 
   const spaceId = await findSpaceId();
   const folders = await findOfficeFolders(spaceId);
@@ -263,73 +259,63 @@ async function main() {
 
   if (DRY_RUN) { console.log(`\nDRY RUN — skipping write.`); return; }
 
-  const data = JSON.parse(readFileSync(snapshotPath, "utf8").replace(/^﻿/, ""));
-  data.offices = data.offices || {};
-  for (const code of OFFICE_CODES) {
-    if (ONLY_OFFICE && code !== ONLY_OFFICE) continue;
-    const r = results[code];
-    if (r == null) continue;
-    if (!data.offices[code]) data.offices[code] = { outstanding: null, patients: null, insurance: null, unposted: null };
-    const prevUnposted = data.offices[code].unposted || {};
-    data.offices[code].unposted = {
-      y2025: r.y2025, y2026: r.y2026, total: r.total,
-      mondayBaseline2026: prevUnposted.mondayBaseline2026 ?? null,
-      mondayBaselineDate: prevUnposted.mondayBaselineDate ?? null,
-      completedToday2026:        r.completedToday2026,
-      completedTodayDate:        new Date().toLocaleDateString("en-CA", { timeZone: "America/Chicago" }),
-      completedThisWeek2026:     r.completedThisWeek2026,
-      completedThisWeekStart:    r.completedThisWeekStart,
-      newTasksAddedThisWeek2026: r.newTasksAddedThisWeek2026,
-    };
-  }
-
-  const nowCT = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Chicago" }));
-  const daysSinceMon = (nowCT.getDay() + 6) % 7;
-  const mondayCT = new Date(nowCT); mondayCT.setDate(mondayCT.getDate() - daysSinceMon);
-  const mondayISO = mondayCT.toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
-  for (const code of OFFICE_CODES) {
-    if (ONLY_OFFICE && code !== ONLY_OFFICE) continue;
-    const office = data.offices[code];
-    if (!office?.unposted) continue;
-    if (!office.unposted.mondayBaselineDate || office.unposted.mondayBaselineDate < mondayISO) {
-      office.unposted.mondayBaseline2026 = office.unposted.y2026;
-      office.unposted.mondayBaselineDate = mondayISO;
+  console.log(`\n📤 Pushing to GitHub Pages...`);
+  publishFiles({
+    cwd: dashboardDir,
+    message: `chore: update unposted ${new Date().toLocaleDateString("en-US")}`,
+    paths: ["ar-snapshot.json"],
+    stage(dir) {
+      const snapshotPath = join(dir, "ar-snapshot.json");
+      const data = JSON.parse(readFileSync(snapshotPath, "utf8").replace(/^\uFEFF/, ""));
+      data.offices = data.offices || {};
+      for (const code of OFFICE_CODES) {
+        if (ONLY_OFFICE && code !== ONLY_OFFICE) continue;
+        const r = results[code];
+        if (r == null) continue;
+        if (!data.offices[code]) data.offices[code] = { outstanding: null, patients: null, insurance: null, unposted: null };
+        const prevUnposted = data.offices[code].unposted || {};
+        data.offices[code].unposted = {
+          y2025: r.y2025, y2026: r.y2026, total: r.total,
+          mondayBaseline2026: prevUnposted.mondayBaseline2026 ?? null,
+          mondayBaselineDate: prevUnposted.mondayBaselineDate ?? null,
+          completedToday2026:        r.completedToday2026,
+          completedTodayDate:        new Date().toLocaleDateString("en-CA", { timeZone: "America/Chicago" }),
+          completedThisWeek2026:     r.completedThisWeek2026,
+          completedThisWeekStart:    r.completedThisWeekStart,
+          newTasksAddedThisWeek2026: r.newTasksAddedThisWeek2026,
+        };
+      }
+      const nowCT = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Chicago" }));
+      const daysSinceMon = (nowCT.getDay() + 6) % 7;
+      const mondayCT = new Date(nowCT); mondayCT.setDate(mondayCT.getDate() - daysSinceMon);
+      const mondayISO = mondayCT.toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
+      for (const code of OFFICE_CODES) {
+        if (ONLY_OFFICE && code !== ONLY_OFFICE) continue;
+        const office = data.offices[code];
+        if (!office?.unposted) continue;
+        if (!office.unposted.mondayBaselineDate || office.unposted.mondayBaselineDate < mondayISO) {
+          office.unposted.mondayBaseline2026 = office.unposted.y2026;
+          office.unposted.mondayBaselineDate = mondayISO;
+        }
+      }
+      const _now = new Date();
+      data.generated = _now.toISOString();
+      data.asOf = _now.toLocaleString("en-US", {
+        timeZone: "America/Chicago",
+        month: "numeric", day: "numeric", year: "numeric",
+        hour: "numeric", minute: "2-digit", hour12: true,
+      }) + " CT";
+      const todayCT = new Date().toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
+      data.history = Array.isArray(data.history) ? data.history : [];
+      let entry = data.history.find((h: any) => h.date === todayCT);
+      if (!entry) { entry = { date: todayCT }; data.history.push(entry); }
+      entry.unposted = grandTotal; entry.unposted2026 = grand2026; entry.unposted2025 = grand2025;
+      data.history.sort((a: any, b: any) => (a.date || "").localeCompare(b.date || ""));
+      data.history = data.history.slice(-14);
+      writeFileSync(snapshotPath, JSON.stringify(data, null, 2));
     }
-  }
-  console.log(`📅 Weekly baseline date = ${mondayISO}`);
-  const _now = new Date();
-  data.generated = _now.toISOString();
-  data.asOf = _now.toLocaleString('en-US', {
-    timeZone: 'America/Chicago',
-    month: 'numeric', day: 'numeric', year: 'numeric',
-    hour: 'numeric', minute: '2-digit', hour12: true,
-  }) + ' CT';
-
-  const todayCT = new Date().toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
-  data.history = Array.isArray(data.history) ? data.history : [];
-  let entry = data.history.find((h: any) => h.date === todayCT);
-  if (!entry) { entry = { date: todayCT }; data.history.push(entry); }
-  entry.unposted = grandTotal; entry.unposted2026 = grand2026; entry.unposted2025 = grand2025;
-  data.history.sort((a: any, b: any) => (a.date || "").localeCompare(b.date || ""));
-  data.history = data.history.slice(-14);
-
-  writeFileSync(snapshotPath, JSON.stringify(data, null, 2));
-  console.log(`✓ Wrote ar-snapshot.json`);
-
-  try {
-    console.log(`\n📤 Pushing to GitHub Pages...`);
-    const freshSnapshot = readFileSync(snapshotPath, "utf8");
-    execSync(`git fetch origin master`, { cwd: dashboardDir, stdio: "pipe" });
-    execSync(`git reset --hard origin/master`, { cwd: dashboardDir, stdio: "pipe" });
-    writeFileSync(snapshotPath, freshSnapshot);
-    execSync(`git add ar-snapshot.json`, { cwd: dashboardDir, stdio: "pipe" });
-    execSync(`git commit -m "chore: update unposted ${new Date().toLocaleDateString("en-US")}"`, { cwd: dashboardDir, stdio: "pipe" });
-    execSync(`git push origin master`, { cwd: dashboardDir, stdio: "pipe" });
-    console.log(`✅ Pushed.`);
-  } catch (e: any) {
-    if (e.message?.includes("nothing to commit")) console.log(`ℹ️  No changes to push`);
-    else console.error(`⚠️  Git push failed: ${e.message}`);
-  }
+  });
+  console.log(`✅ Pushed.`);
 }
 
 main().catch((err) => { console.error(`\n❌ ERROR: ${err.message}`); process.exit(1); });
