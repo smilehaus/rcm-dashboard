@@ -8,9 +8,9 @@
 // NEVER deletes tasks, attachments, or comments — history is preserved cumulatively.
 
 import { readFileSync } from "fs";
-import { dirname, join } from "path";
-import { fileURLToPath } from "url";
+import { join } from "path";
 import { getClickUpToken } from "../lib/clickup-oauth.js";
+import { resolveDashboardRoot } from "./lib/dashboard-root.mjs";
 
 const LIST_ID = "901416373479";
 const DRY_RUN = process.argv.includes("--dry-run");
@@ -87,10 +87,7 @@ function buildDescription(entry: any, prev: any | null): string {
 
 async function main() {
   console.log(`\n☁  Backing up AR snapshot to ClickUp list ${LIST_ID}…`);
-  const scriptDir    = dirname(fileURLToPath(import.meta.url));
-  const dashboardDir = process.env.CI
-    ? join(scriptDir, "..")
-    : join(scriptDir, "..", "apps", "rcm-dashboard");
+  const dashboardDir = resolveDashboardRoot(import.meta.url);
   const snapshotPath = join(dashboardDir, "ar-snapshot.json");
   const snapshot     = JSON.parse(readFileSync(snapshotPath, "utf8").replace(/^﻿/, ""));
 

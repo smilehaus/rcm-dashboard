@@ -1,5 +1,9 @@
 name: RCM Dashboard — Auto Backup
 
+concurrency:
+  group: rcm-master-publish
+  cancel-in-progress: false
+
 on:
   schedule:
     # Every 3 hours on the hour (UTC). Runs even if no one has the tab open.
@@ -44,12 +48,37 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Don't commit a non-JSON body (Firebase error pages look like backups).
+          python3 - << 'PY'
+          import json, pathlib, sys
+          bad = 0
+          for p in pathlib.Path("backups").glob("*.json"):
+              text = p.read_text()
+              if text.startswith("<<<<<<<") or "<<<<<<< " in text:
+                  print("conflict markers", p)
+                  bad += 1
+                  continue
+              try:
+                  json.loads(text)
+              except Exception as e:
+                  print("invalid", p, type(e).__name__)
+                  bad += 1
+          sys.exit(bad)
+          PY
           git add backups/
           if git diff --staged --quiet; then
             echo "⚪ No changes — data unchanged since last backup, skipping commit"
           else
             TIMESTAMP=$(date -u "+%Y-%m-%d %H:%M UTC")
             git commit -m "backup: RCM snapshot ${TIMESTAMP}"
-            git push
-            echo "✅ Committed and pushed"
+            for attempt in 1 2 3 4 5; do
+              if git push origin HEAD:master; then
+                echo "✅ Committed and pushed"
+                exit 0
+              fi
+              git fetch origin master
+              git rebase origin/master || { git rebase --abort || true; exit 1; }
+            done
+            echo "push failed"
+            exit 1
           fi

@@ -11,7 +11,10 @@
     "archive":  "tsx scripts/archive-ar-snapshot.ts",
     "backup":   "tsx scripts/backup-ar-snapshot-to-clickup.ts",
     "watchdog": "tsx scripts/scheduler-watchdog.ts",
-    "kpi":      "tsx scripts/fetch-kpi-snapshot.ts"
+    "kpi":      "tsx scripts/fetch-kpi-snapshot.ts",
+    "validate": "node scripts/validate-json.mjs",
+    "test":     "node --test scripts/board-sync.test.mjs scripts/json-guard.test.mjs scripts/git-publish.test.mjs",
+    "smoke":    "node scripts/smoke-browser.mjs"
   },
   "dependencies": {
     "dotenv": "^16.4.5"

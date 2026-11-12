@@ -1,0 +1,1332 @@
+{
+  "_v": 6,
+  "_baselineFrom": "backups/2026-10-22_11-33.json",
+  "_clientBuild": 2026111201,
+  "_minBuild": 2026111201,
+  "staff": [
+    {
+      "color": "rgb(165, 139, 196)",
+      "dept": "Management",
+      "id": "adela",
+      "inactiveDate": "Apr 13, 2026",
+      "inactiveReason": "Inactive",
+      "initials": "AJ",
+      "manager": "Anh",
+      "name": "Adela",
+      "role": "Regional Manager - North",
+      "vacEnd": "",
+      "vacStart": ""
+    },
+    {
+      "color": "rgb(152, 150, 200)",
+      "dept": "Front Team",
+      "id": "vanessa",
+      "initials": "VA",
+      "manager": "Adela",
+      "name": "Vanessa",
+      "role": "Patient Coordinator",
+      "vacEnd": "",
+      "vacStart": ""
+    },
+    {
+      "color": "rgb(165, 139, 196)",
+      "dept": "Inactive",
+      "homeOffice": "",
+      "id": "valerie",
+      "inactiveDate": "Sep 14, 2026",
+      "inactiveReason": "Terminated",
+      "initials": "VG",
+      "manager": "Karina",
+      "name": "Valerie",
+      "role": "Patient Coordinator",
+      "vacEnd": "",
+      "vacStart": ""
+    },
+    {
+      "color": "rgb(196, 147, 90)",
+      "dept": "Management",
+      "homeOffice": "",
+      "id": "becky",
+      "initials": "RR",
+      "manager": "Anh",
+      "name": "Becky",
+      "role": "RCM Manager",
+      "vacEnd": "",
+      "vacStart": "",
+      "workItems": [
+        {
+          "checked": false,
+          "completed": false,
+          "text": "ASAP IV: GT  Dr. C, Dr. J, and Amanda's columns for tomorrow's schedule (06/03/26)"
+        }
+      ]
+    },
+    {
+      "color": "rgb(109, 170, 143)",
+      "dept": "Inactive",
+      "homeOffice": "",
+      "id": "brittani",
+      "inactiveDate": "Sep 14, 2026",
+      "inactiveReason": "Terminated",
+      "initials": "BR",
+      "manager": "",
+      "name": "Brittani",
+      "role": "",
+      "vacEnd": "",
+      "vacStart": ""
+    },
+    {
+      "color": "rgb(196, 120, 152)",
+      "dept": "Inactive",
+      "homeOffice": "",
+      "id": "lovely",
+      "inactiveDate": "Aug 25, 2026",
+      "inactiveReason": "Inactive",
+      "initials": "LV",
+      "manager": "",
+      "name": "Lovely (REACH)",
+      "role": "",
+      "vacEnd": "",
+      "vacStart": ""
+    },
+    {
+      "color": "#C4A85A",
+      "dept": "Inactive",
+      "id": "princess",
+      "inactiveDate": "Aug 25, 2026",
+      "inactiveReason": "Terminated",
+      "initials": "PN",
+      "manager": "",
+      "name": "Princess (REACH)",
+      "role": ""
+    },
+    {
+      "color": "rgb(90, 170, 196)",
+      "dept": "Inactive",
+      "homeOffice": "",
+      "id": "rob",
+      "inactiveDate": "Aug 25, 2026",
+      "inactiveReason": "Terminated",
+      "initials": "RB",
+      "manager": "Aby",
+      "name": "Rob (REACH)",
+      "newlyAssigned": [
+        {
+          "assignedBy": "Aby",
+          "checked": false,
+          "dueDate": "2026-06-22",
+          "priority": "asap",
+          "resolved": true,
+          "text": "Sarah Dennis NBDA 6/23"
+        },
+        {
+          "assignedBy": "Aby",
+          "checked": false,
+          "dueDate": "2026-06-22",
+          "priority": "asap",
+          "resolved": true,
+          "text": "Jennifer Medina AR 6/23"
+        },
+        {
+          "assignedBy": "Aby",
+          "checked": false,
+          "dueDate": "2026-06-22",
+          "priority": "next",
+          "resolved": true,
+          "text": "Sarah Van Duhzee, Kendall McGarity, & Kaitlin Mesker NBDA 6/24"
+        },
+        {
+          "assignedBy": "Becky",
+          "checked": false,
+          "dueDate": "2026-06-30",
+          "priority": "next",
+          "resolved": true,
+          "text": "IV NBDA: Mia Mendoza (scheduled tomorrow 07/01)"
+        },
+        {
+          "assignedBy": "Becky",
+          "checked": false,
+          "dueDate": "2026-06-30",
+          "priority": "next",
+          "resolved": true,
+          "text": "IV NBDA: Brian Ohlenbusch (scheduled tomorrow 07/01)"
+        },
+        {
+          "assignedBy": "Becky",
+          "checked": false,
+          "dueDate": "2026-07-29",
+          "priority": "asap",
+          "resolved": true,
+          "text": "AR IV: pts on tomorrow's (07/30) schedule: Lillian Stone, Daniel Stone, Natalie Stone, LIillian Byrd, Rob Schmidt"
+        }
+      ],
+      "resp": [
+        "NBDA office",
+        "AR office"
+      ],
+      "role": "Insurance Verifier",
+      "vacEnd": "2026-05-14",
+      "vacStart": "2026-05-14",
+      "workItems": [
+        {
+          "checked": false,
+          "completed": false,
+          "text": "AR"
+        },
+        {
+          "checked": false,
+          "completed": false,
+          "text": "ATX"
+        },
+        {
+          "checked": false,
+          "completed": false,
+          "text": "NBDA"
+        }
+      ]
+    },
+    {
+      "color": "#8A9BAA",
+      "dept": "Inactive",
+      "id": "kirk",
+      "inactiveDate": "Sep 14, 2026",
+      "inactiveReason": "Terminated",
+      "initials": "KK",
+      "manager": "",
+      "name": "Kirk (REACH)",
+      "role": ""
+    },
+    {
+      "color": "rgb(196, 112, 112)",
+      "dept": "RCM - Ins Verification",
+      "homeOffice": "",
+      "id": "myk",
+      "initials": "MK",
+      "manager": "",
+      "name": "Myk (Reach)",
+      "role": "",
+      "vacEnd": "",
+      "vacStart": ""
+    },
+    {
+      "color": "rgb(90, 170, 165)",
+      "dept": "Management",
+      "id": "gianna",
+      "initials": "GI",
+      "manager": "Karina",
+      "name": "Gianna",
+      "role": "Office Manager",
+      "vacEnd": "",
+      "vacStart": ""
+    },
+    {
+      "color": "rgb(196, 112, 138)",
+      "dept": "Management",
+      "homeOffice": "AR",
+      "id": "alexis",
+      "initials": "AX",
+      "manager": "",
+      "name": "Alexis",
+      "role": "",
+      "vacEnd": "",
+      "vacStart": ""
+    },
+    {
+      "color": "rgb(154, 120, 196)",
+      "dept": "Inactive",
+      "homeOffice": "",
+      "id": "lynn",
+      "inactiveDate": "Sep 14, 2026",
+      "inactiveReason": "Terminated",
+      "initials": "LN",
+      "manager": "",
+      "name": "Lynn",
+      "role": "",
+      "vacEnd": "",
+      "vacStart": ""
+    },
+    {
+      "color": "#9A8E80",
+      "dept": "",
+      "id": "own_team",
+      "initials": "OT",
+      "manager": "",
+      "name": "Own Team",
+      "role": ""
+    },
+    {
+      "color": "rgb(152, 150, 200)",
+      "dept": "Management",
+      "id": "staff_1775850979464",
+      "initials": "KR",
+      "manager": "Anh",
+      "name": "Karina",
+      "role": "Regional Manager - South",
+      "vacEnd": "",
+      "vacStart": ""
+    },
+    {
+      "color": "rgb(196, 112, 138)",
+      "dept": "RCM - Claims",
+      "homeOffice": "",
+      "id": "staff_1776091315164",
+      "inactiveDate": "Apr 13, 2026",
+      "inactiveReason": "Terminated",
+      "initials": "LC",
+      "manager": "Aby",
+      "name": "Lovely (REACH)",
+      "newlyAssigned": [
+        {
+          "assignedBy": "Becky",
+          "checked": false,
+          "dueDate": "2026-05-06",
+          "priority": "asap",
+          "resolved": true,
+          "text": "Overdue Resubmissions: GT = 5, IC = 1"
+        }
+      ],
+      "resp": [
+        "Submit all claims needing attachmments/narratives",
+        "Recreating/resubmitting old legacy PMS claims",
+        "Correcting errored claims to submit",
+        "Resubmitting denied claims"
+      ],
+      "role": "Claims Submissions",
+      "vacEnd": "",
+      "vacStart": ""
+    },
+    {
+      "color": "rgb(90, 170, 196)",
+      "dept": "RCM - Dental Billing",
+      "homeOffice": "",
+      "id": "staff_1776356749498",
+      "initials": "RO",
+      "manager": "Becky",
+      "name": "Roneish",
+      "role": "",
+      "vacEnd": "",
+      "vacStart": ""
+    },
+    {
+      "color": "rgb(109, 170, 143)",
+      "dept": "Management",
+      "id": "staff_1776359497565",
+      "initials": "AB",
+      "manager": "",
+      "name": "Aby",
+      "role": "REACH Manager",
+      "vacEnd": "",
+      "vacStart": ""
+    },
+    {
+      "color": "rgb(90, 170, 165)",
+      "dept": "RCM - Aging",
+      "homeOffice": "",
+      "id": "staff_1776359557867",
+      "initials": "M",
+      "manager": "Aby",
+      "name": "Melanie (Reach)",
+      "newlyAssigned": [
+        {
+          "assignedBy": "Becky",
+          "checked": false,
+          "dueDate": "2026-05-06",
+          "priority": "asap",
+          "resolved": false,
+          "text": "Priority/Overdue aged claims:  MP = 16 total (13 in old PMS / 3 in Oryx)"
+        }
+      ],
+      "role": "",
+      "vacEnd": "2026-05-05",
+      "vacStart": "2026-05-04"
+    },
+    {
+      "color": "rgb(160, 135, 106)",
+      "dept": "RCM - Aging",
+      "homeOffice": "",
+      "id": "staff_1776359574166",
+      "initials": "S",
+      "manager": "Aby",
+      "name": "Saviour (Reach)",
+      "newlyAssigned": [
+        {
+          "assignedBy": "Becky",
+          "checked": false,
+          "dueDate": "2026-05-06",
+          "priority": "next",
+          "resolved": false,
+          "text": "GT Old PMS aged claims: Priority = 1, Overdue = 1  (To be completed after your GT Dentrix login is created)"
+        }
+      ],
+      "resp": [
+        "working on previously worked on claims"
+      ],
+      "role": "",
+      "vacEnd": "2026-07-21",
+      "vacStart": "2026-07-21",
+      "workItems": [
+        {
+          "checked": false,
+          "completed": false,
+          "text": "working on previously worked on claims"
+        }
+      ]
+    },
+    {
+      "color": "rgb(196, 120, 152)",
+      "dept": "Management",
+      "homeOffice": "",
+      "id": "staff_1776359858878",
+      "initials": "YB",
+      "manager": "Anh",
+      "name": "Yasmine",
+      "newlyAssigned": [
+        {
+          "assignedBy": "Anh",
+          "checked": false,
+          "dueDate": "2026-04-21",
+          "priority": "asap",
+          "resolved": true,
+          "text": "sdfsf"
+        }
+      ],
+      "role": "Office Manager",
+      "vacEnd": "",
+      "vacStart": ""
+    },
+    {
+      "color": "rgb(123, 176, 154)",
+      "dept": "Inactive",
+      "homeOffice": "",
+      "id": "staff_1776360058985",
+      "inactiveDate": "Aug 25, 2026",
+      "inactiveReason": "Terminated",
+      "initials": "KE",
+      "manager": "Aby",
+      "name": "Kelly (Reach)",
+      "role": "Credentialing",
+      "vacEnd": "",
+      "vacStart": ""
+    },
+    {
+      "color": "rgb(90, 170, 196)",
+      "dept": "Inactive",
+      "homeOffice": "",
+      "id": "staff_1776360166276",
+      "inactiveDate": "Sep 14, 2026",
+      "inactiveReason": "terminated",
+      "initials": "VL",
+      "manager": "Becky",
+      "name": "Valerie Landa",
+      "role": "",
+      "vacEnd": "",
+      "vacStart": "",
+      "workItems": [
+        {
+          "checked": false,
+          "completed": false,
+          "text": "Clickup cleanup: upload deposit slips, add pt names, mark pt names w/ appropriate status, fill out all required fields for posters"
+        }
+      ]
+    },
+    {
+      "color": "rgb(165, 139, 196)",
+      "dept": "Management",
+      "homeOffice": "",
+      "id": "staff_1776360260288",
+      "initials": "LN",
+      "manager": "",
+      "name": "Lacy",
+      "newlyAssigned": [
+        {
+          "assignedBy": "Anh",
+          "checked": false,
+          "dueDate": "2026-04-21",
+          "priority": "asap",
+          "resolved": false,
+          "text": "20222"
+        },
+        {
+          "assignedBy": "Anh",
+          "checked": false,
+          "dueDate": "2026-04-22",
+          "priority": "next",
+          "resolved": false,
+          "text": "ffff"
+        },
+        {
+          "assignedBy": "Anh",
+          "checked": false,
+          "dueDate": "2026-04-21",
+          "priority": "asap",
+          "resolved": false,
+          "text": "TEST TEST"
+        }
+      ],
+      "role": "Operations Manager",
+      "vacEnd": "",
+      "vacStart": ""
+    },
+    {
+      "color": "rgb(196, 112, 112)",
+      "dept": "Management",
+      "id": "staff_1776360351136",
+      "initials": "KR",
+      "manager": "",
+      "name": "Kelly Rodriguez",
+      "role": "Office Manager",
+      "vacEnd": "",
+      "vacStart": ""
+    },
+    {
+      "color": "rgb(154, 120, 196)",
+      "dept": "RCM - Ins Verification",
+      "homeOffice": "",
+      "id": "staff_1776360611546",
+      "initials": "M",
+      "manager": "Aby",
+      "name": "Meg (Reach)",
+      "newlyAssigned": [
+        {
+          "assignedBy": "Aby",
+          "checked": false,
+          "dueDate": "2026-06-17",
+          "priority": "asap",
+          "resolved": true,
+          "text": "Jesse Coulter & Ronald Egyir IC 6/17"
+        },
+        {
+          "assignedBy": "Aby",
+          "checked": false,
+          "dueDate": "2026-06-22",
+          "priority": "asap",
+          "resolved": true,
+          "text": "Lillian Farias S.ATX 6/22"
+        },
+        {
+          "assignedBy": "Becky",
+          "checked": false,
+          "dueDate": "2026-06-30",
+          "priority": "asap",
+          "resolved": true,
+          "text": "IV IC: Thi Thanh Tam Hoang (scheduled for tomorrow 07/01)"
+        },
+        {
+          "assignedBy": "Becky",
+          "checked": false,
+          "dueDate": "2026-06-30",
+          "priority": "asap",
+          "resolved": true,
+          "text": "IV SATX: Devan Avery (NP on tomorrow's schedule, ins info in the appointment notes)"
+        },
+        {
+          "assignedBy": "Becky",
+          "checked": false,
+          "dueDate": "2026-07-29",
+          "priority": "asap",
+          "resolved": true,
+          "text": "SATX IV: Irma Mercado (uhc ID# in note block)"
+        },
+        {
+          "assignedBy": "Becky",
+          "checked": false,
+          "dueDate": "2026-07-29",
+          "priority": "next",
+          "resolved": true,
+          "text": "SATX IV: on tomorrow's schedule (07/30) - Douglas Granell (BCBS)"
+        }
+      ],
+      "resp": [
+        "GT Sharon Column",
+        "IC office",
+        "S.ATX office"
+      ],
+      "role": "Ins Verifier",
+      "vacEnd": "2026-08-17",
+      "vacStart": "2026-08-17",
+      "workItems": [
+        {
+          "checked": false,
+          "completed": false,
+          "text": "SATX"
+        },
+        {
+          "checked": false,
+          "completed": false,
+          "text": "IC"
+        }
+      ]
+    },
+    {
+      "color": "rgb(196, 112, 112)",
+      "dept": "Patient Outreach",
+      "homeOffice": "",
+      "id": "staff_1776360707641",
+      "initials": "JM",
+      "manager": "Aby",
+      "name": "Jared",
+      "role": "Overflow / Leads",
+      "vacEnd": "2026-04-25",
+      "vacStart": "2026-04-25"
+    },
+    {
+      "color": "rgb(138, 155, 170)",
+      "dept": "Patient Outreach",
+      "homeOffice": "",
+      "id": "staff_1776360721244",
+      "initials": "AL",
+      "manager": "Aby",
+      "name": "Anna Lagnas",
+      "role": "Patient Outreach / Overflow",
+      "vacEnd": "2026-08-18",
+      "vacStart": "2026-08-17",
+      "workItems": [
+        {
+          "checked": false,
+          "completed": false,
+          "text": "Overflow"
+        },
+        {
+          "checked": false,
+          "completed": false,
+          "text": "Recall"
+        }
+      ]
+    },
+    {
+      "color": "rgb(196, 112, 138)",
+      "dept": "Management",
+      "homeOffice": "",
+      "id": "staff_1776803247791",
+      "initials": "HAL",
+      "manager": "",
+      "name": "Anh",
+      "role": "",
+      "vacEnd": "",
+      "vacStart": ""
+    },
+    {
+      "color": "rgb(165, 139, 196)",
+      "dept": "RCM - Ins Verification",
+      "homeOffice": "",
+      "id": "staff_1778184912252",
+      "initials": "SA",
+      "manager": "Aby",
+      "name": "Shean (Reach)",
+      "newlyAssigned": [
+        {
+          "assignedBy": "Aby",
+          "checked": false,
+          "dueDate": "2026-06-22",
+          "priority": "asap",
+          "resolved": true,
+          "text": "Stephanie Laus GT 6/22"
+        },
+        {
+          "assignedBy": "Aby",
+          "checked": false,
+          "dueDate": "2026-06-22",
+          "priority": "next",
+          "resolved": true,
+          "text": "Cody Glass & Veronica Vessels GT 6/24"
+        },
+        {
+          "assignedBy": "Aby",
+          "checked": false,
+          "dueDate": "2026-06-25",
+          "priority": "next",
+          "resolved": true,
+          "text": "Duy Bui 6/30 ATX"
+        }
+      ],
+      "resp": [
+        "ATX office",
+        "GT Amanda Column",
+        "GT Dr. Chenausky & Dr. Johnson Columns"
+      ],
+      "role": "Ins Verifier",
+      "vacEnd": "",
+      "vacStart": ""
+    },
+    {
+      "color": "rgb(123, 168, 196)",
+      "dept": "RCM - Ins Verification",
+      "homeOffice": "GT",
+      "id": "staff_1781529289192",
+      "initials": "VC",
+      "manager": "Aby",
+      "name": "Vince (Reach)",
+      "newlyAssigned": [
+        {
+          "assignedBy": "Becky",
+          "checked": false,
+          "dueDate": "2026-06-30",
+          "priority": "asap",
+          "resolved": true,
+          "text": "IV GT: Charles Weaver (scheduled tomorrow 07/01, ins info uploaded to pt docs)"
+        },
+        {
+          "assignedBy": "Becky",
+          "checked": false,
+          "dueDate": "2026-06-30",
+          "priority": "next",
+          "resolved": true,
+          "text": "IV GT: Serena Cortez (scheduled tomorrow 07/01, ins info in appointment notes)"
+        }
+      ],
+      "resp": [
+        "GT TIphaney's column"
+      ],
+      "role": "Ins Verifier",
+      "vacEnd": "",
+      "vacStart": ""
+    },
+    {
+      "color": "rgb(90, 170, 196)",
+      "dept": "RCM - Aging",
+      "homeOffice": "",
+      "id": "staff_1781740011885",
+      "initials": "CH",
+      "manager": "Aby",
+      "name": "Carlos (Reach)",
+      "role": "",
+      "vacEnd": "",
+      "vacStart": ""
+    },
+    {
+      "color": "rgb(160, 135, 106)",
+      "dept": "RCM - Aging",
+      "homeOffice": "",
+      "id": "staff_1781740034224",
+      "initials": "GS",
+      "manager": "Aby",
+      "name": "Ghulam (Reach)",
+      "role": "",
+      "vacEnd": "",
+      "vacStart": ""
+    },
+    {
+      "color": "rgb(109, 170, 143)",
+      "dept": "Credentialing",
+      "homeOffice": "",
+      "id": "staff_1783449384922",
+      "initials": "DT",
+      "manager": "Aby",
+      "name": "Dream (Reach)",
+      "role": "Credentialing Specialist",
+      "vacEnd": "",
+      "vacStart": ""
+    },
+    {
+      "color": "rgb(196, 112, 112)",
+      "dept": "RCM - Claims",
+      "homeOffice": "",
+      "id": "staff_1786975791171",
+      "initials": "GG",
+      "manager": "",
+      "name": "Gabriela (Reach)",
+      "role": "",
+      "vacEnd": "",
+      "vacStart": ""
+    },
+    {
+      "color": "rgb(196, 120, 152)",
+      "dept": "RCM - Aging",
+      "homeOffice": "",
+      "id": "staff_1786975811629",
+      "initials": "YD",
+      "manager": "",
+      "name": "Yvette (Reach)",
+      "role": "",
+      "vacEnd": "",
+      "vacStart": ""
+    },
+    {
+      "color": "rgb(152, 150, 200)",
+      "dept": "RCM - Aging",
+      "homeOffice": "",
+      "id": "staff_1788907551807",
+      "initials": "RM",
+      "manager": "Aby",
+      "name": "Rhoda Mae (Reach)",
+      "role": "",
+      "vacEnd": "",
+      "vacStart": ""
+    },
+    {
+      "color": "rgb(196, 147, 90)",
+      "dept": "",
+      "id": "staff_1789429502885",
+      "initials": "OX",
+      "manager": "",
+      "name": "ORYX Team",
+      "role": ""
+    },
+    {
+      "color": "rgb(123, 168, 196)",
+      "dept": "Inactive",
+      "id": "staff_1791554680798",
+      "inactiveDate": "Oct 9, 2026",
+      "inactiveReason": "Inactive",
+      "initials": "JB",
+      "manager": "",
+      "name": "Jill Beduya",
+      "role": ""
+    },
+    {
+      "color": "rgb(123, 168, 196)",
+      "dept": "RCM - Ins Verification",
+      "homeOffice": "GT",
+      "id": "staff_1791554746155",
+      "initials": "JB",
+      "manager": "",
+      "name": "Jill Beduya (Reach)",
+      "resp": [
+        "GT Office Sharon and Amanda Column"
+      ],
+      "role": "Ins Verifier",
+      "vacEnd": "",
+      "vacStart": ""
+    }
+  ],
+  "staffArchive": [
+    {
+      "id": "valerie",
+      "name": "Valerie",
+      "inactiveReason": "Terminated",
+      "inactiveDate": "Sep 14, 2026"
+    },
+    {
+      "id": "brittani",
+      "name": "Brittani",
+      "inactiveReason": "Terminated",
+      "inactiveDate": "Sep 14, 2026"
+    },
+    {
+      "id": "lovely",
+      "name": "Lovely (REACH)",
+      "inactiveReason": "Inactive",
+      "inactiveDate": "Aug 25, 2026"
+    },
+    {
+      "id": "princess",
+      "name": "Princess (REACH)",
+      "inactiveReason": "Terminated",
+      "inactiveDate": "Aug 25, 2026"
+    },
+    {
+      "id": "rob",
+      "name": "Rob (REACH)",
+      "inactiveReason": "Terminated",
+      "inactiveDate": "Aug 25, 2026"
+    },
+    {
+      "id": "kirk",
+      "name": "Kirk (REACH)",
+      "inactiveReason": "Terminated",
+      "inactiveDate": "Sep 14, 2026"
+    },
+    {
+      "id": "lynn",
+      "name": "Lynn",
+      "inactiveReason": "Terminated",
+      "inactiveDate": "Sep 14, 2026"
+    },
+    {
+      "id": "staff_1776360058985",
+      "name": "Kelly (Reach)",
+      "inactiveReason": "Terminated",
+      "inactiveDate": "Aug 25, 2026"
+    },
+    {
+      "id": "staff_1776360166276",
+      "name": "Valerie Landa",
+      "inactiveReason": "terminated",
+      "inactiveDate": "Sep 14, 2026"
+    },
+    {
+      "id": "staff_1791554680798",
+      "name": "Jill Beduya",
+      "inactiveReason": "Inactive",
+      "inactiveDate": "Oct 9, 2026"
+    }
+  ],
+  "offices": [
+    {
+      "code": "SQ",
+      "lbl": "SQ",
+      "name": "On the Square"
+    },
+    {
+      "code": "GT",
+      "lbl": "GT",
+      "name": "Georgetown"
+    },
+    {
+      "code": "ATX",
+      "lbl": "ATX",
+      "name": "Austin"
+    },
+    {
+      "code": "MP",
+      "lbl": "MP",
+      "name": "Med Pkwy"
+    },
+    {
+      "code": "NBDA",
+      "lbl": "NBDA",
+      "name": "New Braunfels"
+    },
+    {
+      "code": "IC",
+      "lbl": "IC",
+      "name": "Implant Ctr"
+    },
+    {
+      "code": "AR",
+      "lbl": "AR",
+      "name": "Arboretum"
+    },
+    {
+      "code": "PF",
+      "lbl": "PF",
+      "name": "Pflugerville"
+    },
+    {
+      "code": "SATX",
+      "lbl": "S.ATX",
+      "name": "South Austin"
+    },
+    {
+      "code": "AM",
+      "lbl": "AM",
+      "name": "Anderson Mill"
+    }
+  ],
+  "columns": [
+    {
+      "cat": "",
+      "id": "ins_verif",
+      "lbl": "Ins Verification",
+      "oryx": false
+    },
+    {
+      "cat": "Claims (Sending)",
+      "id": "claims_old",
+      "lbl": "Old PMS",
+      "oryx": false
+    },
+    {
+      "cat": "Claims (Sending)",
+      "id": "claims_oryx",
+      "lbl": "Oryx",
+      "oryx": true
+    },
+    {
+      "cat": "Posting",
+      "id": "posting_old",
+      "lbl": "Old PMS",
+      "oryx": false
+    },
+    {
+      "cat": "Posting",
+      "id": "posting_oryx",
+      "lbl": "Oryx",
+      "oryx": true
+    },
+    {
+      "cat": "Aging",
+      "id": "aging_old",
+      "lbl": "Old PMS",
+      "oryx": false
+    },
+    {
+      "cat": "Aging",
+      "id": "aging_oryx",
+      "lbl": "Oryx",
+      "oryx": true
+    },
+    {
+      "cat": "Collecting / Stmts",
+      "id": "collect_old",
+      "lbl": "Old PMS",
+      "oryx": false
+    },
+    {
+      "cat": "Collecting / Stmts",
+      "id": "collect_oryx",
+      "lbl": "Oryx",
+      "oryx": true
+    }
+  ],
+  "departments": [
+    "Credentialing",
+    "Front Team",
+    "Management",
+    "Patient Outreach",
+    "RCM",
+    "RCM - Aging",
+    "RCM - Claims",
+    "RCM - Dental Billing",
+    "RCM - Ins Verification"
+  ],
+  "assign": {
+    "AM": {
+      "aging_oryx": [
+        "own_team",
+        "staff_1781740011885",
+        "staff_1786975811629"
+      ],
+      "claims_oryx": [
+        "staff_1776091315164",
+        "own_team"
+      ],
+      "col_1776360033452": [
+        "staff_1776360351136"
+      ],
+      "col_1776360676356": [
+        "staff_1776360707641",
+        "staff_1776360721244"
+      ],
+      "ins_verif": [
+        "own_team"
+      ],
+      "posting_oryx": [
+        "gianna"
+      ]
+    },
+    "AR": {
+      "aging_old": [
+        "staff_1781740034224"
+      ],
+      "aging_oryx": [
+        "staff_1789429502885"
+      ],
+      "claims_oryx": [
+        "own_team",
+        "staff_1789429502885"
+      ],
+      "col_1776360033452": [
+        "staff_1776360351136"
+      ],
+      "col_1776360676356": [
+        "staff_1776360707641",
+        "staff_1776360721244"
+      ],
+      "collect_old": [
+        "gianna"
+      ],
+      "collect_oryx": [
+        "gianna"
+      ],
+      "ins_verif": [
+        "own_team",
+        "staff_1778184912252",
+        "myk"
+      ],
+      "posting_oryx": [
+        "staff_1776356749498"
+      ]
+    },
+    "ATX": {
+      "aging_old": [
+        "staff_1781740011885",
+        "staff_1776359574166"
+      ],
+      "aging_oryx": [
+        "staff_1781740011885",
+        "staff_1776359574166"
+      ],
+      "claims_oryx": [
+        "staff_1776091315164",
+        "own_team"
+      ],
+      "col_1776360033452": [
+        "staff_1776360351136"
+      ],
+      "col_1776360676356": [
+        "staff_1776360707641",
+        "staff_1776360721244"
+      ],
+      "collect_old": [
+        "help_1776362055780_9"
+      ],
+      "collect_oryx": [
+        "help_1776362051159_8"
+      ],
+      "ins_verif": [
+        "staff_1778184912252"
+      ],
+      "posting_oryx": [
+        "becky"
+      ]
+    },
+    "GT": {
+      "aging_old": [
+        "becky",
+        "staff_1781740034224",
+        "staff_1776359574166"
+      ],
+      "aging_oryx": [
+        "becky",
+        "staff_1781740034224",
+        "staff_1776359574166"
+      ],
+      "claims_oryx": [
+        "staff_1776091315164",
+        "own_team"
+      ],
+      "col_1776360033452": [
+        "staff_1776360351136"
+      ],
+      "col_1776360676356": [
+        "staff_1776360707641",
+        "staff_1776360721244"
+      ],
+      "collect_old": [
+        "staff_1776359858878"
+      ],
+      "collect_oryx": [
+        "staff_1776359858878"
+      ],
+      "ins_verif": [
+        "staff_1778184912252",
+        "staff_1781529289192"
+      ],
+      "posting_old": [
+        "staff_1776359858878"
+      ],
+      "posting_oryx": [
+        "becky",
+        "staff_1776359858878"
+      ]
+    },
+    "IC": {
+      "aging_old": [
+        "staff_1786975811629",
+        "staff_1781740011885"
+      ],
+      "aging_oryx": [
+        "staff_1786975811629",
+        "staff_1781740011885"
+      ],
+      "claims_oryx": [
+        "adela",
+        "vanessa",
+        "staff_1786975791171"
+      ],
+      "col_1776360033452": [
+        "staff_1776360351136"
+      ],
+      "col_1776360676356": [
+        "staff_1776360707641",
+        "staff_1776360721244"
+      ],
+      "collect_old": [
+        "adela"
+      ],
+      "collect_oryx": [
+        "adela"
+      ],
+      "ins_verif": [
+        "own_team",
+        "staff_1776360611546"
+      ],
+      "posting_oryx": [
+        "adela"
+      ]
+    },
+    "MP": {
+      "aging_old": [
+        "staff_1776359574166"
+      ],
+      "aging_oryx": [
+        "staff_1776359574166"
+      ],
+      "claims_oryx": [
+        "own_team",
+        "staff_1786975791171"
+      ],
+      "col_1776360033452": [
+        "staff_1776360351136"
+      ],
+      "col_1776360676356": [
+        "staff_1776360707641",
+        "staff_1776360721244"
+      ],
+      "ins_verif": [
+        "myk"
+      ],
+      "posting_oryx": [
+        "staff_1776356749498"
+      ]
+    },
+    "NBDA": {
+      "aging_old": [
+        "staff_1776359557867"
+      ],
+      "aging_oryx": [
+        "staff_1776359557867"
+      ],
+      "claims_oryx": [
+        "own_team",
+        "staff_1786975791171"
+      ],
+      "col_1776360033452": [
+        "staff_1776360351136"
+      ],
+      "col_1776360676356": [
+        "staff_1776360707641",
+        "staff_1776360721244"
+      ],
+      "collect_old": [
+        "help_1776362094990_12"
+      ],
+      "collect_oryx": [
+        "help_1776362091913_10"
+      ],
+      "ins_verif": [
+        "own_team"
+      ],
+      "posting_oryx": [
+        "staff_1776356749498"
+      ]
+    },
+    "PF": {
+      "aging_old": [
+        "staff_1776359574166"
+      ],
+      "claims_oryx": [
+        "own_team"
+      ],
+      "col_1776360033452": [
+        "staff_1776360351136"
+      ],
+      "col_1776360676356": [
+        "staff_1776360707641",
+        "staff_1776360721244"
+      ],
+      "collect_old": [
+        "staff_1776360351136"
+      ],
+      "collect_oryx": [
+        "staff_1776360351136"
+      ],
+      "ins_verif": [
+        "own_team"
+      ],
+      "posting_oryx": [
+        "staff_1776360351136"
+      ]
+    },
+    "SATX": {
+      "aging_old": [
+        "staff_1788907551807"
+      ],
+      "aging_oryx": [
+        "staff_1788907551807"
+      ],
+      "claims_oryx": [
+        "own_team",
+        "staff_1786975791171"
+      ],
+      "col_1776360033452": [
+        "staff_1776360351136"
+      ],
+      "col_1776360676356": [
+        "staff_1776360707641",
+        "staff_1776360721244"
+      ],
+      "collect_old": [
+        "own_team"
+      ],
+      "collect_oryx": [
+        "own_team"
+      ],
+      "ins_verif": [
+        "staff_1776360611546"
+      ],
+      "posting_oryx": [
+        "becky"
+      ]
+    },
+    "SQ": {
+      "aging_old": [
+        "staff_1776359557867"
+      ],
+      "aging_oryx": [
+        "vanessa",
+        "adela",
+        "staff_1776359557867"
+      ],
+      "claims_oryx": [
+        "own_team",
+        "staff_1776091315164"
+      ],
+      "col_1776360033452": [
+        "staff_1776360351136"
+      ],
+      "col_1776360676356": [
+        "staff_1776360707641",
+        "staff_1776360721244"
+      ],
+      "collect_old": [
+        "adela"
+      ],
+      "collect_oryx": [
+        "adela",
+        "vanessa"
+      ],
+      "ins_verif": [
+        "own_team"
+      ],
+      "posting_oryx": [
+        "adela"
+      ]
+    }
+  },
+  "live": {},
+  "lunch": [],
+  "off": [],
+  "ivDates": {
+    "AM": "2026-09-10",
+    "AR": "2026-11-02",
+    "ATX": "2026-11-05",
+    "GT": "2026-11-01",
+    "IC": "2026-11-03",
+    "MP": "2026-10-29",
+    "NBDA": "2026-09-13",
+    "PF": "2026-05-11",
+    "SATX": "2026-11-02",
+    "SQ": "2026-09-10"
+  },
+  "kpi": {
+    "2026-04": {
+      "SQ": {
+        "arDays": 18,
+        "cancellationRate": 0,
+        "caseAcceptance": 19,
+        "collectionRate": 87.44,
+        "dailyProduction": 0,
+        "hygieneReappt": 10,
+        "monthlyProduction": 50479.4,
+        "newPatients": 23,
+        "perioPercent": 20
+      }
+    },
+    "2026-05": {
+      "SQ": {
+        "collectionRate": 87.4,
+        "monthlyProduction": 50479.4
+      }
+    }
+  },
+  "vacationActive": [
+    "staff_1776091315164"
+  ],
+  "helpInstances": {},
+  "helpLog": [],
+  "checkinLog": [],
+  "lastAutoClear": "Wed Oct 21 2026",
+  "_lastResetDate": "2026-10-21"
+}

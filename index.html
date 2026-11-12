@@ -727,6 +727,9 @@ textarea.re-input{resize:vertical;min-height:80px;}
   <span id="scheduler-stale-msg">⚠ Scheduled data refresh appears to have been skipped — see details below.</span>
   <span style="font-size:11px;opacity:.85;margin-left:14px;font-weight:500;">(click to dismiss)</span>
 </div>
+<div id="board-load-error" style="display:none;background:#7a1f1f;color:#fff;font-family:var(--font-body);font-size:14px;font-weight:650;letter-spacing:.01em;padding:14px 18px;text-align:center;line-height:1.45;">
+  <span id="board-load-error-msg">The live board didn't load.</span>
+</div>
 
 
 <!-- ── HEADER ─────────────────────────────────── -->
@@ -2495,6 +2498,7 @@ textarea.re-input{resize:vertical;min-height:80px;}
   </div>
 </div>
 
+<script src="board-sync.js?v=2026111201"></script>
 <script>
 // ════════════════════════════════════════════════
 // DATA DEFAULTS
@@ -2667,7 +2671,17 @@ const KPI_DEFS = [
 const LIVE_MODE = new URLSearchParams(location.search).has('live');
 
 // ── Firebase Realtime Database (REST API — no SDK needed) ─────────────────
-const FB_URL = 'https://smilehaus-rcm-default-rtdb.firebaseio.com/state.json';
+const FB_BASE = 'https://smilehaus-rcm-default-rtdb.firebaseio.com';
+// Live board writes go to /board.json. Cached copies of this page still PUT
+// /state.json; that legacy path is read once, then ignored, so an old tab
+// cannot put the starter roster back.
+const FB_URL = FB_BASE + '/board.json';
+const FB_LEGACY_URL = FB_BASE + '/state.json';
+const READONLY = new URLSearchParams(location.search).has('readonly');
+const NOCACHE = new URLSearchParams(location.search).has('nocache');
+let _haveBoard = false;       // true only after a real roster is loaded (never the starter seed)
+let _writesDisabled = false;  // old build, readonly, or offline preview
+let _fbEtag = null;
 let _fbSaveTimer = null;
 let _fbPollTimer = null;
 let _lastFbWrite = '';        // ISO string of last write we pushed
@@ -2722,91 +2736,9 @@ function enforceRecentMoves() {
 // and B adds token Y to the same cell at the same time, the cell ends up with
 // both X and Y. Each user's own removals still apply.
 function mergeBoardState(base, local, remote) {
-  const merged = clone(remote);
-  const J = v => JSON.stringify(v ?? null);
-
-  for (const board of ['live', 'assign']) {
-    // Firebase strips empty objects to null — seed merged[board] from local so
-    // the delta loop has a base to write into and data isn't silently discarded.
-    if (!merged[board] || typeof merged[board] !== 'object') {
-      merged[board] = clone(local[board] || {});
-    }
-    const baseB = base[board] || {}, locB = local[board] || {};
-    const offices = new Set([...Object.keys(baseB), ...Object.keys(locB)]);
-    for (const off of offices) {
-      const baseCols = baseB[off] || {}, locCols = locB[off] || {};
-      const cols = new Set([...Object.keys(baseCols), ...Object.keys(locCols)]);
-      for (const col of cols) {
-        const baseCell = Array.isArray(baseCols[col]) ? baseCols[col] : [];
-        const locCell  = Array.isArray(locCols[col])  ? locCols[col]  : [];
-        if (J(baseCell) === J(locCell)) continue; // we didn't touch this cell
-
-        const remoteCell = (((merged[board] || {})[off] || {})[col]) || [];
-        const added   = locCell.filter(x => !baseCell.includes(x));
-        const removed = baseCell.filter(x => !locCell.includes(x));
-
-        // Start from remote (other users' state), drop what we removed,
-        // then add what we added — preserving order and avoiding dupes.
-        const result = remoteCell.filter(x => !removed.includes(x));
-        for (const x of added) if (!result.includes(x)) result.push(x);
-
-        merged[board]      = merged[board]      || {};
-        merged[board][off] = merged[board][off] || {};
-        merged[board][off][col] = result;
-      }
-    }
-  }
-
-  // lunch / off — same token-set delta merge (flat arrays).
-  for (const arr of ['lunch', 'off']) {
-    const baseArr  = Array.isArray(base[arr])  ? base[arr]  : [];
-    const locArr   = Array.isArray(local[arr]) ? local[arr] : [];
-    if (J(baseArr) === J(locArr)) continue;
-    const remoteArr = Array.isArray(merged[arr]) ? merged[arr] : [];
-    const added   = locArr.filter(x => !baseArr.includes(x));
-    const removed = baseArr.filter(x => !locArr.includes(x));
-    const result  = remoteArr.filter(x => !removed.includes(x));
-    for (const x of added) if (!result.includes(x)) result.push(x);
-    merged[arr] = result;
-  }
-
-  // Staff — per-member delta merge: prevents last-writer-wins from wiping one
-  // admin's ASAP task additions when another admin concurrently edits a different
-  // staff member. For each member we check if WE locally changed them; if so,
-  // use our version. Otherwise keep the remote version (which may have other
-  // users' changes to that member). Members we newly created are appended.
-  {
-    const baseArr   = Array.isArray(base.staff)   ? base.staff   : [];
-    const localArr  = Array.isArray(local.staff)  ? local.staff  : [];
-    const remoteArr = Array.isArray(merged.staff) ? merged.staff : [];
-    const baseById  = Object.fromEntries(baseArr.map(s => [s.id, s]));
-    const localById = Object.fromEntries(localArr.map(s => [s.id, s]));
-    const staffResult = remoteArr.map(rs => {
-      const ls = localById[rs.id];
-      const bs = baseById[rs.id];
-      if (!ls) return rs;
-      if (J(bs ?? null) === J(ls)) return rs; // no local change — use remote
-      // Remote marked inactive but local hasn't yet — preserve inactive status
-      if (rs.dept === 'Inactive' && (ls.dept || '') !== 'Inactive') {
-        return { ...ls, dept: rs.dept, inactiveReason: rs.inactiveReason || '', inactiveDate: rs.inactiveDate || '' };
-      }
-      return ls;
-    });
-    // Append members we added locally that aren't in remote yet
-    const remoteIds = new Set(remoteArr.map(s => s.id));
-    for (const ls of localArr) {
-      if (!remoteIds.has(ls.id) && !baseById[ls.id]) staffResult.push(ls);
-    }
-    merged.staff = staffResult;
-  }
-
-  // Other top-level keys (helpInstances, kpi, …): coarse
-  // last-writer-wins, but only if WE actually changed the key.
-  for (const k of Object.keys(local)) {
-    if (k === 'live' || k === 'assign' || k === 'lunch' || k === 'off' || k === 'staff' || k.startsWith('_')) continue;
-    if (J(base[k]) !== J(local[k])) merged[k] = local[k];
-  }
-  return merged;
+  // per-member delta merge lives in board-sync.js so a stale tab cannot
+  // revive an inactive person, drop an office, or wipe IV dates.
+  return RCMBoard.mergeBoardState(base, local, remote);
 }
 
 // fetch with an abort-timeout so a hung connection can't stall the 15s poll.
@@ -2820,23 +2752,88 @@ async function fetchWithTimeout(url, opts, ms) {
   }
 }
 
-async function fbRead() {
+async function fbRequest(url, opts) {
+  opts = opts || {};
+  const method = opts.method || 'GET';
+  const headers = Object.assign({ 'X-Firebase-ETag': 'true' }, opts.headers || {});
+  let full = url;
+  if (method === 'GET') full += (url.indexOf('?') >= 0 ? '&' : '?') + 't=' + Date.now();
   try {
-    const r = await fetchWithTimeout(FB_URL + '?t=' + Date.now(), {}, 15000);
-    if (r.ok) { const d = await r.json(); return d || null; }
-  } catch(e) {}
-  return null;
+    const r = await fetchWithTimeout(full, { method, headers, body: opts.body }, 15000);
+    const raw = await r.text();
+    let data = null;
+    if (raw && raw !== 'null') {
+      try { data = JSON.parse(raw); } catch (e) { data = null; }
+    }
+    if (data && data.error) data = null;
+    return { ok: r.ok, status: r.status, etag: r.headers.get('ETag'), data };
+  } catch (e) {
+    return { ok: false, status: 0, etag: null, data: null };
+  }
 }
 
-async function fbWrite(data) {
-  try {
-    const r = await fetchWithTimeout(FB_URL, {
+async function fbRead() {
+  const res = await fbRequest(FB_URL, { method: 'GET' });
+  if (!res.ok) return null;
+  _fbEtag = res.etag;
+  if (res.data) RCMBoard.decodeEmpties(res.data);
+  return res.data || null;
+}
+
+function applyMergedBoard(merged) {
+  const SAVE_PROTECTED = new Set(['live','assign','off','lunch','staff','offices','columns','vacationActive','helpLog','checkinLog','perOfficeHistory','ivDates','helpInstances','kpi','departments','staffArchive']);
+  Object.keys(S).forEach(k => { if (!SAVE_PROTECTED.has(k) && !(k in merged)) delete S[k]; });
+  Object.assign(S, merged);
+  normalizeSArrays();
+  enforceRecentMoves();
+}
+
+// Conditional put. A 412 means someone else wrote first: re-read, merge, try again.
+// Never falls back to a blind PUT, and never writes the starter roster over a real one.
+async function fbWrite() {
+  if (READONLY || _writesDisabled || !_haveBoard) return false;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const remoteRead = await fbRequest(FB_URL, { method: 'GET' });
+    if (!remoteRead.ok) return false;
+    const remote = remoteRead.data;
+    if (remote) RCMBoard.decodeEmpties(remote);
+    if (remote && !RCMBoard.clientMayWrite(RCMBoard.CLIENT_BUILD, remote)) {
+      _writesDisabled = true;
+      showStaleBuildBanner();
+      return false;
+    }
+    if (remote && RCMBoard.shouldIgnoreRemote(S, remote)) return false;
+    let didMerge = false;
+    if (remote && _syncBase && remote._savedAt && remote._savedAt > (_syncBase._savedAt || '')) {
+      const colsValid = Array.isArray(remote.columns) && remote.columns[0] && typeof remote.columns[0].id === 'string';
+      if (remote._v !== DATA_VERSION || !colsValid || __isDragging) return false;
+      applyMergedBoard(mergeBoardState(_syncBase, S, remote));
+      didMerge = true;
+    }
+    if (remote && RCMBoard.writeWouldClobberRoster(S, remote)) return false;
+    const writeTs = new Date().toISOString();
+    const body = clone(S);
+    body._savedAt = writeTs;
+    body._v = DATA_VERSION;
+    body._clientBuild = RCMBoard.CLIENT_BUILD;
+    body._minBuild = RCMBoard.CLIENT_BUILD;
+    RCMBoard.encodeEmpties(body);
+    const put = await fbRequest(FB_URL, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    }, 15000);
-    return r.ok;
-  } catch(e) { return false; }
+      headers: { 'Content-Type': 'application/json', 'if-match': remoteRead.etag || '' },
+      body: JSON.stringify(body)
+    });
+    if (put.ok) {
+      S._savedAt = writeTs;
+      _lastFbWrite = writeTs;
+      _fbEtag = put.etag || remoteRead.etag;
+      _syncBase = clone(S);
+      if (didMerge) renderAll();
+      return true;
+    }
+    if (put.status !== 412) return false;
+  }
+  return false;
 }
 
 function scheduleFbSave() {
@@ -2846,55 +2843,11 @@ function scheduleFbSave() {
     _fbSaveInProgress = true;  // guards poll from overwriting S during the async write
     const el = document.getElementById('last-updated');
     try {
-      // ── Read-merge-write ────────────────────────────────────────────────
-      // Re-read Firebase right before writing. If another user wrote since our
-      // last sync, merge their changes in (per-cell) so we never clobber them.
-      let didMerge = false;
-      try {
-        const remote = await fbRead();
-        if (remote && _syncBase && remote._savedAt && remote._savedAt > (_syncBase._savedAt || '')) {
-          const colsValid = Array.isArray(remote.columns) && remote.columns[0] && typeof remote.columns[0].id === 'string';
-          if (remote._v === DATA_VERSION && colsValid && !__isDragging) {
-            const merged = mergeBoardState(_syncBase, S, remote);
-            // Staff-drop guard: if this merge would reduce the roster by more than 2
-            // members, require explicit confirmation before applying — prevents silent
-            // wipes from a sync conflict or Firebase data issue.
-            if (Array.isArray(merged.staff) && Array.isArray(S.staff) && S.staff.length - merged.staff.length > 2) {
-              const keep = confirm(
-                '⚠ Sync Warning\n\n' +
-                'This sync would reduce your staff roster from ' + S.staff.length + ' to ' + merged.staff.length + ' members.\n\n' +
-                'This may indicate a sync conflict or corrupted remote data.\n\n' +
-                'Click OK to accept the reduced roster, or Cancel to keep all current staff.'
-              );
-              if (!keep) merged.staff = clone(S.staff);
-            }
-            // Replace S contents in place — same PROTECTED_KEYS guard as the poll loop
-            // so Firebase stripping empty nodes never deletes helpInstances or board data
-            const SAVE_PROTECTED = new Set(['live','assign','off','lunch','staff','offices','columns','vacationActive','helpLog','checkinLog','perOfficeHistory','ivDates','helpInstances','kpi','departments']);
-            Object.keys(S).forEach(k => { if (!SAVE_PROTECTED.has(k) && !(k in merged)) delete S[k]; });
-            Object.assign(S, merged);
-            normalizeSArrays();
-            enforceRecentMoves();
-            didMerge = true;
-          }
-        }
-      } catch (_) {}
-
-      S._v = DATA_VERSION;
-      // Compute the write timestamp locally so we can pass it in the payload
-      // WITHOUT advancing S._savedAt until after we confirm the write succeeded.
-      // If fbWrite fails, S._savedAt and _lastFbWrite stay at their old values,
-      // which lets the poll correctly detect that Firebase may be ahead of us
-      // and re-sync rather than freezing the client in a "I'm already newest" state.
-      const writeTs = new Date().toISOString();
-      const ok = await fbWrite({ ...S, _savedAt: writeTs });
-      if (ok) {
-        S._savedAt = writeTs;
-        _lastFbWrite = writeTs;
-        _syncBase = clone(S);         // new sync baseline
+      if (READONLY || _writesDisabled || !_haveBoard) {
+        if (el) { el.textContent = 'Edits off'; el.style.color = '#f87171'; }
+        return;
       }
-      if (didMerge) renderAll();      // reflect merged-in changes from other users
-
+      const ok = await fbWrite();
       if (el) {
         el.textContent = ok ? '☁ Synced' : '⚠ Sync failed';
         el.style.color = ok ? '#4ade80' : '#f87171';
@@ -3274,6 +3227,12 @@ function startFbPolling() {
 
     const remote = await fbRead();
     if (!remote || !remote._savedAt) return;
+    // A document that is just the hardcoded starter roster must not replace a real board.
+    if (_haveBoard && RCMBoard.shouldIgnoreRemote(S, remote)) return;
+    if (!RCMBoard.clientMayWrite(RCMBoard.CLIENT_BUILD, remote)) {
+      _writesDisabled = true;
+      showStaleBuildBanner();
+    }
     // Only apply if this is newer than what we last wrote (avoid echo)
     if (remote._savedAt > (_lastFbWrite || '') && remote._savedAt > (S._savedAt || '')) {
       const colsValid = Array.isArray(remote.columns) && remote.columns[0] && typeof remote.columns[0].id === 'string';
@@ -3298,62 +3257,19 @@ function startFbPolling() {
         // still applying everything the remote state has that we didn't touch.
         if (_syncBase) {
           const merged = mergeBoardState(_syncBase, S, remote);
-          // Staff-drop guard: if the background poll would reduce the roster by
-          // more than 2 members, silently preserve local staff instead of applying
-          // the remote wipe — shows a console warning so it's diagnosable.
-          if (Array.isArray(merged.staff) && Array.isArray(S.staff) && S.staff.length - merged.staff.length > 2) {
-            console.warn('[RCM Guard] Staff-drop blocked by poll guard: remote=' + merged.staff.length + ' vs local=' + S.staff.length + ' — keeping local roster');
-            merged.staff = clone(S.staff);
-          }
-          // Only delete non-critical keys that Firebase legitimately removed.
           // PROTECTED_KEYS are never deleted even if Firebase stripped them
-          // (e.g. Firebase removes empty arrays/objects from its tree — that
-          //  must not wipe live board tokens or assignment rows).
-          const PROTECTED_KEYS = new Set(['live','assign','off','lunch','staff','offices','columns','vacationActive','helpLog','checkinLog','perOfficeHistory','ivDates','helpInstances','kpi','departments']);
+          // (empty arrays are stored as a placeholder so a real clear stays a clear).
+          const PROTECTED_KEYS = new Set(['live','assign','off','lunch','staff','offices','columns','vacationActive','helpLog','checkinLog','perOfficeHistory','ivDates','helpInstances','kpi','departments','staffArchive']);
           Object.keys(S).forEach(k => {
             if (!PROTECTED_KEYS.has(k) && !(k in merged)) delete S[k];
           });
-          // Snapshot assign and live before overwriting — Firebase strips empty
-          // arrays/objects to null, so merged may have lost them even though we
-          // have valid local data. We restore per-office after the assign.
-          const preAssign = (S.assign && typeof S.assign === 'object') ? clone(S.assign) : {};
-          const preLive   = (S.live   && typeof S.live   === 'object') ? clone(S.live)   : {};
           Object.assign(S, merged);
-          // Restore any office that had data locally but Firebase stripped.
-          // Only fill in missing/empty slots — never overwrite remote data that
-          // genuinely exists (concurrent clears by another user are respected).
-          if (!S.assign || typeof S.assign !== 'object') S.assign = {};
-          // assign[off] is an OBJECT keyed by column id. Check if ANY column has tokens.
-          function _offHasData(obj) {
-            return obj && typeof obj === 'object' && !Array.isArray(obj) &&
-              Object.values(obj).some(v => Array.isArray(v) && v.length > 0);
-          }
-          for (const off of Object.keys(preAssign)) {
-            const had = _offHasData(preAssign[off]);
-            const now = _offHasData(S.assign[off]);
-            if (had && !now) S.assign[off] = preAssign[off];
-          }
-          if (!S.live || typeof S.live !== 'object') S.live = {};
-          for (const off of Object.keys(preLive)) {
-            if (!S.live[off] || typeof S.live[off] !== 'object') {
-              S.live[off] = preLive[off];
-            } else {
-              for (const col of Object.keys(preLive[off])) {
-                const had = Array.isArray(preLive[off][col]) && preLive[off][col].length > 0;
-                const now = Array.isArray(S.live[off][col])  && S.live[off][col].length  > 0;
-                if (had && !now) S.live[off][col] = preLive[off][col];
-              }
-            }
-          }
         } else {
-          // _syncBase null (edge case — shouldn't happen since load() sets it before
-          // polling starts). Don't raw-overwrite S; just initialize the baseline so
-          // the next poll can do a proper three-way merge.
           _syncBase = clone(remote);
         }
         normalizeSArrays();          // guard against Firebase returning null/undefined arrays
         enforceRecentMoves();        // re-apply any moves a stale remote may have undone
-        _syncBase = clone(remote);   // poll-applied remote is our new sync baseline
+        _syncBase = clone(S);
         renderAll();
       }
     }
@@ -3361,88 +3277,174 @@ function startFbPolling() {
 }
 // ─────────────────────────────────────────────────────────────────────────
 
-async function load() {
-  // Always try Firebase first (real-time shared source of truth)
-  const remote = await fbRead();
+function showBoardError(msg) {
+  const banner = document.getElementById('board-load-error');
+  const el = document.getElementById('board-load-error-msg');
+  if (el) el.textContent = msg;
+  if (banner) banner.style.display = 'block';
+}
 
-  // Also check localStorage as a fallback
-  let local = null;
-  if (!LIVE_MODE) {
-    try {
-      const d = localStorage.getItem('sh-rcm-v5');
-      if (d) {
-        const p = JSON.parse(d);
-        const colsValid = Array.isArray(p.columns) && p.columns[0] && typeof p.columns[0].id === 'string' && !p.columns[0].subs;
-        if (p._v === DATA_VERSION && colsValid) local = p;
-        else localStorage.removeItem('sh-rcm-v5');
-      }
-    } catch(e) { localStorage.removeItem('sh-rcm-v5'); }
+function hideBoardError() {
+  const banner = document.getElementById('board-load-error');
+  if (banner) banner.style.display = 'none';
+}
+
+function showStaleBuildBanner() {
+  showBoardError('This tab is running an old version of the dashboard. Refresh before editing so it cannot overwrite the live board.');
+}
+
+function readBoardCache() {
+  try {
+    const d = localStorage.getItem('sh-rcm-v5');
+    if (!d) return null;
+    const p = JSON.parse(d);
+    if (p._cacheSource !== 'remote') return null;
+    if (RCMBoard.looksLikeSeedRoster(p)) return null;
+    return p;
+  } catch (e) {
+    return null;
+  }
+}
+
+function rememberBoardCache() {
+  try {
+    localStorage.setItem('sh-rcm-v5', JSON.stringify({ ...S, _cacheSource: 'remote' }));
+  } catch (e) {}
+}
+
+async function fetchBaseline() {
+  try {
+    const r = await fetch('./board-baseline.json?t=' + Date.now(), { cache: 'no-cache' });
+    if (!r.ok) return null;
+    const data = await r.json();
+    if (!data || RCMBoard.looksLikeSeedRoster(data)) return null;
+    return data;
+  } catch (e) {
+    return null;
+  }
+}
+
+async function enforceBuildFloor() {
+  try {
+    const r = await fetch('./build.json?t=' + Date.now(), { cache: 'no-store' });
+    if (!r.ok) return;
+    const meta = await r.json();
+    if (Number(meta.minBuild) > RCMBoard.CLIENT_BUILD) {
+      _writesDisabled = true;
+      showStaleBuildBanner();
+    }
+  } catch (e) {}
+}
+
+function acceptBoard(src) {
+  RCMBoard.decodeEmpties(src);
+  // Drop the starter roster before the real one is copied in.
+  S.staff = [];
+  S.assign = {};
+  S.live = {};
+  S.ivDates = {};
+  Object.assign(S, src);
+  if (!Array.isArray(S.staffArchive)) S.staffArchive = [];
+  normalizeSArrays();
+  RCMBoard.stripInactiveTokens(S);
+  let addedOffice = false;
+  OFFICE_DEF.forEach(def => {
+    if (!S.offices.find(o => o.code === def.code)) {
+      S.offices.push({ ...def });
+      addedOffice = true;
+    }
+  });
+  S.offices.forEach(o => {
+    if (!S.live[o.code]) S.live[o.code] = {};
+    S.columns.forEach(c => { if (!Array.isArray(S.live[o.code][c.id])) S.live[o.code][c.id] = []; });
+  });
+  _haveBoard = true;
+  _syncBase = clone(S);
+  _lastFbWrite = S._savedAt || '';
+  let pinBackfilled = false;
+  S.staff.forEach(s => { if (!s.pin) { s.pin = genPin(); pinBackfilled = true; } });
+  checkVacations();
+  _naSnapshot = getNaSnapshot(_checkinId);
+  rememberBoardCache();
+  return { pinBackfilled, addedOffice };
+}
+
+function blankBoard() {
+  _haveBoard = false;
+  _writesDisabled = true;
+  S.staff = [];
+  S.assign = {};
+  S.live = {};
+  S.ivDates = {};
+  S.offices = [];
+}
+
+async function load() {
+  if (READONLY) _writesDisabled = true;
+  const board = await fbRequest(FB_URL, { method: 'GET' });
+  let src = null;
+
+  if (!board.ok) {
+    const cache = NOCACHE ? null : readBoardCache();
+    if (cache) {
+      acceptBoard(cache);
+      _writesDisabled = true;
+      showBoardError('Showing the last copy saved in this browser, not the live board. Edits are off until the live board loads.');
+      return;
+    }
+    blankBoard();
+    showBoardError("The live board didn't load, so this page is blank instead of showing an old roster. Nothing was saved. Refresh to try again.");
+    return;
   }
 
-  // Firebase is always the source of truth for shared board state.
-  // localStorage is only used when Firebase is unavailable or stale.
-  // We never let localStorage override Firebase for live/assign/staff/columns —
-  // a stale localStorage overriding Firebase was the root cause of assignment board wipes.
-  let src = null;
-  if (remote && remote._v === DATA_VERSION) {
-    src = remote;
-    // Still merge localStorage-only fields (e.g. drafts, personal state) if local is newer
-    if (local) {
-      const remoteTime = remote._savedAt || '';
-      const localTime  = local._savedAt  || '';
-      if (localTime > remoteTime) {
-        // Only take non-board keys from localStorage to avoid overriding shared state
-        const BOARD_KEYS = new Set(['live','assign','staff','offices','columns','off','lunch',
-          'vacationActive','helpLog','checkinLog','perOfficeHistory','ivDates','helpInstances',
-          'kpi','departments','_savedAt','_v','_lastResetDate','_published']);
-        for (const k of Object.keys(local)) {
-          if (!BOARD_KEYS.has(k)) src[k] = local[k];
+  _fbEtag = board.etag;
+  if (board.data && !RCMBoard.looksLikeSeedRoster(board.data)) {
+    src = board.data;
+  } else {
+    // /board.json is empty or still the hardcoded starter roster. Prefer a real
+    // legacy document; otherwise install the last known-good baseline.
+    const legacy = await fbRequest(FB_LEGACY_URL, { method: 'GET' });
+    if (legacy.ok && legacy.data && !RCMBoard.looksLikeSeedRoster(legacy.data)) src = legacy.data;
+    else src = await fetchBaseline();
+    if (src && !READONLY) {
+      const writeTs = new Date().toISOString();
+      const body = clone(src);
+      body._savedAt = writeTs;
+      body._v = DATA_VERSION;
+      body._clientBuild = RCMBoard.CLIENT_BUILD;
+      body._minBuild = RCMBoard.CLIENT_BUILD;
+      RCMBoard.stripInactiveTokens(body);
+      RCMBoard.encodeEmpties(body);
+      const etag = (board.data ? board.etag : null) || 'null_etag';
+      const put = await fbRequest(FB_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'if-match': etag },
+        body: JSON.stringify(body)
+      });
+      if (put.ok) {
+        src._savedAt = writeTs;
+        _fbEtag = put.etag;
+      } else if (put.status === 412) {
+        const again = await fbRequest(FB_URL, { method: 'GET' });
+        if (again.ok && again.data && !RCMBoard.looksLikeSeedRoster(again.data)) {
+          _fbEtag = again.etag;
+          src = again.data;
         }
       }
     }
-  } else {
-    src = local || remote;
   }
 
-  if (src) Object.assign(S, src);
-  normalizeSArrays(); // ensure all array fields exist before any code touches them
-
-  // Establish the initial sync baseline for read-merge-write conflict handling.
-  _syncBase = clone(S);
-
-  // Back-fill PINs for any staff that don't have one yet
-  let pinBackfilled = false;
-  S.staff.forEach(s => { if (!s.pin) { s.pin = genPin(); pinBackfilled = true; } });
-  if (pinBackfilled) fbWrite({ ...S }); // persist new PINs immediately
-
-  // Apply vacation auto-placement once on load (not on every render)
-  checkVacations();
-
-  // Snapshot current NA items so first poll doesn't re-fire for existing assignments
-  _naSnapshot = getNaSnapshot(_checkinId);
-
-  // Ensure ivDates map exists (added in DATA_VERSION 6+)
-  if (!S.ivDates) S.ivDates = {};
-
-  // Ensure all OFFICE_DEF offices are present — prevents a stale client PUT from wiping
-  // an office that was added to OFFICE_DEF after the client last loaded.
-  OFFICE_DEF.forEach(def => {
-    if (!S.offices.find(o => o.code === def.code)) S.offices.push({ ...def });
-  });
-
-  // Ensure live board has all current offices/cols
-  S.offices.forEach(o => {
-    if (!S.live[o.code]) S.live[o.code] = {};
-    S.columns.forEach(c => { if (!S.live[o.code][c.id]) S.live[o.code][c.id] = []; });
-  });
-
-  // If Firebase was empty or outdated and we have local data, push it up
-  if (local && (!remote || !remote._v)) {
-    fbWrite({ ...S });
+  if (!src || RCMBoard.looksLikeSeedRoster(src)) {
+    blankBoard();
+    showBoardError("The live board didn't load, so this page is blank instead of showing an old roster. Nothing was saved. Refresh to try again.");
+    return;
   }
 
-  // Start polling for remote changes
+  const flags = acceptBoard(src);
+  hideBoardError();
+  await enforceBuildFloor();
   startFbPolling();
+  if (!READONLY && !_writesDisabled && (flags.pinBackfilled || flags.addedOffice)) scheduleFbSave();
 }
 
 // ── Defensive normalizer — always call after Object.assign(S, …) from Firebase ──
@@ -3466,7 +3468,7 @@ function normalizeSArrays() {
       if (!Array.isArray(S.live[o.code][c.id])) S.live[o.code][c.id] = [];
       // Strip null/empty/non-string token ids — a bad entry here crashes makeTok()
       // (staffId.startsWith) and breaks the whole board render ("User Token Error").
-      else S.live[o.code][c.id] = S.live[o.code][c.id].filter(id => typeof id === 'string' && id.length > 0);
+      else S.live[o.code][c.id] = S.live[o.code][c.id].filter(id => typeof id === 'string' && id.length > 0 && id !== '__rcm_empty__');
     });
     // assign[office] is an OBJECT keyed by column id (not an array).
     // Only reset to {} if it's genuinely missing or wrong type.
@@ -3477,7 +3479,7 @@ function normalizeSArrays() {
     S.columns.forEach(c => {
       if (!Array.isArray(S.assign[o.code][c.id])) S.assign[o.code][c.id] = [];
       // Same sanitization as live: a bad id crashes the ghost filter (sid.startsWith).
-      else S.assign[o.code][c.id] = S.assign[o.code][c.id].filter(id => typeof id === 'string' && id.length > 0);
+      else S.assign[o.code][c.id] = S.assign[o.code][c.id].filter(id => typeof id === 'string' && id.length > 0 && id !== '__rcm_empty__');
     });
   });
   // Also guard each helpInstance's helpers array
@@ -3486,15 +3488,14 @@ function normalizeSArrays() {
       if (!Array.isArray(inst.helpers)) inst.helpers = [];
     });
   }
+  if (!Array.isArray(S.staffArchive)) S.staffArchive = [];
+  if (typeof RCMBoard !== 'undefined') RCMBoard.stripInactiveTokens(S);
 }
 
 function save() {
+  if (!_haveBoard || _writesDisabled || READONLY) return;
   S._v = DATA_VERSION;
-  // Keep a local cache for offline resilience — use a temp timestamp so the
-  // localStorage entry has a usable timestamp without advancing S._savedAt
-  // prematurely (S._savedAt is only updated after the Firebase write succeeds).
-  try { localStorage.setItem('sh-rcm-v5', JSON.stringify({ ...S, _savedAt: new Date().toISOString() })); } catch(e) {}
-  // Push to Firebase (debounced)
+  rememberBoardCache();
   scheduleFbSave();
   const el = document.getElementById('last-updated');
   const t = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
@@ -3582,15 +3583,14 @@ async function publishState() {
   const origText = publishBtn ? publishBtn.textContent : '';
   if (publishBtn) { publishBtn.textContent = '⏳ Syncing…'; publishBtn.disabled = true; }
 
-  S._v = DATA_VERSION;
-  const writeTs = new Date().toISOString();
-  try { localStorage.setItem('sh-rcm-v5', JSON.stringify({ ...S, _savedAt: writeTs })); } catch(e) {}
-  const ok = await fbWrite({ ...S, _savedAt: writeTs });
-  if (ok) {
-    S._savedAt = writeTs;
-    _lastFbWrite = writeTs;
-    _syncBase = clone(S);         // publish establishes a new sync baseline
+  if (!_haveBoard || _writesDisabled || READONLY) {
+    alert('This tab cannot publish right now. Refresh the page and try again.');
+    if (publishBtn) { publishBtn.textContent = origText; publishBtn.disabled = false; }
+    return;
   }
+  S._v = DATA_VERSION;
+  rememberBoardCache();
+  const ok = await fbWrite();
 
   if (publishBtn) {
     publishBtn.textContent = ok ? '✓ Synced!' : '⚠ Failed';
@@ -4397,6 +4397,15 @@ function saveProfile() {
       vacStart:  document.getElementById('p-vac-start').value,
       vacEnd:    document.getElementById('p-vac-end').value,
     };
+    if (S.staff[idx].dept !== 'Inactive' && Array.isArray(S.staffArchive)) {
+      S.staffArchive = S.staffArchive.filter(t => t && t.id !== S.staff[idx].id);
+    }
+    if (S.staff[idx].dept === 'Inactive') {
+      if (!Array.isArray(S.staffArchive)) S.staffArchive = [];
+      if (!S.staffArchive.some(t => t && t.id === S.staff[idx].id)) {
+        S.staffArchive.push({ id: S.staff[idx].id, name: S.staff[idx].name || '', inactiveReason: S.staff[idx].inactiveReason || '', inactiveDate: S.staff[idx].inactiveDate || '' });
+      }
+    }
     save(); checkVacations(); renderAll(); renderRosterTab(); closeModal('profile-modal');
   } catch(e) {
     alert('Save failed: ' + e.message);
@@ -4448,6 +4457,11 @@ function confirmAddStaff() {
 
 function removeStaff(staffId) {
   if (!confirm('Remove ' + getStaff(staffId).name + ' from roster?\nThis will also remove them from all boards.')) return;
+  const gone = getStaff(staffId);
+  if (!Array.isArray(S.staffArchive)) S.staffArchive = [];
+  if (gone && gone.id && !S.staffArchive.some(t => t && t.id === gone.id)) {
+    S.staffArchive.push({ id: gone.id, name: gone.name || '', inactiveReason: 'Removed', inactiveDate: ctNow() });
+  }
   S.staff = S.staff.filter(s => s.id !== staffId);
   S.lunch = S.lunch.filter(x => x !== staffId);
   S.off   = S.off.filter(x => x !== staffId);
@@ -5799,6 +5813,16 @@ function renderKpiDetail(body, period, offCode) {
 // the browser's drag operation (which would silently cancel the drop).
 let _pendingRender = false;
 function renderAll() {
+  if (!_haveBoard) {
+    const msg = "The live board didn't load, so this page is blank instead of showing an old roster. Nothing was saved.";
+    const live = document.getElementById('live-table');
+    const assign = document.getElementById('assign-table');
+    const roster = document.getElementById('roster-tokens');
+    if (live) live.innerHTML = '<tr><td style="padding:28px;text-align:center;color:#7a1f1f;font-weight:650">' + msg + '</td></tr>';
+    if (assign) assign.innerHTML = '';
+    if (roster) roster.innerHTML = '';
+    return;
+  }
   if (__isDragging) {
     _pendingRender = true;
     return;
@@ -6539,6 +6563,10 @@ function confirmInactive() {
   s.dept = 'Inactive';
   s.inactiveReason = reason;
   s.inactiveDate = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  if (!Array.isArray(S.staffArchive)) S.staffArchive = [];
+  if (!S.staffArchive.some(t => t && t.id === s.id)) {
+    S.staffArchive.push({ id: s.id, name: s.name || '', inactiveReason: s.inactiveReason, inactiveDate: s.inactiveDate });
+  }
 
   // Remove this staff member from every live board and assignment board cell so
   // their token doesn't linger as a ghost after they're marked inactive.
@@ -6608,6 +6636,7 @@ function checkVacations() {
 // ════════════════════════════════════════════════
 
 function checkAutoClear() {
+  if (!_haveBoard || _writesDisabled || READONLY) return;
   const now = new Date();
   const h = now.getHours(), m = now.getMinutes();
   const today = now.toDateString();
@@ -6639,6 +6668,7 @@ function ctDateStr() {
 }
 
 function midnightReset() {
+  if (!_haveBoard || _writesDisabled || READONLY) return;
   const today = ctDateStr();
   // Only reset once per calendar day CT
   if (S._lastResetDate === today) return;

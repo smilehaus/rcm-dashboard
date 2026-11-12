@@ -7,10 +7,10 @@
  */
 
 import { getClickUpToken } from "../lib/clickup-oauth.js";
-import { writeFileSync, readFileSync } from "fs";
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
-import { execSync } from "child_process";
+import { writeFileSync } from "fs";
+import { join } from "path";
+import { publishFiles } from "./lib/git-publish.mjs";
+import { resolveDashboardRoot } from "./lib/dashboard-root.mjs";
 
 const CLICKUP_BASE = "https://api.clickup.com/api/v2";
 const POSTING_GOALS_LIST = "901414704146";
@@ -38,10 +38,7 @@ async function main() {
   console.log(`\n📊 Posting Completion % — Dashboard Data`);
   if (DRY_RUN) console.log(`🧪 DRY RUN — no files will be written\n`);
 
-  const scriptDir = dirname(fileURLToPath(import.meta.url));
-  const dashboardDir = process.env.CI
-    ? join(scriptDir, "..")
-    : join(scriptDir, "..", "apps", "rcm-dashboard");
+  const dashboardDir = resolveDashboardRoot(import.meta.url);
   const dashboardPath = join(dashboardDir, "posting-alerts.json");
 
   const data = await clickupApi(
@@ -92,23 +89,16 @@ async function main() {
     return;
   }
 
-  writeFileSync(dashboardPath, JSON.stringify(jsonPayload, null, 2));
+  const payload = JSON.stringify(jsonPayload, null, 2);
   console.log(`✅ posting-alerts.json written`);
-
-  try {
-    console.log(`\n📤 Pushing to GitHub Pages...`);
-    const freshFile = readFileSync(dashboardPath, "utf8");
-    execSync(`git fetch origin master`, { cwd: dashboardDir, stdio: "pipe" });
-    execSync(`git reset --hard origin/master`, { cwd: dashboardDir, stdio: "pipe" });
-    writeFileSync(dashboardPath, freshFile);
-    execSync(`git add posting-alerts.json`, { cwd: dashboardDir, stdio: "pipe" });
-    execSync(`git commit -m "chore: update posting-alerts ${new Date().toLocaleDateString("en-US")}"`, { cwd: dashboardDir, stdio: "pipe" });
-    execSync(`git push origin master`, { cwd: dashboardDir, stdio: "pipe" });
-    console.log(`✅ Pushed.`);
-  } catch (e: any) {
-    if (e.message?.includes("nothing to commit")) console.log(`ℹ️  No changes to push`);
-    else console.error(`⚠️  Git push failed: ${e.message}`);
-  }
+  console.log(`\n📤 Pushing to GitHub Pages...`);
+  publishFiles({
+    cwd: dashboardDir,
+    message: `chore: update posting-alerts ${new Date().toLocaleDateString("en-US")}`,
+    paths: ["posting-alerts.json"],
+    stage(dir) { writeFileSync(join(dir, "posting-alerts.json"), payload); }
+  });
+  console.log(`✅ Pushed.`);
 }
 
 main().catch((err) => { console.error(`\n❌ ERROR: ${err.message}`); process.exit(1); });

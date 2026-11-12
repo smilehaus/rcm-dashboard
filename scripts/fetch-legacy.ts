@@ -3,10 +3,10 @@
 // writes them into ar-snapshot.json → offices.<CODE>.legacy.
 
 import { readFileSync, writeFileSync } from "fs";
-import { dirname, join } from "path";
-import { fileURLToPath } from "url";
-import { execSync } from "child_process";
+import { join } from "path";
 import { getClickUpToken } from "../lib/clickup-oauth.js";
+import { publishFiles } from "./lib/git-publish.mjs";
+import { resolveDashboardRoot } from "./lib/dashboard-root.mjs";
 
 const DRY_RUN = process.argv.includes("--dry-run");
 
@@ -124,11 +124,7 @@ async function main() {
   console.log(`\n📜 Fetching legacy balances…`);
   TOKEN = await getClickUpToken();
 
-  const scriptDir    = dirname(fileURLToPath(import.meta.url));
-  const dashboardDir = process.env.CI
-    ? join(scriptDir, "..")
-    : join(scriptDir, "..", "apps", "rcm-dashboard");
-  const snapshotPath = join(dashboardDir, "ar-snapshot.json");
+  const dashboardDir = resolveDashboardRoot(import.meta.url);
 
   const results: Record<string, LegacyResult[]> = {};
   for (const [code, buckets] of Object.entries(LEGACY)) {
@@ -147,35 +143,30 @@ async function main() {
 
   if (DRY_RUN) { console.log(`\nDRY RUN — skipping write.`); return; }
 
-  const data = JSON.parse(readFileSync(snapshotPath, "utf8").replace(/^﻿/, ""));
-  data.offices = data.offices || {};
-  if (data.offices.HZ) { delete data.offices.HZ; console.log(`✓ Removed standalone HZ office`); }
-  for (const [code, items] of Object.entries(results)) {
-    if (!data.offices[code]) continue;
-    data.offices[code].legacy = items.map(r => ({
-      label: r.label, source: r.source, closingDate: r.closingDate,
-      d0_30: r.d0_30, d31_60: r.d31_60, d61_90: r.d61_90, d90plus: r.d90plus,
-      total: r.total, taskCount: r.taskCount, excludedCount: r.excludedCount,
-      asOf: new Date().toISOString(),
-    }));
-  }
-  data.generated = new Date().toISOString();
-  writeFileSync(snapshotPath, JSON.stringify(data, null, 2));
-  console.log(`\n✓ Wrote ar-snapshot.json`);
-
-  try {
-    console.log(`\n📤 Pushing to GitHub Pages...`);
-    const freshSnapshot = readFileSync(snapshotPath, "utf8");
-    execSync(`git fetch origin master`, { cwd: dashboardDir, stdio: "pipe" });
-    execSync(`git reset --hard origin/master`, { cwd: dashboardDir, stdio: "pipe" });
-    writeFileSync(snapshotPath, freshSnapshot);
-    execSync(`git add ar-snapshot.json`, { cwd: dashboardDir, stdio: "pipe" });
-    execSync(`git commit -m "chore: refresh legacy balances ${new Date().toLocaleDateString("en-US")}"`, { cwd: dashboardDir, stdio: "pipe" });
-    execSync(`git push origin master`, { cwd: dashboardDir, stdio: "pipe" });
-    console.log(`✅ Pushed.`);
-  } catch (err: any) {
-    console.error(`⚠ Push failed: ${err.message?.slice(0, 300) ?? err}`);
-  }
+  console.log(`\n📤 Pushing to GitHub Pages...`);
+  publishFiles({
+    cwd: dashboardDir,
+    message: `chore: refresh legacy balances ${new Date().toLocaleDateString("en-US")}`,
+    paths: ["ar-snapshot.json"],
+    stage(dir) {
+      const snapshotPath = join(dir, "ar-snapshot.json");
+      const data = JSON.parse(readFileSync(snapshotPath, "utf8").replace(/^\uFEFF/, ""));
+      data.offices = data.offices || {};
+      if (data.offices.HZ) delete data.offices.HZ;
+      for (const [code, items] of Object.entries(results)) {
+        if (!data.offices[code]) continue;
+        data.offices[code].legacy = items.map(r => ({
+          label: r.label, source: r.source, closingDate: r.closingDate,
+          d0_30: r.d0_30, d31_60: r.d31_60, d61_90: r.d61_90, d90plus: r.d90plus,
+          total: r.total, taskCount: r.taskCount, excludedCount: r.excludedCount,
+          asOf: new Date().toISOString(),
+        }));
+      }
+      data.generated = new Date().toISOString();
+      writeFileSync(snapshotPath, JSON.stringify(data, null, 2));
+    }
+  });
+  console.log(`✅ Pushed.`);
 }
 
 main().catch(e => { console.error(e); process.exit(1); });

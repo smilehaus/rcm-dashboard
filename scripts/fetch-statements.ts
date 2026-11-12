@@ -16,20 +16,18 @@
  */
 
 import { readFileSync, writeFileSync, existsSync } from "fs";
-import { dirname, join } from "path";
-import { fileURLToPath } from "url";
-import { execSync } from "child_process";
+import { join } from "path";
+import { publishFiles } from "./lib/git-publish.mjs";
+import { resolveDashboardRoot } from "./lib/dashboard-root.mjs";
 
 const DRY_RUN = process.argv.includes("--dry-run");
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // When running locally from SH Agents root the paths point one level up;
 // when running inside the rcm-dashboard repo (GitHub Actions) they're relative
 // to the repo root (parent of scripts/).
-const REPO_ROOT     = join(__dirname, "..");
-const STMT_PATH     = join(REPO_ROOT, "statement-dates.json");
-const SNAPSHOT_PATH = join(REPO_ROOT, "ar-snapshot.json");
-const DASHBOARD_DIR = REPO_ROOT;
+const DASHBOARD_DIR = resolveDashboardRoot(import.meta.url);
+const STMT_PATH     = join(DASHBOARD_DIR, "statement-dates.json");
+const SNAPSHOT_PATH = join(DASHBOARD_DIR, "ar-snapshot.json");
 
 type StmtEntry = {
   date: string | null;
@@ -117,28 +115,34 @@ async function main() {
     return;
   }
 
-  // Write snapshot
-  snapshot.generated = new Date().toISOString();
-  writeFileSync(SNAPSHOT_PATH, JSON.stringify(snapshot, null, 2));
-  console.log("\n✓ Wrote ar-snapshot.json");
-
-  // Commit + push
-  try {
-    console.log("\n📤 Pushing to GitHub Pages…");
-    execSync(`git add ar-snapshot.json statement-dates.json`, { cwd: DASHBOARD_DIR, stdio: "pipe" });
-    try { execSync(`git stash`, { cwd: DASHBOARD_DIR, stdio: "pipe" }); } catch {}
-    execSync(`git pull --rebase origin master`, { cwd: DASHBOARD_DIR, stdio: "pipe" });
-    try { execSync(`git stash pop`, { cwd: DASHBOARD_DIR, stdio: "pipe" }); } catch {}
-    execSync(`git add ar-snapshot.json statement-dates.json`, { cwd: DASHBOARD_DIR, stdio: "pipe" });
-    execSync(
-      `git commit -m "chore: update statement dates ${new Date().toLocaleDateString("en-US")}"`,
-      { cwd: DASHBOARD_DIR, stdio: "pipe" }
-    );
-    execSync(`git push origin master`, { cwd: DASHBOARD_DIR, stdio: "pipe" });
-    console.log("✅ Pushed.");
-  } catch (err: any) {
-    console.error(`⚠ Push failed: ${err.message?.slice(0, 300) ?? err}`);
-  }
+  // Hold the statement file in memory. The publish step resets to origin
+  // and reapplies only lastStatementSent, so a concurrent unposted/legacy
+  // commit is not replaced and stash-pop cannot write conflict markers.
+  const stmtText = readFileSync(STMT_PATH, "utf8");
+  console.log("\n📤 Pushing to GitHub Pages…");
+  publishFiles({
+    cwd: DASHBOARD_DIR,
+    message: `chore: update statement dates ${new Date().toLocaleDateString("en-US")}`,
+    paths: ["ar-snapshot.json", "statement-dates.json"],
+    stage(dir) {
+      writeFileSync(join(dir, "statement-dates.json"), stmtText);
+      const latest = JSON.parse(readFileSync(join(dir, "ar-snapshot.json"), "utf8").replace(/^\uFEFF/, ""));
+      latest.offices = latest.offices || {};
+      for (const [code, entry] of Object.entries(offices)) {
+        if (!latest.offices[code] || !entry.date) continue;
+        latest.offices[code].lastStatementSent = {
+          date: entry.date,
+          eStatementsSent: entry.eStatementsSent ?? null,
+          manualNoPrint: entry.manualNoPrint ?? 0,
+          manualWithEmail: entry.manualWithEmail ?? 0,
+          asOf: entry.capturedAt || new Date().toISOString(),
+        };
+      }
+      latest.generated = new Date().toISOString();
+      writeFileSync(join(dir, "ar-snapshot.json"), JSON.stringify(latest, null, 2));
+    }
+  });
+  console.log("✅ Pushed.");
 }
 
 main().catch(e => { console.error(e); process.exit(1); });

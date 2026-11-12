@@ -7,9 +7,9 @@
 //   hour >= 16 CT → AM slot, date = TOMORROW (banking-style overnight close)
 
 import { readFileSync, writeFileSync } from "fs";
-import { dirname, join } from "path";
-import { fileURLToPath } from "url";
-import { execSync } from "child_process";
+import { join } from "path";
+import { publishFiles } from "./lib/git-publish.mjs";
+import { resolveDashboardRoot } from "./lib/dashboard-root.mjs";
 
 const DRY_RUN = process.argv.includes("--dry-run");
 const MAX_HISTORY_DAYS = Number.POSITIVE_INFINITY;
@@ -59,13 +59,8 @@ function ctNowFriendly(): string {
 
 function main() {
   console.log(`\n📚 Archiving AR snapshot per-office breakdown…`);
-  const scriptDir    = dirname(fileURLToPath(import.meta.url));
-  const dashboardDir = process.env.CI
-    ? join(scriptDir, "..")
-    : join(scriptDir, "..", "apps", "rcm-dashboard");
-  const snapshotPath = join(dashboardDir, "ar-snapshot.json");
-  const backupPath   = join(dashboardDir, "ar-history-backup.json");
-  const data = JSON.parse(readFileSync(snapshotPath, "utf8").replace(/^﻿/, ""));
+  const dashboardDir = resolveDashboardRoot(import.meta.url);
+  const data = JSON.parse(readFileSync(join(dashboardDir, "ar-snapshot.json"), "utf8").replace(/^\uFEFF/, ""));
 
   const entryDate = resolveEntryDate(SLOT);
   const entry = {
@@ -99,47 +94,50 @@ function main() {
 
   if (DRY_RUN) { console.log(`\nDRY RUN — skipping write.`); return; }
 
-  writeFileSync(snapshotPath, JSON.stringify(data, null, 2));
-  console.log(`  ✓ Wrote ar-snapshot.json`);
+  // Rebuild the history entry from origin's latest snapshot inside the publish
+  // retry, so this commit only touches perOfficeHistory and cannot drop an
+  // unposted or legacy update that landed while we were archiving.
+  console.log(`\n📤 Pushing to GitHub Pages...`);
+  publishFiles({
+    cwd: dashboardDir,
+    message: `archive: AR snapshot ${entryDate} ${SLOT} (per-office history)`,
+    paths: ["ar-snapshot.json", "ar-history-backup.json"],
+    stage(dir) {
+      const snapshotPath = join(dir, "ar-snapshot.json");
+      const backupPath = join(dir, "ar-history-backup.json");
+      const latest = JSON.parse(readFileSync(snapshotPath, "utf8").replace(/^\uFEFF/, ""));
+      const freshEntry = {
+        date: entryDate, slot: SLOT, asOf: ctNowFriendly(),
+        generated: new Date().toISOString(),
+        offices: {} as Record<string, ReturnType<typeof pickOfficeFields>>,
+      };
+      for (const [code, office] of Object.entries(latest.offices || {})) {
+        freshEntry.offices[code] = pickOfficeFields(office);
+      }
+      latest.perOfficeHistory = Array.isArray(latest.perOfficeHistory) ? latest.perOfficeHistory : [];
+      const at = latest.perOfficeHistory.findIndex((h: any) => h.date === entryDate && (h.slot || null) === SLOT);
+      if (at >= 0) latest.perOfficeHistory[at] = freshEntry;
+      else latest.perOfficeHistory.push(freshEntry);
+      latest.perOfficeHistory.sort((a: any, b: any) => {
+        const d = (a.date || "").localeCompare(b.date || "");
+        return d !== 0 ? d : (slotOrder[a.slot] ?? 2) - (slotOrder[b.slot] ?? 2);
+      });
+      if (Number.isFinite(MAX_HISTORY_DAYS)) latest.perOfficeHistory = latest.perOfficeHistory.slice(-MAX_HISTORY_DAYS);
+      writeFileSync(snapshotPath, JSON.stringify(latest, null, 2));
 
-  // Safety-net standalone backup — ar-history-backup.json accumulates all history.
-  try {
-    let backupExisting: any = { perOfficeHistory: [] };
-    try { backupExisting = JSON.parse(readFileSync(backupPath, "utf8")); } catch {}
-    // Dedup key: (date, slot)
-    const byKey = new Map<string, any>();
-    for (const e of backupExisting.perOfficeHistory || []) if (e?.date) byKey.set(`${e.date}#${e.slot ?? ""}`, e);
-    for (const e of data.perOfficeHistory || [])           if (e?.date) byKey.set(`${e.date}#${e.slot ?? ""}`, e);
-    const merged = Array.from(byKey.values()).sort((a, b) => {
-      const d = (a.date || "").localeCompare(b.date || "");
-      return d !== 0 ? d : (slotOrder[a.slot] ?? 2) - (slotOrder[b.slot] ?? 2);
-    });
-    writeFileSync(backupPath, JSON.stringify({ updated: new Date().toISOString(), perOfficeHistory: merged }, null, 2));
-    console.log(`  🛡  Wrote ar-history-backup.json (${merged.length} entries)`);
-  } catch (err: any) {
-    console.warn(`  ⚠ Backup file write failed: ${err.message ?? err}`);
-  }
-
-  // Git push — conflict-proof: save our data, hard-reset to remote, re-apply, commit+push.
-  // Avoids merge conflict markers when two runs overlap (e.g. GitHub Actions + local rerun).
-  try {
-    console.log(`\n📤 Pushing to GitHub Pages...`);
-    // Hold what we just wrote in memory before resetting
-    const freshSnapshot = readFileSync(snapshotPath, "utf8");
-    const freshBackup   = readFileSync(backupPath,   "utf8");
-    // Sync to latest remote state (no stash needed — we'll re-apply below)
-    execSync(`git fetch origin master`, { cwd: dashboardDir, stdio: "pipe" });
-    execSync(`git reset --hard origin/master`, { cwd: dashboardDir, stdio: "pipe" });
-    // Re-apply our freshly computed data on top (guaranteed conflict-free)
-    writeFileSync(snapshotPath, freshSnapshot);
-    writeFileSync(backupPath,   freshBackup);
-    execSync(`git add ar-snapshot.json ar-history-backup.json`, { cwd: dashboardDir, stdio: "pipe" });
-    execSync(`git commit -m "archive: AR snapshot ${entryDate} ${SLOT} (per-office history)"`, { cwd: dashboardDir, stdio: "pipe" });
-    execSync(`git push origin master`, { cwd: dashboardDir, stdio: "pipe" });
-    console.log(`✅ Pushed.`);
-  } catch (err: any) {
-    console.error(`⚠ Push failed: ${err.message?.slice(0, 300) ?? err}`);
-  }
+      let backupExisting: any = { perOfficeHistory: [] };
+      try { backupExisting = JSON.parse(readFileSync(backupPath, "utf8")); } catch { /* first backup */ }
+      const byKey = new Map<string, any>();
+      for (const e of backupExisting.perOfficeHistory || []) if (e?.date) byKey.set(`${e.date}#${e.slot ?? ""}`, e);
+      for (const e of latest.perOfficeHistory || []) if (e?.date) byKey.set(`${e.date}#${e.slot ?? ""}`, e);
+      const merged = Array.from(byKey.values()).sort((a, b) => {
+        const d = (a.date || "").localeCompare(b.date || "");
+        return d !== 0 ? d : (slotOrder[a.slot] ?? 2) - (slotOrder[b.slot] ?? 2);
+      });
+      writeFileSync(backupPath, JSON.stringify({ updated: new Date().toISOString(), perOfficeHistory: merged }, null, 2));
+    }
+  });
+  console.log(`✅ Pushed.`);
 }
 
 main();

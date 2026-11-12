@@ -4,10 +4,10 @@
  */
 
 import { getClickUpToken } from "../lib/clickup-oauth.js";
-import { writeFileSync, readFileSync } from "fs";
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
-import { execSync } from "child_process";
+import { writeFileSync } from "fs";
+import { join } from "path";
+import { publishFiles } from "./lib/git-publish.mjs";
+import { resolveDashboardRoot } from "./lib/dashboard-root.mjs";
 
 const CLICKUP_BASE = "https://api.clickup.com/api/v2";
 const DOS_FIELD_ID = "80e9173a-e6c5-4815-a0e7-18e69255bec5";
@@ -66,10 +66,7 @@ async function main() {
   console.log(`📅 Today: ${new Date().toLocaleDateString("en-US")}`);
   if (DRY_RUN) console.log(`🧪 DRY RUN\n`);
 
-  const scriptDir = dirname(fileURLToPath(import.meta.url));
-  const dashboardDir = process.env.CI
-    ? join(scriptDir, "..")
-    : join(scriptDir, "..", "apps", "rcm-dashboard");
+  const dashboardDir = resolveDashboardRoot(import.meta.url);
   const dashboardPath = join(dashboardDir, "aging-alerts.json");
 
   let totalFlaggedUrgent = 0, totalTaggedOverdue = 0, totalSkippedUrgent = 0, totalSkippedOverdue = 0, totalScanned = 0;
@@ -140,23 +137,17 @@ async function main() {
   }
 
   const jsonPayload = { generated: new Date().toISOString(), offices: dashData };
-  writeFileSync(dashboardPath, JSON.stringify(jsonPayload, null, 2));
+  const payload = JSON.stringify(jsonPayload, null, 2);
   console.log(`✅ aging-alerts.json written`);
 
   if (!DRY_RUN) {
-    try {
-      const freshFile = readFileSync(dashboardPath, "utf8");
-      execSync(`git fetch origin master`, { cwd: dashboardDir, stdio: "pipe" });
-      execSync(`git reset --hard origin/master`, { cwd: dashboardDir, stdio: "pipe" });
-      writeFileSync(dashboardPath, freshFile);
-      execSync(`git add aging-alerts.json`, { cwd: dashboardDir, stdio: "pipe" });
-      execSync(`git commit -m "chore: update aging-alerts ${new Date().toLocaleDateString("en-US")}"`, { cwd: dashboardDir, stdio: "pipe" });
-      execSync(`git push origin master`, { cwd: dashboardDir, stdio: "pipe" });
-      console.log(`✅ Pushed.`);
-    } catch (e: any) {
-      if (e.message?.includes("nothing to commit")) console.log(`ℹ️  No changes`);
-      else console.error(`⚠️  Git push failed: ${e.message}`);
-    }
+    publishFiles({
+      cwd: dashboardDir,
+      message: `chore: update aging-alerts ${new Date().toLocaleDateString("en-US")}`,
+      paths: ["aging-alerts.json"],
+      stage(dir) { writeFileSync(join(dir, "aging-alerts.json"), payload); }
+    });
+    console.log(`✅ Pushed.`);
   }
 }
 
