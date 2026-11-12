@@ -5,5 +5,6 @@
 window.FIREBASE_WEB_CONFIG = {
   apiKey: "",
   authDomain: "smilehaus-rcm.firebaseapp.com",
-  databaseURL: "https://smilehaus-rcm-default-rtdb.firebaseio.com"
+  databaseURL: "https://smilehaus-rcm-default-rtdb.firebaseio.com",
+  editorAuthUrl: ""
 };

@@ -28,7 +28,7 @@ jobs:
         run: node scripts/scan-sensitive-json.mjs
 
       - name: Unit tests
-        run: node --test scripts/board-sync.test.mjs scripts/json-guard.test.mjs scripts/git-publish.test.mjs scripts/sensitive-json.test.mjs
+        run: node --test scripts/board-sync.test.mjs scripts/json-guard.test.mjs scripts/git-publish.test.mjs scripts/sensitive-json.test.mjs workers/editor-auth/policy.test.mjs
 
       - name: Install Chrome
         run: |

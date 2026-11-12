@@ -5,7 +5,7 @@
 
     "board": {
       ".read": "auth != null",
-      ".write": "auth != null && auth.token.email_verified == true && newData.exists() && root.child('editors').child(auth.uid).child('editor').val() === true && newData.hasChildren(['staff', 'offices', '_v', '_savedAt', '_clientBuild']) && newData.child('_v').isNumber() && newData.child('_savedAt').isString() && newData.child('_savedAt').val().length > 0 && newData.child('_clientBuild').isNumber() && newData.child('staff').hasChildren() && newData.child('offices').hasChildren()"
+      ".write": "auth != null && auth.token.editor == true && newData.exists() && newData.hasChildren(['staff', 'offices', '_v', '_savedAt', '_clientBuild']) && newData.child('_v').isNumber() && newData.child('_savedAt').isString() && newData.child('_savedAt').val().length > 0 && newData.child('_clientBuild').isNumber() && newData.child('staff').hasChildren() && newData.child('offices').hasChildren()"
     },
 
     "state": {
@@ -15,16 +15,7 @@
 
     "zelis": {
       ".read": "auth != null",
-      ".write": "auth != null && auth.token.email_verified == true && newData.exists() && root.child('editors').child(auth.uid).child('editor').val() === true"
-    },
-
-    "editors": {
-      ".read": false,
-      ".write": false,
-      "$uid": {
-        ".read": "auth != null && auth.uid === $uid",
-        ".write": false
-      }
+      ".write": "auth != null && auth.token.editor == true && newData.exists()"
     },
 
     "checkins": {
